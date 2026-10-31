@@ -1,0 +1,64 @@
+{
+  "id": "split-pair",
+  "title": {
+    "tr": "Ham İşaretçiyle İkiye Böl",
+    "en": "Split in Two with Raw Pointers"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`slice::from_raw_parts_mut(start.add(middle), length - middle)`",
+      "en": "`slice::from_raw_parts_mut(start.add(middle), length - middle)`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::slice;\n\nfn split_pair<T>(values: &mut [T], middle: usize) -> (&mut [T], &mut [T]) {\n    assert!(middle <= values.len());\n    let length = values.len();\n    let start = values.as_mut_ptr();\n    // SAFETY: the two parts do not overlap and stay inside the slice.\n    unsafe {\n        (\n            slice::from_raw_parts_mut(start, middle),\n            slice::from_raw_parts_mut(start.add(middle), length - middle),\n        )\n    }\n}\n\nfn main() {\n    let mut values = [1, 2, 3, 4];\n    let (left, right) = split_pair(&mut values, 1);\n    left[0] = 10;\n    right[0] = 20;\n    println!(\"{values:?}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::slice;\n\nfn split_pair<T>(values: &mut [T], middle: usize) -> (&mut [T], &mut [T]) {\n    assert!(middle <= values.len());\n    let length = values.len();\n    let start = values.as_mut_ptr();\n    // SAFETY: the two parts do not overlap and stay inside the slice.\n    unsafe {\n        (\n            slice::from_raw_parts_mut(start, middle),\n            slice::from_raw_parts_mut(start.add(middle), length - middle),\n        )\n    }\n}\n\nfn main() {\n    let mut values = [1, 2, 3, 4];\n    let (left, right) = split_pair(&mut values, 1);\n    left[0] = 10;\n    right[0] = 20;\n    println!(\"{values:?}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut v = [1, 2, 3]; let (a, b) = split_pair(&mut v, 1); a[0] = 7; b[1] = 9; assert_eq!(v, [7, 2, 9]);",
+          "label": {
+            "tr": "yazma",
+            "en": "writing"
+          }
+        },
+        {
+          "code": "let mut v = [1, 2]; let (a, b) = split_pair(&mut v, 2); assert_eq!(a.len(), 2); assert!(b.is_empty());",
+          "label": {
+            "tr": "uç",
+            "en": "the edge"
+          }
+        },
+        {
+          "code": "let mut v = [1]; let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { split_pair(&mut v, 2); })); assert!(r.is_err());",
+          "label": {
+            "tr": "sınır denetimi",
+            "en": "the bounds check"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "split_at",
+      "show": "split_at"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "from_raw_parts_mut",
+      "show": "from_raw_parts_mut"
+    }
+  ]
+}

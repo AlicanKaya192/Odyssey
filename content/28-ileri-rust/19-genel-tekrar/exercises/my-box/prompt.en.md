@@ -1,0 +1,1 @@
+Write `MyBox<T>`: `new` allocates with `alloc` and puts the value with `ptr::write`. `Deref` and `DerefMut` reach the value. `Drop` first drops the value, then frees the memory. Panic for a zero-sized type.

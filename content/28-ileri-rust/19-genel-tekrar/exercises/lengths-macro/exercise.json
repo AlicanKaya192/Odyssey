@@ -1,0 +1,38 @@
+{
+  "id": "lengths-macro",
+  "title": {
+    "tr": "Makro ve FFI",
+    "en": "A Macro and FFI"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`vec![ $( c_len($text) ),* ]`",
+      "en": "`vec![ $( c_len($text) ),* ]`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::ffi::{CString, c_char};\n\nunsafe extern \"C\" {\n    fn strlen(text: *const c_char) -> usize;\n}\n\nfn c_len(text: &str) -> usize {\n    let text = CString::new(text).unwrap();\n    // SAFETY: text is a valid, NUL-terminated string for the whole call.\n    unsafe { strlen(text.as_ptr()) }\n}\n\nmacro_rules! lengths {\n    ( $( $text:expr ),* $(,)? ) => {\n        vec![ $( c_len($text) ),* ]\n    };\n}\n\nfn main() {\n    println!(\"{:?}\", lengths!(\"a\", \"bcd\", \"ef\"));\n    println!(\"{:?}\", lengths!(\"x\",));\n    let none: Vec<usize> = lengths!();\n    println!(\"{none:?}\");\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::ffi::{CString, c_char};\n\nunsafe extern \"C\" {\n    fn strlen(text: *const c_char) -> usize;\n}\n\nfn c_len(text: &str) -> usize {\n    let text = CString::new(text).unwrap();\n    // SAFETY: text is a valid, NUL-terminated string for the whole call.\n    unsafe { strlen(text.as_ptr()) }\n}\n\nmacro_rules! lengths {\n    ( $( $text:expr ),* $(,)? ) => {\n        vec![ $( c_len($text) ),* ]\n    };\n}\n\nfn main() {\n    println!(\"{:?}\", lengths!(\"a\", \"bcd\", \"ef\"));\n    println!(\"{:?}\", lengths!(\"x\",));\n    let none: Vec<usize> = lengths!();\n    println!(\"{none:?}\");\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 3, 2]\n[1]\n[]"
+    },
+    {
+      "type": "rust_require",
+      "pattern": "macro_rules!\\s+lengths",
+      "show": "macro_rules! lengths"
+    }
+  ]
+}

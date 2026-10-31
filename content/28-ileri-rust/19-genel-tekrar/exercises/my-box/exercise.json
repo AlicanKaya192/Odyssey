@@ -1,0 +1,74 @@
+{
+  "id": "my-box",
+  "title": {
+    "tr": "Kendi Box'ımız",
+    "en": "Our Own Box"
+  },
+  "difficulty": 3,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`ptr::drop_in_place(self.pointer);`, sonra `dealloc(self.pointer.cast(), Layout::new::<T>());`",
+      "en": "`ptr::drop_in_place(self.pointer);`, then `dealloc(self.pointer.cast(), Layout::new::<T>());`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::alloc::{Layout, alloc, dealloc, handle_alloc_error};\nuse std::ops::{Deref, DerefMut};\nuse std::ptr;\n\npub struct MyBox<T> {\n    pointer: *mut T,\n}\n\nimpl<T> MyBox<T> {\n    pub fn new(value: T) -> Self {\n        let layout = Layout::new::<T>();\n        assert!(layout.size() > 0, \"zero-sized types are not supported\");\n        // SAFETY: the layout has a non-zero size.\n        let pointer = unsafe { alloc(layout) }.cast::<T>();\n        if pointer.is_null() {\n            handle_alloc_error(layout);\n        }\n        // SAFETY: the pointer is valid and aligned for a T.\n        unsafe { ptr::write(pointer, value) };\n        MyBox { pointer }\n    }\n}\n\nimpl<T> Deref for MyBox<T> {\n    type Target = T;\n\n    fn deref(&self) -> &T {\n        // SAFETY: new wrote a value, and drop has not run.\n        unsafe { &*self.pointer }\n    }\n}\n\nimpl<T> DerefMut for MyBox<T> {\n    fn deref_mut(&mut self) -> &mut T {\n        // SAFETY: as above, and &mut self is unique.\n        unsafe { &mut *self.pointer }\n    }\n}\n\nimpl<T> Drop for MyBox<T> {\n    fn drop(&mut self) {\n        // SAFETY: the value is alive, and the pointer came from alloc with this layout.\n        unsafe {\n            ptr::drop_in_place(self.pointer);\n            dealloc(self.pointer.cast(), Layout::new::<T>());\n        }\n    }\n}\n\nfn main() {\n    let mut boxed = MyBox::new(String::from(\"hi\"));\n    boxed.push('!');\n    println!(\"{}\", *boxed);\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::alloc::{Layout, alloc, dealloc, handle_alloc_error};\nuse std::ops::{Deref, DerefMut};\nuse std::ptr;\n\npub struct MyBox<T> {\n    pointer: *mut T,\n}\n\nimpl<T> MyBox<T> {\n    pub fn new(value: T) -> Self {\n        let layout = Layout::new::<T>();\n        assert!(layout.size() > 0, \"zero-sized types are not supported\");\n        // SAFETY: the layout has a non-zero size.\n        let pointer = unsafe { alloc(layout) }.cast::<T>();\n        if pointer.is_null() {\n            handle_alloc_error(layout);\n        }\n        // SAFETY: the pointer is valid and aligned for a T.\n        unsafe { ptr::write(pointer, value) };\n        MyBox { pointer }\n    }\n}\n\nimpl<T> Deref for MyBox<T> {\n    type Target = T;\n\n    fn deref(&self) -> &T {\n        // SAFETY: new wrote a value, and drop has not run.\n        unsafe { &*self.pointer }\n    }\n}\n\nimpl<T> DerefMut for MyBox<T> {\n    fn deref_mut(&mut self) -> &mut T {\n        // SAFETY: as above, and &mut self is unique.\n        unsafe { &mut *self.pointer }\n    }\n}\n\nimpl<T> Drop for MyBox<T> {\n    fn drop(&mut self) {\n        // SAFETY: the value is alive, and the pointer came from alloc with this layout.\n        unsafe {\n            ptr::drop_in_place(self.pointer);\n            dealloc(self.pointer.cast(), Layout::new::<T>());\n        }\n    }\n}\n\nfn main() {\n    let mut boxed = MyBox::new(String::from(\"hi\"));\n    boxed.push('!');\n    println!(\"{}\", *boxed);\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let mut b = MyBox::new(5); *b += 1; assert_eq!(*b, 6);",
+          "label": {
+            "tr": "okuma, yazma",
+            "en": "reading, writing"
+          }
+        },
+        {
+          "code": "let a = std::rc::Rc::new(()); { let _b = MyBox::new(a.clone()); assert_eq!(std::rc::Rc::strong_count(&a), 2); } assert_eq!(std::rc::Rc::strong_count(&a), 1);",
+          "label": {
+            "tr": "değer düşer",
+            "en": "the value drops"
+          }
+        },
+        {
+          "code": "let b = MyBox::new(String::from(\"text\")); assert_eq!(b.len(), 4);",
+          "label": {
+            "tr": "metot",
+            "en": "a method"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "\\balloc\\(",
+      "show": "alloc("
+    },
+    {
+      "type": "rust_require",
+      "pattern": "dealloc\\(",
+      "show": "dealloc("
+    },
+    {
+      "type": "rust_require",
+      "pattern": "drop_in_place",
+      "show": "drop_in_place"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "\\bBox::",
+      "show": "Box::"
+    }
+  ]
+}

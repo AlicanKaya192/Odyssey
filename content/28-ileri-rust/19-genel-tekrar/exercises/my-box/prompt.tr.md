@@ -1,0 +1,1 @@
+`MyBox<T>` yaz: `new` `alloc` ile bellek ayırıp değeri `ptr::write` ile koysun. `Deref` ve `DerefMut` değere ulaştırsın. `Drop` önce değeri düşürsün, sonra belleği bıraksın. Sıfır boyutlu türde panik.

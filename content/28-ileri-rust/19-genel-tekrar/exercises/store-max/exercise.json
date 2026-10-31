@@ -1,0 +1,57 @@
+{
+  "id": "store-max",
+  "title": {
+    "tr": "Atomik En Büyük",
+    "en": "An Atomic Maximum"
+  },
+  "difficulty": 2,
+  "language": "rust",
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.rs",
+  "solution": "solution.rs",
+  "timeout_sec": 45,
+  "hints": [
+    {
+      "tr": "`Err(actual) => current = actual,`",
+      "en": "`Err(actual) => current = actual,`"
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```rust\nuse std::sync::atomic::{AtomicU32, Ordering};\nuse std::thread;\n\nfn store_max(target: &AtomicU32, value: u32) {\n    let mut current = target.load(Ordering::Relaxed);\n    while value > current {\n        match target.compare_exchange_weak(current, value, Ordering::Relaxed, Ordering::Relaxed) {\n            Ok(_) => return,\n            Err(actual) => current = actual,\n        }\n    }\n}\n\nfn main() {\n    let highest = AtomicU32::new(0);\n    thread::scope(|s| {\n        for start in 0..4u32 {\n            let highest = &highest;\n            s.spawn(move || {\n                for value in 0..1000 {\n                    store_max(highest, start * 1000 + value);\n                }\n            });\n        }\n    });\n    println!(\"{}\", highest.load(Ordering::Relaxed));\n}\n```",
+      "en": "The full solution:\n\n```rust\nuse std::sync::atomic::{AtomicU32, Ordering};\nuse std::thread;\n\nfn store_max(target: &AtomicU32, value: u32) {\n    let mut current = target.load(Ordering::Relaxed);\n    while value > current {\n        match target.compare_exchange_weak(current, value, Ordering::Relaxed, Ordering::Relaxed) {\n            Ok(_) => return,\n            Err(actual) => current = actual,\n        }\n    }\n}\n\nfn main() {\n    let highest = AtomicU32::new(0);\n    thread::scope(|s| {\n        for start in 0..4u32 {\n            let highest = &highest;\n            s.spawn(move || {\n                for value in 0..1000 {\n                    store_max(highest, start * 1000 + value);\n                }\n            });\n        }\n    });\n    println!(\"{}\", highest.load(Ordering::Relaxed));\n}\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "rust_test",
+      "tests": [
+        {
+          "code": "let a = AtomicU32::new(5); store_max(&a, 3); assert_eq!(a.load(Ordering::Relaxed), 5); store_max(&a, 9); assert_eq!(a.load(Ordering::Relaxed), 9);",
+          "label": {
+            "tr": "tek kol",
+            "en": "one branch"
+          }
+        },
+        {
+          "code": "let a = AtomicU32::new(0); thread::scope(|s| { for n in 0..8u32 { let a = &a; s.spawn(move || { for v in 0..2000 { store_max(a, n * 10_000 + v); } }); } }); assert_eq!(a.load(Ordering::Relaxed), 71_999);",
+          "label": {
+            "tr": "çok kol",
+            "en": "many branches"
+          }
+        }
+      ]
+    },
+    {
+      "type": "rust_require",
+      "pattern": "compare_exchange_weak",
+      "show": "compare_exchange_weak"
+    },
+    {
+      "type": "rust_forbid",
+      "pattern": "fetch_max",
+      "show": "fetch_max"
+    }
+  ]
+}
