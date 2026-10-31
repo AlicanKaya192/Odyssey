@@ -21,7 +21,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.5.0] — Yayınlanmadı
+## [1.5.0] — 31 Ekim 2026
 
 ### Eklendi
 - **Rust patikası.** Hiç kod bilmeden başlayıp çok ileri düzeye kadar üç

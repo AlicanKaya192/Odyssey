@@ -23,7 +23,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.5.0] — Unreleased
+## [1.5.0] — 31 October 2026
 
 ### Added
 - **Rust path.** Three modules from no code at all to a very advanced level:
