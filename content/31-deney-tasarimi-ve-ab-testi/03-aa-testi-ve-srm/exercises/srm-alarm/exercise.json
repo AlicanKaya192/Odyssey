@@ -1,0 +1,81 @@
+{
+  "id": "srm-alarm",
+  "title": {
+    "tr": "SRM alarmı",
+    "en": "The SRM alarm"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Karşılaştırma `p < threshold`.",
+      "en": "The comparison is `p < threshold`."
+    },
+    {
+      "tr": "`return bool(p < threshold)`.",
+      "en": "`return bool(p < threshold)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom scipy import stats\n\n\ndef srm_alarm(n_a, n_b, share_b=0.5, threshold=0.001):\n    total = n_a + n_b\n    expected = [total * (1 - share_b), total * share_b]\n    p = stats.chisquare([n_a, n_b], f_exp=expected).pvalue\n    return bool(p < threshold)\n\n\nprint(srm_alarm(25000, 24500))\nprint(srm_alarm(25000, 24000))\n```",
+      "en": "The full solution:\n\n```python\nfrom scipy import stats\n\n\ndef srm_alarm(n_a, n_b, share_b=0.5, threshold=0.001):\n    total = n_a + n_b\n    expected = [total * (1 - share_b), total * share_b]\n    p = stats.chisquare([n_a, n_b], f_exp=expected).pvalue\n    return bool(p < threshold)\n\n\nprint(srm_alarm(25000, 24500))\nprint(srm_alarm(25000, 24000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "srm_alarm",
+      "cases": [
+        {
+          "args": [
+            25000,
+            24500
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            25000,
+            24000
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            9030,
+            970,
+            0.1
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            9300,
+            700,
+            0.1
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            25000,
+            24500,
+            0.5,
+            0.05
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\nTrue"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "salt-independence",
+  "title": {
+    "tr": "Farklı tuz, bağımsız atama",
+    "en": "Different salts, independent assignment"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İkinci atama `bucket(u, \"menu-test\")` ile.",
+      "en": "The second assignment uses `bucket(u, \"menu-test\")`."
+    },
+    {
+      "tr": "`np.mean(first == second)`.",
+      "en": "`np.mean(first == second)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport hashlib\n\n\ndef bucket(user_id, salt):\n    digest = hashlib.md5(f\"{salt}:{user_id}\".encode()).hexdigest()\n    return int(digest, 16) % 100\n\n\nimport numpy as np\nfrom ab_data import make_user_log\n\nids = make_user_log(n=5000, seed=724)[\"user_id\"]\nfirst = np.array([bucket(u, \"price-test\") < 50 for u in ids])\nsecond = np.array([bucket(u, \"menu-test\") < 50 for u in ids])\nprint(round(float(np.mean(first == second)), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport hashlib\n\n\ndef bucket(user_id, salt):\n    digest = hashlib.md5(f\"{salt}:{user_id}\".encode()).hexdigest()\n    return int(digest, 16) % 100\n\n\nimport numpy as np\nfrom ab_data import make_user_log\n\nids = make_user_log(n=5000, seed=724)[\"user_id\"]\nfirst = np.array([bucket(u, \"price-test\") < 50 for u in ids])\nsecond = np.array([bucket(u, \"menu-test\") < 50 for u in ids])\nprint(round(float(np.mean(first == second)), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.496"
+    }
+  ]
+}

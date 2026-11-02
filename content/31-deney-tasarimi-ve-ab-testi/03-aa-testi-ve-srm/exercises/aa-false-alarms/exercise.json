@@ -1,0 +1,46 @@
+{
+  "id": "aa-false-alarms",
+  "title": {
+    "tr": "A/A yanlış alarm oranı",
+    "en": "The A/A false alarm rate"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Eşik 0,05.",
+      "en": "The threshold is 0.05."
+    },
+    {
+      "tr": "`(p_values < 0.05).mean()`.",
+      "en": "`(p_values < 0.05).mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_user_log\n\nusers = make_user_log(n=4000, seed=741)\nrng = np.random.default_rng(742)\nbought = users[\"bought\"]\np_values = []\nfor _ in range(400):\n    in_b = rng.random(len(users)) < 0.5\n    test = stats.ttest_ind(bought[in_b], bought[~in_b], equal_var=False)\n    p_values.append(test.pvalue)\np_values = np.array(p_values)\nprint(round(float((p_values < 0.05).mean()), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_user_log\n\nusers = make_user_log(n=4000, seed=741)\nrng = np.random.default_rng(742)\nbought = users[\"bought\"]\np_values = []\nfor _ in range(400):\n    in_b = rng.random(len(users)) < 0.5\n    test = stats.ttest_ind(bought[in_b], bought[~in_b], equal_var=False)\n    p_values.append(test.pvalue)\np_values = np.array(p_values)\nprint(round(float((p_values < 0.05).mean()), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.052"
+    }
+  ]
+}

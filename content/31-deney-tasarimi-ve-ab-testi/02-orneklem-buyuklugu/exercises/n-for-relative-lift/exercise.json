@@ -1,0 +1,74 @@
+{
+  "id": "n-for-relative-lift",
+  "title": {
+    "tr": "Göreli artış için kaç kişi?",
+    "en": "How many people for a relative rise?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Etki büyüklüğü `d = lift * mean / sd`.",
+      "en": "The effect size is `d = lift * mean / sd`."
+    },
+    {
+      "tr": "Sonra `solve_power(effect_size=d, ...)` ve `math.ceil`.",
+      "en": "Then `solve_power(effect_size=d, ...)` and `math.ceil`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\nfrom statsmodels.stats.power import TTestIndPower\n\n\ndef n_for_lift(mean, sd, lift):\n    d = lift * mean / sd\n    n = TTestIndPower().solve_power(effect_size=d, power=0.8, alpha=0.05)\n    return math.ceil(n)\n\n\nprint(n_for_lift(0.117, 0.32, 0.05))\nprint(n_for_lift(21.1, 23.3, 0.02))\n```",
+      "en": "The full solution:\n\n```python\nimport math\nfrom statsmodels.stats.power import TTestIndPower\n\n\ndef n_for_lift(mean, sd, lift):\n    d = lift * mean / sd\n    n = TTestIndPower().solve_power(effect_size=d, power=0.8, alpha=0.05)\n    return math.ceil(n)\n\n\nprint(n_for_lift(0.117, 0.32, 0.05))\nprint(n_for_lift(21.1, 23.3, 0.02))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "n_for_lift",
+      "cases": [
+        {
+          "args": [
+            0.117,
+            0.32,
+            0.05
+          ],
+          "returns": 46972
+        },
+        {
+          "args": [
+            21.1,
+            23.3,
+            0.02
+          ],
+          "returns": 47856
+        },
+        {
+          "args": [
+            11.4,
+            49.3,
+            0.05
+          ],
+          "returns": 117432
+        },
+        {
+          "args": [
+            3.75,
+            3.06,
+            0.1
+          ],
+          "returns": 1047
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "46972\n47856"
+    }
+  ]
+}

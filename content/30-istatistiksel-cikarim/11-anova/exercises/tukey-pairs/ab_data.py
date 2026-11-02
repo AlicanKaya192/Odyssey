@@ -133,3 +133,47 @@ def make_layout_test(n=150, seed=67):
         parts.append(pd.DataFrame({"layout": name,
                                    "minutes": np.round(rng.normal(mu, 3.0, n), 2)}))
     return pd.concat(parts, ignore_index=True)
+
+
+def make_user_log(n=20_000, seed=71):
+    """Two weeks of a shop's users before any experiment, one row per user.
+
+    Columns: user_id ("U00001", ...), platform ("mobile" or "desktop"),
+    sessions (visits), minutes (total time), bought (0/1), revenue (0 if
+    nothing was bought), refunded (0/1, only buyers can refund).
+    Heavy users visit more, stay longer and buy more often.
+    """
+    rng = np.random.default_rng(seed)
+    activity = rng.lognormal(0.0, 0.8, n)
+    platform = np.where(rng.random(n) < 0.6, "mobile", "desktop")
+    sessions = 1 + rng.poisson(2.0 * activity)
+    minutes = np.round(sessions * rng.lognormal(1.6, 0.5, n), 1)
+    p_buy = np.clip(0.04 + 0.025 * sessions, 0, 0.6)
+    p_buy = np.where(platform == "mobile", p_buy * 0.8, p_buy)
+    bought = (rng.random(n) < p_buy).astype(int)
+    revenue = np.where(bought == 1, np.round(rng.lognormal(4.2, 0.9, n), 2), 0.0)
+    refunded = bought * (rng.random(n) < 0.08).astype(int)
+    ids = [f"U{i:05d}" for i in range(1, n + 1)]
+    return pd.DataFrame({"user_id": ids, "platform": platform, "sessions": sessions,
+                         "minutes": minutes, "bought": bought, "revenue": revenue,
+                         "refunded": refunded})
+
+
+def make_assignment_log(n=50_000, seed=72, lost_b=0.0):
+    """The logged users of a 50/50 experiment with no real effect.
+
+    Columns: user_id, group ("A" or "B"), platform, bought (0/1).
+    Users are split fairly, but with lost_b > 0 that share of B's mobile
+    users who did not buy never reaches the log (a tracking bug).
+    """
+    rng = np.random.default_rng(seed)
+    group = np.where(rng.random(n) < 0.5, "A", "B")
+    platform = np.where(rng.random(n) < 0.6, "mobile", "desktop")
+    p_buy = np.where(platform == "mobile", 0.10, 0.13)
+    bought = (rng.random(n) < p_buy).astype(int)
+    lost = ((group == "B") & (platform == "mobile") & (bought == 0)
+            & (rng.random(n) < lost_b))
+    ids = np.array([f"V{i:05d}" for i in range(1, n + 1)])
+    keep = ~lost
+    return pd.DataFrame({"user_id": ids[keep], "group": group[keep],
+                         "platform": platform[keep], "bought": bought[keep]})

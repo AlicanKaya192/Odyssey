@@ -1,0 +1,46 @@
+{
+  "id": "mde-by-metric",
+  "title": {
+    "tr": "Metriğe göre MDE",
+    "en": "MDE by metric"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`mean, sd = users[col].mean(), users[col].std()`.",
+      "en": "`mean, sd = users[col].mean(), users[col].std()`."
+    },
+    {
+      "tr": "`print(col, f\"{d_min * sd / mean:.1%}\")`.",
+      "en": "`print(col, f\"{d_min * sd / mean:.1%}\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.power import TTestIndPower\nfrom ab_data import make_user_log\n\nusers = make_user_log(n=8000, seed=731)\nd_min = TTestIndPower().solve_power(nobs1=10000, power=0.8, alpha=0.05)\nfor col in [\"bought\", \"minutes\", \"revenue\"]:\n    mean, sd = users[col].mean(), users[col].std()\n    print(col, f\"{d_min * sd / mean:.1%}\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.power import TTestIndPower\nfrom ab_data import make_user_log\n\nusers = make_user_log(n=8000, seed=731)\nd_min = TTestIndPower().solve_power(nobs1=10000, power=0.8, alpha=0.05)\nfor col in [\"bought\", \"minutes\", \"revenue\"]:\n    mean, sd = users[col].mean(), users[col].std()\n    print(col, f\"{d_min * sd / mean:.1%}\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "bought 10.6%\nminutes 4.4%\nrevenue 16.7%"
+    }
+  ]
+}

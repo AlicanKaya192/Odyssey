@@ -1,0 +1,80 @@
+{
+  "id": "srm-p-value",
+  "title": {
+    "tr": "SRM testi",
+    "en": "The SRM test"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`expected = [total * (1 - share_b), total * share_b]`.",
+      "en": "`expected = [total * (1 - share_b), total * share_b]`."
+    },
+    {
+      "tr": "`stats.chisquare([n_a, n_b], f_exp=expected).pvalue`.",
+      "en": "`stats.chisquare([n_a, n_b], f_exp=expected).pvalue`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom scipy import stats\n\n\ndef srm_p(n_a, n_b, share_b=0.5):\n    total = n_a + n_b\n    expected = [total * (1 - share_b), total * share_b]\n    return round(float(stats.chisquare([n_a, n_b], f_exp=expected).pvalue), 4)\n\n\nprint(srm_p(25000, 24500))\nprint(srm_p(9030, 970, share_b=0.1))\n```",
+      "en": "The full solution:\n\n```python\nfrom scipy import stats\n\n\ndef srm_p(n_a, n_b, share_b=0.5):\n    total = n_a + n_b\n    expected = [total * (1 - share_b), total * share_b]\n    return round(float(stats.chisquare([n_a, n_b], f_exp=expected).pvalue), 4)\n\n\nprint(srm_p(25000, 24500))\nprint(srm_p(9030, 970, share_b=0.1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "srm_p",
+      "cases": [
+        {
+          "args": [
+            25000,
+            24500
+          ],
+          "returns": 0.0246
+        },
+        {
+          "args": [
+            9030,
+            970,
+            0.1
+          ],
+          "returns": 0.3173
+        },
+        {
+          "args": [
+            9000,
+            1000,
+            0.1
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            800,
+            200,
+            0.2
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            500,
+            520
+          ],
+          "returns": 0.5312
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.0246\n0.3173"
+    }
+  ]
+}

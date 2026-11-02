@@ -1,0 +1,87 @@
+{
+  "id": "assign-group",
+  "title": {
+    "tr": "Gruba ata",
+    "en": "Assign to a group"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Karşılaştırma `< share_b` olmalı.",
+      "en": "The comparison should be `< share_b`."
+    },
+    {
+      "tr": "`return \"B\" if bucket(user_id, salt) < share_b else \"A\"`.",
+      "en": "`return \"B\" if bucket(user_id, salt) < share_b else \"A\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef bucket(user_id, salt):\n    digest = hashlib.md5(f\"{salt}:{user_id}\".encode()).hexdigest()\n    return int(digest, 16) % 100\n\n\ndef assign(user_id, salt, share_b=50):\n    return \"B\" if bucket(user_id, salt) < share_b else \"A\"\n\n\nprint(assign(\"U00001\", \"checkout-v2\"))\nprint(assign(\"U00007\", \"checkout-v2\", share_b=10))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef bucket(user_id, salt):\n    digest = hashlib.md5(f\"{salt}:{user_id}\".encode()).hexdigest()\n    return int(digest, 16) % 100\n\n\ndef assign(user_id, salt, share_b=50):\n    return \"B\" if bucket(user_id, salt) < share_b else \"A\"\n\n\nprint(assign(\"U00001\", \"checkout-v2\"))\nprint(assign(\"U00007\", \"checkout-v2\", share_b=10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "assign",
+      "cases": [
+        {
+          "args": [
+            "U00001",
+            "checkout-v2"
+          ],
+          "returns": "B"
+        },
+        {
+          "args": [
+            "U00007",
+            "checkout-v2",
+            10
+          ],
+          "returns": "A"
+        },
+        {
+          "args": [
+            "U00002",
+            "checkout-v2"
+          ],
+          "returns": "A"
+        },
+        {
+          "args": [
+            "U00003",
+            "checkout-v2",
+            90
+          ],
+          "returns": "B"
+        },
+        {
+          "args": [
+            "U00010",
+            "search-v3"
+          ],
+          "returns": "A"
+        },
+        {
+          "args": [
+            "U00011",
+            "search-v3",
+            20
+          ],
+          "returns": "A"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "B\nA"
+    }
+  ]
+}

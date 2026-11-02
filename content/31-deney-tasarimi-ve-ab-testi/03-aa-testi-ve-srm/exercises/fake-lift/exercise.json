@@ -1,0 +1,46 @@
+{
+  "id": "fake-lift",
+  "title": {
+    "tr": "Sahte kazanç",
+    "en": "A fake win"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`stats.chisquare(counts).pvalue`.",
+      "en": "`stats.chisquare(counts).pvalue`."
+    },
+    {
+      "tr": "`rates = log.groupby(\"group\")[\"bought\"].mean()`.",
+      "en": "`rates = log.groupby(\"group\")[\"bought\"].mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_assignment_log\n\nlog = make_assignment_log(n=50000, seed=744, lost_b=0.1)\ncounts = log[\"group\"].value_counts().sort_index()\nprint(f\"{stats.chisquare(counts).pvalue:.1e}\")\nrates = log.groupby(\"group\")[\"bought\"].mean()\nprint(round(rates[\"B\"] - rates[\"A\"], 4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_assignment_log\n\nlog = make_assignment_log(n=50000, seed=744, lost_b=0.1)\ncounts = log[\"group\"].value_counts().sort_index()\nprint(f\"{stats.chisquare(counts).pvalue:.1e}\")\nrates = log.groupby(\"group\")[\"bought\"].mean()\nprint(round(rates[\"B\"] - rates[\"A\"], 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3.2e-07\n0.0065"
+    }
+  ]
+}

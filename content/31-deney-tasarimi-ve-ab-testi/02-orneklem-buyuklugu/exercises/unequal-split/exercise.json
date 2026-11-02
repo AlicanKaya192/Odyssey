@@ -1,0 +1,86 @@
+{
+  "id": "unequal-split",
+  "title": {
+    "tr": "Eşit olmayan bölme",
+    "en": "An unequal split"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`ratio = share_b / (1 - share_b)` ve `solve_power(..., ratio=ratio)`.",
+      "en": "`ratio = share_b / (1 - share_b)` and `solve_power(..., ratio=ratio)`."
+    },
+    {
+      "tr": "`n_b = math.ceil(n_a * ratio)`.",
+      "en": "`n_b = math.ceil(n_a * ratio)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\nfrom statsmodels.stats.power import TTestIndPower\n\n\ndef split_sizes(d, share_b):\n    ratio = share_b / (1 - share_b)\n    n_a = TTestIndPower().solve_power(effect_size=d, power=0.8, alpha=0.05,\n                                      ratio=ratio)\n    n_a = math.ceil(n_a)\n    n_b = math.ceil(n_a * ratio)\n    return [n_a, n_b, n_a + n_b]\n\n\nprint(split_sizes(0.05, 0.5))\nprint(split_sizes(0.05, 0.2))\n```",
+      "en": "The full solution:\n\n```python\nimport math\nfrom statsmodels.stats.power import TTestIndPower\n\n\ndef split_sizes(d, share_b):\n    ratio = share_b / (1 - share_b)\n    n_a = TTestIndPower().solve_power(effect_size=d, power=0.8, alpha=0.05,\n                                      ratio=ratio)\n    n_a = math.ceil(n_a)\n    n_b = math.ceil(n_a * ratio)\n    return [n_a, n_b, n_a + n_b]\n\n\nprint(split_sizes(0.05, 0.5))\nprint(split_sizes(0.05, 0.2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split_sizes",
+      "cases": [
+        {
+          "args": [
+            0.05,
+            0.5
+          ],
+          "returns": [
+            6281,
+            6281,
+            12562
+          ]
+        },
+        {
+          "args": [
+            0.05,
+            0.2
+          ],
+          "returns": [
+            15700,
+            3925,
+            19625
+          ]
+        },
+        {
+          "args": [
+            0.1,
+            0.1
+          ],
+          "returns": [
+            7851,
+            873,
+            8724
+          ]
+        },
+        {
+          "args": [
+            0.2,
+            0.3
+          ],
+          "returns": [
+            656,
+            282,
+            938
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[6281, 6281, 12562]\n[15700, 3925, 19625]"
+    }
+  ]
+}

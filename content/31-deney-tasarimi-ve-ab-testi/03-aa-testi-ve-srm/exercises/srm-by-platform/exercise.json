@@ -1,0 +1,46 @@
+{
+  "id": "srm-by-platform",
+  "title": {
+    "tr": "Kesim kesim SRM",
+    "en": "SRM by segment"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for platform, part in log.groupby(\"platform\"):`.",
+      "en": "`for platform, part in log.groupby(\"platform\"):`."
+    },
+    {
+      "tr": "İçinde `part[\"group\"].value_counts().sort_index()` ve `stats.chisquare`.",
+      "en": "Inside, `part[\"group\"].value_counts().sort_index()` and `stats.chisquare`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_assignment_log\n\nlog = make_assignment_log(n=40000, seed=743, lost_b=0.08)\nfor platform, part in log.groupby(\"platform\"):\n    c = part[\"group\"].value_counts().sort_index()\n    print(platform, f\"{stats.chisquare(c).pvalue:.1e}\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_assignment_log\n\nlog = make_assignment_log(n=40000, seed=743, lost_b=0.08)\nfor platform, part in log.groupby(\"platform\"):\n    c = part[\"group\"].value_counts().sort_index()\n    print(platform, f\"{stats.chisquare(c).pvalue:.1e}\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "desktop 3.0e-02\nmobile 1.1e-08"
+    }
+  ]
+}

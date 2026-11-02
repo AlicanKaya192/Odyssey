@@ -1,0 +1,46 @@
+{
+  "id": "selection-bias",
+  "title": {
+    "tr": "Seçim yanlılığını göster",
+    "en": "Show the selection bias"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Açanlar: `users[\"sessions\"][opted].mean()`.",
+      "en": "Opted in: `users[\"sessions\"][opted].mean()`."
+    },
+    {
+      "tr": "Açmayanlar: `users[\"sessions\"][~opted].mean()`.",
+      "en": "Not opted in: `users[\"sessions\"][~opted].mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_user_log\n\nusers = make_user_log(n=10000, seed=722)\nrng = np.random.default_rng(723)\nopted = rng.random(len(users)) < np.clip(0.05 * users[\"sessions\"], 0, 0.9)\nprint(round(users[\"bought\"][opted].mean(), 4))\nprint(round(users[\"bought\"][~opted].mean(), 4))\nprint(round(users[\"sessions\"][opted].mean(), 2))\nprint(round(users[\"sessions\"][~opted].mean(), 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_user_log\n\nusers = make_user_log(n=10000, seed=722)\nrng = np.random.default_rng(723)\nopted = rng.random(len(users)) < np.clip(0.05 * users[\"sessions\"], 0, 0.9)\nprint(round(users[\"bought\"][opted].mean(), 4))\nprint(round(users[\"bought\"][~opted].mean(), 4))\nprint(round(users[\"sessions\"][opted].mean(), 2))\nprint(round(users[\"sessions\"][~opted].mean(), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.1885\n0.1022\n6.16\n3.21"
+    }
+  ]
+}
