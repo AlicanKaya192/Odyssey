@@ -2534,20 +2534,35 @@ class Shell:
             return 1
         opts, names = parsed
         selected = [k for k in "lwmc" if opts.get(k)] or ["l", "w", "c"]
-        inputs, failed = self._inputs("wc", names, io)
+        if names:
+            # GNU wc klasörde hata yazar ama yine de sıfırlı bir satır basar (Git Bash'te ölçüldü).
+            inputs, failed = [], False
+            for name in names:
+                if name != "-" and self._isdir(self.abspath(name)):
+                    io.err.err(f"wc: {name}: Is a directory")
+                    inputs.append((name, None))
+                    failed = True
+                    continue
+                part, bad = self._inputs("wc", [name], io)
+                inputs.extend(part or [])
+                failed = failed or bad
+        else:
+            inputs, failed = self._inputs("wc", names, io)
         if inputs is None:
             return 1
         rows = []
         for name, text in inputs:
-            counts = {"l": text.count("\n"), "w": len(text.split()), "c": len(text.encode("utf-8")),
-                      "m": len(text)}
+            text_ = text or ""
+            counts = {"l": text_.count("\n"), "w": len(text_.split()), "c": len(text_.encode("utf-8")),
+                      "m": len(text_)}
             rows.append(([counts[k] for k in selected], "" if name == "-" else name))
-        if len(selected) == 1 and len(inputs) + (1 if failed else 0) == 1:
+        missing = len(names) - len(inputs) if names else 0
+        if len(selected) == 1 and len(inputs) + missing == 1:
             width = 1
         else:
-            regular = sum(len(t.encode("utf-8")) for nm, t in inputs if nm != "-")
+            regular = sum(len(t.encode("utf-8")) for nm, t in inputs if nm != "-" and t is not None)
             width = max(1, len(str(regular)))
-            if any(nm == "-" for nm, _ in inputs):
+            if any(nm == "-" or t is None for nm, t in inputs):
                 width = max(width, 7)
         if len(rows) > 1:
             rows.append(([sum(r[0][k] for r in rows) for k in range(len(selected))], "total"))
