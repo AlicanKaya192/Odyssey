@@ -1,0 +1,206 @@
+{
+  "id": "secure-logins",
+  "title": {
+    "tr": "Kilitli giriş",
+    "en": "Logins with a lockout"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu bilinmeyen kullanıcıda `KeyError` veriyor ve hiç kilitlemiyor.",
+      "en": "The starter code raises `KeyError` on an unknown user and never locks."
+    },
+    {
+      "tr": "İki yapı tut: `fails = {}` (kullanıcı → üst üste hata) ve `locked = set()`. Kontrol sırası: yok mu, kilitli mi, özet tutuyor mu.",
+      "en": "Keep two structures: `fails = {}` (user → failures in a row) and `locked = set()`. Order of checks: missing, locked, hash matches."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\nITER = 1000\n\n\ndef hash_password(password, salt_hex):\n    salt = bytes.fromhex(salt_hex)\n    return hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, ITER).hex()\n\n\ndef run_logins(users, attempts, max_fail):\n    results = []\n    fails = {}\n    locked = set()\n    for user, password in attempts:\n        record = users.get(user)\n        if record is None:\n            results.append(\"unknown user\")\n            continue\n        given = hash_password(password, record[\"salt\"])\n        if user in locked:\n            results.append(\"locked\")\n        elif hmac.compare_digest(given, record[\"hash\"]):\n            fails[user] = 0\n            results.append(\"ok\")\n        else:\n            fails[user] = fails.get(user, 0) + 1\n            if fails[user] >= max_fail:\n                locked.add(user)\n            results.append(\"bad password\")\n    return results\n\nusers = {\n    \"ada\": {\"salt\": \"a1b2c3d4\", \"hash\": hash_password(\"blue-river-42\", \"a1b2c3d4\")},\n    \"bora\": {\"salt\": \"0f0e0d0c\", \"hash\": hash_password(\"green-hill-7\", \"0f0e0d0c\")},\n}\nattempts = [\n    [\"ada\", \"nope\"],\n    [\"ada\", \"blue-river-42\"],\n    [\"bora\", \"x\"],\n    [\"bora\", \"y\"],\n    [\"bora\", \"z\"],\n    [\"bora\", \"green-hill-7\"],\n    [\"zeynep\", \"a\"],\n]\nfor (user, _), result in zip(attempts, run_logins(users, attempts, 3)):\n    print(user, result)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\nITER = 1000\n\n\ndef hash_password(password, salt_hex):\n    salt = bytes.fromhex(salt_hex)\n    return hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, ITER).hex()\n\n\ndef run_logins(users, attempts, max_fail):\n    results = []\n    fails = {}\n    locked = set()\n    for user, password in attempts:\n        record = users.get(user)\n        if record is None:\n            results.append(\"unknown user\")\n            continue\n        given = hash_password(password, record[\"salt\"])\n        if user in locked:\n            results.append(\"locked\")\n        elif hmac.compare_digest(given, record[\"hash\"]):\n            fails[user] = 0\n            results.append(\"ok\")\n        else:\n            fails[user] = fails.get(user, 0) + 1\n            if fails[user] >= max_fail:\n                locked.add(user)\n            results.append(\"bad password\")\n    return results\n\nusers = {\n    \"ada\": {\"salt\": \"a1b2c3d4\", \"hash\": hash_password(\"blue-river-42\", \"a1b2c3d4\")},\n    \"bora\": {\"salt\": \"0f0e0d0c\", \"hash\": hash_password(\"green-hill-7\", \"0f0e0d0c\")},\n}\nattempts = [\n    [\"ada\", \"nope\"],\n    [\"ada\", \"blue-river-42\"],\n    [\"bora\", \"x\"],\n    [\"bora\", \"y\"],\n    [\"bora\", \"z\"],\n    [\"bora\", \"green-hill-7\"],\n    [\"zeynep\", \"a\"],\n]\nfor (user, _), result in zip(attempts, run_logins(users, attempts, 3)):\n    print(user, result)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "run_logins",
+      "cases": [
+        {
+          "args": [
+            {
+              "ada": {
+                "salt": "a1b2c3d4",
+                "hash": "81fc1b3e5b8c74455eb3874b49aa6dbe1ee6231ae96d9c7c58a336756dcfaf16"
+              },
+              "bora": {
+                "salt": "0f0e0d0c",
+                "hash": "31b2dabc41724be63d0b9c33d3ab96a23bb7df8dd0cc97091a6e755cf136eac0"
+              }
+            },
+            [
+              [
+                "ada",
+                "nope"
+              ],
+              [
+                "ada",
+                "blue-river-42"
+              ],
+              [
+                "bora",
+                "x"
+              ],
+              [
+                "bora",
+                "y"
+              ],
+              [
+                "bora",
+                "z"
+              ],
+              [
+                "bora",
+                "green-hill-7"
+              ],
+              [
+                "zeynep",
+                "a"
+              ]
+            ],
+            3
+          ],
+          "returns": [
+            "bad password",
+            "ok",
+            "bad password",
+            "bad password",
+            "bad password",
+            "locked",
+            "unknown user"
+          ]
+        },
+        {
+          "args": [
+            {
+              "ada": {
+                "salt": "a1b2c3d4",
+                "hash": "81fc1b3e5b8c74455eb3874b49aa6dbe1ee6231ae96d9c7c58a336756dcfaf16"
+              },
+              "bora": {
+                "salt": "0f0e0d0c",
+                "hash": "31b2dabc41724be63d0b9c33d3ab96a23bb7df8dd0cc97091a6e755cf136eac0"
+              }
+            },
+            [
+              [
+                "ada",
+                "nope"
+              ],
+              [
+                "ada",
+                "blue-river-42"
+              ],
+              [
+                "bora",
+                "x"
+              ],
+              [
+                "bora",
+                "y"
+              ],
+              [
+                "bora",
+                "z"
+              ],
+              [
+                "bora",
+                "green-hill-7"
+              ],
+              [
+                "zeynep",
+                "a"
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            "bad password",
+            "locked",
+            "bad password",
+            "locked",
+            "locked",
+            "locked",
+            "unknown user"
+          ]
+        },
+        {
+          "args": [
+            {
+              "ada": {
+                "salt": "a1b2c3d4",
+                "hash": "81fc1b3e5b8c74455eb3874b49aa6dbe1ee6231ae96d9c7c58a336756dcfaf16"
+              },
+              "bora": {
+                "salt": "0f0e0d0c",
+                "hash": "31b2dabc41724be63d0b9c33d3ab96a23bb7df8dd0cc97091a6e755cf136eac0"
+              }
+            },
+            [],
+            3
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "ada": {
+                "salt": "a1b2c3d4",
+                "hash": "81fc1b3e5b8c74455eb3874b49aa6dbe1ee6231ae96d9c7c58a336756dcfaf16"
+              },
+              "bora": {
+                "salt": "0f0e0d0c",
+                "hash": "31b2dabc41724be63d0b9c33d3ab96a23bb7df8dd0cc97091a6e755cf136eac0"
+              }
+            },
+            [
+              [
+                "bora",
+                "x"
+              ],
+              [
+                "bora",
+                "green-hill-7"
+              ],
+              [
+                "bora",
+                "y"
+              ],
+              [
+                "bora",
+                "z"
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            "bad password",
+            "ok",
+            "bad password",
+            "bad password"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada bad password\nada ok\nbora bad password\nbora bad password\nbora bad password\nbora locked\nzeynep unknown user"
+    }
+  ]
+}

@@ -1,0 +1,242 @@
+{
+  "id": "can-access",
+  "title": {
+    "tr": "Rol, sahiplik, ret",
+    "en": "Role, ownership, refusal"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu sahibine her şeyi (silmeyi de) veriyor ve bilinmeyen kullanıcıda `KeyError` veriyor.",
+      "en": "The starter code gives the owner everything (deleting too) and raises `KeyError` on an unknown user."
+    },
+    {
+      "tr": "`user_roles.get(user, [])` ve `role_perms.get(role, [])`; sahiplik kuralı yalnızca `read` ve `edit` için.",
+      "en": "`user_roles.get(user, [])` and `role_perms.get(role, [])`; the ownership rule only for `read` and `edit`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef can_access(user, action, doc, user_roles, role_perms):\n    for role in user_roles.get(user, []):\n        if action in role_perms.get(role, []):\n            return True\n    return doc[\"owner\"] == user and action in (\"read\", \"edit\")\n\nuser_roles = {\"ada\": [\"editor\"], \"bora\": [\"viewer\"], \"ceren\": []}\nrole_perms = {\n    \"viewer\": [\"read\"],\n    \"editor\": [\"read\", \"edit\"],\n    \"admin\": [\"read\", \"edit\", \"delete\"],\n}\ndoc = {\"id\": \"d1\", \"owner\": \"ceren\"}\nchecks = [\n    [\"ada\", \"edit\"],\n    [\"bora\", \"edit\"],\n    [\"ceren\", \"edit\"],\n    [\"ceren\", \"delete\"],\n    [\"zeynep\", \"read\"],\n]\nfor user, action in checks:\n    print(user, action, can_access(user, action, doc, user_roles, role_perms))\n```",
+      "en": "The full solution:\n\n```python\ndef can_access(user, action, doc, user_roles, role_perms):\n    for role in user_roles.get(user, []):\n        if action in role_perms.get(role, []):\n            return True\n    return doc[\"owner\"] == user and action in (\"read\", \"edit\")\n\nuser_roles = {\"ada\": [\"editor\"], \"bora\": [\"viewer\"], \"ceren\": []}\nrole_perms = {\n    \"viewer\": [\"read\"],\n    \"editor\": [\"read\", \"edit\"],\n    \"admin\": [\"read\", \"edit\", \"delete\"],\n}\ndoc = {\"id\": \"d1\", \"owner\": \"ceren\"}\nchecks = [\n    [\"ada\", \"edit\"],\n    [\"bora\", \"edit\"],\n    [\"ceren\", \"edit\"],\n    [\"ceren\", \"delete\"],\n    [\"zeynep\", \"read\"],\n]\nfor user, action in checks:\n    print(user, action, can_access(user, action, doc, user_roles, role_perms))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "can_access",
+      "cases": [
+        {
+          "args": [
+            "ada",
+            "edit",
+            {
+              "id": "d1",
+              "owner": "ceren"
+            },
+            {
+              "ada": [
+                "editor"
+              ],
+              "bora": [
+                "viewer"
+              ],
+              "ceren": []
+            },
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "read",
+                "edit"
+              ],
+              "admin": [
+                "read",
+                "edit",
+                "delete"
+              ]
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "bora",
+            "edit",
+            {
+              "id": "d1",
+              "owner": "ceren"
+            },
+            {
+              "ada": [
+                "editor"
+              ],
+              "bora": [
+                "viewer"
+              ],
+              "ceren": []
+            },
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "read",
+                "edit"
+              ],
+              "admin": [
+                "read",
+                "edit",
+                "delete"
+              ]
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "ceren",
+            "edit",
+            {
+              "id": "d1",
+              "owner": "ceren"
+            },
+            {
+              "ada": [
+                "editor"
+              ],
+              "bora": [
+                "viewer"
+              ],
+              "ceren": []
+            },
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "read",
+                "edit"
+              ],
+              "admin": [
+                "read",
+                "edit",
+                "delete"
+              ]
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "ceren",
+            "delete",
+            {
+              "id": "d1",
+              "owner": "ceren"
+            },
+            {
+              "ada": [
+                "editor"
+              ],
+              "bora": [
+                "viewer"
+              ],
+              "ceren": []
+            },
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "read",
+                "edit"
+              ],
+              "admin": [
+                "read",
+                "edit",
+                "delete"
+              ]
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "zeynep",
+            "read",
+            {
+              "id": "d1",
+              "owner": "ceren"
+            },
+            {
+              "ada": [
+                "editor"
+              ],
+              "bora": [
+                "viewer"
+              ],
+              "ceren": []
+            },
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "read",
+                "edit"
+              ],
+              "admin": [
+                "read",
+                "edit",
+                "delete"
+              ]
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "ada",
+            "read",
+            {
+              "id": "d1",
+              "owner": "ceren"
+            },
+            {
+              "ada": [
+                "ghost"
+              ]
+            },
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "read",
+                "edit"
+              ],
+              "admin": [
+                "read",
+                "edit",
+                "delete"
+              ]
+            }
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada edit True\nbora edit False\nceren edit True\nceren delete False\nzeynep read False"
+    }
+  ]
+}

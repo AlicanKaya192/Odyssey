@@ -1,0 +1,167 @@
+{
+  "id": "access-report",
+  "title": {
+    "tr": "En az yetki raporu",
+    "en": "A least privilege report"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `used`'da olmayan `bora`'da `KeyError` veriyor ve çatışmalara hiç bakmıyor.",
+      "en": "The starter code raises `KeyError` on `bora`, who is missing from `used`, and never looks at conflicts."
+    },
+    {
+      "tr": "`set(grants[user]) - set(used.get(user, []))` kullanılmayanları verir; çatışma için `a in perms and b in perms`.",
+      "en": "`set(grants[user]) - set(used.get(user, []))` gives the unused ones; for a conflict, `a in perms and b in perms`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef access_report(grants, used, conflicts):\n    lines = []\n    for user in sorted(grants):\n        perms = set(grants[user])\n        recent = set(used.get(user, []))\n        for perm in sorted(perms - recent):\n            lines.append(f\"{user}: unused {perm}\")\n        for a, b in conflicts:\n            if a in perms and b in perms:\n                lines.append(f\"{user}: conflict {a}+{b}\")\n    return lines\n\ngrants = {\n    \"ada\": [\"pay-create\", \"pay-approve\", \"read-reports\"],\n    \"bora\": [\"read-reports\"],\n    \"ceren\": [\"user-create\", \"read-logs\"],\n}\nused = {\"ada\": [\"pay-create\", \"pay-approve\"], \"ceren\": [\"user-create\"]}\nconflicts = [\n    [\"pay-create\", \"pay-approve\"],\n    [\"user-create\", \"user-approve\"],\n]\nfor line in access_report(grants, used, conflicts):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef access_report(grants, used, conflicts):\n    lines = []\n    for user in sorted(grants):\n        perms = set(grants[user])\n        recent = set(used.get(user, []))\n        for perm in sorted(perms - recent):\n            lines.append(f\"{user}: unused {perm}\")\n        for a, b in conflicts:\n            if a in perms and b in perms:\n                lines.append(f\"{user}: conflict {a}+{b}\")\n    return lines\n\ngrants = {\n    \"ada\": [\"pay-create\", \"pay-approve\", \"read-reports\"],\n    \"bora\": [\"read-reports\"],\n    \"ceren\": [\"user-create\", \"read-logs\"],\n}\nused = {\"ada\": [\"pay-create\", \"pay-approve\"], \"ceren\": [\"user-create\"]}\nconflicts = [\n    [\"pay-create\", \"pay-approve\"],\n    [\"user-create\", \"user-approve\"],\n]\nfor line in access_report(grants, used, conflicts):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "access_report",
+      "cases": [
+        {
+          "args": [
+            {
+              "ada": [
+                "pay-create",
+                "pay-approve",
+                "read-reports"
+              ],
+              "bora": [
+                "read-reports"
+              ],
+              "ceren": [
+                "user-create",
+                "read-logs"
+              ]
+            },
+            {
+              "ada": [
+                "pay-create",
+                "pay-approve"
+              ],
+              "ceren": [
+                "user-create"
+              ]
+            },
+            [
+              [
+                "pay-create",
+                "pay-approve"
+              ],
+              [
+                "user-create",
+                "user-approve"
+              ]
+            ]
+          ],
+          "returns": [
+            "ada: unused read-reports",
+            "ada: conflict pay-create+pay-approve",
+            "bora: unused read-reports",
+            "ceren: unused read-logs"
+          ]
+        },
+        {
+          "args": [
+            {},
+            {
+              "ada": [
+                "pay-create",
+                "pay-approve"
+              ],
+              "ceren": [
+                "user-create"
+              ]
+            },
+            [
+              [
+                "pay-create",
+                "pay-approve"
+              ],
+              [
+                "user-create",
+                "user-approve"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "ada": [
+                "pay-create",
+                "pay-approve",
+                "read-reports"
+              ],
+              "bora": [
+                "read-reports"
+              ],
+              "ceren": [
+                "user-create",
+                "read-logs"
+              ]
+            },
+            {},
+            []
+          ],
+          "returns": [
+            "ada: unused pay-approve",
+            "ada: unused pay-create",
+            "ada: unused read-reports",
+            "bora: unused read-reports",
+            "ceren: unused read-logs",
+            "ceren: unused user-create"
+          ]
+        },
+        {
+          "args": [
+            {
+              "zed": [
+                "user-create",
+                "user-approve"
+              ]
+            },
+            {
+              "zed": [
+                "user-create",
+                "user-approve"
+              ]
+            },
+            [
+              [
+                "pay-create",
+                "pay-approve"
+              ],
+              [
+                "user-create",
+                "user-approve"
+              ]
+            ]
+          ],
+          "returns": [
+            "zed: conflict user-create+user-approve"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada: unused read-reports\nada: conflict pay-create+pay-approve\nbora: unused read-reports\nceren: unused read-logs"
+    }
+  ]
+}

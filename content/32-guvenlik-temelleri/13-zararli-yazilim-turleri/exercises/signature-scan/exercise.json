@@ -1,0 +1,82 @@
+{
+  "id": "signature-scan",
+  "title": {
+    "tr": "İmza taraması",
+    "en": "A signature scan"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`set(known)`; sonra her içerik için `hashlib.sha256(content.encode()).hexdigest()`.",
+      "en": "`set(known)`; then for every content `hashlib.sha256(content.encode()).hexdigest()`."
+    },
+    {
+      "tr": "Bir liste kavrayışı ve `sorted` yeter. Tek bayt farklı `other.bin` yakalanmaz: imzanın zayıflığı bu.",
+      "en": "A list comprehension and `sorted` are enough. `other.bin`, one byte different, is not caught: that is the signature's weakness."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef signature_scan(files, known):\n    bad = set(known)\n    hits = [name for name, content in files.items()\n            if hashlib.sha256(content.encode()).hexdigest() in bad]\n    return sorted(hits)\n\nknown = [hashlib.sha256(\"TOY-SAMPLE-A\".encode()).hexdigest()]\nfiles = {\n    \"notes.txt\": \"meeting at ten\",\n    \"toy.bin\": \"TOY-SAMPLE-A\",\n    \"copy.bin\": \"TOY-SAMPLE-A\",\n    \"other.bin\": \"TOY-SAMPLE-A!\",\n}\nfor name in signature_scan(files, known):\n    print(name)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef signature_scan(files, known):\n    bad = set(known)\n    hits = [name for name, content in files.items()\n            if hashlib.sha256(content.encode()).hexdigest() in bad]\n    return sorted(hits)\n\nknown = [hashlib.sha256(\"TOY-SAMPLE-A\".encode()).hexdigest()]\nfiles = {\n    \"notes.txt\": \"meeting at ten\",\n    \"toy.bin\": \"TOY-SAMPLE-A\",\n    \"copy.bin\": \"TOY-SAMPLE-A\",\n    \"other.bin\": \"TOY-SAMPLE-A!\",\n}\nfor name in signature_scan(files, known):\n    print(name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "signature_scan",
+      "cases": [
+        {
+          "args": [
+            {
+              "notes.txt": "meeting at ten",
+              "toy.bin": "TOY-SAMPLE-A",
+              "copy.bin": "TOY-SAMPLE-A",
+              "other.bin": "TOY-SAMPLE-A!"
+            },
+            [
+              "e9b0700ee88eaffe9535944165cee5977cec5b48894c7d58e78e49c1e7d827ee",
+              "1c4d811d2252e57c31aed016e24bdfc3b9c2cb91d3ff4c8b152da1aca39840ae"
+            ]
+          ],
+          "returns": [
+            "copy.bin",
+            "toy.bin"
+          ]
+        },
+        {
+          "args": [
+            {
+              "notes.txt": "meeting at ten",
+              "toy.bin": "TOY-SAMPLE-A",
+              "copy.bin": "TOY-SAMPLE-A",
+              "other.bin": "TOY-SAMPLE-A!"
+            },
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            [
+              "e9b0700ee88eaffe9535944165cee5977cec5b48894c7d58e78e49c1e7d827ee",
+              "1c4d811d2252e57c31aed016e24bdfc3b9c2cb91d3ff4c8b152da1aca39840ae"
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "copy.bin\ntoy.bin"
+    }
+  ]
+}

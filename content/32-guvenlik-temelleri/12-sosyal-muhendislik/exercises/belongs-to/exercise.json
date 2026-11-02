@@ -1,0 +1,84 @@
+{
+  "id": "belongs-to",
+  "title": {
+    "tr": "Bu alan adının mı?",
+    "en": "Does it belong to this domain?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce sunucuyu bul: `urlsplit(url).hostname`.",
+      "en": "First find the server: `urlsplit(url).hostname`."
+    },
+    {
+      "tr": "`host == domain or host.endswith(\".\" + domain)`; noktasız `endswith` `notschool.example`'ı da kabul eder.",
+      "en": "`host == domain or host.endswith(\".\" + domain)`; `endswith` without the dot also accepts `notschool.example`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef belongs_to(url, domain):\n    host = urlsplit(url).hostname or \"\"\n    domain = domain.lower()\n    return host == domain or host.endswith(\".\" + domain)\n\nfor url in [\"https://login.school.example/a\", \"https://school.example.evil.test/a\",\n            \"https://notschool.example/a\", \"https://school.example/\"]:\n    print(belongs_to(url, \"school.example\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef belongs_to(url, domain):\n    host = urlsplit(url).hostname or \"\"\n    domain = domain.lower()\n    return host == domain or host.endswith(\".\" + domain)\n\nfor url in [\"https://login.school.example/a\", \"https://school.example.evil.test/a\",\n            \"https://notschool.example/a\", \"https://school.example/\"]:\n    print(belongs_to(url, \"school.example\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "belongs_to",
+      "cases": [
+        {
+          "args": [
+            "https://login.school.example/a",
+            "school.example"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "https://school.example.evil.test/a",
+            "school.example"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://notschool.example/a",
+            "school.example"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://school.example/",
+            "SCHOOL.example"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "https://school.example@evil.test/",
+            "school.example"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://evil.test/school.example",
+            "school.example"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse\nTrue"
+    }
+  ]
+}

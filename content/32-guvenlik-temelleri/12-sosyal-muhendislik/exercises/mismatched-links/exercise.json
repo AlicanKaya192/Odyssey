@@ -1,0 +1,97 @@
+{
+  "id": "mismatched-links",
+  "title": {
+    "tr": "Görünen ve giden",
+    "en": "Shown versus followed"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Metin için ayrı küçük bir yardımcı fonksiyon yaz: önekleri at, `split(\"/\")[0]`, `lower()`.",
+      "en": "Write a small helper for the text: drop the prefixes, `split(\"/\")[0]`, `lower()`."
+    },
+    {
+      "tr": "Döngüde `if \".\" not in text: continue`, sonra iki sunucuyu karşılaştır.",
+      "en": "In the loop, `if \".\" not in text: continue`, then compare the two servers."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef text_host(text):\n    text = text.strip().lower()\n    for prefix in (\"https://\", \"http://\"):\n        if text.startswith(prefix):\n            text = text[len(prefix):]\n    return text.split(\"/\")[0]\n\n\ndef mismatched_links(links):\n    result = []\n    for text, href in links:\n        if \".\" not in text:\n            continue\n        if text_host(text) != (urlsplit(href).hostname or \"\"):\n            result.append(href)\n    return result\n\nlinks = [\n    [\"login.school.example\", \"https://login.school.example/a\"],\n    [\"https://bank.example/pay\", \"https://bank-example.test/pay\"],\n    [\"Click here\", \"https://evil.test/x\"],\n    [\"SCHOOL.EXAMPLE\", \"https://school.example/\"],\n]\nfor href in mismatched_links(links):\n    print(href)\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef text_host(text):\n    text = text.strip().lower()\n    for prefix in (\"https://\", \"http://\"):\n        if text.startswith(prefix):\n            text = text[len(prefix):]\n    return text.split(\"/\")[0]\n\n\ndef mismatched_links(links):\n    result = []\n    for text, href in links:\n        if \".\" not in text:\n            continue\n        if text_host(text) != (urlsplit(href).hostname or \"\"):\n            result.append(href)\n    return result\n\nlinks = [\n    [\"login.school.example\", \"https://login.school.example/a\"],\n    [\"https://bank.example/pay\", \"https://bank-example.test/pay\"],\n    [\"Click here\", \"https://evil.test/x\"],\n    [\"SCHOOL.EXAMPLE\", \"https://school.example/\"],\n]\nfor href in mismatched_links(links):\n    print(href)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mismatched_links",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "login.school.example",
+                "https://login.school.example/a"
+              ],
+              [
+                "https://bank.example/pay",
+                "https://bank-example.test/pay"
+              ],
+              [
+                "Click here",
+                "https://evil.test/x"
+              ],
+              [
+                "SCHOOL.EXAMPLE",
+                "https://school.example/"
+              ]
+            ]
+          ],
+          "returns": [
+            "https://bank-example.test/pay"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "a.example",
+                "https://b.example/"
+              ]
+            ]
+          ],
+          "returns": [
+            "https://b.example/"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "HTTPS://A.Example/x",
+                "https://a.example/y"
+              ]
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "https://bank-example.test/pay"
+    }
+  ]
+}

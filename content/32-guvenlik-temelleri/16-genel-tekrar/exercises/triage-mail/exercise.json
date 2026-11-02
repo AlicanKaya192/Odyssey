@@ -1,0 +1,165 @@
+{
+  "id": "triage-mail",
+  "title": {
+    "tr": "Oltalama ayıklama",
+    "en": "Phishing triage"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `domain not in` ile bakıyor: `school-example.test` yakalanır ama `school.example.evil.test` gibi bir bağlantı hiç denetlenmiyor; olmayan `urgent` de `KeyError` veriyor.",
+      "en": "The starter code checks with `domain not in`: links such as `school.example.evil.test` are never checked, and a missing `urgent` raises `KeyError`."
+    },
+    {
+      "tr": "Gönderenin alan adı `mail[\"from\"].rsplit(\"@\", 1)[-1].lower()`; isteğe bağlı alanlar için `mail.get(...)`; sonda `sorted(found, key=lambda m: (-m[1], m[0]))`.",
+      "en": "The sender's domain is `mail[\"from\"].rsplit(\"@\", 1)[-1].lower()`; `mail.get(...)` for the optional fields; at the end `sorted(found, key=lambda m: (-m[1], m[0]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef belongs(host, domain):\n    return host is not None and (host == domain or host.endswith(\".\" + domain))\n\n\ndef triage_mail(mails, domain, threshold):\n    found = []\n    for mail in mails:\n        score = 0\n        sender = mail[\"from\"].rsplit(\"@\", 1)[-1].lower()\n        if not belongs(sender, domain):\n            score += 3\n        hosts = [urlsplit(url).hostname for url in mail.get(\"links\", [])]\n        if any(not belongs(host, domain) for host in hosts):\n            score += 2\n        if mail.get(\"urgent\"):\n            score += 2\n        if mail.get(\"asks_password\"):\n            score += 3\n        if score >= threshold:\n            found.append([mail[\"id\"], score])\n    return sorted(found, key=lambda m: (-m[1], m[0]))\n\nmails = [\n    {\"id\": \"m1\", \"from\": \"it@school.example\",\n     \"links\": [\"https://login.school.example/\"]},\n    {\"id\": \"m2\", \"from\": \"help@school-example.test\",\n     \"links\": [\"https://school-example.test/reset\"],\n     \"urgent\": True, \"asks_password\": True},\n    {\"id\": \"m3\", \"from\": \"boss@school.example\", \"urgent\": True},\n    {\"id\": \"m4\", \"from\": \"news@school.example\",\n     \"links\": [\"https://school.example.evil.test/x\"],\n     \"asks_password\": True},\n]\nfor mail_id, score in triage_mail(mails, \"school.example\", 4):\n    print(mail_id, score)\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef belongs(host, domain):\n    return host is not None and (host == domain or host.endswith(\".\" + domain))\n\n\ndef triage_mail(mails, domain, threshold):\n    found = []\n    for mail in mails:\n        score = 0\n        sender = mail[\"from\"].rsplit(\"@\", 1)[-1].lower()\n        if not belongs(sender, domain):\n            score += 3\n        hosts = [urlsplit(url).hostname for url in mail.get(\"links\", [])]\n        if any(not belongs(host, domain) for host in hosts):\n            score += 2\n        if mail.get(\"urgent\"):\n            score += 2\n        if mail.get(\"asks_password\"):\n            score += 3\n        if score >= threshold:\n            found.append([mail[\"id\"], score])\n    return sorted(found, key=lambda m: (-m[1], m[0]))\n\nmails = [\n    {\"id\": \"m1\", \"from\": \"it@school.example\",\n     \"links\": [\"https://login.school.example/\"]},\n    {\"id\": \"m2\", \"from\": \"help@school-example.test\",\n     \"links\": [\"https://school-example.test/reset\"],\n     \"urgent\": True, \"asks_password\": True},\n    {\"id\": \"m3\", \"from\": \"boss@school.example\", \"urgent\": True},\n    {\"id\": \"m4\", \"from\": \"news@school.example\",\n     \"links\": [\"https://school.example.evil.test/x\"],\n     \"asks_password\": True},\n]\nfor mail_id, score in triage_mail(mails, \"school.example\", 4):\n    print(mail_id, score)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "triage_mail",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "id": "m1",
+                "from": "it@school.example",
+                "links": [
+                  "https://login.school.example/"
+                ]
+              },
+              {
+                "id": "m2",
+                "from": "help@school-example.test",
+                "links": [
+                  "https://school-example.test/reset"
+                ],
+                "urgent": true,
+                "asks_password": true
+              },
+              {
+                "id": "m3",
+                "from": "boss@school.example",
+                "urgent": true
+              },
+              {
+                "id": "m4",
+                "from": "news@school.example",
+                "links": [
+                  "https://school.example.evil.test/x"
+                ],
+                "asks_password": true
+              }
+            ],
+            "school.example",
+            4
+          ],
+          "returns": [
+            [
+              "m2",
+              10
+            ],
+            [
+              "m4",
+              5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "m1",
+                "from": "it@school.example",
+                "links": [
+                  "https://login.school.example/"
+                ]
+              },
+              {
+                "id": "m2",
+                "from": "help@school-example.test",
+                "links": [
+                  "https://school-example.test/reset"
+                ],
+                "urgent": true,
+                "asks_password": true
+              },
+              {
+                "id": "m3",
+                "from": "boss@school.example",
+                "urgent": true
+              },
+              {
+                "id": "m4",
+                "from": "news@school.example",
+                "links": [
+                  "https://school.example.evil.test/x"
+                ],
+                "asks_password": true
+              }
+            ],
+            "school.example",
+            0
+          ],
+          "returns": [
+            [
+              "m2",
+              10
+            ],
+            [
+              "m4",
+              5
+            ],
+            [
+              "m3",
+              2
+            ],
+            [
+              "m1",
+              0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [],
+            "school.example",
+            1
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "x",
+                "from": "a@SCHOOL.EXAMPLE"
+              }
+            ],
+            "school.example",
+            1
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "m2 10\nm4 5"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "id": "ioc-matches",
+  "title": {
+    "tr": "Göstergeleri ara",
+    "en": "Search for indicators"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu aynı göstergeyi her geçtiği satır için yeniden ekliyor.",
+      "en": "The starter code adds the same indicator again for every line it appears in."
+    },
+    {
+      "tr": "Küme kavrayışı: `{ioc for ioc in iocs if any(ioc in line for line in lines)}`, sonra `sorted`.",
+      "en": "A set comprehension: `{ioc for ioc in iocs if any(ioc in line for line in lines)}`, then `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef ioc_matches(lines, iocs):\n    found = {ioc for ioc in iocs if any(ioc in line for line in lines)}\n    return sorted(found)\n\nlines = [\n    \"10:01 pc1 dns update.example\",\n    \"10:02 pc2 dns cdn.toy-bad.test\",\n    \"10:03 pc3 file 9f86d081884c\",\n    \"10:04 pc2 dns cdn.toy-bad.test\",\n]\niocs = [\"cdn.toy-bad.test\", \"9f86d081884c\", \"never-seen.test\"]\nfor found in ioc_matches(lines, iocs):\n    print(found)\n```",
+      "en": "The full solution:\n\n```python\ndef ioc_matches(lines, iocs):\n    found = {ioc for ioc in iocs if any(ioc in line for line in lines)}\n    return sorted(found)\n\nlines = [\n    \"10:01 pc1 dns update.example\",\n    \"10:02 pc2 dns cdn.toy-bad.test\",\n    \"10:03 pc3 file 9f86d081884c\",\n    \"10:04 pc2 dns cdn.toy-bad.test\",\n]\niocs = [\"cdn.toy-bad.test\", \"9f86d081884c\", \"never-seen.test\"]\nfor found in ioc_matches(lines, iocs):\n    print(found)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ioc_matches",
+      "cases": [
+        {
+          "args": [
+            [
+              "10:01 pc1 dns update.example",
+              "10:02 pc2 dns cdn.toy-bad.test",
+              "10:03 pc3 file 9f86d081884c",
+              "10:04 pc2 dns cdn.toy-bad.test"
+            ],
+            [
+              "cdn.toy-bad.test",
+              "9f86d081884c",
+              "never-seen.test"
+            ]
+          ],
+          "returns": [
+            "9f86d081884c",
+            "cdn.toy-bad.test"
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              "x"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "10:01 pc1 dns update.example",
+              "10:02 pc2 dns cdn.toy-bad.test",
+              "10:03 pc3 file 9f86d081884c",
+              "10:04 pc2 dns cdn.toy-bad.test"
+            ],
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "10:01 pc1 dns update.example",
+              "10:02 pc2 dns cdn.toy-bad.test",
+              "10:03 pc3 file 9f86d081884c",
+              "10:04 pc2 dns cdn.toy-bad.test"
+            ],
+            [
+              "pc2",
+              "dns"
+            ]
+          ],
+          "returns": [
+            "dns",
+            "pc2"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "9f86d081884c\ncdn.toy-bad.test"
+    }
+  ]
+}

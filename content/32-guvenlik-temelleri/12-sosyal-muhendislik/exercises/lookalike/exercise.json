@@ -1,0 +1,91 @@
+{
+  "id": "lookalike",
+  "title": {
+    "tr": "Benzer görünen alan adı",
+    "en": "Lookalike domain"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki sorun: `normalize` hiçbir karakteri değiştirmiyor ve aynı alan adı da `True` çıkıyor.",
+      "en": "Two problems: `normalize` changes no characters and the same domain comes out `True` too."
+    },
+    {
+      "tr": "Değiştirmeleri bir listeyle sırayla uygula; `lookalike` önce adların küçük harfle aynı olup olmadığına bakıp `False` döndürsün.",
+      "en": "Apply the replacements in order from a list; `lookalike` first checks whether the names are the same in lower case and returns `False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef normalize(name):\n    name = name.lower()\n    for old, new in [(\"rn\", \"m\"), (\"vv\", \"w\"), (\"0\", \"o\"), (\"1\", \"l\")]:\n        name = name.replace(old, new)\n    return name\n\n\ndef lookalike(domain, trusted):\n    if domain.lower() == trusted.lower():\n        return False\n    return normalize(domain) == normalize(trusted)\n\nfor name in [\"examp1e.com\", \"example.com\", \"exarnple.com\", \"vvebsite.test\", \"other.com\"]:\n    print(name, lookalike(name, \"example.com\"), lookalike(name, \"website.test\"))\n```",
+      "en": "The full solution:\n\n```python\ndef normalize(name):\n    name = name.lower()\n    for old, new in [(\"rn\", \"m\"), (\"vv\", \"w\"), (\"0\", \"o\"), (\"1\", \"l\")]:\n        name = name.replace(old, new)\n    return name\n\n\ndef lookalike(domain, trusted):\n    if domain.lower() == trusted.lower():\n        return False\n    return normalize(domain) == normalize(trusted)\n\nfor name in [\"examp1e.com\", \"example.com\", \"exarnple.com\", \"vvebsite.test\", \"other.com\"]:\n    print(name, lookalike(name, \"example.com\"), lookalike(name, \"website.test\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lookalike",
+      "cases": [
+        {
+          "args": [
+            "examp1e.com",
+            "example.com"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "example.com",
+            "example.com"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "exarnple.com",
+            "example.com"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "vvebsite.test",
+            "website.test"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "other.com",
+            "example.com"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "EXAMPLE.COM",
+            "example.com"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "g00gle.test",
+            "google.test"
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "examp1e.com True False\nexample.com False False\nexarnple.com True False\nvvebsite.test False True\nother.com False False"
+    }
+  ]
+}

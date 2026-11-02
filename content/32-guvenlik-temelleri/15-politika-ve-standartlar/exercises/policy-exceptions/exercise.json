@@ -1,0 +1,138 @@
+{
+  "id": "policy-exceptions",
+  "title": {
+    "tr": "İstisnaları denetle",
+    "en": "Check the exceptions"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu yalnızca süreye bakıyor ve `expires` olmayan istisnada `KeyError` veriyor.",
+      "en": "The starter code only looks at the date and raises `KeyError` on an exception without `expires`."
+    },
+    {
+      "tr": "Olmayan alan için `e.get(...)`; boş metin de `not` ile yakalanır. İstisnaları `sorted(exceptions, key=lambda x: x[\"id\"])` ile gez.",
+      "en": "`e.get(...)` for a missing field; `not` catches an empty string too. Walk the exceptions with `sorted(exceptions, key=lambda x: x[\"id\"])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef policy_exceptions(exceptions, today):\n    problems = []\n    for e in sorted(exceptions, key=lambda x: x[\"id\"]):\n        found = []\n        if not e.get(\"owner\"):\n            found.append(\"no owner\")\n        expires = e.get(\"expires\")\n        if not expires:\n            found.append(\"no end date\")\n        elif expires < today:\n            found.append(\"expired\")\n        if not e.get(\"compensating\"):\n            found.append(\"no compensating control\")\n        problems += [e[\"id\"] + \": \" + p for p in found]\n    return problems\n\nexceptions = [\n    {\"id\": \"EX-3\", \"owner\": \"ceren\", \"expires\": \"2026-04-30\",\n     \"compensating\": \"separate network\"},\n    {\"id\": \"EX-1\", \"owner\": \"\", \"expires\": \"2026-09-01\", \"compensating\": \"\"},\n    {\"id\": \"EX-2\", \"owner\": \"bora\", \"expires\": \"2026-05-01\",\n     \"compensating\": \"access logged\"},\n    {\"id\": \"EX-4\", \"owner\": \"ada\", \"compensating\": \"manual review\"},\n]\nfor problem in policy_exceptions(exceptions, \"2026-05-01\"):\n    print(problem)\n```",
+      "en": "The full solution:\n\n```python\ndef policy_exceptions(exceptions, today):\n    problems = []\n    for e in sorted(exceptions, key=lambda x: x[\"id\"]):\n        found = []\n        if not e.get(\"owner\"):\n            found.append(\"no owner\")\n        expires = e.get(\"expires\")\n        if not expires:\n            found.append(\"no end date\")\n        elif expires < today:\n            found.append(\"expired\")\n        if not e.get(\"compensating\"):\n            found.append(\"no compensating control\")\n        problems += [e[\"id\"] + \": \" + p for p in found]\n    return problems\n\nexceptions = [\n    {\"id\": \"EX-3\", \"owner\": \"ceren\", \"expires\": \"2026-04-30\",\n     \"compensating\": \"separate network\"},\n    {\"id\": \"EX-1\", \"owner\": \"\", \"expires\": \"2026-09-01\", \"compensating\": \"\"},\n    {\"id\": \"EX-2\", \"owner\": \"bora\", \"expires\": \"2026-05-01\",\n     \"compensating\": \"access logged\"},\n    {\"id\": \"EX-4\", \"owner\": \"ada\", \"compensating\": \"manual review\"},\n]\nfor problem in policy_exceptions(exceptions, \"2026-05-01\"):\n    print(problem)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "policy_exceptions",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "id": "EX-3",
+                "owner": "ceren",
+                "expires": "2026-04-30",
+                "compensating": "separate network"
+              },
+              {
+                "id": "EX-1",
+                "owner": "",
+                "expires": "2026-09-01",
+                "compensating": ""
+              },
+              {
+                "id": "EX-2",
+                "owner": "bora",
+                "expires": "2026-05-01",
+                "compensating": "access logged"
+              },
+              {
+                "id": "EX-4",
+                "owner": "ada",
+                "compensating": "manual review"
+              }
+            ],
+            "2026-05-01"
+          ],
+          "returns": [
+            "EX-1: no owner",
+            "EX-1: no compensating control",
+            "EX-3: expired",
+            "EX-4: no end date"
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "EX-3",
+                "owner": "ceren",
+                "expires": "2026-04-30",
+                "compensating": "separate network"
+              },
+              {
+                "id": "EX-1",
+                "owner": "",
+                "expires": "2026-09-01",
+                "compensating": ""
+              },
+              {
+                "id": "EX-2",
+                "owner": "bora",
+                "expires": "2026-05-01",
+                "compensating": "access logged"
+              },
+              {
+                "id": "EX-4",
+                "owner": "ada",
+                "compensating": "manual review"
+              }
+            ],
+            "2026-10-01"
+          ],
+          "returns": [
+            "EX-1: no owner",
+            "EX-1: expired",
+            "EX-1: no compensating control",
+            "EX-2: expired",
+            "EX-3: expired",
+            "EX-4: no end date"
+          ]
+        },
+        {
+          "args": [
+            [],
+            "2026-05-01"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "EX-9"
+              }
+            ],
+            "2026-05-01"
+          ],
+          "returns": [
+            "EX-9: no owner",
+            "EX-9: no end date",
+            "EX-9: no compensating control"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "EX-1: no owner\nEX-1: no compensating control\nEX-3: expired\nEX-4: no end date"
+    }
+  ]
+}

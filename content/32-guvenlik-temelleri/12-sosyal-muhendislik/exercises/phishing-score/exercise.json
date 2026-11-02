@@ -1,0 +1,97 @@
+{
+  "id": "phishing-score",
+  "title": {
+    "tr": "Uyarı puanı",
+    "en": "Warning score"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodunda iki hata var: `False` olan işareti de sayıyor ve eşik `>` ile karşılaştırılıyor.",
+      "en": "The starter code has two bugs: it also counts signs that are `False`, and the threshold is compared with `>`."
+    },
+    {
+      "tr": "`sum(points for sign, points in weights.items() if mail.get(sign, False))` ve `>=`.",
+      "en": "`sum(points for sign, points in weights.items() if mail.get(sign, False))` and `>=`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef phishing_score(mail, weights, threshold):\n    score = sum(points for sign, points in weights.items() if mail.get(sign, False))\n    return (score, \"report\" if score >= threshold else \"ok\")\n\nweights = {\"urgent\": 2, \"asks_password\": 3, \"link_mismatch\": 3, \"attachment\": 1}\nmail = {\"urgent\": True, \"asks_password\": False, \"link_mismatch\": True}\nprint(phishing_score(mail, weights, 4))\nprint(phishing_score({}, weights, 4))\n```",
+      "en": "The full solution:\n\n```python\ndef phishing_score(mail, weights, threshold):\n    score = sum(points for sign, points in weights.items() if mail.get(sign, False))\n    return (score, \"report\" if score >= threshold else \"ok\")\n\nweights = {\"urgent\": 2, \"asks_password\": 3, \"link_mismatch\": 3, \"attachment\": 1}\nmail = {\"urgent\": True, \"asks_password\": False, \"link_mismatch\": True}\nprint(phishing_score(mail, weights, 4))\nprint(phishing_score({}, weights, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "phishing_score",
+      "cases": [
+        {
+          "args": [
+            {
+              "urgent": true,
+              "asks_password": false,
+              "link_mismatch": true
+            },
+            {
+              "urgent": 2,
+              "asks_password": 3,
+              "link_mismatch": 3
+            },
+            4
+          ],
+          "returns": {
+            "__tuple__": [
+              5,
+              "report"
+            ]
+          }
+        },
+        {
+          "args": [
+            {},
+            {
+              "urgent": 2
+            },
+            4
+          ],
+          "returns": {
+            "__tuple__": [
+              0,
+              "ok"
+            ]
+          }
+        },
+        {
+          "args": [
+            {
+              "urgent": true,
+              "attachment": true
+            },
+            {
+              "urgent": 2,
+              "attachment": 2
+            },
+            4
+          ],
+          "returns": {
+            "__tuple__": [
+              4,
+              "report"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(5, 'report')\n(0, 'ok')"
+    }
+  ]
+}

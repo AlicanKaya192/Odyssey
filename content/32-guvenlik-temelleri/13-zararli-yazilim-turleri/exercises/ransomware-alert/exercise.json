@@ -1,0 +1,130 @@
+{
+  "id": "ransomware-alert",
+  "title": {
+    "tr": "Davranış alarmı",
+    "en": "A behaviour alarm"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `sync.exe`'de sıfıra bölüyor ve `min_writes`'ı hiç kullanmıyor.",
+      "en": "The starter code divides by zero on `sync.exe` and never uses `min_writes`."
+    },
+    {
+      "tr": "Önce `if written == 0 or written < min_writes: continue`, sonra oran; sonda `sorted`.",
+      "en": "First `if written == 0 or written < min_writes: continue`, then the ratio; `sorted` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef ransomware_alert(stats, min_writes, min_ratio):\n    flagged = []\n    for name, s in stats.items():\n        written = s[\"files_written\"]\n        if written == 0 or written < min_writes:\n            continue\n        if s[\"extensions_changed\"] / written > min_ratio:\n            flagged.append(name)\n    return sorted(flagged)\n\nstats = {\n    \"backup.exe\": {\"files_written\": 4000, \"extensions_changed\": 0},\n    \"unknown.exe\": {\"files_written\": 3800, \"extensions_changed\": 3700},\n    \"renamer.exe\": {\"files_written\": 300, \"extensions_changed\": 300},\n    \"sync.exe\": {\"files_written\": 0, \"extensions_changed\": 0},\n}\nprint(ransomware_alert(stats, 1000, 0.5))\nprint(ransomware_alert(stats, 100, 0.5))\n```",
+      "en": "The full solution:\n\n```python\ndef ransomware_alert(stats, min_writes, min_ratio):\n    flagged = []\n    for name, s in stats.items():\n        written = s[\"files_written\"]\n        if written == 0 or written < min_writes:\n            continue\n        if s[\"extensions_changed\"] / written > min_ratio:\n            flagged.append(name)\n    return sorted(flagged)\n\nstats = {\n    \"backup.exe\": {\"files_written\": 4000, \"extensions_changed\": 0},\n    \"unknown.exe\": {\"files_written\": 3800, \"extensions_changed\": 3700},\n    \"renamer.exe\": {\"files_written\": 300, \"extensions_changed\": 300},\n    \"sync.exe\": {\"files_written\": 0, \"extensions_changed\": 0},\n}\nprint(ransomware_alert(stats, 1000, 0.5))\nprint(ransomware_alert(stats, 100, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ransomware_alert",
+      "cases": [
+        {
+          "args": [
+            {
+              "backup.exe": {
+                "files_written": 4000,
+                "extensions_changed": 0
+              },
+              "unknown.exe": {
+                "files_written": 3800,
+                "extensions_changed": 3700
+              },
+              "renamer.exe": {
+                "files_written": 300,
+                "extensions_changed": 300
+              },
+              "sync.exe": {
+                "files_written": 0,
+                "extensions_changed": 0
+              }
+            },
+            1000,
+            0.5
+          ],
+          "returns": [
+            "unknown.exe"
+          ]
+        },
+        {
+          "args": [
+            {
+              "backup.exe": {
+                "files_written": 4000,
+                "extensions_changed": 0
+              },
+              "unknown.exe": {
+                "files_written": 3800,
+                "extensions_changed": 3700
+              },
+              "renamer.exe": {
+                "files_written": 300,
+                "extensions_changed": 300
+              },
+              "sync.exe": {
+                "files_written": 0,
+                "extensions_changed": 0
+              }
+            },
+            100,
+            0.5
+          ],
+          "returns": [
+            "renamer.exe",
+            "unknown.exe"
+          ]
+        },
+        {
+          "args": [
+            {
+              "backup.exe": {
+                "files_written": 4000,
+                "extensions_changed": 0
+              },
+              "unknown.exe": {
+                "files_written": 3800,
+                "extensions_changed": 3700
+              },
+              "renamer.exe": {
+                "files_written": 300,
+                "extensions_changed": 300
+              },
+              "sync.exe": {
+                "files_written": 0,
+                "extensions_changed": 0
+              }
+            },
+            0,
+            2.0
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            1,
+            0.1
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['unknown.exe']\n['renamer.exe', 'unknown.exe']"
+    }
+  ]
+}

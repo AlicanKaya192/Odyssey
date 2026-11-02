@@ -1,0 +1,91 @@
+{
+  "id": "verify-token",
+  "title": {
+    "tr": "Jetonu doğrula",
+    "en": "Verify the token"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu imzaya hiç bakmıyor: `admin` yapılmış jetonu da kabul ediyor.",
+      "en": "The starter code never looks at the signature: it accepts the token turned into `admin` too."
+    },
+    {
+      "tr": "`parts = token.split(\".\")`; `len(parts) != 2` ise `\"malformed\"`. Beklenen imzayı `make_token`'daki gibi hesapla.",
+      "en": "`parts = token.split(\".\")`; `\"malformed\"` if `len(parts) != 2`. Compute the expected signature as in `make_token`."
+    },
+    {
+      "tr": "Çözme `try` içinde; `binascii.Error` ve `json.JSONDecodeError` ikisi de `ValueError`'dır.",
+      "en": "Decoding goes inside `try`; `binascii.Error` and `json.JSONDecodeError` are both `ValueError`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport base64\nimport hashlib\nimport hmac\nimport json\n\n\ndef make_token(claims, key):\n    body = base64.urlsafe_b64encode(json.dumps(claims).encode()).decode()\n    return body + \".\" + hmac.new(key.encode(), body.encode(), hashlib.sha256).hexdigest()\n\n\ndef verify_token(token, key):\n    parts = token.split(\".\")\n    if len(parts) != 2:\n        return \"malformed\"\n    body, signature = parts\n    expected = hmac.new(key.encode(), body.encode(), hashlib.sha256).hexdigest()\n    if not hmac.compare_digest(signature, expected):\n        return \"bad-signature\"\n    try:\n        return json.loads(base64.urlsafe_b64decode(body))\n    except ValueError:\n        return \"malformed\"\n\ntoken = make_token({\"sub\": \"ada\", \"role\": \"user\"}, \"toy-key\")\nprint(verify_token(token, \"toy-key\"))\nbody, signature = token.split(\".\")\nfake = base64.urlsafe_b64encode(b'{\"sub\": \"ada\", \"role\": \"admin\"}').decode()\nprint(verify_token(fake + \".\" + signature, \"toy-key\"))\nprint(verify_token(token, \"other-key\"))\nprint(verify_token(\"no-dot-here\", \"toy-key\"))\n```",
+      "en": "The full solution:\n\n```python\nimport base64\nimport hashlib\nimport hmac\nimport json\n\n\ndef make_token(claims, key):\n    body = base64.urlsafe_b64encode(json.dumps(claims).encode()).decode()\n    return body + \".\" + hmac.new(key.encode(), body.encode(), hashlib.sha256).hexdigest()\n\n\ndef verify_token(token, key):\n    parts = token.split(\".\")\n    if len(parts) != 2:\n        return \"malformed\"\n    body, signature = parts\n    expected = hmac.new(key.encode(), body.encode(), hashlib.sha256).hexdigest()\n    if not hmac.compare_digest(signature, expected):\n        return \"bad-signature\"\n    try:\n        return json.loads(base64.urlsafe_b64decode(body))\n    except ValueError:\n        return \"malformed\"\n\ntoken = make_token({\"sub\": \"ada\", \"role\": \"user\"}, \"toy-key\")\nprint(verify_token(token, \"toy-key\"))\nbody, signature = token.split(\".\")\nfake = base64.urlsafe_b64encode(b'{\"sub\": \"ada\", \"role\": \"admin\"}').decode()\nprint(verify_token(fake + \".\" + signature, \"toy-key\"))\nprint(verify_token(token, \"other-key\"))\nprint(verify_token(\"no-dot-here\", \"toy-key\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify_token",
+      "cases": [
+        {
+          "args": [
+            "eyJzdWIiOiAiYWRhIiwgInJvbGUiOiAidXNlciJ9.36d83b83b80050d5218c6fbb22de4997a42e27eac9a50f1e5564754964ae450b",
+            "toy-key"
+          ],
+          "returns": {
+            "sub": "ada",
+            "role": "user"
+          }
+        },
+        {
+          "args": [
+            "eyJzdWIiOiAiYWRhIiwgInJvbGUiOiAiYWRtaW4ifQ==.36d83b83b80050d5218c6fbb22de4997a42e27eac9a50f1e5564754964ae450b",
+            "toy-key"
+          ],
+          "returns": "bad-signature"
+        },
+        {
+          "args": [
+            "eyJzdWIiOiAiYWRhIiwgInJvbGUiOiAidXNlciJ9.f115ddfb9d3a94d3cbe4f16fdd7538dabefc2b799219bda54cc1d8f5f157e279",
+            "toy-key"
+          ],
+          "returns": "bad-signature"
+        },
+        {
+          "args": [
+            "abc",
+            "toy-key"
+          ],
+          "returns": "malformed"
+        },
+        {
+          "args": [
+            "a.b.c",
+            "toy-key"
+          ],
+          "returns": "malformed"
+        },
+        {
+          "args": [
+            "@@@@.5061804463d0cbbaa33c48b9a95b726733f0089551a1a0fd97bceaa8ff4f3526",
+            "toy-key"
+          ],
+          "returns": "malformed"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'sub': 'ada', 'role': 'user'}\nbad-signature\nbad-signature\nmalformed"
+    }
+  ]
+}

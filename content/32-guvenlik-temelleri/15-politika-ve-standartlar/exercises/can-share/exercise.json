@@ -1,0 +1,114 @@
+{
+  "id": "can-share",
+  "title": {
+    "tr": "Paylaşılabilir mi?",
+    "en": "Can it be shared?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu bilinmeyen kanalda `KeyError`, bilinmeyen düzeyde `ValueError` veriyor.",
+      "en": "The starter code raises `KeyError` on an unknown channel and `ValueError` on an unknown level."
+    },
+    {
+      "tr": "Önce `if channel not in channel_max or level not in LEVELS: return False`.",
+      "en": "First `if channel not in channel_max or level not in LEVELS: return False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nLEVELS = [\"public\", \"internal\", \"confidential\", \"restricted\"]\n\n\ndef can_share(level, channel, channel_max):\n    if channel not in channel_max or level not in LEVELS:\n        return False\n    return LEVELS.index(level) <= LEVELS.index(channel_max[channel])\n\nchannel_max = {\n    \"website\": \"public\",\n    \"team-chat\": \"internal\",\n    \"encrypted-mail\": \"confidential\",\n}\nprint(can_share(\"internal\", \"team-chat\", channel_max))\nprint(can_share(\"confidential\", \"team-chat\", channel_max))\nprint(can_share(\"public\", \"file-site\", channel_max))\nprint(can_share(\"secret\", \"website\", channel_max))\n```",
+      "en": "The full solution:\n\n```python\nLEVELS = [\"public\", \"internal\", \"confidential\", \"restricted\"]\n\n\ndef can_share(level, channel, channel_max):\n    if channel not in channel_max or level not in LEVELS:\n        return False\n    return LEVELS.index(level) <= LEVELS.index(channel_max[channel])\n\nchannel_max = {\n    \"website\": \"public\",\n    \"team-chat\": \"internal\",\n    \"encrypted-mail\": \"confidential\",\n}\nprint(can_share(\"internal\", \"team-chat\", channel_max))\nprint(can_share(\"confidential\", \"team-chat\", channel_max))\nprint(can_share(\"public\", \"file-site\", channel_max))\nprint(can_share(\"secret\", \"website\", channel_max))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "can_share",
+      "cases": [
+        {
+          "args": [
+            "internal",
+            "team-chat",
+            {
+              "website": "public",
+              "team-chat": "internal",
+              "encrypted-mail": "confidential"
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "confidential",
+            "team-chat",
+            {
+              "website": "public",
+              "team-chat": "internal",
+              "encrypted-mail": "confidential"
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "public",
+            "file-site",
+            {
+              "website": "public",
+              "team-chat": "internal",
+              "encrypted-mail": "confidential"
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "secret",
+            "website",
+            {
+              "website": "public",
+              "team-chat": "internal",
+              "encrypted-mail": "confidential"
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "confidential",
+            "encrypted-mail",
+            {
+              "website": "public",
+              "team-chat": "internal",
+              "encrypted-mail": "confidential"
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "restricted",
+            "encrypted-mail",
+            {
+              "website": "public",
+              "team-chat": "internal",
+              "encrypted-mail": "confidential"
+            }
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse\nFalse"
+    }
+  ]
+}

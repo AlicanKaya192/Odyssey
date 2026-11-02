@@ -1,0 +1,128 @@
+{
+  "id": "gap-report",
+  "title": {
+    "tr": "Boşluk raporu",
+    "en": "A gap report"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu eksikleri `status`'tan topluyor: listede hiç olmayan `patching` kayboluyor.",
+      "en": "The starter code collects the gaps from `status`: `patching`, which is not in it at all, gets lost."
+    },
+    {
+      "tr": "Her kontrolün durumu `status.get(c, \"no\")`; listeleri `required` üzerinden kur ve `sorted` ile sırala. Boş liste için başta ayrı dönüş.",
+      "en": "Each control's status is `status.get(c, \"no\")`; build the lists from `required` and sort them with `sorted`. A separate return at the start for an empty list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef gap_report(required, status):\n    if not required:\n        return {\"coverage\": 100.0, \"missing\": [], \"partial\": []}\n    state = {c: status.get(c, \"no\") for c in required}\n    done = [c for c in required if state[c] == \"yes\"]\n    missing = sorted(c for c in required if state[c] == \"no\")\n    partial = sorted(c for c in required if state[c] == \"partial\")\n    coverage = round(100 * len(done) / len(required), 1)\n    return {\"coverage\": coverage, \"missing\": missing, \"partial\": partial}\n\nrequired = [\"access-control\", \"mfa\", \"backup\", \"logging\", \"patching\"]\nstatus = {\n    \"access-control\": \"yes\",\n    \"mfa\": \"partial\",\n    \"backup\": \"yes\",\n    \"logging\": \"no\",\n}\nreport = gap_report(required, status)\nprint(\"coverage:\", report[\"coverage\"])\nprint(\"missing:\", report[\"missing\"])\nprint(\"partial:\", report[\"partial\"])\n```",
+      "en": "The full solution:\n\n```python\ndef gap_report(required, status):\n    if not required:\n        return {\"coverage\": 100.0, \"missing\": [], \"partial\": []}\n    state = {c: status.get(c, \"no\") for c in required}\n    done = [c for c in required if state[c] == \"yes\"]\n    missing = sorted(c for c in required if state[c] == \"no\")\n    partial = sorted(c for c in required if state[c] == \"partial\")\n    coverage = round(100 * len(done) / len(required), 1)\n    return {\"coverage\": coverage, \"missing\": missing, \"partial\": partial}\n\nrequired = [\"access-control\", \"mfa\", \"backup\", \"logging\", \"patching\"]\nstatus = {\n    \"access-control\": \"yes\",\n    \"mfa\": \"partial\",\n    \"backup\": \"yes\",\n    \"logging\": \"no\",\n}\nreport = gap_report(required, status)\nprint(\"coverage:\", report[\"coverage\"])\nprint(\"missing:\", report[\"missing\"])\nprint(\"partial:\", report[\"partial\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "gap_report",
+      "cases": [
+        {
+          "args": [
+            [
+              "access-control",
+              "mfa",
+              "backup",
+              "logging",
+              "patching"
+            ],
+            {
+              "access-control": "yes",
+              "mfa": "partial",
+              "backup": "yes",
+              "logging": "no"
+            }
+          ],
+          "returns": {
+            "coverage": 40.0,
+            "missing": [
+              "logging",
+              "patching"
+            ],
+            "partial": [
+              "mfa"
+            ]
+          }
+        },
+        {
+          "args": [
+            [],
+            {
+              "access-control": "yes",
+              "mfa": "partial",
+              "backup": "yes",
+              "logging": "no"
+            }
+          ],
+          "returns": {
+            "coverage": 100.0,
+            "missing": [],
+            "partial": []
+          }
+        },
+        {
+          "args": [
+            [
+              "mfa",
+              "backup",
+              "patching"
+            ],
+            {}
+          ],
+          "returns": {
+            "coverage": 0.0,
+            "missing": [
+              "backup",
+              "mfa",
+              "patching"
+            ],
+            "partial": []
+          }
+        },
+        {
+          "args": [
+            [
+              "backup",
+              "mfa",
+              "logging"
+            ],
+            {
+              "access-control": "yes",
+              "mfa": "partial",
+              "backup": "yes",
+              "logging": "no"
+            }
+          ],
+          "returns": {
+            "coverage": 33.3,
+            "missing": [
+              "logging"
+            ],
+            "partial": [
+              "mfa"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "coverage: 40.0\nmissing: ['logging', 'patching']\npartial: ['mfa']"
+    }
+  ]
+}

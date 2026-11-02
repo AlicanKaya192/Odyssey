@@ -1,0 +1,174 @@
+{
+  "id": "leaver-checklist",
+  "title": {
+    "tr": "Ayrılan çalışan listesi",
+    "en": "A leaver checklist"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu sırları unutuyor ve sistemleri sıralamıyor: tam da ayrılan çalışanda olan hata.",
+      "en": "The starter code forgets the secrets and does not sort the systems: exactly the leaver mistake."
+    },
+    {
+      "tr": "İki sıralı liste kur (`sorted(...)`), başlarına metni ekleyip `+` ile birleştir.",
+      "en": "Build two sorted lists (`sorted(...)`), add the text in front and join them with `+`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef leaver_checklist(user, accounts, secrets):\n    systems = sorted(s for s, users in accounts.items() if user in users)\n    known = sorted(s for s, users in secrets.items() if user in users)\n    return [\"disable \" + s for s in systems] + [\"rotate \" + s for s in known]\n\naccounts = {\n    \"mail\": [\"ada\", \"deniz\"],\n    \"wiki\": [\"deniz\"],\n    \"payroll\": [\"ceren\"],\n}\nsecrets = {\n    \"shared-printer\": [\"ada\", \"deniz\"],\n    \"deploy-key\": [\"deniz\"],\n    \"wifi-guest\": [\"bora\"],\n}\nfor task in leaver_checklist(\"deniz\", accounts, secrets):\n    print(task)\nprint(leaver_checklist(\"emre\", accounts, secrets))\n```",
+      "en": "The full solution:\n\n```python\ndef leaver_checklist(user, accounts, secrets):\n    systems = sorted(s for s, users in accounts.items() if user in users)\n    known = sorted(s for s, users in secrets.items() if user in users)\n    return [\"disable \" + s for s in systems] + [\"rotate \" + s for s in known]\n\naccounts = {\n    \"mail\": [\"ada\", \"deniz\"],\n    \"wiki\": [\"deniz\"],\n    \"payroll\": [\"ceren\"],\n}\nsecrets = {\n    \"shared-printer\": [\"ada\", \"deniz\"],\n    \"deploy-key\": [\"deniz\"],\n    \"wifi-guest\": [\"bora\"],\n}\nfor task in leaver_checklist(\"deniz\", accounts, secrets):\n    print(task)\nprint(leaver_checklist(\"emre\", accounts, secrets))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "leaver_checklist",
+      "cases": [
+        {
+          "args": [
+            "deniz",
+            {
+              "mail": [
+                "ada",
+                "bora",
+                "ceren",
+                "deniz"
+              ],
+              "wiki": [
+                "ada",
+                "deniz"
+              ],
+              "payroll": [
+                "ceren",
+                "emre"
+              ]
+            },
+            {
+              "shared-printer": [
+                "ada",
+                "deniz"
+              ],
+              "deploy-key": [
+                "deniz"
+              ],
+              "wifi-guest": [
+                "bora"
+              ]
+            }
+          ],
+          "returns": [
+            "disable mail",
+            "disable wiki",
+            "rotate deploy-key",
+            "rotate shared-printer"
+          ]
+        },
+        {
+          "args": [
+            "ada",
+            {
+              "mail": [
+                "ada",
+                "bora",
+                "ceren",
+                "deniz"
+              ],
+              "wiki": [
+                "ada",
+                "deniz"
+              ],
+              "payroll": [
+                "ceren",
+                "emre"
+              ]
+            },
+            {
+              "shared-printer": [
+                "ada",
+                "deniz"
+              ],
+              "deploy-key": [
+                "deniz"
+              ],
+              "wifi-guest": [
+                "bora"
+              ]
+            }
+          ],
+          "returns": [
+            "disable mail",
+            "disable wiki",
+            "rotate shared-printer"
+          ]
+        },
+        {
+          "args": [
+            "zeynep",
+            {
+              "mail": [
+                "ada",
+                "bora",
+                "ceren",
+                "deniz"
+              ],
+              "wiki": [
+                "ada",
+                "deniz"
+              ],
+              "payroll": [
+                "ceren",
+                "emre"
+              ]
+            },
+            {
+              "shared-printer": [
+                "ada",
+                "deniz"
+              ],
+              "deploy-key": [
+                "deniz"
+              ],
+              "wifi-guest": [
+                "bora"
+              ]
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "bora",
+            {},
+            {
+              "shared-printer": [
+                "ada",
+                "deniz"
+              ],
+              "deploy-key": [
+                "deniz"
+              ],
+              "wifi-guest": [
+                "bora"
+              ]
+            }
+          ],
+          "returns": [
+            "rotate wifi-guest"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "disable mail\ndisable wiki\nrotate deploy-key\nrotate shared-printer\n[]"
+    }
+  ]
+}

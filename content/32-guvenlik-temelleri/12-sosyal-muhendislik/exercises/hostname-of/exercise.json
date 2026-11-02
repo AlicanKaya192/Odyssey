@@ -1,0 +1,78 @@
+{
+  "id": "hostname-of",
+  "title": {
+    "tr": "Gerçek sunucu",
+    "en": "The real server"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`from urllib.parse import urlsplit`.",
+      "en": "`from urllib.parse import urlsplit`."
+    },
+    {
+      "tr": "`hostname` adres yoksa `None` verir; `or \"\"` ile boş metne çevir.",
+      "en": "`hostname` gives `None` when there is none; turn it into empty text with `or \"\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef hostname_of(url):\n    return urlsplit(url).hostname or \"\"\n\nfor url in [\"https://login.school.example/reset\", \"https://school.example@evil.test/x\",\n            \"http://files.example:8443/a\", \"HTTPS://Login.School.Example/\"]:\n    print(hostname_of(url))\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef hostname_of(url):\n    return urlsplit(url).hostname or \"\"\n\nfor url in [\"https://login.school.example/reset\", \"https://school.example@evil.test/x\",\n            \"http://files.example:8443/a\", \"HTTPS://Login.School.Example/\"]:\n    print(hostname_of(url))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hostname_of",
+      "cases": [
+        {
+          "args": [
+            "https://login.school.example/reset"
+          ],
+          "returns": "login.school.example"
+        },
+        {
+          "args": [
+            "https://school.example@evil.test/x"
+          ],
+          "returns": "evil.test"
+        },
+        {
+          "args": [
+            "http://files.example:8443/a"
+          ],
+          "returns": "files.example"
+        },
+        {
+          "args": [
+            "HTTPS://Login.School.Example/"
+          ],
+          "returns": "login.school.example"
+        },
+        {
+          "args": [
+            "https://school.example.account-check.test/login"
+          ],
+          "returns": "school.example.account-check.test"
+        },
+        {
+          "args": [
+            "not a url"
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "login.school.example\nevil.test\nfiles.example\nlogin.school.example"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "id": "check-claims",
+  "title": {
+    "tr": "İddiaları denetle",
+    "en": "Check the claims"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `iss` ve `aud`'u hiç denetlemiyor ve sınırda (`now == exp`) jetonu kabul ediyor.",
+      "en": "The starter code never checks `iss` and `aud` and accepts the token at the limit (`now == exp`)."
+    },
+    {
+      "tr": "`claims.get(\"exp\", 0)` olmayan süreyi dolmuş sayar; `claims.get(\"nbf\", now)` olmayan başlangıcı sorun saymaz.",
+      "en": "`claims.get(\"exp\", 0)` treats a missing expiry as expired; `claims.get(\"nbf\", now)` treats a missing start as fine."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef check_claims(claims, issuer, audience, now):\n    if claims.get(\"iss\") != issuer:\n        return \"bad-issuer\"\n    if claims.get(\"aud\") != audience:\n        return \"bad-audience\"\n    if now >= claims.get(\"exp\", 0):\n        return \"expired\"\n    if now < claims.get(\"nbf\", now):\n        return \"not-yet-valid\"\n    return \"ok\"\n\nISSUER = \"https://id.school.example\"\nclaims = {\n    \"iss\": ISSUER,\n    \"aud\": \"grades-app\",\n    \"sub\": \"ada\",\n    \"exp\": 1000,\n    \"nbf\": 100,\n}\nfor now in [50, 500, 1000]:\n    print(now, check_claims(claims, ISSUER, \"grades-app\", now))\nprint(check_claims(claims, ISSUER, \"library-app\", 500))\n```",
+      "en": "The full solution:\n\n```python\ndef check_claims(claims, issuer, audience, now):\n    if claims.get(\"iss\") != issuer:\n        return \"bad-issuer\"\n    if claims.get(\"aud\") != audience:\n        return \"bad-audience\"\n    if now >= claims.get(\"exp\", 0):\n        return \"expired\"\n    if now < claims.get(\"nbf\", now):\n        return \"not-yet-valid\"\n    return \"ok\"\n\nISSUER = \"https://id.school.example\"\nclaims = {\n    \"iss\": ISSUER,\n    \"aud\": \"grades-app\",\n    \"sub\": \"ada\",\n    \"exp\": 1000,\n    \"nbf\": 100,\n}\nfor now in [50, 500, 1000]:\n    print(now, check_claims(claims, ISSUER, \"grades-app\", now))\nprint(check_claims(claims, ISSUER, \"library-app\", 500))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_claims",
+      "cases": [
+        {
+          "args": [
+            {
+              "iss": "https://id.school.example",
+              "aud": "grades-app",
+              "sub": "ada",
+              "exp": 1000,
+              "nbf": 100
+            },
+            "https://id.school.example",
+            "grades-app",
+            500
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            {
+              "iss": "https://id.school.example",
+              "aud": "grades-app",
+              "sub": "ada",
+              "exp": 1000,
+              "nbf": 100
+            },
+            "https://id.school.example",
+            "grades-app",
+            1000
+          ],
+          "returns": "expired"
+        },
+        {
+          "args": [
+            {
+              "iss": "https://id.school.example",
+              "aud": "grades-app",
+              "sub": "ada",
+              "exp": 1000,
+              "nbf": 100
+            },
+            "https://id.school.example",
+            "grades-app",
+            50
+          ],
+          "returns": "not-yet-valid"
+        },
+        {
+          "args": [
+            {
+              "iss": "https://id.school.example",
+              "aud": "grades-app",
+              "sub": "ada",
+              "exp": 1000,
+              "nbf": 100
+            },
+            "https://id.school.example",
+            "library-app",
+            500
+          ],
+          "returns": "bad-audience"
+        },
+        {
+          "args": [
+            {
+              "iss": "https://id.school.example",
+              "aud": "grades-app",
+              "sub": "ada",
+              "exp": 1000,
+              "nbf": 100
+            },
+            "https://evil.test",
+            "grades-app",
+            500
+          ],
+          "returns": "bad-issuer"
+        },
+        {
+          "args": [
+            {
+              "iss": "https://id.school.example",
+              "aud": "grades-app"
+            },
+            "https://id.school.example",
+            "grades-app",
+            5
+          ],
+          "returns": "expired"
+        },
+        {
+          "args": [
+            {
+              "iss": "https://id.school.example",
+              "aud": "grades-app",
+              "exp": 10
+            },
+            "https://id.school.example",
+            "grades-app",
+            5
+          ],
+          "returns": "ok"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "50 not-yet-valid\n500 ok\n1000 expired\nbad-audience"
+    }
+  ]
+}

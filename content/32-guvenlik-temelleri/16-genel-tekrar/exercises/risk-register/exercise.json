@@ -1,0 +1,148 @@
+{
+  "id": "risk-register",
+  "title": {
+    "tr": "Tehditten risk kaydına",
+    "en": "From threats to a risk register"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu düzeyleri yanlış kesiyor ve sıralamıyor.",
+      "en": "The starter code cuts the levels wrongly and does not sort."
+    },
+    {
+      "tr": "Düzey için ayrı bir fonksiyon yaz; sıralama `sorted(rows, key=lambda r: (-r[2], r[0]))`.",
+      "en": "Write a separate function for the level; sort with `sorted(rows, key=lambda r: (-r[2], r[0]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef level(score):\n    if score <= 4:\n        return \"low\"\n    if score <= 9:\n        return \"medium\"\n    if score <= 16:\n        return \"high\"\n    return \"critical\"\n\n\ndef risk_register(threats):\n    rows = []\n    for t in threats:\n        score = t[\"likelihood\"] * t[\"impact\"]\n        rows.append([t[\"id\"], t[\"stride\"], score, level(score)])\n    return sorted(rows, key=lambda r: (-r[2], r[0]))\n\nthreats = [\n    {\"id\": \"T1\", \"stride\": \"S\", \"likelihood\": 4, \"impact\": 5},\n    {\"id\": \"T2\", \"stride\": \"I\", \"likelihood\": 2, \"impact\": 4},\n    {\"id\": \"T3\", \"stride\": \"D\", \"likelihood\": 3, \"impact\": 3},\n    {\"id\": \"T0\", \"stride\": \"E\", \"likelihood\": 4, \"impact\": 5},\n    {\"id\": \"T4\", \"stride\": \"R\", \"likelihood\": 1, \"impact\": 2},\n]\nfor row in risk_register(threats):\n    print(*row)\n```",
+      "en": "The full solution:\n\n```python\ndef level(score):\n    if score <= 4:\n        return \"low\"\n    if score <= 9:\n        return \"medium\"\n    if score <= 16:\n        return \"high\"\n    return \"critical\"\n\n\ndef risk_register(threats):\n    rows = []\n    for t in threats:\n        score = t[\"likelihood\"] * t[\"impact\"]\n        rows.append([t[\"id\"], t[\"stride\"], score, level(score)])\n    return sorted(rows, key=lambda r: (-r[2], r[0]))\n\nthreats = [\n    {\"id\": \"T1\", \"stride\": \"S\", \"likelihood\": 4, \"impact\": 5},\n    {\"id\": \"T2\", \"stride\": \"I\", \"likelihood\": 2, \"impact\": 4},\n    {\"id\": \"T3\", \"stride\": \"D\", \"likelihood\": 3, \"impact\": 3},\n    {\"id\": \"T0\", \"stride\": \"E\", \"likelihood\": 4, \"impact\": 5},\n    {\"id\": \"T4\", \"stride\": \"R\", \"likelihood\": 1, \"impact\": 2},\n]\nfor row in risk_register(threats):\n    print(*row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "risk_register",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "id": "T1",
+                "stride": "S",
+                "likelihood": 4,
+                "impact": 5
+              },
+              {
+                "id": "T2",
+                "stride": "I",
+                "likelihood": 2,
+                "impact": 4
+              },
+              {
+                "id": "T3",
+                "stride": "D",
+                "likelihood": 3,
+                "impact": 3
+              },
+              {
+                "id": "T0",
+                "stride": "E",
+                "likelihood": 4,
+                "impact": 5
+              },
+              {
+                "id": "T4",
+                "stride": "R",
+                "likelihood": 1,
+                "impact": 2
+              }
+            ]
+          ],
+          "returns": [
+            [
+              "T0",
+              "E",
+              20,
+              "critical"
+            ],
+            [
+              "T1",
+              "S",
+              20,
+              "critical"
+            ],
+            [
+              "T3",
+              "D",
+              9,
+              "medium"
+            ],
+            [
+              "T2",
+              "I",
+              8,
+              "medium"
+            ],
+            [
+              "T4",
+              "R",
+              2,
+              "low"
+            ]
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "A",
+                "stride": "T",
+                "likelihood": 5,
+                "impact": 2
+              },
+              {
+                "id": "B",
+                "stride": "T",
+                "likelihood": 2,
+                "impact": 2
+              }
+            ]
+          ],
+          "returns": [
+            [
+              "A",
+              "T",
+              10,
+              "high"
+            ],
+            [
+              "B",
+              "T",
+              4,
+              "low"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "T0 E 20 critical\nT1 S 20 critical\nT3 D 9 medium\nT2 I 8 medium\nT4 R 2 low"
+    }
+  ]
+}

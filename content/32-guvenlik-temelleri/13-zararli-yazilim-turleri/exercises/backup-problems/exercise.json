@@ -1,0 +1,121 @@
+{
+  "id": "backup-problems",
+  "title": {
+    "tr": "Yedek denetimi",
+    "en": "A backup check"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Farklı ortam sayısı için küme: `{c[\"media\"] for c in copies}`.",
+      "en": "For the number of different media, a set: `{c[\"media\"] for c in copies}`."
+    },
+    {
+      "tr": "Var mı sorusu için `any(...)`; boş listede `any` `False` döner.",
+      "en": "For the \"is there one\" question, `any(...)`; `any` returns `False` on an empty list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef backup_problems(copies):\n    problems = []\n    if len(copies) < 3:\n        problems.append(\"need-3-copies\")\n    if len({c[\"media\"] for c in copies}) < 2:\n        problems.append(\"need-2-media\")\n    if not any(c[\"offsite\"] for c in copies):\n        problems.append(\"need-offsite\")\n    if not any(c[\"offline\"] for c in copies):\n        problems.append(\"need-offline\")\n    return problems\n\ncopies = [{\"media\": \"laptop\", \"offsite\": False, \"offline\": False},\n          {\"media\": \"laptop\", \"offsite\": False, \"offline\": False}]\nfor problem in backup_problems(copies):\n    print(problem)\ngood = copies[:1] + [{\"media\": \"usb-disk\", \"offsite\": False, \"offline\": True},\n                     {\"media\": \"cloud\", \"offsite\": True, \"offline\": False}]\nprint(\"good:\", len(backup_problems(good)), \"problems\")\n```",
+      "en": "The full solution:\n\n```python\ndef backup_problems(copies):\n    problems = []\n    if len(copies) < 3:\n        problems.append(\"need-3-copies\")\n    if len({c[\"media\"] for c in copies}) < 2:\n        problems.append(\"need-2-media\")\n    if not any(c[\"offsite\"] for c in copies):\n        problems.append(\"need-offsite\")\n    if not any(c[\"offline\"] for c in copies):\n        problems.append(\"need-offline\")\n    return problems\n\ncopies = [{\"media\": \"laptop\", \"offsite\": False, \"offline\": False},\n          {\"media\": \"laptop\", \"offsite\": False, \"offline\": False}]\nfor problem in backup_problems(copies):\n    print(problem)\ngood = copies[:1] + [{\"media\": \"usb-disk\", \"offsite\": False, \"offline\": True},\n                     {\"media\": \"cloud\", \"offsite\": True, \"offline\": False}]\nprint(\"good:\", len(backup_problems(good)), \"problems\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "backup_problems",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "media": "laptop",
+                "offsite": false,
+                "offline": false
+              },
+              {
+                "media": "laptop",
+                "offsite": false,
+                "offline": false
+              }
+            ]
+          ],
+          "returns": [
+            "need-3-copies",
+            "need-2-media",
+            "need-offsite",
+            "need-offline"
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "media": "laptop",
+                "offsite": false,
+                "offline": false
+              },
+              {
+                "media": "usb-disk",
+                "offsite": false,
+                "offline": true
+              },
+              {
+                "media": "cloud",
+                "offsite": true,
+                "offline": false
+              }
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": [
+            "need-3-copies",
+            "need-2-media",
+            "need-offsite",
+            "need-offline"
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "media": "laptop",
+                "offsite": false,
+                "offline": false
+              },
+              {
+                "media": "cloud",
+                "offsite": true,
+                "offline": false
+              },
+              {
+                "media": "cloud",
+                "offsite": true,
+                "offline": false
+              }
+            ]
+          ],
+          "returns": [
+            "need-offline"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "need-3-copies\nneed-2-media\nneed-offsite\nneed-offline\ngood: 0 problems"
+    }
+  ]
+}

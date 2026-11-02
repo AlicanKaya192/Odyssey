@@ -1,0 +1,154 @@
+{
+  "id": "classify-document",
+  "title": {
+    "tr": "Belgeyi sınıflandır",
+    "en": "Classify the document"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu büyük harfli kelimeyi görmüyor ve ilk bulduğu düzeyde duruyor; en yükseği değil.",
+      "en": "The starter code misses capitalised words and stops at the first level found, not the highest."
+    },
+    {
+      "tr": "Metni `lower()` yap, `LEVELS`'ı sırayla gez ve tutan her düzeyde sonucu güncelle: en sonda kalan en yüksektir.",
+      "en": "`lower()` the text, walk `LEVELS` in order and update the result at every level that matches: the last one left is the highest."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nLEVELS = [\"public\", \"internal\", \"confidential\", \"restricted\"]\n\n\ndef classify_document(text, keywords):\n    text = text.lower()\n    found = \"public\"\n    for level in LEVELS:\n        if any(word in text for word in keywords.get(level, [])):\n            found = level\n    return found\n\nkeywords = {\n    \"internal\": [\"meeting\", \"draft\"],\n    \"confidential\": [\"customer\", \"contract\"],\n    \"restricted\": [\"salary\", \"password\", \"health\"],\n}\ntexts = [\n    \"Lunch menu for Friday\",\n    \"Draft notes from the meeting\",\n    \"Customer contract with salary table\",\n    \"Contract renewal for a customer\",\n]\nfor text in texts:\n    print(classify_document(text, keywords))\n```",
+      "en": "The full solution:\n\n```python\nLEVELS = [\"public\", \"internal\", \"confidential\", \"restricted\"]\n\n\ndef classify_document(text, keywords):\n    text = text.lower()\n    found = \"public\"\n    for level in LEVELS:\n        if any(word in text for word in keywords.get(level, [])):\n            found = level\n    return found\n\nkeywords = {\n    \"internal\": [\"meeting\", \"draft\"],\n    \"confidential\": [\"customer\", \"contract\"],\n    \"restricted\": [\"salary\", \"password\", \"health\"],\n}\ntexts = [\n    \"Lunch menu for Friday\",\n    \"Draft notes from the meeting\",\n    \"Customer contract with salary table\",\n    \"Contract renewal for a customer\",\n]\nfor text in texts:\n    print(classify_document(text, keywords))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "classify_document",
+      "cases": [
+        {
+          "args": [
+            "Lunch menu for Friday",
+            {
+              "internal": [
+                "meeting",
+                "draft"
+              ],
+              "confidential": [
+                "customer",
+                "contract"
+              ],
+              "restricted": [
+                "salary",
+                "password",
+                "health"
+              ]
+            }
+          ],
+          "returns": "public"
+        },
+        {
+          "args": [
+            "Draft notes from the meeting",
+            {
+              "internal": [
+                "meeting",
+                "draft"
+              ],
+              "confidential": [
+                "customer",
+                "contract"
+              ],
+              "restricted": [
+                "salary",
+                "password",
+                "health"
+              ]
+            }
+          ],
+          "returns": "internal"
+        },
+        {
+          "args": [
+            "Customer contract with salary table",
+            {
+              "internal": [
+                "meeting",
+                "draft"
+              ],
+              "confidential": [
+                "customer",
+                "contract"
+              ],
+              "restricted": [
+                "salary",
+                "password",
+                "health"
+              ]
+            }
+          ],
+          "returns": "restricted"
+        },
+        {
+          "args": [
+            "Contract renewal for a customer",
+            {
+              "internal": [
+                "meeting",
+                "draft"
+              ],
+              "confidential": [
+                "customer",
+                "contract"
+              ],
+              "restricted": [
+                "salary",
+                "password",
+                "health"
+              ]
+            }
+          ],
+          "returns": "confidential"
+        },
+        {
+          "args": [
+            "HEALTH report",
+            {
+              "internal": [
+                "meeting",
+                "draft"
+              ],
+              "confidential": [
+                "customer",
+                "contract"
+              ],
+              "restricted": [
+                "salary",
+                "password",
+                "health"
+              ]
+            }
+          ],
+          "returns": "restricted"
+        },
+        {
+          "args": [
+            "anything",
+            {}
+          ],
+          "returns": "public"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "public\ninternal\nrestricted\nconfidential"
+    }
+  ]
+}

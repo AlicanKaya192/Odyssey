@@ -1,0 +1,142 @@
+{
+  "id": "orphaned-accounts",
+  "title": {
+    "tr": "Öksüz hesaplar",
+    "en": "Orphaned accounts"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İç içe iki döngü: sistemler ve her sistemin kullanıcıları; `f\"{system}/{user}\"`.",
+      "en": "Two nested loops: the systems and each system's users; `f\"{system}/{user}\"`."
+    },
+    {
+      "tr": "`active`'i kümeye çevir, sonda `sorted`.",
+      "en": "Turn `active` into a set, `sorted` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef orphaned_accounts(accounts, active):\n    active = set(active)\n    found = [f\"{system}/{user}\" for system, users in accounts.items()\n             for user in users if user not in active]\n    return sorted(found)\n\nactive = [\"ada\", \"bora\", \"ceren\"]\naccounts = {\n    \"mail\": [\"ada\", \"bora\", \"ceren\", \"deniz\"],\n    \"wiki\": [\"ada\", \"deniz\"],\n    \"payroll\": [\"ceren\", \"emre\"],\n}\nfor item in orphaned_accounts(accounts, active):\n    print(item)\n```",
+      "en": "The full solution:\n\n```python\ndef orphaned_accounts(accounts, active):\n    active = set(active)\n    found = [f\"{system}/{user}\" for system, users in accounts.items()\n             for user in users if user not in active]\n    return sorted(found)\n\nactive = [\"ada\", \"bora\", \"ceren\"]\naccounts = {\n    \"mail\": [\"ada\", \"bora\", \"ceren\", \"deniz\"],\n    \"wiki\": [\"ada\", \"deniz\"],\n    \"payroll\": [\"ceren\", \"emre\"],\n}\nfor item in orphaned_accounts(accounts, active):\n    print(item)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "orphaned_accounts",
+      "cases": [
+        {
+          "args": [
+            {
+              "mail": [
+                "ada",
+                "bora",
+                "ceren",
+                "deniz"
+              ],
+              "wiki": [
+                "ada",
+                "deniz"
+              ],
+              "payroll": [
+                "ceren",
+                "emre"
+              ]
+            },
+            [
+              "ada",
+              "bora",
+              "ceren"
+            ]
+          ],
+          "returns": [
+            "mail/deniz",
+            "payroll/emre",
+            "wiki/deniz"
+          ]
+        },
+        {
+          "args": [
+            {
+              "mail": [
+                "ada",
+                "bora",
+                "ceren",
+                "deniz"
+              ],
+              "wiki": [
+                "ada",
+                "deniz"
+              ],
+              "payroll": [
+                "ceren",
+                "emre"
+              ]
+            },
+            []
+          ],
+          "returns": [
+            "mail/ada",
+            "mail/bora",
+            "mail/ceren",
+            "mail/deniz",
+            "payroll/ceren",
+            "payroll/emre",
+            "wiki/ada",
+            "wiki/deniz"
+          ]
+        },
+        {
+          "args": [
+            {},
+            [
+              "ada",
+              "bora",
+              "ceren"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "mail": [
+                "ada",
+                "bora",
+                "ceren",
+                "deniz"
+              ],
+              "wiki": [
+                "ada",
+                "deniz"
+              ],
+              "payroll": [
+                "ceren",
+                "emre"
+              ]
+            },
+            [
+              "ada",
+              "bora",
+              "ceren",
+              "deniz",
+              "emre"
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "mail/deniz\npayroll/emre\nwiki/deniz"
+    }
+  ]
+}

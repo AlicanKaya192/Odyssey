@@ -1,0 +1,166 @@
+{
+  "id": "mover-changes",
+  "title": {
+    "tr": "Görev değişikliği",
+    "en": "A role change"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu yalnızca ekliyor: yetki birikmesinin kendisi.",
+      "en": "The starter code only adds: privilege creep itself."
+    },
+    {
+      "tr": "Küme farkı iki yönde: `new - old` ve `old - new`.",
+      "en": "The set difference both ways: `new - old` and `old - new`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef mover_changes(old_role, new_role, roles):\n    old = set(roles[old_role])\n    new = set(roles[new_role])\n    return {\"add\": sorted(new - old), \"remove\": sorted(old - new)}\n\nroles = {\n    \"intern\": [\"read-wiki\", \"use-mail\"],\n    \"developer\": [\"read-wiki\", \"use-mail\", \"push-code\", \"read-logs\"],\n    \"manager\": [\"read-wiki\", \"use-mail\", \"approve-leave\", \"read-reports\"],\n}\nchange = mover_changes(\"developer\", \"manager\", roles)\nprint(\"add:\", change[\"add\"])\nprint(\"remove:\", change[\"remove\"])\n```",
+      "en": "The full solution:\n\n```python\ndef mover_changes(old_role, new_role, roles):\n    old = set(roles[old_role])\n    new = set(roles[new_role])\n    return {\"add\": sorted(new - old), \"remove\": sorted(old - new)}\n\nroles = {\n    \"intern\": [\"read-wiki\", \"use-mail\"],\n    \"developer\": [\"read-wiki\", \"use-mail\", \"push-code\", \"read-logs\"],\n    \"manager\": [\"read-wiki\", \"use-mail\", \"approve-leave\", \"read-reports\"],\n}\nchange = mover_changes(\"developer\", \"manager\", roles)\nprint(\"add:\", change[\"add\"])\nprint(\"remove:\", change[\"remove\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mover_changes",
+      "cases": [
+        {
+          "args": [
+            "developer",
+            "manager",
+            {
+              "intern": [
+                "read-wiki",
+                "use-mail"
+              ],
+              "developer": [
+                "read-wiki",
+                "use-mail",
+                "push-code",
+                "read-logs"
+              ],
+              "manager": [
+                "read-wiki",
+                "use-mail",
+                "approve-leave",
+                "read-reports"
+              ]
+            }
+          ],
+          "returns": {
+            "add": [
+              "approve-leave",
+              "read-reports"
+            ],
+            "remove": [
+              "push-code",
+              "read-logs"
+            ]
+          }
+        },
+        {
+          "args": [
+            "intern",
+            "developer",
+            {
+              "intern": [
+                "read-wiki",
+                "use-mail"
+              ],
+              "developer": [
+                "read-wiki",
+                "use-mail",
+                "push-code",
+                "read-logs"
+              ],
+              "manager": [
+                "read-wiki",
+                "use-mail",
+                "approve-leave",
+                "read-reports"
+              ]
+            }
+          ],
+          "returns": {
+            "add": [
+              "push-code",
+              "read-logs"
+            ],
+            "remove": []
+          }
+        },
+        {
+          "args": [
+            "manager",
+            "intern",
+            {
+              "intern": [
+                "read-wiki",
+                "use-mail"
+              ],
+              "developer": [
+                "read-wiki",
+                "use-mail",
+                "push-code",
+                "read-logs"
+              ],
+              "manager": [
+                "read-wiki",
+                "use-mail",
+                "approve-leave",
+                "read-reports"
+              ]
+            }
+          ],
+          "returns": {
+            "add": [],
+            "remove": [
+              "approve-leave",
+              "read-reports"
+            ]
+          }
+        },
+        {
+          "args": [
+            "intern",
+            "intern",
+            {
+              "intern": [
+                "read-wiki",
+                "use-mail"
+              ],
+              "developer": [
+                "read-wiki",
+                "use-mail",
+                "push-code",
+                "read-logs"
+              ],
+              "manager": [
+                "read-wiki",
+                "use-mail",
+                "approve-leave",
+                "read-reports"
+              ]
+            }
+          ],
+          "returns": {
+            "add": [],
+            "remove": []
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "add: ['approve-leave', 'read-reports']\nremove: ['push-code', 'read-logs']"
+    }
+  ]
+}
