@@ -24,7 +24,8 @@ import shlex
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
-HOME = "/home/ada"
+from .shell_sim import HOME, Shell
+
 TZ = timezone(timedelta(hours=3))
 START = int(datetime(2026, 10, 7, 10, 0, 0, tzinfo=TZ).timestamp())
 GIT_VERSION = "git version 2.55.0"
@@ -272,10 +273,11 @@ def merge_text(base: str, ours: str, theirs: str, their_name: str) -> tuple[str,
 # --- dünya: dosya sistemi + depolar ------------------------------------------
 
 
-class World:
+class World(Shell):
     """Bir alıştırmanın bütün durumu: dosyalar, depolar, uzak depolar, saat."""
 
-    def __init__(self, lang: str = "tr", *, configured: bool = True, fixed_time: bool = False) -> None:
+    def __init__(self, lang: str = "tr", *, configured: bool = True, fixed_time: bool = False,
+                 linux: bool = False) -> None:
         self.lang = lang if lang in SIM_TEXT else "en"
         self.files: dict[str, str] = {}
         self.dirs: set[str] = {"/", "/home", HOME}
@@ -292,6 +294,8 @@ class World:
         self._time = START
         self._fixed_time = fixed_time
         self.history: list[str] = []
+        # Kabuk durumu (değişkenler, izinler...); `linux`: kökte /etc, /usr, /tmp (Komut Satırı patikası).
+        self._shell_init(linux)
 
     # --- yardımcılar ---------------------------------------------------------
 
@@ -562,222 +566,6 @@ class World:
                     continue
             shown.append(path)
         return shown
-
-    # --- komut satırı -------------------------------------------------------
-
-    def run(self, line: str) -> tuple[Out, int]:
-        """Bir satırı çalıştırır: (çıktı, çıkış kodu). `&&` zinciri destekli."""
-        out = Out()
-        line = line.strip()
-        if not line or line.startswith("#"):
-            return out, 0
-        self.history.append(line)
-        try:
-            # `>`, `>>` ve `&&` bash'teki gibi boşluksuz da ayrılıyor (`echo hi>a.txt`).
-            lexer = shlex.shlex(line, posix=True, punctuation_chars=True)
-            lexer.whitespace_split = True
-            tokens = list(lexer)
-        except ValueError:
-            out("bash: syntax error: unexpected end of file (a quote is not closed)", "red")
-            return out, 2
-        for tok in tokens:
-            if tok in ("|", "||", ";", "&", "<", ";;", "|&", "&>", "<<"):
-                out(self.t("no_pipe", op=tok), "yellow")
-                return out, 2
-        parts, cur = [], []
-        for tok in tokens:
-            if tok == "&&":
-                parts.append(cur)
-                cur = []
-            else:
-                cur.append(tok)
-        parts.append(cur)
-        code = 0
-        for argv in parts:
-            if not argv:
-                continue
-            try:
-                code = self._run_argv(argv, out)
-            except GitError as exc:
-                out(exc.text, "red" if exc.text.startswith(("fatal", "error")) else "")
-                code = exc.code
-            if code != 0:
-                break
-        return out, code
-
-    def _run_argv(self, argv: list[str], out: Out) -> int:
-        cmd, args = argv[0], argv[1:]
-        if cmd == "git":
-            return self.git(args, out)
-        handler = getattr(self, "sh_" + cmd.replace("-", "_"), None)
-        if handler is None:
-            if cmd in ("nano", "vim", "vi", "code", "notepad", "emacs"):
-                out(self.t("no_editor_file", name=args[0] if args else "file.txt"), "yellow")
-                return 1
-            out(f"bash: {cmd}: command not found", "red")
-            return 127
-        return handler(args, out)
-
-    # --- kabuk ----------------------------------------------------------
-
-    def sh_pwd(self, args, out):
-        out(self.cwd)
-        return 0
-
-    def sh_clear(self, args, out):
-        return 0
-
-    def sh_cd(self, args, out):
-        target = self.abspath(args[0]) if args else HOME
-        if target not in self.dirs:
-            out(f"bash: cd: {args[0]}: No such file or directory", "red")
-            return 1
-        self.cwd = target
-        return 0
-
-    def _children(self, d: str) -> list[str]:
-        pref = d.rstrip("/") + "/"
-        names = set()
-        for p in list(self.files) + list(self.dirs):
-            if p.startswith(pref) and p != d:
-                names.add(p[len(pref):].split("/")[0])
-        return sorted(names)
-
-    def sh_ls(self, args, out):
-        show_all = any(a.startswith("-") and "a" in a for a in args)
-        targets = [a for a in args if not a.startswith("-")] or ["."]
-        for t in targets:
-            p = self.abspath(t)
-            if p in self.files:
-                out(t)
-                continue
-            if p not in self.dirs:
-                out(f"ls: cannot access '{t}': No such file or directory", "red")
-                return 2
-            names = self._children(p)
-            if p in self.repos and show_all:
-                names = sorted(set(names) | {".git"})
-            if not show_all:
-                names = [n for n in names if not n.startswith(".")]
-            else:
-                names = [".", ".."] + names
-            shown = [n + "/" if posixpath.join(p, n) in self.dirs or n == ".git" else n for n in names]
-            if shown:
-                out("  ".join(shown))
-        return 0
-
-    def sh_mkdir(self, args, out):
-        for a in [x for x in args if not x.startswith("-")]:
-            p = self.abspath(a)
-            if p in self.dirs and "-p" not in args:
-                out(f"mkdir: cannot create directory '{a}': File exists", "red")
-                return 1
-            d = p
-            while d not in self.dirs:
-                self.dirs.add(d)
-                d = posixpath.dirname(d)
-        return 0
-
-    def sh_touch(self, args, out):
-        for a in args:
-            p = self.abspath(a)
-            if posixpath.dirname(p) not in self.dirs:
-                out(f"touch: cannot touch '{a}': No such file or directory", "red")
-                return 1
-            self.files.setdefault(p, "")
-        return 0
-
-    def sh_cat(self, args, out):
-        for a in args:
-            p = self.abspath(a)
-            if p in self.dirs:
-                out(f"cat: {a}: Is a directory", "red")
-                return 1
-            if p not in self.files:
-                out(f"cat: {a}: No such file or directory", "red")
-                return 1
-            text = self.files[p]
-            out(text[:-1] if text.endswith("\n") else text)
-        return 0
-
-    def _redirect(self, args):
-        """`echo x > a.txt` / `>> a.txt`: (argümanlar, dosya, ekle mi)."""
-        for i, tok in enumerate(args):
-            if tok in (">", ">>") and i + 1 < len(args):
-                return args[:i] + args[i + 2:], args[i + 1], tok == ">>"
-            if tok.startswith(">>") and len(tok) > 2:
-                return args[:i] + args[i + 1:], tok[2:], True
-            if tok.startswith(">") and len(tok) > 1:
-                return args[:i] + args[i + 1:], tok[1:], False
-        return args, None, False
-
-    def _emit(self, text: str, target, append: bool, out: Out) -> int:
-        if target is None:
-            out(text[:-1] if text.endswith("\n") else text)
-            return 0
-        p = self.abspath(target)
-        if posixpath.dirname(p) not in self.dirs:
-            out(f"bash: {target}: No such file or directory", "red")
-            return 1
-        if p in self.dirs:
-            out(f"bash: {target}: Is a directory", "red")
-            return 1
-        self.write_file(p, (self.files.get(p, "") if append else "") + text)
-        return 0
-
-    def sh_echo(self, args, out):
-        args, target, append = self._redirect(args)
-        newline = True
-        if args and args[0] == "-n":
-            newline = False
-            args = args[1:]
-        return self._emit(" ".join(args) + ("\n" if newline else ""), target, append, out)
-
-    def sh_printf(self, args, out):
-        args, target, append = self._redirect(args)
-        if not args:
-            return 0
-        text = args[0].replace("\\n", "\n").replace("\\t", "\t")
-        if len(args) > 1:
-            try:
-                text = text.replace("%s", "{}").format(*args[1:])
-            except (IndexError, ValueError):
-                pass
-        return self._emit(text, target, append, out)
-
-    def sh_rm(self, args, out):
-        recursive = any(a.startswith("-") and "r" in a for a in args)
-        for a in [x for x in args if not x.startswith("-")]:
-            p = self.abspath(a)
-            if p in self.files:
-                del self.files[p]
-            elif p in self.dirs:
-                if not recursive:
-                    out(f"rm: cannot remove '{a}': Is a directory", "red")
-                    return 1
-                for f in [f for f in self.files if f.startswith(p + "/")]:
-                    del self.files[f]
-                for d in [d for d in self.dirs if d == p or d.startswith(p + "/")]:
-                    self.dirs.discard(d)
-                for r in [r for r in self.repos if r == p or r.startswith(p + "/")]:
-                    del self.repos[r]
-            else:
-                out(f"rm: cannot remove '{a}': No such file or directory", "red")
-                return 1
-        return 0
-
-    def sh_mv(self, args, out):
-        if len(args) != 2:
-            out("mv: missing file operand", "red")
-            return 1
-        src, dst = self.abspath(args[0]), self.abspath(args[1])
-        if src not in self.files:
-            out(f"mv: cannot stat '{args[0]}': No such file or directory", "red")
-            return 1
-        if dst in self.dirs:
-            dst = posixpath.join(dst, posixpath.basename(src))
-        self.write_file(dst, self.files.pop(src))
-        return 0
 
     # --- git: dağıtıcı ------------------------------------------------------
 
@@ -3228,6 +3016,12 @@ class World:
         for step in steps:
             if isinstance(step, str):
                 self.run(step)
+            elif "write" in step or "modes" in step:
+                # Kabuk alıştırması: dosyalar (ev klasörüne göre yol) ve izinleri ("755").
+                for rel, text in (step.get("write") or {}).items():
+                    self._put(self.abspath(posixpath.join(HOME, rel)), text)
+                for rel, mode in (step.get("modes") or {}).items():
+                    self.modes[self.abspath(posixpath.join(HOME, rel))] = int(str(mode), 8)
             elif step.get("fork"):
                 # GitHub'daki "Fork": başkasının deposunun bütün geçmişiyle kendi hesabındaki kopyası.
                 src = self.remote_repos[step["fork"]]
@@ -3243,3 +3037,4 @@ class World:
                                        step.get("branch", "main"),
                                        tuple(step.get("author", ("Grace Hopper", "grace@example.com"))))
         self.history = []
+        self.outputs = []

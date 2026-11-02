@@ -30,12 +30,17 @@ def build_world(exercise, lang: str) -> World:
     """Alıştırmanın başlangıç dünyası: kurulum adımları sessiz, sonra başlangıç klasörü.
 
     `"configured": false` olan alıştırmada kullanıcı adı ve e-posta ayarlı değil
-    (Kurulum bölümü onları ayarlatıyor)."""
-    world = World(lang, configured=bool(exercise.raw.get("configured", True)))
+    (Kurulum bölümü onları ayarlatıyor).
+
+    Komut Satırı patikasının alıştırmaları (`"language": "shell"`) Linux kipinde:
+    kökte /etc, /usr, /tmp var, sahipleri root."""
+    world = World(lang, configured=bool(exercise.raw.get("configured", True)),
+                  linux=exercise.language == "shell")
     world.setup(exercise.setup)
     if exercise.start_dir:
         world.run(f"cd {HOME}/{exercise.start_dir}")
         world.history = []
+        world.outputs = []
     return world
 
 
@@ -238,10 +243,20 @@ def check_state(world: World, spec: dict) -> dict:
     return _ok()
 
 
-def check_shell(world: World, spec: dict) -> dict:
-    """Depo istemeyen kabuk durumu (terminalin ilk adımları): klasör, dosya, konum.
+SHELL_KEYS = {"dirs", "files", "missing", "cwd", "modes", "executable", "file_match", "vars", "vars_match",
+              "exported", "output", "command", "show"}
 
-    Yollar ev klasörüne göre. `files` değeri `None` ise yalnızca varlığına bakılıyor.
+
+def check_shell(world: World, spec: dict) -> dict:
+    """Depo istemeyen kabuk durumu: klasör, dosya, konum, izin, değişken, çıktı.
+
+    Yollar ev klasörüne göre (`/` ile başlıyorsa mutlak). Alanlar (hepsi isteğe bağlı):
+    `dirs` [yol], `files` {yol: metin | null (yalnızca var mı)}, `missing` [yol], `cwd` yol,
+    `modes` {yol: "755"}, `executable` [yol] (sahibi çalıştırabiliyor mu),
+    `file_match` {yol: düzenli ifade}, `vars` {AD: değer | null (tanımsız)},
+    `vars_match` {AD: düzenli ifade}, `exported` [AD] (export edilmiş),
+    `output` {"text": tam çıktı | "pattern": ifade, "command": komut ifadesi} (oturumda
+    bir komutun stdout'u), `command` ifade + `show` (komut geçmişinde böyle bir satır).
     """
     def yol(p: str) -> str:
         return posixpath.normpath(posixpath.join(HOME, p)) if p else HOME
@@ -260,6 +275,50 @@ def check_shell(world: World, spec: dict) -> dict:
             return _fail("file_present", path=p)
     if "cwd" in spec and world.cwd != yol(spec["cwd"]):
         return _fail("cwd", expected=world.display(yol(spec["cwd"])), actual=world.display(world.cwd))
+    for p, mode in (spec.get("modes") or {}).items():
+        if not world._exists(yol(p)):
+            return _fail("file_missing", path=p)
+        got = format(world._mode(yol(p)) & 0o7777, "o")
+        if got != str(mode).lstrip("0").rjust(3, "0"):
+            return _fail("mode", path=p, expected=str(mode), actual=got)
+    for p in spec.get("executable", []):
+        if yol(p) not in world.files:
+            return _fail("file_missing", path=p)
+        if not world._mode(yol(p)) & 0o100:
+            return _fail("not_executable", path=p)
+    for p, pattern in (spec.get("file_match") or {}).items():
+        got = world.files.get(yol(p))
+        if got is None:
+            return _fail("file_missing", path=p)
+        if not re.search(pattern, got, re.M):
+            return _fail("file_match", path=p, expected=pattern, actual=got.rstrip("\n"))
+    for name, value in (spec.get("vars") or {}).items():
+        got = world.vars.get(name)
+        if got != value:
+            return _fail("var", name=name, expected="—" if value is None else value, actual="—" if got is None else got)
+    for name, pattern in (spec.get("vars_match") or {}).items():
+        got = world.vars.get(name)
+        if got is None or not re.search(pattern, got):
+            return _fail("var", name=name, expected=pattern, actual="—" if got is None else got)
+    for name in spec.get("exported", []):
+        if name not in world.exported or name not in world.vars:
+            return _fail("not_exported", name=name)
+    want = spec.get("output")
+    if want:
+        command = re.compile(want["command"]) if want.get("command") else None
+        for line, text in world.outputs:
+            if command is not None and not command.search(line):
+                continue
+            if "text" in want and text.rstrip("\n") == str(want["text"]).rstrip("\n"):
+                break
+            if "pattern" in want and re.search(want["pattern"], text, re.M):
+                break
+        else:
+            return _fail("output_missing", expected=str(want.get("text", want.get("pattern", ""))))
+    if "command" in spec:
+        pattern = re.compile(spec["command"])
+        if not any(pattern.search(line) for line in world.history):
+            return _fail("command_missing", command=spec.get("show", spec["command"]))
     return _ok()
 
 

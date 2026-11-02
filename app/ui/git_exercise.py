@@ -80,6 +80,7 @@ class GitWork(QWidget):
         self._exercise = exercise
         self._commands = []
         self._world = build_world(exercise, self._language.language)
+        self._set_title()
         self.terminal.clear_screen()
         self._welcome()
         for line in saved_commands(saved):
@@ -109,6 +110,7 @@ class GitWork(QWidget):
     def retranslate(self) -> None:
         t = self._language.t
         self.terminal.set_texts(t("git.terminal"), t("git.reset"), t("terminal.clear"), t("git.placeholder"))
+        self._set_title()
         if self._world is not None:
             self._world.lang = self._language.language if self._language.language in ("tr", "en") else "en"
         self._refresh()
@@ -118,8 +120,20 @@ class GitWork(QWidget):
 
     # --- iç -------------------------------------------------------------------
 
+    def _shell_text(self, key: str) -> str | None:
+        """Komut Satırı alıştırmasının (`"language": "shell"`) başlık ve
+        karşılama metni; Git alıştırmasında None."""
+        if self._exercise is None or self._exercise.language != "shell":
+            return None
+        return self._language.t(f"shell.{key}")
+
+    def _set_title(self) -> None:
+        t = self._language.t
+        self.terminal.set_texts(self._shell_text("terminal") or t("git.terminal"), t("git.reset"),
+                                t("terminal.clear"), t("git.placeholder"))
+
     def _welcome(self) -> None:
-        self.terminal.write_note(self._language.t("git.welcome"), "dim", bold=False)
+        self.terminal.write_note(self._shell_text("welcome") or self._language.t("git.welcome"), "dim", bold=False)
 
     def _execute(self, line: str) -> int:
         """Satırı çalıştırıp ekrana yazar (yeniden oynatmada da)."""

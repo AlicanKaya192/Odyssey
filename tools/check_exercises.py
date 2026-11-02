@@ -109,8 +109,11 @@ def starter_kodu(exercise: Exercise, language: str) -> str:
 
 
 def _terminal(exercise: Exercise, where: str) -> list[str]:
-    """Git terminal alıştırması: benzeticide başlangıç geçmemeli, çözüm
-    komutları ve son ipucunun komutları iki dilde de geçmeli."""
+    """Terminal alıştırması (Git ya da kabuk): benzeticide başlangıç geçmemeli,
+    çözüm komutları ve son ipucunun komutları iki dilde de geçmeli.
+
+    Kabuk alıştırmasında (`"language": "shell"`) çözüm, benzeticinin
+    "bu terminalde yok" (`odyssey:`) mesajına düşen bir komut kullanmamalı."""
     problems: list[str] = []
     for language in LANGUAGES:
         world = build_world(exercise, language)
@@ -119,9 +122,11 @@ def _terminal(exercise: Exercise, where: str) -> list[str]:
         # `allow_fail`: çözümün bilerek hata gösteren adımları (sıra numarası).
         izinli = set(exercise.raw.get("allow_fail", []))
         for i, line in enumerate(exercise.solution_commands):
-            _, code = world.run(line)
+            out, code = world.run(line)
             if code not in (0, 1) and i not in izinli:
                 problems.append(f"{where}: çözüm komutu ({language}) {code} ile bitti: {line}")
+            if exercise.language == "shell" and any(text.startswith("odyssey:") for text, _ in out.lines):
+                problems.append(f"{where}: çözüm komutu ({language}) benzeticide yok: {line}")
         dusen = [r for r in evaluate(world, exercise.checks) if not r["passed"]]
         if dusen:
             problems.append(f"{where}: çözüm ({language}) geçmiyor: {dusen[0]['detail']}")

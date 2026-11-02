@@ -524,13 +524,19 @@ GIT_STATE_KEYS = {
 
 
 def _check_terminal(where: str, exercise) -> list[str]:
-    """Git terminal alıştırması: kod dosyası yok; kurulum, çözüm komutları,
-    kontroller ve hedef etiketleri. Çözümün gerçekten geçtiğine
-    `check_exercises.py` bakıyor."""
+    """Terminal alıştırması (Git ya da kabuk): kod dosyası yok; kurulum, çözüm
+    komutları, kontroller ve hedef etiketleri. Çözümün gerçekten geçtiğine
+    `check_exercises.py` bakıyor.
+
+    `"language": "shell"` (Komut Satırı patikası): depo istemiyor; `git_*`
+    kontrolü ve `git` komutu olmaz, kurulumda uzak depo olmaz."""
+    from app.core.git_checks import SHELL_KEYS
+
     problems: list[str] = []
     yer = f"{where}/{exercise.id}"
-    if exercise.language != "git":
-        problems.append(f"{yer}: terminal alıştırmasının dili 'git' olmalı ({exercise.language!r})")
+    kabuk = exercise.language == "shell"
+    if exercise.language not in ("git", "shell"):
+        problems.append(f"{yer}: terminal alıştırmasının dili 'git' ya da 'shell' olmalı ({exercise.language!r})")
     for alan in ("starter", "files", "entry"):
         if alan in exercise.raw:
             problems.append(f"{yer}: terminal alıştırmasında {alan!r} olmaz")
@@ -545,8 +551,21 @@ def _check_terminal(where: str, exercise) -> list[str]:
                     problems.append(f"{yer}: bilinmeyen git_state alanı {key!r}")
         elif tur == "shell_state":
             for key in check:
-                if key not in {"type", "label", "hint", "dirs", "files", "missing", "cwd"}:
+                if key not in SHELL_KEYS | {"type", "label", "hint"}:
                     problems.append(f"{yer}: bilinmeyen shell_state alanı {key!r}")
+            cikti = check.get("output")
+            if cikti is not None and (not isinstance(cikti, dict) or not ({"text", "pattern"} & set(cikti))):
+                problems.append(f"{yer}: shell_state output alanında text ya da pattern olmalı")
+            for kalip in [check.get("command"), *(check.get("file_match") or {}).values(),
+                          *(check.get("vars_match") or {}).values(),
+                          *([cikti.get("pattern"), cikti.get("command")] if isinstance(cikti, dict) else [])]:
+                if kalip is not None:
+                    try:
+                        re.compile(kalip)
+                    except re.error as exc:
+                        problems.append(f"{yer}: geçersiz düzenli ifade {kalip!r}: {exc}")
+        elif kabuk:
+            problems.append(f"{yer}: kabuk alıştırmasında yalnızca shell_state kontrolü olur ({tur!r})")
         elif tur == "git_config":
             for key in check:
                 if key not in {"type", "label", "hint", "repo", "global", "local"}:
@@ -571,9 +590,20 @@ def _check_terminal(where: str, exercise) -> list[str]:
         if not komut.isascii():
             disi = sorted({ch for ch in komut if not ch.isascii()})
             problems.append(f"{yer}: çözüm komutu ASCII değil ({''.join(disi)}) -> {komut!r}")
+        if kabuk and re.match(r"\s*git\b", komut):
+            problems.append(f"{yer}: kabuk alıştırmasının çözümünde git komutu olmaz -> {komut!r}")
     for adim in exercise.setup:
-        if not isinstance(adim, (str, dict)) or (isinstance(adim, dict) and not adim.get("remote")):
-            problems.append(f"{yer}: kurulum adımı komut ya da {{'remote': ...}} olmalı: {adim!r}")
+        dosya_adimi = isinstance(adim, dict) and set(adim) <= {"write", "modes"} and bool(adim)
+        if not isinstance(adim, (str, dict)) or (isinstance(adim, dict) and not adim.get("remote")
+                                                  and not dosya_adimi):
+            problems.append(f"{yer}: kurulum adımı komut, {{'remote': ...}} ya da {{'write'/'modes': ...}} "
+                            f"olmalı: {adim!r}")
+        elif kabuk and isinstance(adim, dict) and adim.get("remote"):
+            problems.append(f"{yer}: kabuk alıştırmasının kurulumunda uzak depo olmaz")
+        elif dosya_adimi:
+            for kip in (adim.get("modes") or {}).values():
+                if not re.fullmatch(r"[0-7]{3,4}", str(kip)):
+                    problems.append(f"{yer}: kurulumdaki izin sekizlik olmalı ('755'): {kip!r}")
     return problems
 
 
