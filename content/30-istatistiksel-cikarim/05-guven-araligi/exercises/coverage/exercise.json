@@ -1,0 +1,210 @@
+{
+  "id": "coverage",
+  "title": {
+    "tr": "Kapsama oranını ölç",
+    "en": "Measure the coverage"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Çarpan `stats.t.ppf((1 + level) / 2, df=n - 1)`.",
+      "en": "The multiplier is `stats.t.ppf((1 + level) / 2, df=n - 1)`."
+    },
+    {
+      "tr": "Yalnızca `mult` satırını değiştir.",
+      "en": "Change only the `mult` line."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef coverage(values, n, reps, seed, level):\n    values = np.array(values, dtype=float)\n    true_mean = values.mean()\n    rng = np.random.default_rng(seed)\n    samples = rng.choice(values, size=(reps, n))\n    means = samples.mean(axis=1)\n    ses = samples.std(axis=1, ddof=1) / np.sqrt(n)\n    mult = stats.t.ppf((1 + level) / 2, df=n - 1)\n    hit = np.abs(means - true_mean) <= mult * ses\n    return round(float(hit.mean()), 3)\n\n\ndata = list(range(1, 51))\nprint(coverage(data, 5, 3000, 0, 0.95))\nprint(coverage(data, 30, 3000, 0, 0.90))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef coverage(values, n, reps, seed, level):\n    values = np.array(values, dtype=float)\n    true_mean = values.mean()\n    rng = np.random.default_rng(seed)\n    samples = rng.choice(values, size=(reps, n))\n    means = samples.mean(axis=1)\n    ses = samples.std(axis=1, ddof=1) / np.sqrt(n)\n    mult = stats.t.ppf((1 + level) / 2, df=n - 1)\n    hit = np.abs(means - true_mean) <= mult * ses\n    return round(float(hit.mean()), 3)\n\n\ndata = list(range(1, 51))\nprint(coverage(data, 5, 3000, 0, 0.95))\nprint(coverage(data, 30, 3000, 0, 0.90))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "coverage",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50
+            ],
+            5,
+            3000,
+            0,
+            0.95
+          ],
+          "returns": 0.937
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50
+            ],
+            30,
+            3000,
+            0,
+            0.9
+          ],
+          "returns": 0.904
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              1,
+              2,
+              2,
+              3,
+              4,
+              6,
+              9,
+              15,
+              30,
+              60
+            ],
+            8,
+            3000,
+            1,
+            0.95
+          ],
+          "returns": 0.796
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              1,
+              2,
+              2,
+              3,
+              4,
+              6,
+              9,
+              15,
+              30,
+              60
+            ],
+            40,
+            3000,
+            2,
+            0.99
+          ],
+          "returns": 0.966
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.937\n0.904"
+    }
+  ]
+}

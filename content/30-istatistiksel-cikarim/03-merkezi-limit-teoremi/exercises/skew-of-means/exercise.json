@@ -1,0 +1,116 @@
+{
+  "id": "skew-of-means",
+  "title": {
+    "tr": "Ortalamaların çarpıklığı",
+    "en": "The skewness of means"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satır ortalaması: `.mean(axis=1)`.",
+      "en": "The row mean: `.mean(axis=1)`."
+    },
+    {
+      "tr": "`stats.skew(means)`, `float(...)` ile düz sayı.",
+      "en": "`stats.skew(means)`, made plain with `float(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef skew_of_means(values, n, reps, seed):\n    rng = np.random.default_rng(seed)\n    means = rng.choice(values, size=(reps, n)).mean(axis=1)\n    return round(float(stats.skew(means)), 2)\n\n\ndata = [1, 1, 1, 1, 2, 2, 3, 5, 10, 40]\nprint(skew_of_means(data, 2, 4000, 0))\nprint(skew_of_means(data, 50, 4000, 0))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef skew_of_means(values, n, reps, seed):\n    rng = np.random.default_rng(seed)\n    means = rng.choice(values, size=(reps, n)).mean(axis=1)\n    return round(float(stats.skew(means)), 2)\n\n\ndata = [1, 1, 1, 1, 2, 2, 3, 5, 10, 40]\nprint(skew_of_means(data, 2, 4000, 0))\nprint(skew_of_means(data, 50, 4000, 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "skew_of_means",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              3,
+              5,
+              10,
+              40
+            ],
+            2,
+            4000,
+            0
+          ],
+          "returns": 1.7
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              3,
+              5,
+              10,
+              40
+            ],
+            50,
+            4000,
+            0
+          ],
+          "returns": 0.39
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              3,
+              5,
+              10,
+              40
+            ],
+            10,
+            2000,
+            3
+          ],
+          "returns": 0.65
+        },
+        {
+          "args": [
+            [
+              0,
+              0,
+              0,
+              1
+            ],
+            30,
+            3000,
+            1
+          ],
+          "returns": 0.29
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.7\n0.39"
+    }
+  ]
+}

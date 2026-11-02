@@ -1,0 +1,46 @@
+{
+  "id": "poisson-check",
+  "title": {
+    "tr": "Ziyaretler Poisson mu?",
+    "en": "Are visits Poisson?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`share = visits.value_counts(normalize=True).sort_index()`, `model = stats.poisson(mu=visits.mean())`.",
+      "en": "`share = visits.value_counts(normalize=True).sort_index()`, `model = stats.poisson(mu=visits.mean())`."
+    },
+    {
+      "tr": "Satırda `round(share[k], 3)` ve `round(float(model.pmf(k)), 3)`.",
+      "en": "On the line, `round(share[k], 3)` and `round(float(model.pmf(k)), 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_population\n\nusers = make_population()\nvisits = users[\"visits\"]\nshare = visits.value_counts(normalize=True).sort_index()\nmodel = stats.poisson(mu=visits.mean())\nfor k in range(6):\n    print(k, round(share[k], 3), round(float(model.pmf(k)), 3))\nprint(round(visits.mean(), 2), round(visits.var(), 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_population\n\nusers = make_population()\nvisits = users[\"visits\"]\nshare = visits.value_counts(normalize=True).sort_index()\nmodel = stats.poisson(mu=visits.mean())\nfor k in range(6):\n    print(k, round(share[k], 3), round(float(model.pmf(k)), 3))\nprint(round(visits.mean(), 2), round(visits.var(), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 0.051 0.05\n1 0.148 0.149\n2 0.223 0.224\n3 0.226 0.224\n4 0.168 0.168\n5 0.102 0.101\n3.0 3.0"
+    }
+  ]
+}

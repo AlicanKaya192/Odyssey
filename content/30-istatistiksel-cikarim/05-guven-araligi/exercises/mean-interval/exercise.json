@@ -1,0 +1,46 @@
+{
+  "id": "mean-interval",
+  "title": {
+    "tr": "Ortalamanın güven aralığı",
+    "en": "A confidence interval for the mean"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Standart hata `x.std() / np.sqrt(len(x))`; çarpan t dağılımından.",
+      "en": "The standard error is `x.std() / np.sqrt(len(x))`; the multiplier comes from the t distribution."
+    },
+    {
+      "tr": "`low, high = stats.t.interval(0.95, df=len(x) - 1, loc=mean, scale=se)`.",
+      "en": "`low, high = stats.t.interval(0.95, df=len(x) - 1, loc=mean, scale=se)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nusers = make_population()\nx = users.sample(n=60, random_state=51)[\"load_ms\"]\nmean = x.mean()\nse = x.std() / np.sqrt(len(x))\nlow, high = stats.t.interval(0.95, df=len(x) - 1, loc=mean, scale=se)\nprint(round(mean, 1))\nprint(round(float(low), 1), round(float(high), 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nusers = make_population()\nx = users.sample(n=60, random_state=51)[\"load_ms\"]\nmean = x.mean()\nse = x.std() / np.sqrt(len(x))\nlow, high = stats.t.interval(0.95, df=len(x) - 1, loc=mean, scale=se)\nprint(round(mean, 1))\nprint(round(float(low), 1), round(float(high), 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "843.8\n813.9 873.7"
+    }
+  ]
+}

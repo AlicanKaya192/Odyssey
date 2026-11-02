@@ -1,0 +1,132 @@
+{
+  "id": "iqr-outliers",
+  "title": {
+    "tr": "1,5 × IQR kuralı",
+    "en": "The 1.5 × IQR rule"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki sınırı hesapla, sonra `v < low or v > high` olanları seç.",
+      "en": "Compute both limits, then pick those with `v < low or v > high`."
+    },
+    {
+      "tr": "`sorted(v for v in values if v < low or v > high)`.",
+      "en": "`sorted(v for v in values if v < low or v > high)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef iqr_outliers(values):\n    q1, q3 = np.percentile(values, [25, 75])\n    iqr = q3 - q1\n    low = q1 - 1.5 * iqr\n    high = q3 + 1.5 * iqr\n    return sorted(v for v in values if v < low or v > high)\n\n\nprint(iqr_outliers([1, 2, 3, 4, 5, 6, 7, 8, 9, 100]))\nprint(iqr_outliers([12, 11, 13, -40, 12, 11, 12]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef iqr_outliers(values):\n    q1, q3 = np.percentile(values, [25, 75])\n    iqr = q3 - q1\n    low = q1 - 1.5 * iqr\n    high = q3 + 1.5 * iqr\n    return sorted(v for v in values if v < low or v > high)\n\n\nprint(iqr_outliers([1, 2, 3, 4, 5, 6, 7, 8, 9, 100]))\nprint(iqr_outliers([12, 11, 13, -40, 12, 11, 12]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "iqr_outliers",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              100
+            ]
+          ],
+          "returns": [
+            100
+          ]
+        },
+        {
+          "args": [
+            [
+              12,
+              11,
+              13,
+              -40,
+              12,
+              11,
+              12
+            ]
+          ],
+          "returns": [
+            -40
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              5,
+              5,
+              5
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              1,
+              50,
+              51,
+              52,
+              53,
+              54,
+              200
+            ]
+          ],
+          "returns": [
+            1,
+            200
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[100]\n[-40]"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "repeat-samples",
+  "title": {
+    "tr": "Beş yüz örneklem",
+    "en": "Five hundred samples"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for seed in range(500):` döngüsünde `means.append(sample.mean())`.",
+      "en": "In a `for seed in range(500):` loop, `means.append(sample.mean())`."
+    },
+    {
+      "tr": "`means = np.array(means)`; yakınlık `np.abs(means - true_mean) <= 1`, payı `.mean()`.",
+      "en": "`means = np.array(means)`; closeness `np.abs(means - true_mean) <= 1`, its share `.mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population\n\nusers = make_population()\ntrue_mean = users[\"minutes\"].mean()\nmeans = []\nfor seed in range(500):\n    sample = users[\"minutes\"].sample(n=50, random_state=seed)\n    means.append(sample.mean())\nmeans = np.array(means)\nprint(round(means.min(), 2))\nprint(round(means.max(), 2))\nclose = np.abs(means - true_mean) <= 1\nprint(round(close.mean(), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population\n\nusers = make_population()\ntrue_mean = users[\"minutes\"].mean()\nmeans = []\nfor seed in range(500):\n    sample = users[\"minutes\"].sample(n=50, random_state=seed)\n    means.append(sample.mean())\nmeans = np.array(means)\nprint(round(means.min(), 2))\nprint(round(means.max(), 2))\nclose = np.abs(means - true_mean) <= 1\nprint(round(close.mean(), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6.84\n11.98\n0.75"
+    }
+  ]
+}

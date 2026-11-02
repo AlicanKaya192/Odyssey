@@ -1,0 +1,46 @@
+{
+  "id": "means-of-samples",
+  "title": {
+    "tr": "Ortalamaların dağılımı",
+    "en": "The distribution of means"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for n in [4, 64]:` döngüsünde `means` her tur yeniden hesaplanır.",
+      "en": "In a `for n in [4, 64]:` loop, `means` is recomputed every round."
+    },
+    {
+      "tr": "Ortalamaların sapması `means.std()`.",
+      "en": "The deviation of the means is `means.std()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population\n\nusers = make_population()\nx = users[\"minutes\"].to_numpy()\nrng = np.random.default_rng(11)\nfor n in [4, 64]:\n    means = rng.choice(x, size=(3000, n)).mean(axis=1)\n    print(n, round(means.mean(), 2), round(means.std(), 3),\n          round(x.std() / np.sqrt(n), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population\n\nusers = make_population()\nx = users[\"minutes\"].to_numpy()\nrng = np.random.default_rng(11)\nfor n in [4, 64]:\n    means = rng.choice(x, size=(3000, n)).mean(axis=1)\n    print(n, round(means.mean(), 2), round(means.std(), 3),\n          round(x.std() / np.sqrt(n), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4 9.03 3.052 3.064\n64 9.05 0.764 0.766"
+    }
+  ]
+}

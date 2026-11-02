@@ -1,0 +1,46 @@
+{
+  "id": "describe-columns",
+  "title": {
+    "tr": "İki sütunu özetle",
+    "en": "Summarise two columns"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Farkları bir sözlükte topla: `gaps[col] = abs(x.mean() - x.median())`.",
+      "en": "Collect the gaps in a dictionary: `gaps[col] = abs(x.mean() - x.median())`."
+    },
+    {
+      "tr": "En büyük değerin anahtarı: `max(gaps, key=gaps.get)`.",
+      "en": "The key of the largest value: `max(gaps, key=gaps.get)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population\n\nusers = make_population()\ngaps = {}\nfor col in [\"load_ms\", \"minutes\"]:\n    x = users[col]\n    p95 = np.percentile(x, 95)\n    print(col, round(x.mean(), 1), round(x.median(), 1),\n          round(x.std(), 1), round(p95, 1))\n    gaps[col] = abs(x.mean() - x.median())\nprint(max(gaps, key=gaps.get))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population\n\nusers = make_population()\ngaps = {}\nfor col in [\"load_ms\", \"minutes\"]:\n    x = users[col]\n    p95 = np.percentile(x, 95)\n    print(col, round(x.mean(), 1), round(x.median(), 1),\n          round(x.std(), 1), round(p95, 1))\n    gaps[col] = abs(x.mean() - x.median())\nprint(max(gaps, key=gaps.get))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "load_ms 849.7 850.0 120.3 1048.0\nminutes 9.0 7.5 6.1 20.5\nminutes"
+    }
+  ]
+}

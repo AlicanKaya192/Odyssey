@@ -1,0 +1,46 @@
+{
+  "id": "rule-on-age",
+  "title": {
+    "tr": "Yaşlarda 68–95–99,7",
+    "en": "68–95–99.7 on ages"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Uzaklık: `(x - x.mean()).abs()`; sınır: `k * x.std()`.",
+      "en": "Distance: `(x - x.mean()).abs()`; limit: `k * x.std()`."
+    },
+    {
+      "tr": "Gerçek pay bir doğru/yanlış dizisinin ortalaması: `(... <= ...).mean()`.",
+      "en": "The real share is the mean of a true/false array: `(... <= ...).mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_population\n\nusers = make_population()\nx = users[\"age\"]\nfor k in [1, 2, 3]:\n    model = float(stats.norm.cdf(k) - stats.norm.cdf(-k))\n    real = float(((x - x.mean()).abs() <= k * x.std()).mean())\n    print(k, round(model, 4), round(real, 4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_population\n\nusers = make_population()\nx = users[\"age\"]\nfor k in [1, 2, 3]:\n    model = float(stats.norm.cdf(k) - stats.norm.cdf(-k))\n    real = float(((x - x.mean()).abs() <= k * x.std()).mean())\n    print(k, round(model, 4), round(real, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 0.6827 0.661\n2 0.9545 0.9749\n3 0.9973 0.9986"
+    }
+  ]
+}

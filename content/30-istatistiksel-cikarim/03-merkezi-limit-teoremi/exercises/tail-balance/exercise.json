@@ -1,0 +1,46 @@
+{
+  "id": "tail-balance",
+  "title": {
+    "tr": "Kuyruk dengesi",
+    "en": "Tail balance"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İki pay: `(means < mu - 1.96 * se).mean()` ve `(means > mu + 1.96 * se).mean()`.",
+      "en": "The two shares: `(means < mu - 1.96 * se).mean()` and `(means > mu + 1.96 * se).mean()`."
+    },
+    {
+      "tr": "`se` her `n` için döngünün içinde yeniden hesaplanır.",
+      "en": "`se` is recomputed inside the loop for each `n`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population\n\nusers = make_population()\ny = users[\"spend\"].to_numpy()\nmu, sigma = y.mean(), y.std()\nrng = np.random.default_rng(12)\nfor n in [30, 2000]:\n    means = rng.choice(y, size=(2000, n)).mean(axis=1)\n    se = sigma / np.sqrt(n)\n    low = (means < mu - 1.96 * se).mean()\n    high = (means > mu + 1.96 * se).mean()\n    print(n, round(low, 3), round(high, 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population\n\nusers = make_population()\ny = users[\"spend\"].to_numpy()\nmu, sigma = y.mean(), y.std()\nrng = np.random.default_rng(12)\nfor n in [30, 2000]:\n    means = rng.choice(y, size=(2000, n)).mean(axis=1)\n    se = sigma / np.sqrt(n)\n    low = (means < mu - 1.96 * se).mean()\n    high = (means > mu + 1.96 * se).mean()\n    print(n, round(low, 3), round(high, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "30 0.0 0.046\n2000 0.02 0.029"
+    }
+  ]
+}

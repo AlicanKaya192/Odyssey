@@ -1,0 +1,46 @@
+{
+  "id": "width-table",
+  "title": {
+    "tr": "Aralığın genişliği",
+    "en": "The width of the interval"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Genişlik iki sınırın farkı.",
+      "en": "The width is the difference of the two limits."
+    },
+    {
+      "tr": "`high - low`.",
+      "en": "`high - low`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nusers = make_population()\nfor n in [30, 120, 480]:\n    x = users.sample(n=n, random_state=52)[\"minutes\"]\n    se = x.std() / np.sqrt(n)\n    low, high = stats.t.interval(0.95, df=n - 1, loc=x.mean(), scale=se)\n    print(n, round(float(high - low), 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nusers = make_population()\nfor n in [30, 120, 480]:\n    x = users.sample(n=n, random_state=52)[\"minutes\"]\n    se = x.std() / np.sqrt(n)\n    low, high = stats.t.interval(0.95, df=n - 1, loc=x.mean(), scale=se)\n    print(n, round(float(high - low), 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "30 2.55\n120 1.66\n480 1.14"
+    }
+  ]
+}
