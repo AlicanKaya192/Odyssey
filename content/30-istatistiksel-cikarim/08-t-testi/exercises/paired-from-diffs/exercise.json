@@ -1,0 +1,107 @@
+{
+  "id": "paired-from-diffs",
+  "title": {
+    "tr": "Farkların testi",
+    "en": "Testing the differences"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Farklar: `[b - a for b, a in zip(before, after)]`.",
+      "en": "The differences: `[b - a for b, a in zip(before, after)]`."
+    },
+    {
+      "tr": "`stats.ttest_1samp(diffs, 0)`.",
+      "en": "`stats.ttest_1samp(diffs, 0)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom scipy import stats\n\n\ndef paired_p(before, after):\n    diffs = [b - a for b, a in zip(before, after)]\n    return round(float(stats.ttest_1samp(diffs, 0).pvalue), 4)\n\n\nprint(paired_p([910, 860, 845, 930, 880], [890, 851, 820, 915, 866]))\n```",
+      "en": "The full solution:\n\n```python\nfrom scipy import stats\n\n\ndef paired_p(before, after):\n    diffs = [b - a for b, a in zip(before, after)]\n    return round(float(stats.ttest_1samp(diffs, 0).pvalue), 4)\n\n\nprint(paired_p([910, 860, 845, 930, 880], [890, 851, 820, 915, 866]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "paired_p",
+      "cases": [
+        {
+          "args": [
+            [
+              910,
+              860,
+              845,
+              930,
+              880
+            ],
+            [
+              890,
+              851,
+              820,
+              915,
+              866
+            ]
+          ],
+          "returns": 0.0037
+        },
+        {
+          "args": [
+            [
+              5,
+              7,
+              6,
+              9,
+              8,
+              7
+            ],
+            [
+              4,
+              7,
+              5,
+              8,
+              8,
+              6
+            ]
+          ],
+          "returns": 0.025
+        },
+        {
+          "args": [
+            [
+              100,
+              220,
+              340,
+              460
+            ],
+            [
+              98,
+              215,
+              341,
+              452
+            ]
+          ],
+          "returns": 0.1684
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "ttest_rel",
+      "hint": {
+        "tr": "Farklardan tek örneklem testiyle bul.",
+        "en": "Use a one-sample test on the differences."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.0037"
+    }
+  ]
+}

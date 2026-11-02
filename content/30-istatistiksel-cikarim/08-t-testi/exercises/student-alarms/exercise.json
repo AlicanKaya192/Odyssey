@@ -1,0 +1,84 @@
+{
+  "id": "student-alarms",
+  "title": {
+    "tr": "Student'ın yanlış alarmları",
+    "en": "Student's false alarms"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki ayrı p dizisi: biri `ttest_ind(x1, x2, axis=1)`, öteki `equal_var=False` ile.",
+      "en": "Two p arrays: one from `ttest_ind(x1, x2, axis=1)`, the other with `equal_var=False`."
+    },
+    {
+      "tr": "Payları ayrı ayrı hesapla.",
+      "en": "Compute the shares separately."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef alarm_rates(n1, sd1, n2, sd2, reps, seed):\n    rng = np.random.default_rng(seed)\n    x1 = rng.normal(10, sd1, size=(reps, n1))\n    x2 = rng.normal(10, sd2, size=(reps, n2))\n    student = stats.ttest_ind(x1, x2, axis=1).pvalue\n    welch = stats.ttest_ind(x1, x2, axis=1, equal_var=False).pvalue\n    return [round(float((student < 0.05).mean()), 3),\n            round(float((welch < 0.05).mean()), 3)]\n\n\nprint(alarm_rates(20, 6, 80, 2, 4000, 0))\nprint(alarm_rates(50, 3, 50, 3, 4000, 1))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom scipy import stats\n\n\ndef alarm_rates(n1, sd1, n2, sd2, reps, seed):\n    rng = np.random.default_rng(seed)\n    x1 = rng.normal(10, sd1, size=(reps, n1))\n    x2 = rng.normal(10, sd2, size=(reps, n2))\n    student = stats.ttest_ind(x1, x2, axis=1).pvalue\n    welch = stats.ttest_ind(x1, x2, axis=1, equal_var=False).pvalue\n    return [round(float((student < 0.05).mean()), 3),\n            round(float((welch < 0.05).mean()), 3)]\n\n\nprint(alarm_rates(20, 6, 80, 2, 4000, 0))\nprint(alarm_rates(50, 3, 50, 3, 4000, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "alarm_rates",
+      "cases": [
+        {
+          "args": [
+            20,
+            6,
+            80,
+            2,
+            4000,
+            0
+          ],
+          "returns": [
+            0.259,
+            0.053
+          ]
+        },
+        {
+          "args": [
+            50,
+            3,
+            50,
+            3,
+            4000,
+            1
+          ],
+          "returns": [
+            0.051,
+            0.05
+          ]
+        },
+        {
+          "args": [
+            80,
+            6,
+            20,
+            2,
+            4000,
+            2
+          ],
+          "returns": [
+            0.001,
+            0.046
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.259, 0.053]\n[0.051, 0.05]"
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "id": "decide",
+  "title": {
+    "tr": "Karar ver",
+    "en": "Decide"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Küçük p, H₀'a karşı kanıttır: `p < alpha` ise reddet.",
+      "en": "A small p is evidence against H₀: reject if `p < alpha`."
+    },
+    {
+      "tr": "`if p < alpha:`.",
+      "en": "`if p < alpha:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom scipy import stats\n\n\ndef decide(values, mu0, alpha):\n    p = float(stats.ttest_1samp(values, mu0).pvalue)\n    if p < alpha:\n        return [\"reject\", round(p, 4)]\n    return [\"keep\", round(p, 4)]\n\n\nprint(decide([910, 860, 845, 930, 880, 905, 870, 925], 850, 0.05))\nprint(decide([852, 848, 851, 849, 853, 847], 850, 0.05))\n```",
+      "en": "The full solution:\n\n```python\nfrom scipy import stats\n\n\ndef decide(values, mu0, alpha):\n    p = float(stats.ttest_1samp(values, mu0).pvalue)\n    if p < alpha:\n        return [\"reject\", round(p, 4)]\n    return [\"keep\", round(p, 4)]\n\n\nprint(decide([910, 860, 845, 930, 880, 905, 870, 925], 850, 0.05))\nprint(decide([852, 848, 851, 849, 853, 847], 850, 0.05))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decide",
+      "cases": [
+        {
+          "args": [
+            [
+              910,
+              860,
+              845,
+              930,
+              880,
+              905,
+              870,
+              925
+            ],
+            850,
+            0.05
+          ],
+          "returns": [
+            "reject",
+            0.008
+          ]
+        },
+        {
+          "args": [
+            [
+              852,
+              848,
+              851,
+              849,
+              853,
+              847
+            ],
+            850,
+            0.05
+          ],
+          "returns": [
+            "keep",
+            1.0
+          ]
+        },
+        {
+          "args": [
+            [
+              910,
+              860,
+              845,
+              930,
+              880,
+              905,
+              870,
+              925
+            ],
+            850,
+            0.001
+          ],
+          "returns": [
+            "keep",
+            0.008
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              7,
+              6,
+              8,
+              4
+            ],
+            3,
+            0.05
+          ],
+          "returns": [
+            "reject",
+            0.0132
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['reject', 0.008]\n['keep', 1.0]"
+    }
+  ]
+}

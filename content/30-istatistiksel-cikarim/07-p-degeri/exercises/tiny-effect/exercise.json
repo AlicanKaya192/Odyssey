@@ -1,0 +1,46 @@
+{
+  "id": "tiny-effect",
+  "title": {
+    "tr": "Dev örneklem, minik fark",
+    "en": "A huge sample, a tiny difference"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`result = stats.ttest_ind(b, a, equal_var=False)`; p `result.pvalue`.",
+      "en": "`result = stats.ttest_ind(b, a, equal_var=False)`; p is `result.pvalue`."
+    },
+    {
+      "tr": "Saniye: `(b.mean() - a.mean()) * 60`.",
+      "en": "Seconds: `(b.mean() - a.mean()) * 60`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nx = make_population()[\"minutes\"].to_numpy()\nrng = np.random.default_rng(103)\na = rng.choice(x, size=50000)\nb = rng.choice(x, size=50000) * 1.02\nresult = stats.ttest_ind(b, a, equal_var=False)\nseconds = (b.mean() - a.mean()) * 60\nprint(f\"{result.pvalue:.1e}\")\nprint(round(seconds, 1))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nx = make_population()[\"minutes\"].to_numpy()\nrng = np.random.default_rng(103)\na = rng.choice(x, size=50000)\nb = rng.choice(x, size=50000) * 1.02\nresult = stats.ttest_ind(b, a, equal_var=False)\nseconds = (b.mean() - a.mean()) * 60\nprint(f\"{result.pvalue:.1e}\")\nprint(round(seconds, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.1e-03\n7.2"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "power-by-n",
+  "title": {
+    "tr": "Örneklem büyüyünce güç",
+    "en": "Power as the sample grows"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yavaşlamış dünya: `rng.choice(old, size=(3000, n)) + 40`.",
+      "en": "The slower world: `rng.choice(old, size=(3000, n)) + 40`."
+    },
+    {
+      "tr": "Yalnızca `+ 40` eksik.",
+      "en": "Only `+ 40` is missing."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nold = make_population()[\"load_ms\"].to_numpy()\nrng = np.random.default_rng(83)\nfor n in [20, 80]:\n    slower = rng.choice(old, size=(3000, n)) + 40\n    p = stats.ttest_1samp(slower, old.mean(), axis=1).pvalue\n    print(n, round((p < 0.05).mean(), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nold = make_population()[\"load_ms\"].to_numpy()\nrng = np.random.default_rng(83)\nfor n in [20, 80]:\n    slower = rng.choice(old, size=(3000, n)) + 40\n    p = stats.ttest_1samp(slower, old.mean(), axis=1).pvalue\n    print(n, round((p < 0.05).mean(), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "20 0.294\n80 0.846"
+    }
+  ]
+}

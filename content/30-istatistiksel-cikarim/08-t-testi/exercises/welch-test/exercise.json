@@ -1,0 +1,46 @@
+{
+  "id": "welch-test",
+  "title": {
+    "tr": "Welch testi ve yön",
+    "en": "Welch's test and direction"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk verilen grup eksi ikinci: `ttest_ind(b, a, ...)`.",
+      "en": "The first group minus the second: `ttest_ind(b, a, ...)`."
+    },
+    {
+      "tr": "Yalnızca `a` ile `b`'nin yerini değiştir.",
+      "en": "Just swap `a` and `b`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_design_test\n\ntest = make_design_test(n=200, seed=121)\na = test.loc[test[\"group\"] == \"A\", \"minutes\"]\nb = test.loc[test[\"group\"] == \"B\", \"minutes\"]\nresult = stats.ttest_ind(b, a, equal_var=False)\nlow, high = result.confidence_interval(0.95)\nprint(round(b.mean() - a.mean(), 2))\nprint(round(result.pvalue, 4))\nprint(round(low, 2), round(high, 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_design_test\n\ntest = make_design_test(n=200, seed=121)\na = test.loc[test[\"group\"] == \"A\", \"minutes\"]\nb = test.loc[test[\"group\"] == \"B\", \"minutes\"]\nresult = stats.ttest_ind(b, a, equal_var=False)\nlow, high = result.confidence_interval(0.95)\nprint(round(b.mean() - a.mean(), 2))\nprint(round(result.pvalue, 4))\nprint(round(low, 2), round(high, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.26\n0.6747\n-0.97 1.49"
+    }
+  ]
+}

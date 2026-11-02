@@ -1,0 +1,98 @@
+{
+  "id": "two-proportion-z",
+  "title": {
+    "tr": "z-testi elle",
+    "en": "The z-test by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki yönlü: iki kuyruğun toplamı.",
+      "en": "Two-sided: the sum of both tails."
+    },
+    {
+      "tr": "`2 * stats.norm.sf(abs(z))`.",
+      "en": "`2 * stats.norm.sf(abs(z))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\nfrom scipy import stats\n\n\ndef z_test(k_a, n_a, k_b, n_b):\n    pa, pb = k_a / n_a, k_b / n_b\n    pool = (k_a + k_b) / (n_a + n_b)\n    se = math.sqrt(pool * (1 - pool) * (1 / n_a + 1 / n_b))\n    z = (pb - pa) / se\n    return [round(z, 3), round(float(2 * stats.norm.sf(abs(z))), 4)]\n\n\nprint(z_test(472, 4000, 560, 4000))\nprint(z_test(50, 500, 70, 500))\n```",
+      "en": "The full solution:\n\n```python\nimport math\nfrom scipy import stats\n\n\ndef z_test(k_a, n_a, k_b, n_b):\n    pa, pb = k_a / n_a, k_b / n_b\n    pool = (k_a + k_b) / (n_a + n_b)\n    se = math.sqrt(pool * (1 - pool) * (1 / n_a + 1 / n_b))\n    z = (pb - pa) / se\n    return [round(z, 3), round(float(2 * stats.norm.sf(abs(z))), 4)]\n\n\nprint(z_test(472, 4000, 560, 4000))\nprint(z_test(50, 500, 70, 500))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "z_test",
+      "cases": [
+        {
+          "args": [
+            472,
+            4000,
+            560,
+            4000
+          ],
+          "returns": [
+            2.935,
+            0.0033
+          ]
+        },
+        {
+          "args": [
+            50,
+            500,
+            70,
+            500
+          ],
+          "returns": [
+            1.946,
+            0.0516
+          ]
+        },
+        {
+          "args": [
+            80,
+            1000,
+            62,
+            1000
+          ],
+          "returns": [
+            -1.567,
+            0.1171
+          ]
+        },
+        {
+          "args": [
+            10,
+            100,
+            10,
+            100
+          ],
+          "returns": [
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "proportions_ztest",
+      "hint": {
+        "tr": "Testi kendin hesapla.",
+        "en": "Compute the test yourself."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2.935, 0.0033]\n[1.946, 0.0516]"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "null-world",
+  "title": {
+    "tr": "H₀ dünyasında p değeri",
+    "en": "A p-value in the H₀ world"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satır ortalamaları: `.mean(axis=1)`; uzaklık `np.abs(means - old.mean())`.",
+      "en": "Row means: `.mean(axis=1)`; the distance `np.abs(means - old.mean())`."
+    },
+    {
+      "tr": "`far = np.abs(means - old.mean()) >= gap`, sonra `far.mean()`.",
+      "en": "`far = np.abs(means - old.mean()) >= gap`, then `far.mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population, make_speed_test\n\nold = make_population()[\"load_ms\"].to_numpy()\nloads = make_speed_test(n=20, seed=81)\ngap = abs(loads.mean() - old.mean())\nrng = np.random.default_rng(82)\nmeans = rng.choice(old, size=(10000, 20)).mean(axis=1)\nfar = np.abs(means - old.mean()) >= gap\nprint(round(gap, 1))\nprint(round(far.mean(), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_population, make_speed_test\n\nold = make_population()[\"load_ms\"].to_numpy()\nloads = make_speed_test(n=20, seed=81)\ngap = abs(loads.mean() - old.mean())\nrng = np.random.default_rng(82)\nmeans = rng.choice(old, size=(10000, 20)).mean(axis=1)\nfar = np.abs(means - old.mean()) >= gap\nprint(round(gap, 1))\nprint(round(far.mean(), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "87.4\n0.001"
+    }
+  ]
+}

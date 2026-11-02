@@ -1,0 +1,46 @@
+{
+  "id": "layout-anova",
+  "title": {
+    "tr": "Düzenlerde ANOVA",
+    "en": "ANOVA on layouts"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her grup ayrı bir bağımsız değişken: `stats.f_oneway(*groups)`.",
+      "en": "Each group is a separate argument: `stats.f_oneway(*groups)`."
+    },
+    {
+      "tr": "`result.statistic`, `result.pvalue`.",
+      "en": "`result.statistic`, `result.pvalue`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_layout_test\n\ntest = make_layout_test(n=80, seed=181)\nmeans = test.groupby(\"layout\")[\"minutes\"].mean().round(2)\nprint(means.to_dict())\ngroups = [g[\"minutes\"] for _, g in test.groupby(\"layout\")]\nresult = stats.f_oneway(*groups)\nprint(round(result.statistic, 3), round(result.pvalue, 4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_layout_test\n\ntest = make_layout_test(n=80, seed=181)\nmeans = test.groupby(\"layout\")[\"minutes\"].mean().round(2)\nprint(means.to_dict())\ngroups = [g[\"minutes\"] for _, g in test.groupby(\"layout\")]\nresult = stats.f_oneway(*groups)\nprint(round(result.statistic, 3), round(result.pvalue, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'A': 7.97, 'B': 8.38, 'C': 9.17, 'D': 8.58}\n2.427 0.0655"
+    }
+  ]
+}

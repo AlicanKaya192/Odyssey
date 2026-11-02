@@ -1,0 +1,46 @@
+{
+  "id": "tukey-pairs",
+  "title": {
+    "tr": "Hangi çiftler farklı?",
+    "en": "Which pairs differ?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`res = stats.tukey_hsd(*groups)`; çiftin p'si `res.pvalue[i, j]`.",
+      "en": "`res = stats.tukey_hsd(*groups)`; a pair's p is `res.pvalue[i, j]`."
+    },
+    {
+      "tr": "Döngüde `ttest_ind` yerine `res.pvalue[i, j] < 0.05`.",
+      "en": "In the loop, `res.pvalue[i, j] < 0.05` instead of `ttest_ind`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport itertools\nfrom scipy import stats\nfrom ab_data import make_layout_test\n\ntest = make_layout_test()\nnames = sorted(test[\"layout\"].unique())\ngroups = [test.loc[test[\"layout\"] == n, \"minutes\"] for n in names]\nres = stats.tukey_hsd(*groups)\nfor i, j in itertools.combinations(range(4), 2):\n    if res.pvalue[i, j] < 0.05:\n        print(names[i], names[j])\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport itertools\nfrom scipy import stats\nfrom ab_data import make_layout_test\n\ntest = make_layout_test()\nnames = sorted(test[\"layout\"].unique())\ngroups = [test.loc[test[\"layout\"] == n, \"minutes\"] for n in names]\nres = stats.tukey_hsd(*groups)\nfor i, j in itertools.combinations(range(4), 2):\n    if res.pvalue[i, j] < 0.05:\n        print(names[i], names[j])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "A C\nB C"
+    }
+  ]
+}

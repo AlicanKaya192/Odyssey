@@ -1,0 +1,90 @@
+{
+  "id": "choose-test",
+  "title": {
+    "tr": "Doğru testi seç",
+    "en": "Choose the right test"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "En küçük beklenen sayı: `min(expected)`.",
+      "en": "The smallest expected count: `min(expected)`."
+    },
+    {
+      "tr": "`if min(expected) < 5:` ise Fisher.",
+      "en": "Fisher `if min(expected) < 5:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom scipy import stats\nfrom statsmodels.stats.proportion import proportions_ztest\n\n\ndef choose_test(k_a, n_a, k_b, n_b):\n    pool = (k_a + k_b) / (n_a + n_b)\n    expected = [n_a * pool, n_a * (1 - pool), n_b * pool, n_b * (1 - pool)]\n    if min(expected) < 5:\n        table = [[k_a, n_a - k_a], [k_b, n_b - k_b]]\n        return [\"fisher\", round(float(stats.fisher_exact(table).pvalue), 4)]\n    z, p = proportions_ztest([k_b, k_a], [n_b, n_a])\n    return [\"z\", round(float(p), 4)]\n\n\nprint(choose_test(472, 4000, 560, 4000))\nprint(choose_test(3, 40, 11, 40))\n```",
+      "en": "The full solution:\n\n```python\nfrom scipy import stats\nfrom statsmodels.stats.proportion import proportions_ztest\n\n\ndef choose_test(k_a, n_a, k_b, n_b):\n    pool = (k_a + k_b) / (n_a + n_b)\n    expected = [n_a * pool, n_a * (1 - pool), n_b * pool, n_b * (1 - pool)]\n    if min(expected) < 5:\n        table = [[k_a, n_a - k_a], [k_b, n_b - k_b]]\n        return [\"fisher\", round(float(stats.fisher_exact(table).pvalue), 4)]\n    z, p = proportions_ztest([k_b, k_a], [n_b, n_a])\n    return [\"z\", round(float(p), 4)]\n\n\nprint(choose_test(472, 4000, 560, 4000))\nprint(choose_test(3, 40, 11, 40))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "choose_test",
+      "cases": [
+        {
+          "args": [
+            472,
+            4000,
+            560,
+            4000
+          ],
+          "returns": [
+            "z",
+            0.0033
+          ]
+        },
+        {
+          "args": [
+            3,
+            40,
+            11,
+            40
+          ],
+          "returns": [
+            "z",
+            0.0186
+          ]
+        },
+        {
+          "args": [
+            30,
+            100,
+            45,
+            100
+          ],
+          "returns": [
+            "z",
+            0.0285
+          ]
+        },
+        {
+          "args": [
+            1,
+            12,
+            6,
+            12
+          ],
+          "returns": [
+            "fisher",
+            0.0686
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['z', 0.0033]\n['z', 0.0186]"
+    }
+  ]
+}

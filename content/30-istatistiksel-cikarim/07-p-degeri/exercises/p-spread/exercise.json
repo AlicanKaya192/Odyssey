@@ -1,0 +1,46 @@
+{
+  "id": "p-spread",
+  "title": {
+    "tr": "Aynı deney, farklı p",
+    "en": "The same experiment, different p"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Güç: `(p < 0.05).mean()`.",
+      "en": "Power: `(p < 0.05).mean()`."
+    },
+    {
+      "tr": "`print(round(p[0], 3))` satırını kaldır.",
+      "en": "Remove the `print(round(p[0], 3))` line."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nx = make_population()[\"minutes\"].to_numpy()\nrng = np.random.default_rng(102)\na = rng.choice(x, size=(2000, 300))\nb = rng.choice(x, size=(2000, 300)) * 1.10\np = stats.ttest_ind(b, a, axis=1, equal_var=False).pvalue\nprint(round((p < 0.05).mean(), 3))\nprint(np.round(np.percentile(p, [10, 50, 90]), 3).tolist())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_population\n\nx = make_population()[\"minutes\"].to_numpy()\nrng = np.random.default_rng(102)\na = rng.choice(x, size=(2000, 300))\nb = rng.choice(x, size=(2000, 300)) * 1.10\np = stats.ttest_ind(b, a, axis=1, equal_var=False).pvalue\nprint(round((p < 0.05).mean(), 3))\nprint(np.round(np.percentile(p, [10, 50, 90]), 3).tolist())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.41\n[0.002, 0.082, 0.574]"
+    }
+  ]
+}

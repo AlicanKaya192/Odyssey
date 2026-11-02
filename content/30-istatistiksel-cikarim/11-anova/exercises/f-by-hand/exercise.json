@@ -1,0 +1,147 @@
+{
+  "id": "f-by-hand",
+  "title": {
+    "tr": "F ve η² elle",
+    "en": "F and η² by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`k, n = len(groups), len(values)`.",
+      "en": "`k, n = len(groups), len(values)`."
+    },
+    {
+      "tr": "`f = (between / (k - 1)) / (within / (n - k))`.",
+      "en": "`f = (between / (k - 1)) / (within / (n - k))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef f_and_eta(groups):\n    values = [x for g in groups for x in g]\n    grand = sum(values) / len(values)\n    between = sum(len(g) * (sum(g) / len(g) - grand) ** 2 for g in groups)\n    within = sum(sum((x - sum(g) / len(g)) ** 2 for x in g) for g in groups)\n    k, n = len(groups), len(values)\n    f = (between / (k - 1)) / (within / (n - k))\n    eta = between / (between + within)\n    return [round(f, 3), round(eta, 3)]\n\n\nprint(f_and_eta([[5, 6, 7], [6, 7, 8], [9, 10, 11]]))\n```",
+      "en": "The full solution:\n\n```python\ndef f_and_eta(groups):\n    values = [x for g in groups for x in g]\n    grand = sum(values) / len(values)\n    between = sum(len(g) * (sum(g) / len(g) - grand) ** 2 for g in groups)\n    within = sum(sum((x - sum(g) / len(g)) ** 2 for x in g) for g in groups)\n    k, n = len(groups), len(values)\n    f = (between / (k - 1)) / (within / (n - k))\n    eta = between / (between + within)\n    return [round(f, 3), round(eta, 3)]\n\n\nprint(f_and_eta([[5, 6, 7], [6, 7, 8], [9, 10, 11]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "f_and_eta",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                5,
+                6,
+                7
+              ],
+              [
+                6,
+                7,
+                8
+              ],
+              [
+                9,
+                10,
+                11
+              ]
+            ]
+          ],
+          "returns": [
+            13.0,
+            0.812
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2,
+                3,
+                4
+              ],
+              [
+                2,
+                3,
+                4,
+                5
+              ]
+            ]
+          ],
+          "returns": [
+            1.2,
+            0.167
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                10,
+                12,
+                11
+              ],
+              [
+                10,
+                12,
+                11
+              ],
+              [
+                10,
+                12,
+                11
+              ]
+            ]
+          ],
+          "returns": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                3.5,
+                4.0,
+                5.5
+              ],
+              [
+                6.0,
+                7.5,
+                6.5,
+                7.0
+              ],
+              [
+                5.0,
+                4.5
+              ]
+            ]
+          ],
+          "returns": [
+            9.706,
+            0.764
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "f_oneway",
+      "hint": {
+        "tr": "F'yi kendin hesapla.",
+        "en": "Compute F yourself."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[13.0, 0.812]"
+    }
+  ]
+}

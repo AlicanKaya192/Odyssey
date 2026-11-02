@@ -1,0 +1,105 @@
+{
+  "id": "welch-by-hand",
+  "title": {
+    "tr": "Welch t'si elle",
+    "en": "Welch's t by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her ortalamanın standart hatasının karesi `v / n`.",
+      "en": "The square of each mean's standard error is `v / n`."
+    },
+    {
+      "tr": "`math.sqrt(va / len(a) + vb / len(b))`.",
+      "en": "`math.sqrt(va / len(a) + vb / len(b))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef welch_t(a, b):\n    ma, mb = sum(a) / len(a), sum(b) / len(b)\n    va = sum((x - ma) ** 2 for x in a) / (len(a) - 1)\n    vb = sum((x - mb) ** 2 for x in b) / (len(b) - 1)\n    return round((mb - ma) / math.sqrt(va / len(a) + vb / len(b)), 3)\n\n\nprint(welch_t([8.1, 6.5, 9.9, 7.2, 5.8], [9.4, 8.2, 11.0, 7.9, 9.1, 10.3]))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef welch_t(a, b):\n    ma, mb = sum(a) / len(a), sum(b) / len(b)\n    va = sum((x - ma) ** 2 for x in a) / (len(a) - 1)\n    vb = sum((x - mb) ** 2 for x in b) / (len(b) - 1)\n    return round((mb - ma) / math.sqrt(va / len(a) + vb / len(b)), 3)\n\n\nprint(welch_t([8.1, 6.5, 9.9, 7.2, 5.8], [9.4, 8.2, 11.0, 7.9, 9.1, 10.3]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "welch_t",
+      "cases": [
+        {
+          "args": [
+            [
+              8.1,
+              6.5,
+              9.9,
+              7.2,
+              5.8
+            ],
+            [
+              9.4,
+              8.2,
+              11.0,
+              7.9,
+              9.1,
+              10.3
+            ]
+          ],
+          "returns": 2.109
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4
+            ],
+            [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          ],
+          "returns": 2.0
+        },
+        {
+          "args": [
+            [
+              10,
+              12,
+              11
+            ],
+            [
+              10,
+              12,
+              11,
+              13
+            ]
+          ],
+          "returns": 0.577
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "ttest_ind",
+      "hint": {
+        "tr": "t'yi kendin hesapla.",
+        "en": "Compute t yourself."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.109"
+    }
+  ]
+}

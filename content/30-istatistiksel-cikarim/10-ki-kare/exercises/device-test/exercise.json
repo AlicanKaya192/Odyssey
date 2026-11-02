@@ -1,0 +1,46 @@
+{
+  "id": "device-test",
+  "title": {
+    "tr": "Cihaz ve alışveriş",
+    "en": "Device and buying"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`result.dof`, `result.pvalue`.",
+      "en": "`result.dof`, `result.pvalue`."
+    },
+    {
+      "tr": "V: `float(stats.contingency.association(table, method=\"cramer\"))`.",
+      "en": "V: `float(stats.contingency.association(table, method=\"cramer\"))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom scipy import stats\nfrom ab_data import make_devices\n\nusers = make_devices(n=2000, seed=162)\ntable = pd.crosstab(users[\"device\"], users[\"bought\"])\nresult = stats.chi2_contingency(table)\nv = stats.contingency.association(table, method=\"cramer\")\nprint(round(result.statistic, 2), result.dof, round(result.pvalue, 4))\nprint(round(float(v), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport pandas as pd\nfrom scipy import stats\nfrom ab_data import make_devices\n\nusers = make_devices(n=2000, seed=162)\ntable = pd.crosstab(users[\"device\"], users[\"bought\"])\nresult = stats.chi2_contingency(table)\nv = stats.contingency.association(table, method=\"cramer\")\nprint(round(result.statistic, 2), result.dof, round(result.pvalue, 4))\nprint(round(float(v), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "5.37 2 0.0683\n0.052"
+    }
+  ]
+}
