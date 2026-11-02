@@ -40,7 +40,7 @@ Modülün parçalarının çoğu tek bir isteğin yolunda buluşur:
 </div><figcaption>Önce "kimsin?", sonra "buna iznin var mı?", her durumda kayda geçir.</figcaption></figure>
 
 Aşağıdaki küçük program bunu baştan sona yapıyor: parolayı tuzlu ve yavaş
-özetle denetliyor (Parola Saklama), rolüne göre izin veriyor (Erişim
+özetle denetliyor (Parolaları Saklamak), rolüne göre izin veriyor (Erişim
 Denetimi Modelleri), bilmediği her şeyi reddediyor (Güvenlik İlkeleri) ve
 her denemeyi kayda yazıyor.
 
