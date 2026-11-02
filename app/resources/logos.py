@@ -135,6 +135,28 @@ GLYPHS: dict[str, dict[str, object]] = {
         '<path d="m17.5 6.5 1.5 2-2.3.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" '
         'stroke-linejoin="round"/>'
     )},
+    # Komut Satırı: terminal istemi (>_).
+    "shell": {"svg": (
+        '<rect x="3" y="4.5" width="18" height="15" rx="2.6" fill="#fff" fill-opacity=".22" stroke="#fff" '
+        'stroke-width="1.6"/>'
+        '<path d="m7 9.5 3 2.5-3 2.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" '
+        'stroke-linejoin="round"/><path d="M12.5 15h4.5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>'
+    )},
+    # İstatistik ve A/B Testi: iki çan eğrisi, birinin ortası kaymış.
+    "stats": {"svg": (
+        '<path d="M3 20h18" stroke="#fff" stroke-opacity=".5" stroke-width="1.5" stroke-linecap="round"/>'
+        '<path d="M2.5 19c3 0 3.5-12 7-12s4 12 7 12" fill="none" stroke="#fff" stroke-opacity=".6" '
+        'stroke-width="1.8" stroke-linecap="round"/>'
+        '<path d="M7.5 19c3 0 3.5-14 7-14s4 14 7 14" fill="none" stroke="#fff" stroke-width="2.1" '
+        'stroke-linecap="round"/>'
+    )},
+    # Siber Güvenlik: kalkan ve içinde anahtar deliği.
+    "security": {"svg": (
+        '<path d="M12 21.5s7.5-3.6 7.5-9.4V5.6L12 3 4.5 5.6v6.5c0 5.8 7.5 9.4 7.5 9.4z" fill="#fff" '
+        'fill-opacity=".22" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>'
+        '<circle cx="12" cy="10.5" r="2.1" fill="#fff"/><path d="M12 12v3.6" stroke="#fff" stroke-width="2.1" '
+        'stroke-linecap="round"/>'
+    )},
     # CS50 Python: mezuniyet kepi ve altında CS50'nin yazısı, küçük (Alican 22 Ekim:
     # logo dursun ama göze batmasın; 23 Ekim: yalnızca yazı boş duruyordu).
     "cs50": {"svg": (
@@ -152,6 +174,7 @@ ICON_TO_LOGO = {
     "calculator": "math", "link": "api", "package": "docker", "clock": "time", "git-branch": "git",
     "message": "nlp", "sparkles": "genai", "cpu": "algo", "library": "lib",
     "server": "sys", "layers": "big", "graduation-cap": "cs50", "wrench": "rust",
+    "terminal": "shell", "sigma": "stats", "shield": "security",
 }
 
 # Matematik patikasının iki modülü kendi işaretini taşıyor.
