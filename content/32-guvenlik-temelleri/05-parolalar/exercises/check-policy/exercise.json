@@ -1,0 +1,102 @@
+{
+  "id": "check-policy",
+  "title": {
+    "tr": "Parola kuralı",
+    "en": "Password rule"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Listedeki parolalar da farklı harf büyüklüğünde olabilir: iki tarafı da `lower()` yap.",
+      "en": "The passwords in the list may have different case too: `lower()` both sides."
+    },
+    {
+      "tr": "Boş kullanıcı adı her metnin içinde \"geçer\" (`\"\" in \"abc\"` `True`); önce `if username`.",
+      "en": "An empty username \"appears\" in every text (`\"\" in \"abc\"` is `True`); check `if username` first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef check_policy(password, username, common):\n    problems = []\n    if len(password) < 12:\n        problems.append(\"too-short\")\n    if password.lower() in [c.lower() for c in common]:\n        problems.append(\"common\")\n    if username and username.lower() in password.lower():\n        problems.append(\"has-username\")\n    return problems\n\ncommon = [\"123456\", \"Password\", \"qwerty\", \"letmein\"]\nprint(check_policy(\"qwerty\", \"ada\", common))\nprint(check_policy(\"ada-likes-long-walks\", \"Ada\", common))\nprint(check_policy(\"lamp-river-cloud-tiger\", \"ada\", common))\n```",
+      "en": "The full solution:\n\n```python\ndef check_policy(password, username, common):\n    problems = []\n    if len(password) < 12:\n        problems.append(\"too-short\")\n    if password.lower() in [c.lower() for c in common]:\n        problems.append(\"common\")\n    if username and username.lower() in password.lower():\n        problems.append(\"has-username\")\n    return problems\n\ncommon = [\"123456\", \"Password\", \"qwerty\", \"letmein\"]\nprint(check_policy(\"qwerty\", \"ada\", common))\nprint(check_policy(\"ada-likes-long-walks\", \"Ada\", common))\nprint(check_policy(\"lamp-river-cloud-tiger\", \"ada\", common))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_policy",
+      "cases": [
+        {
+          "args": [
+            "qwerty",
+            "ada",
+            [
+              "123456",
+              "Password",
+              "qwerty"
+            ]
+          ],
+          "returns": [
+            "too-short",
+            "common"
+          ]
+        },
+        {
+          "args": [
+            "ada-likes-long-walks",
+            "Ada",
+            [
+              "qwerty"
+            ]
+          ],
+          "returns": [
+            "has-username"
+          ]
+        },
+        {
+          "args": [
+            "lamp-river-cloud-tiger",
+            "ada",
+            [
+              "qwerty"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "PASSWORD",
+            "",
+            [
+              "Password"
+            ]
+          ],
+          "returns": [
+            "too-short",
+            "common"
+          ]
+        },
+        {
+          "args": [
+            "short",
+            "",
+            []
+          ],
+          "returns": [
+            "too-short"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['too-short', 'common']\n['has-username']\n[]"
+    }
+  ]
+}

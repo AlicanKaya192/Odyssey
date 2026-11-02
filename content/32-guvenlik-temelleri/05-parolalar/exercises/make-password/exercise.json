@@ -1,0 +1,44 @@
+{
+  "id": "make-password",
+  "title": {
+    "tr": "Güvenli parola üret",
+    "en": "Make a secure password"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `random` ve sabit tohum kullanıyor; üstelik bazı parolalarda rakam çıkmıyor.",
+      "en": "The starter code uses `random` and a fixed seed; and some passwords get no digit."
+    },
+    {
+      "tr": "`import secrets`; `while True:` içinde parolayı üret, üç türü `any(...)` ile denetle, tutuyorsa `return`.",
+      "en": "`import secrets`; inside `while True:` make the password, check the three kinds with `any(...)`, `return` it if they hold."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport secrets\nimport string\n\nALPHABET = string.ascii_letters + string.digits\n\n\ndef make_password(length):\n    while True:\n        password = \"\".join(secrets.choice(ALPHABET) for _ in range(length))\n        if (any(c.islower() for c in password) and any(c.isupper() for c in password)\n                and any(c.isdigit() for c in password)):\n            return password\n\n\ndef classes_ok(p):\n    return (any(c.islower() for c in p) and any(c.isupper() for c in p)\n            and any(c.isdigit() for c in p))\n\n\npasswords = [make_password(12) for _ in range(50)]\nprint(\"lengths ok:\", all(len(p) == 12 for p in passwords))\nprint(\"classes ok:\", all(classes_ok(p) for p in passwords))\nprint(\"unique:\", len(set(passwords)))\n```",
+      "en": "The full solution:\n\n```python\nimport secrets\nimport string\n\nALPHABET = string.ascii_letters + string.digits\n\n\ndef make_password(length):\n    while True:\n        password = \"\".join(secrets.choice(ALPHABET) for _ in range(length))\n        if (any(c.islower() for c in password) and any(c.isupper() for c in password)\n                and any(c.isdigit() for c in password)):\n            return password\n\n\ndef classes_ok(p):\n    return (any(c.islower() for c in p) and any(c.isupper() for c in p)\n            and any(c.isdigit() for c in p))\n\n\npasswords = [make_password(12) for _ in range(50)]\nprint(\"lengths ok:\", all(len(p) == 12 for p in passwords))\nprint(\"classes ok:\", all(classes_ok(p) for p in passwords))\nprint(\"unique:\", len(set(passwords)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "ast_forbid",
+      "call": "seed",
+      "hint": {
+        "tr": "Parola üretirken tohum kullanılmaz: aynı tohum aynı parolaları verir.",
+        "en": "No seed when making passwords: the same seed gives the same passwords."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "lengths ok: True\nclasses ok: True\nunique: 50"
+    }
+  ]
+}

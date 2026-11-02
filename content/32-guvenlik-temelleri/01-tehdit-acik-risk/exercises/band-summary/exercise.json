@@ -1,0 +1,90 @@
+{
+  "id": "band-summary",
+  "title": {
+    "tr": "Bulgu özeti",
+    "en": "Findings summary"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sözlüğü beş anahtarla, hepsi `0` olarak başlat; böylece sıra ve eksik şiddetler kendiliğinden doğru olur.",
+      "en": "Start the dictionary with five keys, all `0`; then the order and the missing severities are right by themselves."
+    },
+    {
+      "tr": "Döngüde `summary[cvss_band(score)] += 1`.",
+      "en": "In the loop, `summary[cvss_band(score)] += 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef cvss_band(score):\n    if score == 0:\n        return \"None\"\n    if score < 4:\n        return \"Low\"\n    if score < 7:\n        return \"Medium\"\n    if score < 9:\n        return \"High\"\n    return \"Critical\"\n\n\ndef band_summary(scores):\n    summary = {\"None\": 0, \"Low\": 0, \"Medium\": 0, \"High\": 0, \"Critical\": 0}\n    for score in scores:\n        summary[cvss_band(score)] += 1\n    return summary\n\nsummary = band_summary([9.8, 7.5, 5.3, 3.1, 0.0, 7.0, 9.1])\nfor band, count in summary.items():\n    print(band, count)\n```",
+      "en": "The full solution:\n\n```python\ndef cvss_band(score):\n    if score == 0:\n        return \"None\"\n    if score < 4:\n        return \"Low\"\n    if score < 7:\n        return \"Medium\"\n    if score < 9:\n        return \"High\"\n    return \"Critical\"\n\n\ndef band_summary(scores):\n    summary = {\"None\": 0, \"Low\": 0, \"Medium\": 0, \"High\": 0, \"Critical\": 0}\n    for score in scores:\n        summary[cvss_band(score)] += 1\n    return summary\n\nsummary = band_summary([9.8, 7.5, 5.3, 3.1, 0.0, 7.0, 9.1])\nfor band, count in summary.items():\n    print(band, count)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "band_summary",
+      "cases": [
+        {
+          "args": [
+            [
+              9.8,
+              7.5,
+              5.3,
+              3.1,
+              0.0,
+              7.0,
+              9.1
+            ]
+          ],
+          "returns": {
+            "None": 1,
+            "Low": 1,
+            "Medium": 1,
+            "High": 2,
+            "Critical": 2
+          }
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": {
+            "None": 0,
+            "Low": 0,
+            "Medium": 0,
+            "High": 0,
+            "Critical": 0
+          }
+        },
+        {
+          "args": [
+            [
+              4.0,
+              4.0,
+              6.9
+            ]
+          ],
+          "returns": {
+            "None": 0,
+            "Low": 0,
+            "Medium": 3,
+            "High": 0,
+            "Critical": 0
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "None 1\nLow 1\nMedium 1\nHigh 2\nCritical 2"
+    }
+  ]
+}

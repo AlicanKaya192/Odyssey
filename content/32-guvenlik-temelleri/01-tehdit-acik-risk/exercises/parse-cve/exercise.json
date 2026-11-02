@@ -1,0 +1,106 @@
+{
+  "id": "parse-cve",
+  "title": {
+    "tr": "CVE kimliğini oku",
+    "en": "Read a CVE identifier"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`parts = text.strip().upper().split(\"-\")`; `len(parts) != 3` ise hemen `None`.",
+      "en": "`parts = text.strip().upper().split(\"-\")`; if `len(parts) != 3`, return `None` at once."
+    },
+    {
+      "tr": "Yıl: `len(year) != 4 or not year.isdigit() or int(year) < 1999` ise `None`. `int` çevirmeden önce `isdigit` sor.",
+      "en": "Year: return `None` if `len(year) != 4 or not year.isdigit() or int(year) < 1999`. Ask `isdigit` before calling `int`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef parse_cve(text):\n    parts = text.strip().upper().split(\"-\")\n    if len(parts) != 3 or parts[0] != \"CVE\":\n        return None\n    year, number = parts[1], parts[2]\n    if len(year) != 4 or not year.isdigit() or int(year) < 1999:\n        return None\n    if len(number) < 4 or not number.isdigit():\n        return None\n    return (int(year), int(number))\n\nfor text in [\"CVE-2025-12345\", \" cve-2019-0042 \", \"CVE-25-1234\", \"CVE-2024-12a4\"]:\n    print(repr(text), parse_cve(text))\n```",
+      "en": "The full solution:\n\n```python\ndef parse_cve(text):\n    parts = text.strip().upper().split(\"-\")\n    if len(parts) != 3 or parts[0] != \"CVE\":\n        return None\n    year, number = parts[1], parts[2]\n    if len(year) != 4 or not year.isdigit() or int(year) < 1999:\n        return None\n    if len(number) < 4 or not number.isdigit():\n        return None\n    return (int(year), int(number))\n\nfor text in [\"CVE-2025-12345\", \" cve-2019-0042 \", \"CVE-25-1234\", \"CVE-2024-12a4\"]:\n    print(repr(text), parse_cve(text))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_cve",
+      "cases": [
+        {
+          "args": [
+            "CVE-2025-12345"
+          ],
+          "returns": {
+            "__tuple__": [
+              2025,
+              12345
+            ]
+          }
+        },
+        {
+          "args": [
+            " cve-2019-0042 "
+          ],
+          "returns": {
+            "__tuple__": [
+              2019,
+              42
+            ]
+          }
+        },
+        {
+          "args": [
+            "CVE-25-1234"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "CVE-2024-123"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "CVE-1998-1234"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "CVE-2024-12a4"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "CWE-2024-1234"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "CVE-2024-1234-5"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "'CVE-2025-12345' (2025, 12345)\n' cve-2019-0042 ' (2019, 42)\n'CVE-25-1234' None\n'CVE-2024-12a4' None"
+    }
+  ]
+}

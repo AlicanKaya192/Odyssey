@@ -1,0 +1,127 @@
+{
+  "id": "hotp",
+  "title": {
+    "tr": "HOTP kodu",
+    "en": "An HOTP code"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`digest = hmac.new(secret.encode(), msg, hashlib.sha1).digest()`, `offset = digest[-1] & 0x0F`.",
+      "en": "`digest = hmac.new(secret.encode(), msg, hashlib.sha1).digest()`, `offset = digest[-1] & 0x0F`."
+    },
+    {
+      "tr": "`number = int.from_bytes(digest[offset:offset + 4], \"big\") & 0x7FFFFFFF`, sonra `str(number % 10**digits).zfill(digits)`.",
+      "en": "`number = int.from_bytes(digest[offset:offset + 4], \"big\") & 0x7FFFFFFF`, then `str(number % 10**digits).zfill(digits)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hotp(secret, counter, digits=6):\n    msg = counter.to_bytes(8, \"big\")\n    digest = hmac.new(secret.encode(), msg, hashlib.sha1).digest()\n    offset = digest[-1] & 0x0F\n    number = int.from_bytes(digest[offset:offset + 4], \"big\") & 0x7FFFFFFF\n    return str(number % 10**digits).zfill(digits)\n\nsecret = \"12345678901234567890\"\nfor counter in range(4):\n    print(counter, hotp(secret, counter))\nprint(hotp(secret, 1, 8))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hotp(secret, counter, digits=6):\n    msg = counter.to_bytes(8, \"big\")\n    digest = hmac.new(secret.encode(), msg, hashlib.sha1).digest()\n    offset = digest[-1] & 0x0F\n    number = int.from_bytes(digest[offset:offset + 4], \"big\") & 0x7FFFFFFF\n    return str(number % 10**digits).zfill(digits)\n\nsecret = \"12345678901234567890\"\nfor counter in range(4):\n    print(counter, hotp(secret, counter))\nprint(hotp(secret, 1, 8))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hotp",
+      "cases": [
+        {
+          "args": [
+            "12345678901234567890",
+            0
+          ],
+          "returns": "755224"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            1
+          ],
+          "returns": "287082"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            2
+          ],
+          "returns": "359152"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            3
+          ],
+          "returns": "969429"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            4
+          ],
+          "returns": "338314"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            5
+          ],
+          "returns": "254676"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            6
+          ],
+          "returns": "287922"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            7
+          ],
+          "returns": "162583"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            8
+          ],
+          "returns": "399871"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            9
+          ],
+          "returns": "520489"
+        },
+        {
+          "args": [
+            "12345678901234567890",
+            1,
+            8
+          ],
+          "returns": "94287082"
+        },
+        {
+          "args": [
+            "another secret",
+            7
+          ],
+          "returns": "145473"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 755224\n1 287082\n2 359152\n3 969429\n94287082"
+    }
+  ]
+}

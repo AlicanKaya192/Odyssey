@@ -1,0 +1,86 @@
+{
+  "id": "audit-config",
+  "title": {
+    "tr": "Ayar denetimi",
+    "en": "Configuration audit"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eksik ayar için `get` ile varsayılan ver: `config.get(\"password_min\", 0)`.",
+      "en": "Give a default with `get` for a missing setting: `config.get(\"password_min\", 0)`."
+    },
+    {
+      "tr": "`tls` yoksa `config.get(\"tls\")` `None` verir; `is not True` bunu da sorun sayar.",
+      "en": "If `tls` is missing, `config.get(\"tls\")` gives `None`; `is not True` counts that as a problem too."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef audit_config(config):\n    problems = []\n    if config.get(\"debug\") is True:\n        problems.append(\"debug-on\")\n    if config.get(\"password_min\", 0) < 12:\n        problems.append(\"short-password\")\n    if config.get(\"admin_user\") == \"admin\":\n        problems.append(\"default-admin\")\n    if config.get(\"tls\") is not True:\n        problems.append(\"no-tls\")\n    return problems\n\nconfig = {\"debug\": True, \"password_min\": 8, \"admin_user\": \"admin\"}\nfor problem in audit_config(config):\n    print(problem)\nprint(audit_config({\"tls\": True, \"password_min\": 14}))\n```",
+      "en": "The full solution:\n\n```python\ndef audit_config(config):\n    problems = []\n    if config.get(\"debug\") is True:\n        problems.append(\"debug-on\")\n    if config.get(\"password_min\", 0) < 12:\n        problems.append(\"short-password\")\n    if config.get(\"admin_user\") == \"admin\":\n        problems.append(\"default-admin\")\n    if config.get(\"tls\") is not True:\n        problems.append(\"no-tls\")\n    return problems\n\nconfig = {\"debug\": True, \"password_min\": 8, \"admin_user\": \"admin\"}\nfor problem in audit_config(config):\n    print(problem)\nprint(audit_config({\"tls\": True, \"password_min\": 14}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "audit_config",
+      "cases": [
+        {
+          "args": [
+            {
+              "debug": true,
+              "password_min": 8,
+              "admin_user": "admin"
+            }
+          ],
+          "returns": [
+            "debug-on",
+            "short-password",
+            "default-admin",
+            "no-tls"
+          ]
+        },
+        {
+          "args": [
+            {
+              "tls": true,
+              "password_min": 14
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": [
+            "short-password",
+            "no-tls"
+          ]
+        },
+        {
+          "args": [
+            {
+              "debug": false,
+              "tls": true,
+              "password_min": 12,
+              "admin_user": "ops"
+            }
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "debug-on\nshort-password\ndefault-admin\nno-tls\n[]"
+    }
+  ]
+}

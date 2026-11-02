@@ -1,0 +1,104 @@
+{
+  "id": "sla-report",
+  "title": {
+    "tr": "Söz tutuldu mu?",
+    "en": "Was the promise kept?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kapalı kalınan süre `sum(outages)`; açık kalınan `total - down`.",
+      "en": "The downtime is `sum(outages)`; the time up is `total - down`."
+    },
+    {
+      "tr": "`percent = round((total - down) / total * 100, 3)` ve `return (percent, percent >= target)`.",
+      "en": "`percent = round((total - down) / total * 100, 3)` and `return (percent, percent >= target)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef sla_report(outages, days, target):\n    total = days * 24 * 60\n    down = sum(outages)\n    percent = round((total - down) / total * 100, 3)\n    return (percent, percent >= target)\n\nprint(sla_report([12, 30], 30, 99.9))\nprint(sla_report([12, 30, 5], 30, 99.9))\nprint(sla_report([], 7, 99.99))\n```",
+      "en": "The full solution:\n\n```python\ndef sla_report(outages, days, target):\n    total = days * 24 * 60\n    down = sum(outages)\n    percent = round((total - down) / total * 100, 3)\n    return (percent, percent >= target)\n\nprint(sla_report([12, 30], 30, 99.9))\nprint(sla_report([12, 30, 5], 30, 99.9))\nprint(sla_report([], 7, 99.99))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sla_report",
+      "cases": [
+        {
+          "args": [
+            [
+              12,
+              30
+            ],
+            30,
+            99.9
+          ],
+          "returns": {
+            "__tuple__": [
+              99.903,
+              true
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              12,
+              30,
+              5
+            ],
+            30,
+            99.9
+          ],
+          "returns": {
+            "__tuple__": [
+              99.891,
+              false
+            ]
+          }
+        },
+        {
+          "args": [
+            [],
+            7,
+            99.99
+          ],
+          "returns": {
+            "__tuple__": [
+              100.0,
+              true
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              60,
+              60
+            ],
+            1,
+            90
+          ],
+          "returns": {
+            "__tuple__": [
+              91.667,
+              true
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(99.903, True)\n(99.891, False)\n(100.0, True)"
+    }
+  ]
+}

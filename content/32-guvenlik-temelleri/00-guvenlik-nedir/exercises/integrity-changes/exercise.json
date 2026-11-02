@@ -1,0 +1,111 @@
+{
+  "id": "integrity-changes",
+  "title": {
+    "tr": "Ne değişti?",
+    "en": "What changed?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`name not in old` yalnızca `new`'de olanı bulur.",
+      "en": "`name not in old` finds what is only in `new`."
+    },
+    {
+      "tr": "Değişen: `name in new and old[name] != new[name]`; üç listeyi de `sorted` ile döndür.",
+      "en": "Changed: `name in new and old[name] != new[name]`; return all three lists with `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef integrity_changes(old, new):\n    added = [name for name in new if name not in old]\n    removed = [name for name in old if name not in new]\n    changed = [name for name in old if name in new and old[name] != new[name]]\n    return {\"added\": sorted(added), \"removed\": sorted(removed), \"changed\": sorted(changed)}\n\nold = {\"app.py\": \"1f3a\", \"config.ini\": \"77b0\", \"notes.txt\": \"a210\"}\nnew = {\"app.py\": \"1f3a\", \"config.ini\": \"9c4e\", \"run.sh\": \"0d5e\"}\nreport = integrity_changes(old, new)\nfor kind in [\"added\", \"removed\", \"changed\"]:\n    print(kind, report[kind])\n```",
+      "en": "The full solution:\n\n```python\ndef integrity_changes(old, new):\n    added = [name for name in new if name not in old]\n    removed = [name for name in old if name not in new]\n    changed = [name for name in old if name in new and old[name] != new[name]]\n    return {\"added\": sorted(added), \"removed\": sorted(removed), \"changed\": sorted(changed)}\n\nold = {\"app.py\": \"1f3a\", \"config.ini\": \"77b0\", \"notes.txt\": \"a210\"}\nnew = {\"app.py\": \"1f3a\", \"config.ini\": \"9c4e\", \"run.sh\": \"0d5e\"}\nreport = integrity_changes(old, new)\nfor kind in [\"added\", \"removed\", \"changed\"]:\n    print(kind, report[kind])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "integrity_changes",
+      "cases": [
+        {
+          "args": [
+            {
+              "a.py": "11",
+              "b.py": "22"
+            },
+            {
+              "a.py": "11",
+              "b.py": "23",
+              "c.py": "33"
+            }
+          ],
+          "returns": {
+            "added": [
+              "c.py"
+            ],
+            "removed": [],
+            "changed": [
+              "b.py"
+            ]
+          }
+        },
+        {
+          "args": [
+            {
+              "x": "1"
+            },
+            {}
+          ],
+          "returns": {
+            "added": [],
+            "removed": [
+              "x"
+            ],
+            "changed": []
+          }
+        },
+        {
+          "args": [
+            {},
+            {
+              "y": "2",
+              "a": "3"
+            }
+          ],
+          "returns": {
+            "added": [
+              "a",
+              "y"
+            ],
+            "removed": [],
+            "changed": []
+          }
+        },
+        {
+          "args": [
+            {
+              "same": "9"
+            },
+            {
+              "same": "9"
+            }
+          ],
+          "returns": {
+            "added": [],
+            "removed": [],
+            "changed": []
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "added ['run.sh']\nremoved ['notes.txt']\nchanged ['config.ini']"
+    }
+  ]
+}

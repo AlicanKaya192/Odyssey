@@ -1,0 +1,140 @@
+{
+  "id": "top-risks",
+  "title": {
+    "tr": "İlk n risk",
+    "en": "The top n risks"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce her risk için `[name, likelihood * impact]` listesi kur.",
+      "en": "First build a `[name, likelihood * impact]` list for every risk."
+    },
+    {
+      "tr": "`rows.sort(key=lambda row: (-row[1], row[0]))`, sonra `rows[:n]`; dilim fazla `n`'de hata vermez.",
+      "en": "`rows.sort(key=lambda row: (-row[1], row[0]))`, then `rows[:n]`; a slice does not fail when `n` is too large."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef top_risks(register, n):\n    rows = [[r[\"name\"], r[\"likelihood\"] * r[\"impact\"]] for r in register]\n    rows.sort(key=lambda row: (-row[1], row[0]))\n    return rows[:n]\n\nregister = [\n    {\"name\": \"laptop lost\", \"likelihood\": 4, \"impact\": 3},\n    {\"name\": \"db leak\", \"likelihood\": 2, \"impact\": 5},\n    {\"name\": \"site down\", \"likelihood\": 3, \"impact\": 3},\n    {\"name\": \"ransomware\", \"likelihood\": 3, \"impact\": 5},\n    {\"name\": \"phishing\", \"likelihood\": 5, \"impact\": 2},\n]\nfor row in top_risks(register, 3):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\ndef top_risks(register, n):\n    rows = [[r[\"name\"], r[\"likelihood\"] * r[\"impact\"]] for r in register]\n    rows.sort(key=lambda row: (-row[1], row[0]))\n    return rows[:n]\n\nregister = [\n    {\"name\": \"laptop lost\", \"likelihood\": 4, \"impact\": 3},\n    {\"name\": \"db leak\", \"likelihood\": 2, \"impact\": 5},\n    {\"name\": \"site down\", \"likelihood\": 3, \"impact\": 3},\n    {\"name\": \"ransomware\", \"likelihood\": 3, \"impact\": 5},\n    {\"name\": \"phishing\", \"likelihood\": 5, \"impact\": 2},\n]\nfor row in top_risks(register, 3):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_risks",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "name": "b",
+                "likelihood": 2,
+                "impact": 5
+              },
+              {
+                "name": "a",
+                "likelihood": 5,
+                "impact": 2
+              },
+              {
+                "name": "c",
+                "likelihood": 5,
+                "impact": 5
+              }
+            ],
+            2
+          ],
+          "returns": [
+            [
+              "c",
+              25
+            ],
+            [
+              "a",
+              10
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "name": "b",
+                "likelihood": 2,
+                "impact": 5
+              },
+              {
+                "name": "a",
+                "likelihood": 5,
+                "impact": 2
+              },
+              {
+                "name": "c",
+                "likelihood": 5,
+                "impact": 5
+              }
+            ],
+            10
+          ],
+          "returns": [
+            [
+              "c",
+              25
+            ],
+            [
+              "a",
+              10
+            ],
+            [
+              "b",
+              10
+            ]
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "name": "b",
+                "likelihood": 2,
+                "impact": 5
+              },
+              {
+                "name": "a",
+                "likelihood": 5,
+                "impact": 2
+              }
+            ],
+            1
+          ],
+          "returns": [
+            [
+              "a",
+              10
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['ransomware', 15]\n['laptop lost', 12]\n['db leak', 10]"
+    }
+  ]
+}

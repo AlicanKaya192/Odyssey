@@ -1,0 +1,82 @@
+{
+  "id": "merge-settings",
+  "title": {
+    "tr": "Güvenli varsayılanlar",
+    "en": "Secure defaults"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`result = defaults` kopya değil, aynı sözlüğe ikinci bir ad. `dict(defaults)` kopyalar.",
+      "en": "`result = defaults` is not a copy, just a second name for the same dictionary. `dict(defaults)` copies it."
+    },
+    {
+      "tr": "`update` bilinmeyen anahtarları da ekler; tek tek dolaş ve `if key in defaults:` diye sor.",
+      "en": "`update` adds unknown keys too; loop one by one and ask `if key in defaults:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef merge_settings(defaults, user):\n    result = dict(defaults)\n    for key, value in user.items():\n        if key in defaults:\n            result[key] = value\n    return result\n\ndefaults = {\"debug\": False, \"tls\": True, \"password_min\": 12}\nuser = {\"debug\": True, \"theme\": \"dark\"}\nresult = merge_settings(defaults, user)\nfor key, value in result.items():\n    print(key, value)\nprint(\"defaults debug:\", defaults[\"debug\"])\n```",
+      "en": "The full solution:\n\n```python\ndef merge_settings(defaults, user):\n    result = dict(defaults)\n    for key, value in user.items():\n        if key in defaults:\n            result[key] = value\n    return result\n\ndefaults = {\"debug\": False, \"tls\": True, \"password_min\": 12}\nuser = {\"debug\": True, \"theme\": \"dark\"}\nresult = merge_settings(defaults, user)\nfor key, value in result.items():\n    print(key, value)\nprint(\"defaults debug:\", defaults[\"debug\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "merge_settings",
+      "cases": [
+        {
+          "args": [
+            {
+              "debug": false,
+              "tls": true
+            },
+            {
+              "debug": true,
+              "theme": "dark"
+            }
+          ],
+          "returns": {
+            "debug": true,
+            "tls": true
+          }
+        },
+        {
+          "args": [
+            {
+              "tls": true
+            },
+            {}
+          ],
+          "returns": {
+            "tls": true
+          }
+        },
+        {
+          "args": [
+            {
+              "a": 1
+            },
+            {
+              "b": 2
+            }
+          ],
+          "returns": {
+            "a": 1
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "debug True\ntls True\npassword_min 12\ndefaults debug: False"
+    }
+  ]
+}

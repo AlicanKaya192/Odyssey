@@ -1,0 +1,94 @@
+{
+  "id": "count-pillars",
+  "title": {
+    "tr": "Hangi ayak kaç kez?",
+    "en": "How often was each leg hit?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üç ayrı `if` gerekiyor, `elif` değil: bir olay üç ayağı birden bozabilir.",
+      "en": "You need three separate `if`s, not `elif`: one incident can break all three legs."
+    },
+    {
+      "tr": "`for incident in incidents:` içinde `if incident[\"leaked\"]: counts[\"C\"] += 1` ve ötekiler.",
+      "en": "Inside `for incident in incidents:`, `if incident[\"leaked\"]: counts[\"C\"] += 1` and the others."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef count_pillars(incidents):\n    counts = {\"C\": 0, \"I\": 0, \"A\": 0}\n    for incident in incidents:\n        if incident[\"leaked\"]:\n            counts[\"C\"] += 1\n        if incident[\"modified\"]:\n            counts[\"I\"] += 1\n        if incident[\"unreachable\"]:\n            counts[\"A\"] += 1\n    return counts\n\nincidents = [\n    {\"leaked\": True, \"modified\": False, \"unreachable\": False},\n    {\"leaked\": False, \"modified\": True, \"unreachable\": True},\n    {\"leaked\": True, \"modified\": True, \"unreachable\": True},\n    {\"leaked\": False, \"modified\": False, \"unreachable\": True},\n]\nprint(count_pillars(incidents))\n```",
+      "en": "The full solution:\n\n```python\ndef count_pillars(incidents):\n    counts = {\"C\": 0, \"I\": 0, \"A\": 0}\n    for incident in incidents:\n        if incident[\"leaked\"]:\n            counts[\"C\"] += 1\n        if incident[\"modified\"]:\n            counts[\"I\"] += 1\n        if incident[\"unreachable\"]:\n            counts[\"A\"] += 1\n    return counts\n\nincidents = [\n    {\"leaked\": True, \"modified\": False, \"unreachable\": False},\n    {\"leaked\": False, \"modified\": True, \"unreachable\": True},\n    {\"leaked\": True, \"modified\": True, \"unreachable\": True},\n    {\"leaked\": False, \"modified\": False, \"unreachable\": True},\n]\nprint(count_pillars(incidents))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_pillars",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "leaked": true,
+                "modified": false,
+                "unreachable": false
+              },
+              {
+                "leaked": false,
+                "modified": true,
+                "unreachable": true
+              },
+              {
+                "leaked": false,
+                "modified": true,
+                "unreachable": true
+              }
+            ]
+          ],
+          "returns": {
+            "C": 1,
+            "I": 2,
+            "A": 2
+          }
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": {
+            "C": 0,
+            "I": 0,
+            "A": 0
+          }
+        },
+        {
+          "args": [
+            [
+              {
+                "leaked": true,
+                "modified": false,
+                "unreachable": false
+              }
+            ]
+          ],
+          "returns": {
+            "C": 1,
+            "I": 0,
+            "A": 0
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'C': 2, 'I': 2, 'A': 3}"
+    }
+  ]
+}

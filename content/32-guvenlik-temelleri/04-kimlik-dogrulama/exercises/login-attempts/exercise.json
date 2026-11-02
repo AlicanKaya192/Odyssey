@@ -1,0 +1,113 @@
+{
+  "id": "login-attempts",
+  "title": {
+    "tr": "Kilit",
+    "en": "Lockout"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üç durum var: kilitli mi, doğru mu, yanlış mı. Önce kilide bak.",
+      "en": "There are three cases: locked, right, wrong. Check the lock first."
+    },
+    {
+      "tr": "Bir `locked = False` bayrağı tut; yanlışta `fails += 1` ve `if fails >= limit: locked = True`.",
+      "en": "Keep a `locked = False` flag; on a wrong try `fails += 1` and `if fails >= limit: locked = True`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef login_attempts(events, limit):\n    results = []\n    fails = 0\n    locked = False\n    for event in events:\n        if locked:\n            results.append(\"locked\")\n        elif event == \"right\":\n            results.append(\"ok\")\n            fails = 0\n        else:\n            results.append(\"fail\")\n            fails += 1\n            if fails >= limit:\n                locked = True\n    return results\n\nevents = [\"wrong\", \"right\", \"wrong\", \"wrong\", \"wrong\", \"right\", \"wrong\"]\nprint(\" \".join(login_attempts(events, 3)))\nprint(\" \".join(login_attempts([\"wrong\", \"right\"], 1)))\n```",
+      "en": "The full solution:\n\n```python\ndef login_attempts(events, limit):\n    results = []\n    fails = 0\n    locked = False\n    for event in events:\n        if locked:\n            results.append(\"locked\")\n        elif event == \"right\":\n            results.append(\"ok\")\n            fails = 0\n        else:\n            results.append(\"fail\")\n            fails += 1\n            if fails >= limit:\n                locked = True\n    return results\n\nevents = [\"wrong\", \"right\", \"wrong\", \"wrong\", \"wrong\", \"right\", \"wrong\"]\nprint(\" \".join(login_attempts(events, 3)))\nprint(\" \".join(login_attempts([\"wrong\", \"right\"], 1)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "login_attempts",
+      "cases": [
+        {
+          "args": [
+            [
+              "wrong",
+              "right",
+              "wrong",
+              "wrong",
+              "wrong",
+              "right",
+              "wrong"
+            ],
+            3
+          ],
+          "returns": [
+            "fail",
+            "ok",
+            "fail",
+            "fail",
+            "fail",
+            "locked",
+            "locked"
+          ]
+        },
+        {
+          "args": [
+            [
+              "wrong",
+              "right"
+            ],
+            1
+          ],
+          "returns": [
+            "fail",
+            "locked"
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "right",
+              "right"
+            ],
+            1
+          ],
+          "returns": [
+            "ok",
+            "ok"
+          ]
+        },
+        {
+          "args": [
+            [
+              "wrong",
+              "wrong",
+              "right"
+            ],
+            3
+          ],
+          "returns": [
+            "fail",
+            "fail",
+            "ok"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "fail ok fail fail fail locked locked\nfail locked"
+    }
+  ]
+}
