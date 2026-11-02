@@ -1,0 +1,69 @@
+{
+  "id": "clear-temp-files",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Geçici dosyaları sil",
+    "en": "Delete the temporary files"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir app",
+    "touch app/a.tmp app/b.tmp app/c.tmp app/main.py app/tmp-notes.txt"
+  ],
+  "cwd": "app",
+  "solution": [
+    "echo *.tmp",
+    "rm *.tmp"
+  ],
+  "hints": [
+    {
+      "tr": "Kalıp `.tmp` ile **biten** adları seçmeli; `tmp-notes.txt` `tmp` ile başlıyor ama `.tmp` ile bitmiyor.",
+      "en": "The pattern must pick names **ending** in `.tmp`; `tmp-notes.txt` starts with `tmp` but does not end in `.tmp`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\necho *.tmp\nrm *.tmp\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\necho *.tmp\nrm *.tmp\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "output": {
+        "pattern": "a\\.tmp\\s+b\\.tmp\\s+c\\.tmp",
+        "command": "^(echo|ls)\\s+\\*\\.tmp$"
+      },
+      "label": {
+        "tr": "Silmeden önce baktın",
+        "en": "You looked before deleting"
+      }
+    },
+    {
+      "type": "shell_state",
+      "missing": [
+        "app/a.tmp",
+        "app/b.tmp",
+        "app/c.tmp"
+      ],
+      "label": {
+        "tr": ".tmp dosyaları silindi",
+        "en": "The .tmp files are deleted"
+      }
+    },
+    {
+      "type": "shell_state",
+      "files": {
+        "app/main.py": null,
+        "app/tmp-notes.txt": null
+      },
+      "label": {
+        "tr": "main.py ve tmp-notes.txt yerinde",
+        "en": "main.py and tmp-notes.txt are still there"
+      }
+    }
+  ]
+}

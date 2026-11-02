@@ -97,6 +97,8 @@ SHELL_TEXT = {
         "interpreter": "odyssey: Bu terminal yalnızca bash betiklerini çalıştırır (ilk satır: {line}).",
         "too_many": "odyssey: Komut çok uzun sürdü ve durduruldu (bitmeyen bir döngü olabilir).",
         "eval": "odyssey: '{cmd}' bu benzeticide yok.",
+        "rm_ask": "odyssey: rm -i her dosya için 'silinsin mi?' diye sorar ve cevabı klavyeden bekler;"
+                  " bu terminal cevap veremediği için hiçbir şey silinmedi.",
     },
     "en": {
         "needs_input": "odyssey: {cmd} is waiting for keyboard input, which this terminal cannot give."
@@ -120,6 +122,8 @@ SHELL_TEXT = {
         "interpreter": "odyssey: This terminal only runs bash scripts (first line: {line}).",
         "too_many": "odyssey: The command took too long and was stopped (maybe a loop that never ends).",
         "eval": "odyssey: '{cmd}' is not available in this simulator.",
+        "rm_ask": "odyssey: rm -i asks 'remove?' for every file and waits for an answer from the keyboard;"
+                  " this terminal cannot answer, so nothing was deleted.",
     },
 }
 
@@ -2997,6 +3001,10 @@ class Shell:
             return 1
         opts, names = parsed
         recursive = opts.get("r") or opts.get("R")
+        if opts.get("i") and names:
+            # Gerçek rm -i her dosya için soru sorup klavyeden cevap bekler; burada klavye girdisi yok.
+            io.err.err(self.st("rm_ask"), "yellow")
+            return 1
         if not names:
             if opts.get("f"):
                 return 0
