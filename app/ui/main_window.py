@@ -30,9 +30,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..core import animations
+from ..core import animations, text_size
 from ..core.catalog import Catalog
-from ..widgets import motion
+from ..widgets import motion, text_scale
 from ..widgets.fade_stack import BACK, FORWARD, FadeStack
 from ..core.discord_presence import (
     BUTTON_LABEL,
@@ -173,6 +173,8 @@ class MainWindow(QMainWindow):
         self._build_step("tamamlanma")
         # Animasyonlar ayarı ekranlar kurulmadan önce: ilk girişler de ona uyuyor.
         motion.set_enabled(animations.enabled(store))
+        # Yazı boyu da ekranlar kurulmadan önce: belgeler ilk çizimde doğru boyda.
+        text_scale.set_scale(text_size.scale(text_size.current(store)))
 
         # Discord'da "Odyssey kullanıyor" yazısı. Discord kapalıysa ya da
         # kurulu değilse hiçbir şey olmuyor; ayrı bir iş parçacığında
@@ -1645,6 +1647,7 @@ class MainWindow(QMainWindow):
         dialog.presence_changed.connect(self._on_presence_changed)
         # Animasyonlar ayarı da anında: döngüsel hareketler hemen duruyor.
         dialog.animations_changed.connect(motion.set_enabled)
+        dialog.text_size_changed.connect(text_scale.set_scale)
         # Elle denetim yapıldıysa sonucu şeride de yansıt.
         dialog.update_found.connect(self._on_update_checked)
         # Ayarlardan "Güncelle" denince kutu açılıyor: kullanıcı orada

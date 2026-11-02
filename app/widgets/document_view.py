@@ -36,7 +36,7 @@ from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineScript, QWebEngine
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QWidget
 
-from . import motion
+from . import motion, text_scale
 from ..core.highlight import highlight_code_blocks
 from ..core.math_text import has_math
 from ..resources.theme.document import build_css
@@ -266,6 +266,11 @@ class DocumentView(QWebEngineView):
         settings.setAttribute(QWebEngineSettings.WebAttribute.FocusOnNavigationEnabled, False)
 
         self._apply_background()
+        text_scale.listen(self.apply_text_scale)
+
+    def apply_text_scale(self, scale: float) -> None:
+        """Yazı boyu ayarı: sayfa tarayıcıdaki yakınlaştırma gibi büyüyor."""
+        self.setZoomFactor(scale)
 
     @staticmethod
     def _bridge_script() -> QWebEngineScript:
@@ -362,6 +367,8 @@ class DocumentView(QWebEngineView):
         if ok and self._rendered_mode != self._mode:
             self._rendered_mode = self._mode
             self._swap_css()
+        if ok and self.zoomFactor() != text_scale.scale():
+            self.setZoomFactor(text_scale.scale())
         if ok and self._restore_to:
             self.page().runJavaScript(
                 "(document.scrollingElement||document.documentElement)"

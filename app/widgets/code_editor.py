@@ -33,14 +33,18 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import QTextEdit, QWidget
 
+from . import text_scale
 from ..core.highlight import LINE_PATTERNS, SQL_FUNCTIONS, SQL_KEYWORDS, SQL_TYPES
-from ..resources.theme.tokens import FONTS, PALETTES, SYNTAX
+from ..resources.theme.tokens import FONT_SIZES, FONTS, PALETTES, SYNTAX
 
 INDENT = "    "  # Python'da girinti 4 boşluk
 INDENT_WIDTH = len(INDENT)
 
 # Satır aralığı. Varsayılan (%100) kodda satırları iç içe gösteriyor.
 LINE_HEIGHT_PERCENT = 165
+# Yazı boyu ayarı "normal"ken editörün yazısı (px, QSS'teki `font_sm`);
+# ayar bununla çarpılıyor.
+BASE_TEXT_PX = FONT_SIZES["sm"]
 
 LANGUAGE_PYTHON = "python"
 LANGUAGE_SQL = "tsql"
@@ -668,11 +672,9 @@ class CodeEditor(CodeEditing, QTextEdit):
 
         font = QFont()
         font.setFamily(FONTS["mono"].split(",")[0].strip().strip('"'))
-        font.setPointSize(11)
         font.setFixedPitch(True)
         self.setFont(font)
-
-        self.setTabStopDistance(QFontMetrics(font).horizontalAdvance(" ") * INDENT_WIDTH)
+        text_scale.listen(self.apply_text_scale)
         self.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
         self.setAcceptRichText(False)
         self.setProperty("role", "code")
@@ -843,6 +845,17 @@ class CodeEditor(CodeEditing, QTextEdit):
 
     def _update_margin(self) -> None:
         self.setViewportMargins(self.line_number_width(), 0, 0, 0)
+
+    def apply_text_scale(self, scale: float) -> None:
+        """Yazı boyu ayarı: yazı, sekme genişliği ve satır numarası alanı.
+
+        Boy kendi stil kuralıyla veriliyor: genel `QTextEdit[role="code"]`
+        kuralındaki `font-size` `setFont`'u eziyor.
+        """
+        self.setStyleSheet(f"QTextEdit {{ font-size: {round(BASE_TEXT_PX * scale)}px; }}")
+        self.ensurePolished()
+        self.setTabStopDistance(self.fontMetrics().horizontalAdvance(" ") * INDENT_WIDTH)
+        self._update_margin()
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)

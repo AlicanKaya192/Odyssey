@@ -23,6 +23,13 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [1.6.0] — Unreleased
+
+### Added
+- **Text size.** In Settings › Appearance you can show lessons, notes, the
+  code editor and the terminal at 90%, 100%, 115% or 130%; open screens
+  change right away.
+
 ## [1.5.0] — 31 October 2026
 
 ### Added

@@ -21,6 +21,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [1.6.0] — Yayınlanmadı
+
+### Eklendi
+- **Yazı boyu.** Ayarlar › Görünüm'den dersleri, notları, kod editörünü ve
+  terminali %90, %100, %115 ya da %130 boyunda okuyabilirsiniz; değişiklik
+  açık ekranlara hemen uygulanır.
+
 ## [1.5.0] — 31 Ekim 2026
 
 ### Eklendi

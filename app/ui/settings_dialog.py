@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
 from ..widgets import motion
 from ..widgets.fade_stack import FadeStack
 from ..core.language import LanguageManager
-from ..core import animations, discord_presence
+from ..core import animations, discord_presence, text_size
 from ..core.quiz_timing import UNTIMED_QUIZ_KEY, untimed_quiz
 from ..core.unlock import UNLOCK_ALL_KEY, unlock_all
 from ..core.theme import ThemeManager
@@ -328,6 +328,8 @@ class SettingsDialog(QDialog):
     presence_changed = Signal()
     # Animasyonlar ayarı: açık ekranlardaki döngüsel hareketler hemen duruyor.
     animations_changed = Signal(bool)
+    # Yazı boyu: açık belgeler, editörler ve terminaller hemen yeni ölçekte.
+    text_size_changed = Signal(float)
     # Elle yapılan denetimin sonucu: şeritteki duyuruyu da güncelliyor.
     update_found = Signal(object)
     # Kullanıcı ayarlardan güncellemeyi başlatmak istedi.
@@ -498,6 +500,12 @@ class SettingsDialog(QDialog):
         self._theme_picker.selected.connect(self._on_theme)
         self._theme_row = SettingRow(self._theme_picker)
 
+        self._text_size_picker = SegmentedControl(
+            [(ad, "") for ad in text_size.SCALES]
+        )
+        self._text_size_picker.selected.connect(self._on_text_size)
+        self._text_size_row = SettingRow(self._text_size_picker)
+
         self._language_picker = SegmentedControl(LANGUAGE_OPTIONS)
         self._language_picker.selected.connect(self._on_language)
         self._language_row = SettingRow(self._language_picker)
@@ -511,7 +519,8 @@ class SettingsDialog(QDialog):
         self._animations_row.switch.toggled.connect(self._on_animations)
 
         layout.addWidget(self._group(
-            [self._theme_row, self._language_row, self._presence_row,
+            [self._theme_row, self._text_size_row, self._language_row,
+             self._presence_row,
              self._animations_row]
         ))
         layout.addStretch(1)
@@ -886,6 +895,7 @@ class SettingsDialog(QDialog):
         """
         self._theme_picker.set_value(self._theme.mode)
         self._language_picker.set_value(self._language.language)
+        self._text_size_picker.set_value(text_size.current(self._store))
         self._unlock_row.switch.set_checked(
             unlock_all(self._store), animate=False
         )
@@ -966,6 +976,10 @@ class SettingsDialog(QDialog):
     def _on_presence(self, checked: bool) -> None:
         discord_presence.set_enabled(self._store, checked)
         self.presence_changed.emit()
+
+    def _on_text_size(self, name: str) -> None:
+        text_size.set_size(self._store, name)
+        self.text_size_changed.emit(text_size.scale(name))
 
     def _on_animations(self, checked: bool) -> None:
         animations.set_enabled(self._store, checked)
@@ -1298,6 +1312,12 @@ class SettingsDialog(QDialog):
 
         self._theme_row.title.setText(t("settings.theme"))
         self._theme_row.description.setText(t("settings.theme_help"))
+        self._text_size_row.title.setText(t("settings.text_size"))
+        self._text_size_row.description.setText(t("settings.text_size_help"))
+        for ad, olcek in text_size.SCALES.items():
+            self._text_size_picker.button(ad).setText(
+                t("settings.text_size_percent", value=round(olcek * 100))
+            )
         self._theme_picker.set_tooltips({
             "dark": t("settings.theme_dark"),
             "light": t("settings.theme_light"),

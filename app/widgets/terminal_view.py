@@ -33,7 +33,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from . import text_scale
 from ..resources.theme.tokens import FONTS
+
+# Yazı boyu ayarı "normal"ken terminal metni (px); ayar bununla çarpılıyor.
+BASE_TEXT_PX = 13
 
 COLORS = {
     "bg": "#0B0D12",
@@ -154,15 +158,23 @@ class TerminalView(QFrame):
             Qt.TextInteractionFlag.TextSelectableByMouse
             | Qt.TextInteractionFlag.TextSelectableByKeyboard
         )
-        mono = FONTS["mono"]
-        self._text.setStyleSheet(
-            f"QTextEdit {{ background:transparent; color:{COLORS['text']}; border:none;"
-            f" border-radius:0; padding:6px 10px; font-family:{mono}; font-size:13px;"
-            f" selection-background-color:#34405A; }}"
-        )
+        self._text_px = BASE_TEXT_PX
+        text_scale.listen(self.apply_text_scale)
         layout.addWidget(self._text, 1)
 
         self._welcome = ""
+
+    def apply_text_scale(self, scale: float) -> None:
+        """Yazı boyu ayarı: terminalin metni (başlık şeridi aynı kalıyor)."""
+        self._text_px = round(BASE_TEXT_PX * scale)
+        self._text.setStyleSheet(
+            f"QTextEdit {{ background:transparent; color:{COLORS['text']}; border:none;"
+            f" border-radius:0; padding:6px 10px; font-family:{FONTS['mono']};"
+            f" font-size:{self._text_px}px; selection-background-color:#34405A; }}"
+        )
+
+    def text_pixel_size(self) -> int:
+        return self._text_px
 
     # --- içerik ----------------------------------------------------------
 
