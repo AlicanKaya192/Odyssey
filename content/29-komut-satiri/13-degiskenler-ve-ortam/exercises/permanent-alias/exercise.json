@@ -1,0 +1,86 @@
+{
+  "id": "permanent-alias",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Kalıcı takma ad",
+    "en": "A permanent alias"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir -p logs/old data notes docs",
+    {
+      "write": {
+        "logs/app.log": "2026-10-07 09:58 INFO server started\n2026-10-07 10:01 INFO user ada logged in\n2026-10-07 10:03 WARN slow request /books\n2026-10-07 10:05 ERROR database timeout\n2026-10-07 10:06 INFO retrying database\n2026-10-07 10:07 info database ok\n2026-10-07 10:08 WARN disk 85% full\n2026-10-07 10:10 ERROR payment failed\n2026-10-07 10:11 INFO user alan logged in\n2026-10-07 10:13 Error timeout while sending mail\n2026-10-07 10:14 WARN disk 90% full\n2026-10-07 10:15 INFO backup done\n",
+        "logs/old/2025.log": "2025-12-31 23:50 INFO year end report\n2025-12-31 23:55 ERROR disk full\n2025-12-31 23:59 INFO server stopped\n",
+        "names.txt": "grace\nada\nlinus\nalan\nmargaret\nkatherine\ndennis\n",
+        "poem.txt": "Roses are red\nViolets are blue\nThe shell is fast\nAnd so are you\n",
+        "data/sales.csv": "name,city,amount\nada,London,120\nalan,Manchester,80\ngrace,New York,250\nlinus,Helsinki,40\nmargaret,Boston,175\ndennis,New York,60\nkatherine,Boston,95\nada,London,30\n",
+        "data/visits.log": "10.0.0.1 /home\n10.0.0.2 /books\n10.0.0.1 /books\n10.0.0.3 /home\n10.0.0.4 /about\n10.0.0.2 /home\n10.0.0.5 /books\n10.0.0.1 /home\n10.0.0.3 /contact\n10.0.0.6 /home\n10.0.0.2 /books\n10.0.0.7 /about\n",
+        "notes/messy.txt": "Buy   milk  and   bread\nCall    Ada\n"
+      }
+    },
+    "touch docs/a.md docs/b.md docs/c.md docs/d.txt docs/e.txt",
+    "mkdir tools",
+    {
+      "write": {
+        "tools/greet": "#!/bin/bash\necho Hello from greet\n"
+      },
+      "modes": {
+        "tools/greet": "755"
+      }
+    }
+  ],
+  "solution": [
+    "echo \"alias ll='ls -l'\" >> ~/.bashrc",
+    "source ~/.bashrc",
+    "ll names.txt"
+  ],
+  "hints": [
+    {
+      "tr": "Sona eklemek `>>`; satırdaki tek tırnaklar bozulmasın diye bütün satırı çift tırnağa al. Okutmak için `source`.",
+      "en": "Adding to the end is `>>`; wrap the whole line in double quotes so its single quotes survive. To read it, `source`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\necho \"alias ll='ls -l'\" >> ~/.bashrc\nsource ~/.bashrc\nll names.txt\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\necho \"alias ll='ls -l'\" >> ~/.bashrc\nsource ~/.bashrc\nll names.txt\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "file_match": {
+        ".bashrc": "^alias ll='ls -l'$"
+      },
+      "label": {
+        "tr": ".bashrc'de alias satırı var",
+        "en": ".bashrc has the alias line"
+      }
+    },
+    {
+      "type": "shell_state",
+      "file_match": {
+        ".bashrc": "^# ~/\\.bashrc"
+      },
+      "label": {
+        "tr": ".bashrc'nin eski satırları duruyor",
+        "en": "The old lines of .bashrc are still there"
+      }
+    },
+    {
+      "type": "shell_state",
+      "output": {
+        "pattern": "^-rw-r--r-- .* names\\.txt$",
+        "command": "^ll\\b"
+      },
+      "label": {
+        "tr": "ll çalıştı",
+        "en": "ll worked"
+      }
+    }
+  ]
+}

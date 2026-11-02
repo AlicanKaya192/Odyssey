@@ -967,6 +967,16 @@ class Shell:
         bits = (mode >> 6) & 7 if self._owner(p) == USER else mode & 7
         return bool(bits & {"r": 4, "w": 2, "x": 1}[perm])
 
+    def _search_ok(self, p: str) -> bool:
+        """Yoldaki üst klasörlerin hepsinde x (arama) izni var mı; yoksa içindeki dosyaya ulaşılamaz."""
+        d = posixpath.dirname(p)
+        while True:
+            if self._isdir(d) and not self._can(d, "x"):
+                return False
+            if d in ("/", ""):
+                return True
+            d = posixpath.dirname(d)
+
     def _children(self, d: str) -> list[str]:
         pref = d.rstrip("/") + "/"
         names = set()
@@ -989,6 +999,8 @@ class Shell:
     def _write_check(self, p: str, shown: str) -> str | None:
         """Bu yola yazılabilir mi; değilse sebep (No such file or directory, Is a directory...)."""
         parent = posixpath.dirname(p)
+        if not self._search_ok(p):
+            return "Permission denied"
         if self._isdir(p):
             return "Is a directory"
         if parent not in self.dirs:
@@ -1005,7 +1017,9 @@ class Shell:
             return ""
         p = self.abspath(name)
         reason = None
-        if self._isdir(p):
+        if not self._search_ok(p):
+            reason = "Permission denied"
+        elif self._isdir(p):
             reason = "Is a directory"
         elif p not in self.files:
             reason = "No such file or directory"
@@ -1649,6 +1663,9 @@ class Shell:
                         stdin = Stream("")
                         continue
                     p = self.abspath(target)
+                    if not self._search_ok(p):
+                        io.err.err(f"{self._prefix()}: {target}: Permission denied")
+                        return 1
                     if p not in self.files:
                         reason = "Is a directory" if self._isdir(p) else "No such file or directory"
                         if self._isdir(p):
@@ -2890,8 +2907,13 @@ class Shell:
                 action = ("exec", expr[k + 1:end])
                 k = end + 1
                 continue
-            io.err.err(f"find: unknown predicate `{a}'" if a.startswith("-") else
-                       f"find: paths must precede expression: `{a}'")
+            if a.startswith("-"):
+                io.err.err(f"find: unknown predicate `{a}'")
+                return 1
+            io.err.err(f"find: paths must precede expression: `{a}'")
+            # GNU findutils 4.9: önceki koşul kalıp alıyorsa bir ipucu satırı daha (Git Bash'te ölçüldü).
+            if k >= 2 and expr[k - 2] in ("-name", "-iname"):
+                io.err.err(f"find: possible unquoted pattern after predicate `{expr[k - 2]}'?")
             return 1
 
         def match(p: str, shown: str) -> bool:

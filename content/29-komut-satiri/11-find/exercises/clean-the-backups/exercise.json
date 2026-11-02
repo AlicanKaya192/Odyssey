@@ -1,0 +1,82 @@
+{
+  "id": "clean-the-backups",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Yedekleri temizle",
+    "en": "Clean up the backups"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir -p project/src/utils project/tests project/docs project/build project/logs project/empty",
+    {
+      "write": {
+        "project/readme.md": "# Project\n",
+        "project/src/main.py": "import sys\nfrom utils.text import shout\n# TODO: read the name from argv\nprint(shout(\"hello\"))\n",
+        "project/src/utils/text.py": "def shout(text):\n    return text.upper() + \"!\"\n",
+        "project/src/utils/numbers.py": "def double(n):\n    # TODO: check the type\n    return n * 2\n",
+        "project/tests/test_main.py": "from utils.text import shout\n\ndef test_shout():\n    assert shout(\"hi\") == \"HI!\"\n",
+        "project/docs/guide.md": "How to run\n",
+        "project/docs/notes.MD": "Ideas\n",
+        "project/build/main.bak": "old copy\n",
+        "project/build/numbers.bak": "old copy\n",
+        "project/logs/run1.log": "started\nfinished\n",
+        "project/logs/run2.log": "started\nERROR crash\n"
+      }
+    }
+  ],
+  "solution": [
+    "find project -name '*.bak'",
+    "find project -name '*.bak' -delete"
+  ],
+  "hints": [
+    {
+      "tr": "`-delete` koşulların **sonuna** yazılır. Koşulsuz bir find'a `-delete` eklemek her şeyi siler.",
+      "en": "`-delete` goes at the **end** of the conditions. Adding `-delete` to a find with no condition deletes everything."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\nfind project -name '*.bak'\nfind project -name '*.bak' -delete\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\nfind project -name '*.bak'\nfind project -name '*.bak' -delete\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "missing": [
+        "project/build/main.bak",
+        "project/build/numbers.bak"
+      ],
+      "label": {
+        "tr": ".bak dosyaları silindi",
+        "en": "The .bak files are deleted"
+      }
+    },
+    {
+      "type": "shell_state",
+      "files": {
+        "project/src/main.py": null,
+        "project/logs/run1.log": null
+      },
+      "dirs": [
+        "project/build"
+      ],
+      "label": {
+        "tr": "Öteki dosyalar ve build klasörü yerinde",
+        "en": "The other files and the build folder are still there"
+      }
+    },
+    {
+      "type": "shell_state",
+      "command": "^find\\b.*-delete",
+      "show": "find ... -delete",
+      "label": {
+        "tr": "find -delete ile sildin",
+        "en": "You deleted with find -delete"
+      }
+    }
+  ]
+}
