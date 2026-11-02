@@ -1,0 +1,86 @@
+{
+  "id": "plan-test",
+  "title": {
+    "tr": "Testi planla",
+    "en": "Plan the test"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Gün: `math.ceil(2 * n / daily_visitors)`.",
+      "en": "Days: `math.ceil(2 * n / daily_visitors)`."
+    },
+    {
+      "tr": "En az bir hafta: `max(days, 7)`.",
+      "en": "At least a week: `max(days, 7)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\nfrom statsmodels.stats.power import NormalIndPower\nfrom statsmodels.stats.proportion import proportion_effectsize\n\n\ndef plan_test(p_a, p_b, daily_visitors):\n    h = proportion_effectsize(p_b, p_a)\n    n = NormalIndPower().solve_power(effect_size=h, power=0.8, alpha=0.05)\n    n = math.ceil(n)\n    days = math.ceil(2 * n / daily_visitors)\n    return [n, max(days, 7)]\n\n\nprint(plan_test(0.114, 0.130, 1500))\nprint(plan_test(0.20, 0.25, 5000))\n```",
+      "en": "The full solution:\n\n```python\nimport math\nfrom statsmodels.stats.power import NormalIndPower\nfrom statsmodels.stats.proportion import proportion_effectsize\n\n\ndef plan_test(p_a, p_b, daily_visitors):\n    h = proportion_effectsize(p_b, p_a)\n    n = NormalIndPower().solve_power(effect_size=h, power=0.8, alpha=0.05)\n    n = math.ceil(n)\n    days = math.ceil(2 * n / daily_visitors)\n    return [n, max(days, 7)]\n\n\nprint(plan_test(0.114, 0.130, 1500))\nprint(plan_test(0.20, 0.25, 5000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "plan_test",
+      "cases": [
+        {
+          "args": [
+            0.114,
+            0.13,
+            1500
+          ],
+          "returns": [
+            6562,
+            9
+          ]
+        },
+        {
+          "args": [
+            0.2,
+            0.25,
+            5000
+          ],
+          "returns": [
+            1092,
+            7
+          ]
+        },
+        {
+          "args": [
+            0.05,
+            0.06,
+            2000
+          ],
+          "returns": [
+            8143,
+            9
+          ]
+        },
+        {
+          "args": [
+            0.3,
+            0.4,
+            100
+          ],
+          "returns": [
+            356,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[6562, 9]\n[1092, 7]"
+    }
+  ]
+}

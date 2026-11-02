@@ -1,0 +1,46 @@
+{
+  "id": "design-effect-report",
+  "title": {
+    "tr": "Ortalama, sıra ve etki",
+    "en": "Mean, rank and effect"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`stats.ttest_ind(b, a, equal_var=False).pvalue` ve `stats.mannwhitneyu(b, a).pvalue`.",
+      "en": "`stats.ttest_ind(b, a, equal_var=False).pvalue` and `stats.mannwhitneyu(b, a).pvalue`."
+    },
+    {
+      "tr": "d: `(b.mean() - a.mean()) / pooled`.",
+      "en": "d: `(b.mean() - a.mean()) / pooled`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_design_test\n\ntest = make_design_test(n=200, seed=612)\na = test.loc[test[\"group\"] == \"A\", \"minutes\"].to_numpy()\nb = test.loc[test[\"group\"] == \"B\", \"minutes\"].to_numpy()\nprint(round(np.median(a), 2), round(np.median(b), 2))\nprint(round(stats.ttest_ind(b, a, equal_var=False).pvalue, 4))\nprint(round(stats.mannwhitneyu(b, a).pvalue, 4))\npooled = np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2)\nprint(round((b.mean() - a.mean()) / pooled, 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_design_test\n\ntest = make_design_test(n=200, seed=612)\na = test.loc[test[\"group\"] == \"A\", \"minutes\"].to_numpy()\nb = test.loc[test[\"group\"] == \"B\", \"minutes\"].to_numpy()\nprint(round(np.median(a), 2), round(np.median(b), 2))\nprint(round(stats.ttest_ind(b, a, equal_var=False).pvalue, 4))\nprint(round(stats.mannwhitneyu(b, a).pvalue, 4))\npooled = np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2)\nprint(round((b.mean() - a.mean()) / pooled, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "7.81 8.34\n0.1203\n0.2435\n0.156"
+    }
+  ]
+}

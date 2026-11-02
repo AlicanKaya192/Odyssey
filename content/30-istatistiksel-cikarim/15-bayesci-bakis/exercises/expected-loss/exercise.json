@@ -1,0 +1,46 @@
+{
+  "id": "expected-loss",
+  "title": {
+    "tr": "Beklenen kayıpla karar",
+    "en": "Deciding with the expected loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kayıp yalnızca yanılınca: `np.maximum(draw_a - draw_b, 0)`.",
+      "en": "A loss only when wrong: `np.maximum(draw_a - draw_b, 0)`."
+    },
+    {
+      "tr": "Ortalamasını al: `.mean()`.",
+      "en": "Take its mean: `.mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_checkout_test\n\nshop = make_checkout_test(n=1500, seed=513)\nk = shop.groupby(\"group\")[\"bought\"].sum()\nn = shop.groupby(\"group\")[\"bought\"].size()\nrng = np.random.default_rng(514)\ndraw_a = rng.beta(1 + k[\"A\"], 1 + n[\"A\"] - k[\"A\"], 100_000)\ndraw_b = rng.beta(1 + k[\"B\"], 1 + n[\"B\"] - k[\"B\"], 100_000)\nloss_b = np.maximum(draw_a - draw_b, 0).mean()\nloss_a = np.maximum(draw_b - draw_a, 0).mean()\nprint(f\"{loss_b:.5f}\", f\"{loss_a:.5f}\")\nprint(\"B\" if loss_b < 0.001 else \"wait\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_checkout_test\n\nshop = make_checkout_test(n=1500, seed=513)\nk = shop.groupby(\"group\")[\"bought\"].sum()\nn = shop.groupby(\"group\")[\"bought\"].size()\nrng = np.random.default_rng(514)\ndraw_a = rng.beta(1 + k[\"A\"], 1 + n[\"A\"] - k[\"A\"], 100_000)\ndraw_b = rng.beta(1 + k[\"B\"], 1 + n[\"B\"] - k[\"B\"], 100_000)\nloss_b = np.maximum(draw_a - draw_b, 0).mean()\nloss_a = np.maximum(draw_b - draw_a, 0).mean()\nprint(f\"{loss_b:.5f}\", f\"{loss_a:.5f}\")\nprint(\"B\" if loss_b < 0.001 else \"wait\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.00002 0.03058\nB"
+    }
+  ]
+}

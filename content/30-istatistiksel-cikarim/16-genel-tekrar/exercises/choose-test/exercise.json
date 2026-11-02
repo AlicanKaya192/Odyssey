@@ -1,0 +1,114 @@
+{
+  "id": "choose-test",
+  "title": {
+    "tr": "Hangi test?",
+    "en": "Which test?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `if outcome == \"rate\":` dalını yaz.",
+      "en": "Write the `if outcome == \"rate\":` branch first."
+    },
+    {
+      "tr": "Sonra grup sayısı, sonra eşlilik; her dalda `skewed`'e göre iki ad.",
+      "en": "Then the group count, then pairing; two names in each branch by `skewed`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef choose_test(outcome, groups, paired, skewed):\n    if outcome == \"rate\":\n        return \"z-test\" if groups == 2 else \"chi-square\"\n    if groups > 2:\n        return \"kruskal\" if skewed else \"anova\"\n    if paired:\n        return \"wilcoxon\" if skewed else \"paired-t\"\n    return \"mann-whitney\" if skewed else \"welch\"\n\n\nprint(choose_test(\"mean\", 2, False, False))\nprint(choose_test(\"mean\", 2, True, True))\nprint(choose_test(\"rate\", 3, False, False))\n```",
+      "en": "The full solution:\n\n```python\ndef choose_test(outcome, groups, paired, skewed):\n    if outcome == \"rate\":\n        return \"z-test\" if groups == 2 else \"chi-square\"\n    if groups > 2:\n        return \"kruskal\" if skewed else \"anova\"\n    if paired:\n        return \"wilcoxon\" if skewed else \"paired-t\"\n    return \"mann-whitney\" if skewed else \"welch\"\n\n\nprint(choose_test(\"mean\", 2, False, False))\nprint(choose_test(\"mean\", 2, True, True))\nprint(choose_test(\"rate\", 3, False, False))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "choose_test",
+      "cases": [
+        {
+          "args": [
+            "mean",
+            2,
+            false,
+            false
+          ],
+          "returns": "welch"
+        },
+        {
+          "args": [
+            "mean",
+            2,
+            false,
+            true
+          ],
+          "returns": "mann-whitney"
+        },
+        {
+          "args": [
+            "mean",
+            2,
+            true,
+            false
+          ],
+          "returns": "paired-t"
+        },
+        {
+          "args": [
+            "mean",
+            2,
+            true,
+            true
+          ],
+          "returns": "wilcoxon"
+        },
+        {
+          "args": [
+            "mean",
+            4,
+            false,
+            false
+          ],
+          "returns": "anova"
+        },
+        {
+          "args": [
+            "mean",
+            4,
+            false,
+            true
+          ],
+          "returns": "kruskal"
+        },
+        {
+          "args": [
+            "rate",
+            2,
+            false,
+            false
+          ],
+          "returns": "z-test"
+        },
+        {
+          "args": [
+            "rate",
+            3,
+            false,
+            false
+          ],
+          "returns": "chi-square"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "welch\nwilcoxon\nchi-square"
+    }
+  ]
+}

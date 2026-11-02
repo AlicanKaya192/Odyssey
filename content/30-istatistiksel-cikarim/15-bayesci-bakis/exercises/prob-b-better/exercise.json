@@ -1,0 +1,46 @@
+{
+  "id": "prob-b-better",
+  "title": {
+    "tr": "B'nin daha iyi olma olasılığı",
+    "en": "The probability B is better"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`draw_a = rng.beta(1 + k[\"A\"], 1 + n[\"A\"] - k[\"A\"], 100_000)`, B için de aynısı.",
+      "en": "`draw_a = rng.beta(1 + k[\"A\"], 1 + n[\"A\"] - k[\"A\"], 100_000)`, the same for B."
+    },
+    {
+      "tr": "`np.percentile(draw_b - draw_a, [2.5, 97.5])`.",
+      "en": "`np.percentile(draw_b - draw_a, [2.5, 97.5])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_checkout_test\n\nshop = make_checkout_test(n=1500, seed=511)\nk = shop.groupby(\"group\")[\"bought\"].sum()\nn = shop.groupby(\"group\")[\"bought\"].size()\nrng = np.random.default_rng(512)\ndraw_a = rng.beta(1 + k[\"A\"], 1 + n[\"A\"] - k[\"A\"], 100_000)\ndraw_b = rng.beta(1 + k[\"B\"], 1 + n[\"B\"] - k[\"B\"], 100_000)\nprint(round((draw_b > draw_a).mean(), 3))\nlow, high = np.percentile(draw_b - draw_a, [2.5, 97.5])\nprint(round(low, 4), round(high, 4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_checkout_test\n\nshop = make_checkout_test(n=1500, seed=511)\nk = shop.groupby(\"group\")[\"bought\"].sum()\nn = shop.groupby(\"group\")[\"bought\"].size()\nrng = np.random.default_rng(512)\ndraw_a = rng.beta(1 + k[\"A\"], 1 + n[\"A\"] - k[\"A\"], 100_000)\ndraw_b = rng.beta(1 + k[\"B\"], 1 + n[\"B\"] - k[\"B\"], 100_000)\nprint(round((draw_b > draw_a).mean(), 3))\nlow, high = np.percentile(draw_b - draw_a, [2.5, 97.5])\nprint(round(low, 4), round(high, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.97\n-0.0009 0.0462"
+    }
+  ]
+}

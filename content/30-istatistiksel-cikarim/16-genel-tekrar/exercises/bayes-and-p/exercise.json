@@ -1,0 +1,46 @@
+{
+  "id": "bayes-and-p",
+  "title": {
+    "tr": "Tek yönlü p ve P(B > A)",
+    "en": "One-sided p and P(B > A)"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tek yön: `alternative=\"larger\"`.",
+      "en": "One side: `alternative=\"larger\"`."
+    },
+    {
+      "tr": "`proportions_ztest([k[\"B\"], k[\"A\"]], [2000, 2000], alternative=\"larger\")[1]`.",
+      "en": "`proportions_ztest([k[\"B\"], k[\"A\"]], [2000, 2000], alternative=\"larger\")[1]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_checkout_test\n\nshop = make_checkout_test(n=2000, seed=613)\nk = shop.groupby(\"group\")[\"bought\"].sum()\nrng = np.random.default_rng(614)\ndraw_a = rng.beta(1 + k[\"A\"], 1 + 2000 - k[\"A\"], 100_000)\ndraw_b = rng.beta(1 + k[\"B\"], 1 + 2000 - k[\"B\"], 100_000)\np = proportions_ztest([k[\"B\"], k[\"A\"]], [2000, 2000],\n                      alternative=\"larger\")[1]\nprint(round(p, 4), round(1 - (draw_b > draw_a).mean(), 4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_checkout_test\n\nshop = make_checkout_test(n=2000, seed=613)\nk = shop.groupby(\"group\")[\"bought\"].sum()\nrng = np.random.default_rng(614)\ndraw_a = rng.beta(1 + k[\"A\"], 1 + 2000 - k[\"A\"], 100_000)\ndraw_b = rng.beta(1 + k[\"B\"], 1 + 2000 - k[\"B\"], 100_000)\np = proportions_ztest([k[\"B\"], k[\"A\"]], [2000, 2000],\n                      alternative=\"larger\")[1]\nprint(round(p, 4), round(1 - (draw_b > draw_a).mean(), 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.001 0.0011"
+    }
+  ]
+}

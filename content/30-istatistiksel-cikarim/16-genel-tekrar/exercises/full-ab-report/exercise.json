@@ -1,0 +1,46 @@
+{
+  "id": "full-ab-report",
+  "title": {
+    "tr": "A/B raporunun sayıları",
+    "en": "The numbers of an A/B report"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Oran `k[\"A\"] / 6000`; p `proportions_ztest([k[\"B\"], k[\"A\"]], [6000, 6000])[1]`.",
+      "en": "Rate `k[\"A\"] / 6000`; p `proportions_ztest([k[\"B\"], k[\"A\"]], [6000, 6000])[1]`."
+    },
+    {
+      "tr": "Aralık `confint_proportions_2indep(k[\"B\"], 6000, k[\"A\"], 6000)`.",
+      "en": "Interval `confint_proportions_2indep(k[\"B\"], 6000, k[\"A\"], 6000)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_checkout_test\n\nshop = make_checkout_test(n=6000, seed=611)\nk = shop.groupby(\"group\")[\"bought\"].sum()\nprint(round(k[\"A\"] / 6000, 4), round(k[\"B\"] / 6000, 4))\np = proportions_ztest([k[\"B\"], k[\"A\"]], [6000, 6000])[1]\nprint(round(p, 4))\nlow, high = confint_proportions_2indep(k[\"B\"], 6000, k[\"A\"], 6000)\nprint(round(low, 4), round(high, 4))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_checkout_test\n\nshop = make_checkout_test(n=6000, seed=611)\nk = shop.groupby(\"group\")[\"bought\"].sum()\nprint(round(k[\"A\"] / 6000, 4), round(k[\"B\"] / 6000, 4))\np = proportions_ztest([k[\"B\"], k[\"A\"]], [6000, 6000])[1]\nprint(round(p, 4))\nlow, high = confint_proportions_2indep(k[\"B\"], 6000, k[\"A\"], 6000)\nprint(round(low, 4), round(high, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.114 0.1313\n0.0038\n0.0056 0.0291"
+    }
+  ]
+}
