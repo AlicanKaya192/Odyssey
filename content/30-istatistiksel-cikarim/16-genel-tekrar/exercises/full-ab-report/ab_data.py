@@ -177,3 +177,30 @@ def make_assignment_log(n=50_000, seed=72, lost_b=0.0):
     keep = ~lost
     return pd.DataFrame({"user_id": ids[keep], "group": group[keep],
                          "platform": platform[keep], "bought": bought[keep]})
+
+
+def make_experiment(n=30_000, seed=73, lift=0.12, days=14):
+    """A finished 50/50 checkout experiment, one row per user.
+
+    Columns: user_id, day (1..days, the day the user entered), group,
+    platform, sessions (visits before the test), bought (0/1), revenue,
+    refunded (0/1). In truth B raises each user's buying probability by
+    `lift` (relative) and leaves order sizes and refunds unchanged.
+    """
+    rng = np.random.default_rng(seed)
+    group = np.where(rng.random(n) < 0.5, "A", "B")
+    day = rng.integers(1, days + 1, n)
+    platform = np.where(rng.random(n) < 0.6, "mobile", "desktop")
+    sessions = 1 + rng.poisson(2.0 * rng.lognormal(0.0, 0.8, n))
+    p_buy = np.clip(0.04 + 0.025 * sessions, 0, 0.6)
+    p_buy = np.where(platform == "mobile", p_buy * 0.8, p_buy)
+    p_buy = np.where(group == "B", p_buy * (1 + lift), p_buy)
+    bought = (rng.random(n) < p_buy).astype(int)
+    revenue = np.where(bought == 1, np.round(rng.lognormal(4.2, 0.9, n), 2), 0.0)
+    refunded = bought * (rng.random(n) < 0.08).astype(int)
+    order = np.argsort(day, kind="stable")
+    ids = np.array([f"E{i:05d}" for i in range(1, n + 1)])
+    return pd.DataFrame({"user_id": ids, "day": day[order], "group": group[order],
+                         "platform": platform[order], "sessions": sessions[order],
+                         "bought": bought[order], "revenue": revenue[order],
+                         "refunded": refunded[order]})

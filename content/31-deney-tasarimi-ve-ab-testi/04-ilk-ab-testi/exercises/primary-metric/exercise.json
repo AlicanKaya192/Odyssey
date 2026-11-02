@@ -1,0 +1,84 @@
+{
+  "id": "primary-metric",
+  "title": {
+    "tr": "Birincil metrik özeti",
+    "en": "Primary metric summary"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Aralıkta önce B: `confint_proportions_2indep(k_b, n_b, k_a, n_a)`.",
+      "en": "B first in the interval: `confint_proportions_2indep(k_b, n_b, k_a, n_a)`."
+    },
+    {
+      "tr": "Geri kalanı aynı.",
+      "en": "The rest stays the same."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom statsmodels.stats.proportion import (confint_proportions_2indep,\n                                          proportions_ztest)\n\n\ndef primary(k_a, n_a, k_b, n_b):\n    p = proportions_ztest([k_b, k_a], [n_b, n_a])[1]\n    low, high = confint_proportions_2indep(k_b, n_b, k_a, n_a)\n    return [round(k_b / n_b - k_a / n_a, 4), round(float(low), 4),\n            round(float(high), 4), round(float(p), 4)]\n\n\nprint(primary(1766, 15041, 1940, 14959))\n```",
+      "en": "The full solution:\n\n```python\nfrom statsmodels.stats.proportion import (confint_proportions_2indep,\n                                          proportions_ztest)\n\n\ndef primary(k_a, n_a, k_b, n_b):\n    p = proportions_ztest([k_b, k_a], [n_b, n_a])[1]\n    low, high = confint_proportions_2indep(k_b, n_b, k_a, n_a)\n    return [round(k_b / n_b - k_a / n_a, 4), round(float(low), 4),\n            round(float(high), 4), round(float(p), 4)]\n\n\nprint(primary(1766, 15041, 1940, 14959))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "primary",
+      "cases": [
+        {
+          "args": [
+            1766,
+            15041,
+            1940,
+            14959
+          ],
+          "returns": [
+            0.0123,
+            0.0048,
+            0.0197,
+            0.0012
+          ]
+        },
+        {
+          "args": [
+            500,
+            5000,
+            560,
+            5000
+          ],
+          "returns": [
+            0.012,
+            -0.0001,
+            0.0241,
+            0.0513
+          ]
+        },
+        {
+          "args": [
+            120,
+            1000,
+            100,
+            1000
+          ],
+          "returns": [
+            -0.02,
+            -0.0476,
+            0.0075,
+            0.1529
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0123, 0.0048, 0.0197, 0.0012]"
+    }
+  ]
+}

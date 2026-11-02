@@ -1,0 +1,97 @@
+{
+  "id": "permutation-p",
+  "title": {
+    "tr": "İki yönlü permütasyon p'si",
+    "en": "A two-sided permutation p"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki yön: `abs(diff) >= abs(observed)`.",
+      "en": "Both directions: `abs(diff) >= abs(observed)`."
+    },
+    {
+      "tr": "Geri kalanı aynı.",
+      "en": "The rest stays the same."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef perm_p(a, b, reps=2000, seed=0):\n    rng = np.random.default_rng(seed)\n    values = np.array(a + b, dtype=float)\n    observed = np.mean(b) - np.mean(a)\n    count = 0\n    for _ in range(reps):\n        shuffled = rng.permutation(values)\n        diff = shuffled[len(a):].mean() - shuffled[:len(a)].mean()\n        count += abs(diff) >= abs(observed)\n    return round(count / reps, 3)\n\n\nprint(perm_p([5, 7, 6, 8, 9], [9, 11, 10, 12, 13]))\nprint(perm_p([10, 9, 11, 10], [9, 10, 11, 10]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef perm_p(a, b, reps=2000, seed=0):\n    rng = np.random.default_rng(seed)\n    values = np.array(a + b, dtype=float)\n    observed = np.mean(b) - np.mean(a)\n    count = 0\n    for _ in range(reps):\n        shuffled = rng.permutation(values)\n        diff = shuffled[len(a):].mean() - shuffled[:len(a)].mean()\n        count += abs(diff) >= abs(observed)\n    return round(count / reps, 3)\n\n\nprint(perm_p([5, 7, 6, 8, 9], [9, 11, 10, 12, 13]))\nprint(perm_p([10, 9, 11, 10], [9, 10, 11, 10]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "perm_p",
+      "cases": [
+        {
+          "args": [
+            [
+              5,
+              7,
+              6,
+              8,
+              9
+            ],
+            [
+              9,
+              11,
+              10,
+              12,
+              13
+            ]
+          ],
+          "returns": 0.017
+        },
+        {
+          "args": [
+            [
+              10,
+              9,
+              11,
+              10
+            ],
+            [
+              9,
+              10,
+              11,
+              10
+            ]
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              9,
+              11,
+              10,
+              12,
+              13
+            ],
+            [
+              5,
+              7,
+              6,
+              8,
+              9
+            ]
+          ],
+          "returns": 0.016
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.017\n1.0"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "full-analysis",
+  "title": {
+    "tr": "Baştan sona",
+    "en": "Start to finish"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`srm_p = stats.chisquare(n).pvalue`.",
+      "en": "`srm_p = stats.chisquare(n).pvalue`."
+    },
+    {
+      "tr": "`low, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])`.",
+      "en": "`low, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_experiment\n\n\ndef decide(srm_p, low, threshold):\n    if srm_p < 0.001:\n        return \"stop: SRM\"\n    if low >= threshold:\n        return \"ship\"\n    if low > 0:\n        return \"unclear\"\n    return \"no evidence\"\n\n\ntest = make_experiment(n=20000, seed=743, lift=0.15)\nn = test[\"group\"].value_counts().sort_index()\nk = test.groupby(\"group\")[\"bought\"].sum()\nsrm_p = stats.chisquare(n).pvalue\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nprint(round(srm_p, 3))\nprint(round(low, 4), round(high, 4))\nprint(decide(srm_p, low, 0.003))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_experiment\n\n\ndef decide(srm_p, low, threshold):\n    if srm_p < 0.001:\n        return \"stop: SRM\"\n    if low >= threshold:\n        return \"ship\"\n    if low > 0:\n        return \"unclear\"\n    return \"no evidence\"\n\n\ntest = make_experiment(n=20000, seed=743, lift=0.15)\nn = test[\"group\"].value_counts().sort_index()\nk = test.groupby(\"group\")[\"bought\"].sum()\nsrm_p = stats.chisquare(n).pvalue\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nprint(round(srm_p, 3))\nprint(round(low, 4), round(high, 4))\nprint(decide(srm_p, low, 0.003))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.026\n0.0133 0.0317\nship"
+    }
+  ]
+}

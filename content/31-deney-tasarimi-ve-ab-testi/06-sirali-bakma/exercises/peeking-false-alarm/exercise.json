@@ -1,0 +1,46 @@
+{
+  "id": "peeking-false-alarm",
+  "title": {
+    "tr": "Bakmanın bedeli",
+    "en": "The cost of peeking"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Son gün: `aa[:, -1] < 0.05`.",
+      "en": "Last day: `aa[:, -1] < 0.05`."
+    },
+    {
+      "tr": "Her gün: `aa.min(axis=1) < 0.05`.",
+      "en": "Every day: `aa.min(axis=1) < 0.05`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_experiment\n\n\ndef daily_p(test, days=14):\n    is_b = (test[\"group\"] == \"B\").to_numpy()\n    day = test[\"day\"].to_numpy()\n    bought = test[\"bought\"].to_numpy().astype(float)\n    size = days + 1\n    n_a = np.cumsum(np.bincount(day[~is_b], minlength=size))[1:]\n    n_b = np.cumsum(np.bincount(day[is_b], minlength=size))[1:]\n    k_a = np.cumsum(np.bincount(day[~is_b], bought[~is_b], size))[1:]\n    k_b = np.cumsum(np.bincount(day[is_b], bought[is_b], size))[1:]\n    pooled = (k_a + k_b) / (n_a + n_b)\n    se = np.sqrt(pooled * (1 - pooled) * (1 / n_a + 1 / n_b))\n    z = (k_b / n_b - k_a / n_a) / se\n    return 2 * stats.norm.sf(np.abs(z))\n\n\naa = np.array([daily_p(make_experiment(n=6000, seed=s, lift=0.0))\n               for s in range(7000, 7200)])\nprint(round(float((aa[:, -1] < 0.05).mean()), 3))\nprint(round(float((aa.min(axis=1) < 0.05).mean()), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_experiment\n\n\ndef daily_p(test, days=14):\n    is_b = (test[\"group\"] == \"B\").to_numpy()\n    day = test[\"day\"].to_numpy()\n    bought = test[\"bought\"].to_numpy().astype(float)\n    size = days + 1\n    n_a = np.cumsum(np.bincount(day[~is_b], minlength=size))[1:]\n    n_b = np.cumsum(np.bincount(day[is_b], minlength=size))[1:]\n    k_a = np.cumsum(np.bincount(day[~is_b], bought[~is_b], size))[1:]\n    k_b = np.cumsum(np.bincount(day[is_b], bought[is_b], size))[1:]\n    pooled = (k_a + k_b) / (n_a + n_b)\n    se = np.sqrt(pooled * (1 - pooled) * (1 / n_a + 1 / n_b))\n    z = (k_b / n_b - k_a / n_a) / se\n    return 2 * stats.norm.sf(np.abs(z))\n\n\naa = np.array([daily_p(make_experiment(n=6000, seed=s, lift=0.0))\n               for s in range(7000, 7200)])\nprint(round(float((aa[:, -1] < 0.05).mean()), 3))\nprint(round(float((aa.min(axis=1) < 0.05).mean()), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.045\n0.195"
+    }
+  ]
+}

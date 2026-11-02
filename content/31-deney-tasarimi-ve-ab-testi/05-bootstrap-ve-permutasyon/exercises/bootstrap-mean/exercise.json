@@ -1,0 +1,94 @@
+{
+  "id": "bootstrap-mean",
+  "title": {
+    "tr": "Ortalamanın bootstrap aralığı",
+    "en": "A bootstrap interval for the mean"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yerine koyarak: `rng.choice(values, len(values))` (varsayılan `replace=True`).",
+      "en": "With replacement: `rng.choice(values, len(values))` (the default `replace=True`)."
+    },
+    {
+      "tr": "`np.percentile(means, [2.5, 97.5])`.",
+      "en": "`np.percentile(means, [2.5, 97.5])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef boot_mean_ci(values, reps=1000, seed=0):\n    rng = np.random.default_rng(seed)\n    values = np.asarray(values, dtype=float)\n    means = [rng.choice(values, len(values)).mean() for _ in range(reps)]\n    low, high = np.percentile(means, [2.5, 97.5])\n    return [round(float(low), 2), round(float(high), 2)]\n\n\nprint(boot_mean_ci([12, 15, 9, 30, 14, 11, 13, 50, 10, 12]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef boot_mean_ci(values, reps=1000, seed=0):\n    rng = np.random.default_rng(seed)\n    values = np.asarray(values, dtype=float)\n    means = [rng.choice(values, len(values)).mean() for _ in range(reps)]\n    low, high = np.percentile(means, [2.5, 97.5])\n    return [round(float(low), 2), round(float(high), 2)]\n\n\nprint(boot_mean_ci([12, 15, 9, 30, 14, 11, 13, 50, 10, 12]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "boot_mean_ci",
+      "cases": [
+        {
+          "args": [
+            [
+              12,
+              15,
+              9,
+              30,
+              14,
+              11,
+              13,
+              50,
+              10,
+              12
+            ]
+          ],
+          "returns": [
+            11.6,
+            25.3
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          ],
+          "returns": [
+            3.0,
+            6.0
+          ]
+        },
+        {
+          "args": [
+            [
+              100,
+              120,
+              90,
+              300
+            ]
+          ],
+          "returns": [
+            95.0,
+            250.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[11.6, 25.3]"
+    }
+  ]
+}

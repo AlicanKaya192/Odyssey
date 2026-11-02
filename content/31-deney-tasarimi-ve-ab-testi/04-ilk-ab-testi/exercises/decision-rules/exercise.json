@@ -1,0 +1,87 @@
+{
+  "id": "decision-rules",
+  "title": {
+    "tr": "Karar kuralları",
+    "en": "Decision rules"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `if srm_p < 0.001:`, sonra `if not guard_ok:`.",
+      "en": "First `if srm_p < 0.001:`, then `if not guard_ok:`."
+    },
+    {
+      "tr": "Ardından eski üç kural.",
+      "en": "Then the old three rules."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef decide(srm_p, guard_ok, low, threshold):\n    if srm_p < 0.001:\n        return \"stop: SRM\"\n    if not guard_ok:\n        return \"stop: guardrail\"\n    if low >= threshold:\n        return \"ship\"\n    if low > 0:\n        return \"unclear\"\n    return \"no evidence\"\n\n\nprint(decide(0.64, True, 0.0048, 0.003))\nprint(decide(0.0001, True, 0.0048, 0.003))\n```",
+      "en": "The full solution:\n\n```python\ndef decide(srm_p, guard_ok, low, threshold):\n    if srm_p < 0.001:\n        return \"stop: SRM\"\n    if not guard_ok:\n        return \"stop: guardrail\"\n    if low >= threshold:\n        return \"ship\"\n    if low > 0:\n        return \"unclear\"\n    return \"no evidence\"\n\n\nprint(decide(0.64, True, 0.0048, 0.003))\nprint(decide(0.0001, True, 0.0048, 0.003))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decide",
+      "cases": [
+        {
+          "args": [
+            0.64,
+            true,
+            0.0048,
+            0.003
+          ],
+          "returns": "ship"
+        },
+        {
+          "args": [
+            0.0001,
+            true,
+            0.0048,
+            0.003
+          ],
+          "returns": "stop: SRM"
+        },
+        {
+          "args": [
+            0.5,
+            false,
+            0.0048,
+            0.003
+          ],
+          "returns": "stop: guardrail"
+        },
+        {
+          "args": [
+            0.5,
+            true,
+            0.001,
+            0.003
+          ],
+          "returns": "unclear"
+        },
+        {
+          "args": [
+            0.5,
+            true,
+            -0.002,
+            0.003
+          ],
+          "returns": "no evidence"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ship\nstop: SRM"
+    }
+  ]
+}

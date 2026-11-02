@@ -1,0 +1,46 @@
+{
+  "id": "bootstrap-median",
+  "title": {
+    "tr": "Medyan farkının aralığı",
+    "en": "The median difference's interval"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`np.median(rng.choice(order_b, len(order_b)))`.",
+      "en": "`np.median(rng.choice(order_b, len(order_b)))`."
+    },
+    {
+      "tr": "`np.percentile(diffs, [2.5, 97.5])`.",
+      "en": "`np.percentile(diffs, [2.5, 97.5])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=8000, seed=751)\nbuyers = test[test[\"bought\"] == 1]\norder_a = buyers.loc[buyers[\"group\"] == \"A\", \"revenue\"].to_numpy()\norder_b = buyers.loc[buyers[\"group\"] == \"B\", \"revenue\"].to_numpy()\nrng = np.random.default_rng(752)\ndiffs = []\nfor _ in range(1000):\n    diffs.append(np.median(rng.choice(order_b, len(order_b)))\n                 - np.median(rng.choice(order_a, len(order_a))))\nprint(round(np.median(order_a), 2), round(np.median(order_b), 2))\nlow, high = np.percentile(diffs, [2.5, 97.5])\nprint(round(low, 2), round(high, 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=8000, seed=751)\nbuyers = test[test[\"bought\"] == 1]\norder_a = buyers.loc[buyers[\"group\"] == \"A\", \"revenue\"].to_numpy()\norder_b = buyers.loc[buyers[\"group\"] == \"B\", \"revenue\"].to_numpy()\nrng = np.random.default_rng(752)\ndiffs = []\nfor _ in range(1000):\n    diffs.append(np.median(rng.choice(order_b, len(order_b)))\n                 - np.median(rng.choice(order_a, len(order_a))))\nprint(round(np.median(order_a), 2), round(np.median(order_b), 2))\nlow, high = np.percentile(diffs, [2.5, 97.5])\nprint(round(low, 2), round(high, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "65.55 67.87\n-6.1 10.59"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "permutation-buying",
+  "title": {
+    "tr": "Satın almada permütasyon",
+    "en": "Permutation on buying"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`shuffled = rng.permutation(labels)`; fark `bought[shuffled].mean() - bought[~shuffled].mean()`.",
+      "en": "`shuffled = rng.permutation(labels)`; the difference is `bought[shuffled].mean() - bought[~shuffled].mean()`."
+    },
+    {
+      "tr": "z-testi: `proportions_ztest([k_b, k_a], [labels.sum(), (~labels).sum()])[1]`.",
+      "en": "z-test: `proportions_ztest([k_b, k_a], [labels.sum(), (~labels).sum()])[1]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=6000, seed=753)\nlabels = (test[\"group\"] == \"B\").to_numpy()\nbought = test[\"bought\"].to_numpy()\nrng = np.random.default_rng(754)\nobserved = bought[labels].mean() - bought[~labels].mean()\ncount = 0\nfor _ in range(2000):\n    shuffled = rng.permutation(labels)\n    diff = bought[shuffled].mean() - bought[~shuffled].mean()\n    count += abs(diff) >= abs(observed)\nprint(round(count / 2000, 3))\nk_b, k_a = bought[labels].sum(), bought[~labels].sum()\np = proportions_ztest([k_b, k_a], [labels.sum(), (~labels).sum()])[1]\nprint(round(p, 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=6000, seed=753)\nlabels = (test[\"group\"] == \"B\").to_numpy()\nbought = test[\"bought\"].to_numpy()\nrng = np.random.default_rng(754)\nobserved = bought[labels].mean() - bought[~labels].mean()\ncount = 0\nfor _ in range(2000):\n    shuffled = rng.permutation(labels)\n    diff = bought[shuffled].mean() - bought[~shuffled].mean()\n    count += abs(diff) >= abs(observed)\nprint(round(count / 2000, 3))\nk_b, k_a = bought[labels].sum(), bought[~labels].sum()\np = proportions_ztest([k_b, k_a], [labels.sum(), (~labels).sum()])[1]\nprint(round(p, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.004\n0.004"
+    }
+  ]
+}

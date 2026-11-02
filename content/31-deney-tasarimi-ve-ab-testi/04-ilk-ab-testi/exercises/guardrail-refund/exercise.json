@@ -1,0 +1,46 @@
+{
+  "id": "guardrail-refund",
+  "title": {
+    "tr": "Koruma metriği",
+    "en": "The guardrail metric"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce alıcılar: `buyers = test[test[\"bought\"] == 1]`.",
+      "en": "Buyers first: `buyers = test[test[\"bought\"] == 1]`."
+    },
+    {
+      "tr": "Sonra `buyers.groupby(\"group\")[\"refunded\"]`.",
+      "en": "Then `buyers.groupby(\"group\")[\"refunded\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=20000, seed=742)\nbuyers = test[test[\"bought\"] == 1]\nrefund = buyers.groupby(\"group\")[\"refunded\"].agg([\"sum\", \"count\"])\nprint((refund[\"sum\"] / refund[\"count\"]).round(4).to_dict())\np = proportions_ztest(refund[\"sum\"].to_numpy(), refund[\"count\"].to_numpy())[1]\nprint(round(p, 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=20000, seed=742)\nbuyers = test[test[\"bought\"] == 1]\nrefund = buyers.groupby(\"group\")[\"refunded\"].agg([\"sum\", \"count\"])\nprint((refund[\"sum\"] / refund[\"count\"]).round(4).to_dict())\np = proportions_ztest(refund[\"sum\"].to_numpy(), refund[\"count\"].to_numpy())[1]\nprint(round(p, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'A': 0.0755, 'B': 0.0829}\n0.493"
+    }
+  ]
+}
