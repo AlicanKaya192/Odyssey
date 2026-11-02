@@ -1,0 +1,112 @@
+{
+  "id": "two-person-approval",
+  "title": {
+    "tr": "Dört göz ilkesi",
+    "en": "The two-person rule"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu hazırlayanın kendi ödemesini onaylamasına izin veriyor.",
+      "en": "The starter code lets the preparer approve their own payment."
+    },
+    {
+      "tr": "Önce iki ret durumu (`denied`, `duplicate`), sonra `append`, sonra `needed = 2 if payment[\"amount\"] >= 10000 else 1`.",
+      "en": "First the two refusals (`denied`, `duplicate`), then `append`, then `needed = 2 if payment[\"amount\"] >= 10000 else 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef approve(payment, approver):\n    if approver == payment[\"created_by\"]:\n        return \"denied\"\n    if approver in payment[\"approvals\"]:\n        return \"duplicate\"\n    payment[\"approvals\"].append(approver)\n    needed = 2 if payment[\"amount\"] >= 10000 else 1\n    if len(payment[\"approvals\"]) >= needed:\n        return \"approved\"\n    return \"pending\"\n\npayment = {\"amount\": 25000, \"created_by\": \"ada\", \"approvals\": []}\nfor approver in [\"ada\", \"alan\", \"alan\", \"grace\"]:\n    print(approver, approve(payment, approver))\nsmall = {\"amount\": 900, \"created_by\": \"ada\", \"approvals\": []}\nprint(\"small\", approve(small, \"grace\"))\n```",
+      "en": "The full solution:\n\n```python\ndef approve(payment, approver):\n    if approver == payment[\"created_by\"]:\n        return \"denied\"\n    if approver in payment[\"approvals\"]:\n        return \"duplicate\"\n    payment[\"approvals\"].append(approver)\n    needed = 2 if payment[\"amount\"] >= 10000 else 1\n    if len(payment[\"approvals\"]) >= needed:\n        return \"approved\"\n    return \"pending\"\n\npayment = {\"amount\": 25000, \"created_by\": \"ada\", \"approvals\": []}\nfor approver in [\"ada\", \"alan\", \"alan\", \"grace\"]:\n    print(approver, approve(payment, approver))\nsmall = {\"amount\": 900, \"created_by\": \"ada\", \"approvals\": []}\nprint(\"small\", approve(small, \"grace\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "approve",
+      "cases": [
+        {
+          "args": [
+            {
+              "amount": 25000,
+              "created_by": "ada",
+              "approvals": []
+            },
+            "ada"
+          ],
+          "returns": "denied"
+        },
+        {
+          "args": [
+            {
+              "amount": 25000,
+              "created_by": "ada",
+              "approvals": []
+            },
+            "alan"
+          ],
+          "returns": "pending"
+        },
+        {
+          "args": [
+            {
+              "amount": 25000,
+              "created_by": "ada",
+              "approvals": [
+                "alan"
+              ]
+            },
+            "alan"
+          ],
+          "returns": "duplicate"
+        },
+        {
+          "args": [
+            {
+              "amount": 25000,
+              "created_by": "ada",
+              "approvals": [
+                "alan"
+              ]
+            },
+            "grace"
+          ],
+          "returns": "approved"
+        },
+        {
+          "args": [
+            {
+              "amount": 900,
+              "created_by": "ada",
+              "approvals": []
+            },
+            "grace"
+          ],
+          "returns": "approved"
+        },
+        {
+          "args": [
+            {
+              "amount": 10000,
+              "created_by": "x",
+              "approvals": []
+            },
+            "y"
+          ],
+          "returns": "pending"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada denied\nalan pending\nalan duplicate\ngrace approved\nsmall approved"
+    }
+  ]
+}

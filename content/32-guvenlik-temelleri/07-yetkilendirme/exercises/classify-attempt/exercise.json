@@ -1,0 +1,96 @@
+{
+  "id": "classify-attempt",
+  "title": {
+    "tr": "Yatay mı, dikey mi?",
+    "en": "Horizontal or vertical?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Metin karşılaştırması: `\"moderator\" < \"admin\"` `False`, ama `\"admin\" < \"user\"` `True`; sıra anlamsız.",
+      "en": "Text comparison: `\"moderator\" < \"admin\"` is `False` but `\"admin\" < \"user\"` is `True`; the order is meaningless."
+    },
+    {
+      "tr": "`RANK[user_role] < RANK[required_role]`; sonra yatay koşulu: `owner is not None and owner != user and user_role == \"user\"`.",
+      "en": "`RANK[user_role] < RANK[required_role]`; then the horizontal condition: `owner is not None and owner != user and user_role == \"user\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nRANK = {\"user\": 1, \"moderator\": 2, \"admin\": 3}\n\n\ndef classify_attempt(user, user_role, owner, required_role):\n    if RANK[user_role] < RANK[required_role]:\n        return \"vertical\"\n    if owner is not None and owner != user and user_role == \"user\":\n        return \"horizontal\"\n    return \"allowed\"\n\nprint(classify_attempt(\"ada\", \"user\", \"ada\", \"user\"))\nprint(classify_attempt(\"ada\", \"user\", \"alan\", \"user\"))\nprint(classify_attempt(\"ada\", \"user\", None, \"admin\"))\nprint(classify_attempt(\"grace\", \"moderator\", \"alan\", \"moderator\"))\n```",
+      "en": "The full solution:\n\n```python\nRANK = {\"user\": 1, \"moderator\": 2, \"admin\": 3}\n\n\ndef classify_attempt(user, user_role, owner, required_role):\n    if RANK[user_role] < RANK[required_role]:\n        return \"vertical\"\n    if owner is not None and owner != user and user_role == \"user\":\n        return \"horizontal\"\n    return \"allowed\"\n\nprint(classify_attempt(\"ada\", \"user\", \"ada\", \"user\"))\nprint(classify_attempt(\"ada\", \"user\", \"alan\", \"user\"))\nprint(classify_attempt(\"ada\", \"user\", None, \"admin\"))\nprint(classify_attempt(\"grace\", \"moderator\", \"alan\", \"moderator\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "classify_attempt",
+      "cases": [
+        {
+          "args": [
+            "ada",
+            "user",
+            "ada",
+            "user"
+          ],
+          "returns": "allowed"
+        },
+        {
+          "args": [
+            "ada",
+            "user",
+            "alan",
+            "user"
+          ],
+          "returns": "horizontal"
+        },
+        {
+          "args": [
+            "ada",
+            "user",
+            null,
+            "admin"
+          ],
+          "returns": "vertical"
+        },
+        {
+          "args": [
+            "grace",
+            "moderator",
+            "alan",
+            "moderator"
+          ],
+          "returns": "allowed"
+        },
+        {
+          "args": [
+            "grace",
+            "moderator",
+            null,
+            "admin"
+          ],
+          "returns": "vertical"
+        },
+        {
+          "args": [
+            "root",
+            "admin",
+            "ada",
+            "moderator"
+          ],
+          "returns": "allowed"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "allowed\nhorizontal\nvertical\nallowed"
+    }
+  ]
+}

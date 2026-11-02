@@ -1,0 +1,181 @@
+{
+  "id": "effective-permissions",
+  "title": {
+    "tr": "Miras alınan izinler",
+    "en": "Inherited permissions"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu yalnızca bir kat yukarı bakıyor: `admin` `viewer`'ın `read` iznini almıyor.",
+      "en": "The starter code only looks one level up: `admin` does not get `viewer`'s `read` permission."
+    },
+    {
+      "tr": "Bir yapılacaklar listesi (`todo = [role]`) ve `seen` kümesi kur; `while todo:` içinde rolü al, izinlerini ekle, ebeveynlerini listeye ekle.",
+      "en": "Keep a to-do list (`todo = [role]`) and a `seen` set; inside `while todo:` take a role, add its permissions, add its parents to the list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef effective_permissions(role, role_perms, parents):\n    perms = set()\n    seen = set()\n    todo = [role]\n    while todo:\n        current = todo.pop()\n        if current in seen:\n            continue\n        seen.add(current)\n        perms |= set(role_perms.get(current, []))\n        todo.extend(parents.get(current, []))\n    return sorted(perms)\n\nrole_perms = {\"viewer\": [\"read\"], \"editor\": [\"write\"], \"admin\": [\"delete\", \"manage\"]}\nparents = {\"admin\": [\"editor\"], \"editor\": [\"viewer\"]}\nfor role in [\"viewer\", \"editor\", \"admin\"]:\n    print(role, \", \".join(effective_permissions(role, role_perms, parents)))\n```",
+      "en": "The full solution:\n\n```python\ndef effective_permissions(role, role_perms, parents):\n    perms = set()\n    seen = set()\n    todo = [role]\n    while todo:\n        current = todo.pop()\n        if current in seen:\n            continue\n        seen.add(current)\n        perms |= set(role_perms.get(current, []))\n        todo.extend(parents.get(current, []))\n    return sorted(perms)\n\nrole_perms = {\"viewer\": [\"read\"], \"editor\": [\"write\"], \"admin\": [\"delete\", \"manage\"]}\nparents = {\"admin\": [\"editor\"], \"editor\": [\"viewer\"]}\nfor role in [\"viewer\", \"editor\", \"admin\"]:\n    print(role, \", \".join(effective_permissions(role, role_perms, parents)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "effective_permissions",
+      "cases": [
+        {
+          "args": [
+            "admin",
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "write"
+              ],
+              "admin": [
+                "delete",
+                "manage"
+              ]
+            },
+            {
+              "admin": [
+                "editor"
+              ],
+              "editor": [
+                "viewer"
+              ]
+            }
+          ],
+          "returns": [
+            "delete",
+            "manage",
+            "read",
+            "write"
+          ]
+        },
+        {
+          "args": [
+            "viewer",
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "write"
+              ],
+              "admin": [
+                "delete",
+                "manage"
+              ]
+            },
+            {
+              "admin": [
+                "editor"
+              ],
+              "editor": [
+                "viewer"
+              ]
+            }
+          ],
+          "returns": [
+            "read"
+          ]
+        },
+        {
+          "args": [
+            "editor",
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "write"
+              ],
+              "admin": [
+                "delete",
+                "manage"
+              ]
+            },
+            {
+              "admin": [
+                "editor"
+              ],
+              "editor": [
+                "viewer"
+              ]
+            }
+          ],
+          "returns": [
+            "read",
+            "write"
+          ]
+        },
+        {
+          "args": [
+            "a",
+            {
+              "a": [
+                "x"
+              ],
+              "b": [
+                "y"
+              ]
+            },
+            {
+              "a": [
+                "b"
+              ],
+              "b": [
+                "a"
+              ]
+            }
+          ],
+          "returns": [
+            "x",
+            "y"
+          ]
+        },
+        {
+          "args": [
+            "ghost",
+            {
+              "viewer": [
+                "read"
+              ],
+              "editor": [
+                "write"
+              ],
+              "admin": [
+                "delete",
+                "manage"
+              ]
+            },
+            {
+              "admin": [
+                "editor"
+              ],
+              "editor": [
+                "viewer"
+              ]
+            }
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "viewer read\neditor read, write\nadmin delete, manage, read, write"
+    }
+  ]
+}

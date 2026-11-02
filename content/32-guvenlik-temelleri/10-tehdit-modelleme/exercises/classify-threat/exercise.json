@@ -1,0 +1,90 @@
+{
+  "id": "classify-threat",
+  "title": {
+    "tr": "Tehdidi sınıflandır",
+    "en": "Classify the threat"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sözlük yazıldığı sırayla gezilir; sıra zaten S, T, R, I, D, E.",
+      "en": "A dictionary is iterated in the order it was written; the order is already S, T, R, I, D, E."
+    },
+    {
+      "tr": "`if any(word in lowered for word in words): return letter`.",
+      "en": "`if any(word in lowered for word in words): return letter`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nKEYWORDS = {\n    \"S\": [\"impersonat\", \"pretend\", \"fake login\", \"stolen password\"],\n    \"T\": [\"alter\", \"modif\", \"tamper\"],\n    \"R\": [\"deny\", \"not logged\", \"nothing is logged\"],\n    \"I\": [\"leak\", \"expose\", \"disclos\"],\n    \"D\": [\"flood\", \"crash\", \"overload\"],\n    \"E\": [\"bypass\", \"privilege\", \"become admin\"],\n}\n\n\ndef classify_threat(text):\n    lowered = text.lower()\n    for letter, words in KEYWORDS.items():\n        if any(word in lowered for word in words):\n            return letter\n    return \"?\"\n\nreports = [\n    \"attacker could impersonate a teacher\",\n    \"grades may be altered in the database\",\n    \"error page could expose every grade\",\n    \"student can bypass the admin check\",\n    \"a flood of requests could crash the site\",\n    \"nothing is logged, so a teacher can deny it\",\n    \"the coffee machine is slow\",\n]\nfor text in reports:\n    print(classify_threat(text), text[:30])\n```",
+      "en": "The full solution:\n\n```python\nKEYWORDS = {\n    \"S\": [\"impersonat\", \"pretend\", \"fake login\", \"stolen password\"],\n    \"T\": [\"alter\", \"modif\", \"tamper\"],\n    \"R\": [\"deny\", \"not logged\", \"nothing is logged\"],\n    \"I\": [\"leak\", \"expose\", \"disclos\"],\n    \"D\": [\"flood\", \"crash\", \"overload\"],\n    \"E\": [\"bypass\", \"privilege\", \"become admin\"],\n}\n\n\ndef classify_threat(text):\n    lowered = text.lower()\n    for letter, words in KEYWORDS.items():\n        if any(word in lowered for word in words):\n            return letter\n    return \"?\"\n\nreports = [\n    \"attacker could impersonate a teacher\",\n    \"grades may be altered in the database\",\n    \"error page could expose every grade\",\n    \"student can bypass the admin check\",\n    \"a flood of requests could crash the site\",\n    \"nothing is logged, so a teacher can deny it\",\n    \"the coffee machine is slow\",\n]\nfor text in reports:\n    print(classify_threat(text), text[:30])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "classify_threat",
+      "cases": [
+        {
+          "args": [
+            "Attacker could IMPERSONATE a teacher"
+          ],
+          "returns": "S"
+        },
+        {
+          "args": [
+            "grades may be altered"
+          ],
+          "returns": "T"
+        },
+        {
+          "args": [
+            "error page could expose grades"
+          ],
+          "returns": "I"
+        },
+        {
+          "args": [
+            "student can bypass the check"
+          ],
+          "returns": "E"
+        },
+        {
+          "args": [
+            "a flood of requests"
+          ],
+          "returns": "D"
+        },
+        {
+          "args": [
+            "nothing is logged"
+          ],
+          "returns": "R"
+        },
+        {
+          "args": [
+            "the coffee is cold"
+          ],
+          "returns": "?"
+        },
+        {
+          "args": [
+            "an admin could leak data after a crash"
+          ],
+          "returns": "I"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "S attacker could impersonate a t\nT grades may be altered in the d\nI error page could expose every\nE student can bypass the admin c\nD a flood of requests could cras\nR nothing is logged, so a teache\n? the coffee machine is slow"
+    }
+  ]
+}

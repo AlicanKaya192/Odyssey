@@ -1,0 +1,131 @@
+{
+  "id": "capability-list",
+  "title": {
+    "tr": "Yetenek listesi",
+    "en": "Capability list"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki sorun: bilinmeyen özne `KeyError` veriyor ve sıra abece değil.",
+      "en": "Two problems: an unknown subject raises `KeyError` and the order is not alphabetical."
+    },
+    {
+      "tr": "`matrix.get(subject, {})` ve sonda `return sorted(caps)`.",
+      "en": "`matrix.get(subject, {})` and `return sorted(caps)` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef capability_list(matrix, subject):\n    caps = []\n    for obj, actions in matrix.get(subject, {}).items():\n        for action in actions:\n            caps.append(f\"{obj}:{action}\")\n    return sorted(caps)\n\nmatrix = {\n    \"ada\": {\"grades\": [\"write\", \"read\"]},\n    \"alan\": {\"grades\": [\"read\"], \"payroll\": [\"read\"]},\n}\nprint(capability_list(matrix, \"alan\"))\nprint(capability_list(matrix, \"ada\"))\nprint(capability_list(matrix, \"nobody\"))\n```",
+      "en": "The full solution:\n\n```python\ndef capability_list(matrix, subject):\n    caps = []\n    for obj, actions in matrix.get(subject, {}).items():\n        for action in actions:\n            caps.append(f\"{obj}:{action}\")\n    return sorted(caps)\n\nmatrix = {\n    \"ada\": {\"grades\": [\"write\", \"read\"]},\n    \"alan\": {\"grades\": [\"read\"], \"payroll\": [\"read\"]},\n}\nprint(capability_list(matrix, \"alan\"))\nprint(capability_list(matrix, \"ada\"))\nprint(capability_list(matrix, \"nobody\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "capability_list",
+      "cases": [
+        {
+          "args": [
+            {
+              "ada": {
+                "grades": [
+                  "read",
+                  "write"
+                ]
+              },
+              "alan": {
+                "grades": [
+                  "read"
+                ],
+                "payroll": [
+                  "read"
+                ]
+              },
+              "eve": {}
+            },
+            "alan"
+          ],
+          "returns": [
+            "grades:read",
+            "payroll:read"
+          ]
+        },
+        {
+          "args": [
+            {
+              "ada": {
+                "grades": [
+                  "write",
+                  "read"
+                ]
+              }
+            },
+            "ada"
+          ],
+          "returns": [
+            "grades:read",
+            "grades:write"
+          ]
+        },
+        {
+          "args": [
+            {
+              "ada": {
+                "grades": [
+                  "read",
+                  "write"
+                ]
+              },
+              "alan": {
+                "grades": [
+                  "read"
+                ],
+                "payroll": [
+                  "read"
+                ]
+              },
+              "eve": {}
+            },
+            "nobody"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "ada": {
+                "grades": [
+                  "read",
+                  "write"
+                ]
+              },
+              "alan": {
+                "grades": [
+                  "read"
+                ],
+                "payroll": [
+                  "read"
+                ]
+              },
+              "eve": {}
+            },
+            "eve"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['grades:read', 'payroll:read']\n['grades:read', 'grades:write']\n[]"
+    }
+  ]
+}

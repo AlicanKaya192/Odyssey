@@ -1,0 +1,84 @@
+{
+  "id": "needs-rehash",
+  "title": {
+    "tr": "Yeniden özetlemek gerekir mi?",
+    "en": "Does it need rehashing?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sayıları sayı olarak karşılaştır: `int(parts[1]) < min_iterations`.",
+      "en": "Compare numbers as numbers: `int(parts[1]) < min_iterations`."
+    },
+    {
+      "tr": "Tanınmayan ya da bozuk kayıt da yenilenmeli: önce parça sayısı, algoritma ve `isdigit` denetimi.",
+      "en": "An unknown or broken record also needs renewing: check the number of parts, the algorithm and `isdigit` first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef needs_rehash(record, min_iterations):\n    parts = record.split(\"$\")\n    if len(parts) != 4 or parts[0] != \"pbkdf2_sha256\" or not parts[1].isdigit():\n        return True\n    return int(parts[1]) < min_iterations\n\nfor record in [\"pbkdf2_sha256$1000$ab$cd\", \"pbkdf2_sha256$90000$ab$cd\",\n               \"pbkdf2_sha256$600000$ab$cd\", \"md5$1$ab$cd\"]:\n    print(record.split(\"$\")[1], needs_rehash(record, 600000))\n```",
+      "en": "The full solution:\n\n```python\ndef needs_rehash(record, min_iterations):\n    parts = record.split(\"$\")\n    if len(parts) != 4 or parts[0] != \"pbkdf2_sha256\" or not parts[1].isdigit():\n        return True\n    return int(parts[1]) < min_iterations\n\nfor record in [\"pbkdf2_sha256$1000$ab$cd\", \"pbkdf2_sha256$90000$ab$cd\",\n               \"pbkdf2_sha256$600000$ab$cd\", \"md5$1$ab$cd\"]:\n    print(record.split(\"$\")[1], needs_rehash(record, 600000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "needs_rehash",
+      "cases": [
+        {
+          "args": [
+            "pbkdf2_sha256$1000$ab$cd",
+            600000
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "pbkdf2_sha256$90000$ab$cd",
+            600000
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "pbkdf2_sha256$600000$ab$cd",
+            600000
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "md5$1$ab$cd",
+            600000
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "broken",
+            10
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "pbkdf2_sha256$x$ab$cd",
+            10
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1000 True\n90000 True\n600000 False\n1 True"
+    }
+  ]
+}

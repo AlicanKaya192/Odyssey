@@ -1,0 +1,158 @@
+{
+  "id": "effective-actions",
+  "title": {
+    "tr": "Hangi eylemler?",
+    "en": "Which actions?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu bilinmeyen özne ve nesnede `KeyError` veriyor; `get` ile varsayılan ver.",
+      "en": "The starter code raises `KeyError` for an unknown subject or object; give a default with `get`."
+    },
+    {
+      "tr": "İki listeyi kümeye çevirip birleştir: `set(...) | set(...)`, sonra `sorted`.",
+      "en": "Turn the two lists into sets and join them: `set(...) | set(...)`, then `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef effective_actions(matrix, subject, obj):\n    row = matrix.get(subject, {})\n    actions = set(row.get(obj, [])) | set(row.get(\"*\", []))\n    return sorted(actions)\n\nmatrix = {\n    \"ada\": {\"*\": [\"read\"], \"grades\": [\"write\"]},\n    \"alan\": {\"payroll\": [\"read\", \"write\"]},\n}\nprint(effective_actions(matrix, \"ada\", \"grades\"))\nprint(effective_actions(matrix, \"ada\", \"payroll\"))\nprint(effective_actions(matrix, \"alan\", \"grades\"))\nprint(effective_actions(matrix, \"mallory\", \"grades\"))\n```",
+      "en": "The full solution:\n\n```python\ndef effective_actions(matrix, subject, obj):\n    row = matrix.get(subject, {})\n    actions = set(row.get(obj, [])) | set(row.get(\"*\", []))\n    return sorted(actions)\n\nmatrix = {\n    \"ada\": {\"*\": [\"read\"], \"grades\": [\"write\"]},\n    \"alan\": {\"payroll\": [\"read\", \"write\"]},\n}\nprint(effective_actions(matrix, \"ada\", \"grades\"))\nprint(effective_actions(matrix, \"ada\", \"payroll\"))\nprint(effective_actions(matrix, \"alan\", \"grades\"))\nprint(effective_actions(matrix, \"mallory\", \"grades\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "effective_actions",
+      "cases": [
+        {
+          "args": [
+            {
+              "ada": {
+                "*": [
+                  "read"
+                ],
+                "grades": [
+                  "write"
+                ]
+              },
+              "alan": {
+                "payroll": [
+                  "read",
+                  "write"
+                ]
+              }
+            },
+            "ada",
+            "grades"
+          ],
+          "returns": [
+            "read",
+            "write"
+          ]
+        },
+        {
+          "args": [
+            {
+              "ada": {
+                "*": [
+                  "read"
+                ],
+                "grades": [
+                  "write"
+                ]
+              },
+              "alan": {
+                "payroll": [
+                  "read",
+                  "write"
+                ]
+              }
+            },
+            "ada",
+            "payroll"
+          ],
+          "returns": [
+            "read"
+          ]
+        },
+        {
+          "args": [
+            {
+              "ada": {
+                "*": [
+                  "read"
+                ],
+                "grades": [
+                  "write"
+                ]
+              },
+              "alan": {
+                "payroll": [
+                  "read",
+                  "write"
+                ]
+              }
+            },
+            "alan",
+            "grades"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "ada": {
+                "*": [
+                  "read"
+                ],
+                "grades": [
+                  "write"
+                ]
+              },
+              "alan": {
+                "payroll": [
+                  "read",
+                  "write"
+                ]
+              }
+            },
+            "mallory",
+            "grades"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "x": {
+                "*": [
+                  "read"
+                ],
+                "f": [
+                  "read"
+                ]
+              }
+            },
+            "x",
+            "f"
+          ],
+          "returns": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['read', 'write']\n['read']\n[]\n[]"
+    }
+  ]
+}

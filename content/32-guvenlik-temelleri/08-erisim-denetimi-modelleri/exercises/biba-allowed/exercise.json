@@ -1,0 +1,90 @@
+{
+  "id": "biba-allowed",
+  "title": {
+    "tr": "Biba kuralı",
+    "en": "The Biba rule"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Karşılaştırmaları tersine çevir; ayrıca bilinmeyen eylem için ayrı bir `False` gerekiyor.",
+      "en": "Flip the comparisons; an unknown action also needs its own `False`."
+    },
+    {
+      "tr": "`if action == \"read\": return s <= o`, `if action == \"write\": return s >= o`, sonra `return False`.",
+      "en": "`if action == \"read\": return s <= o`, `if action == \"write\": return s >= o`, then `return False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nLEVELS = [\"low\", \"medium\", \"high\"]\n\n\ndef biba_allowed(subject, obj, action):\n    s, o = LEVELS.index(subject), LEVELS.index(obj)\n    if action == \"read\":\n        return s <= o\n    if action == \"write\":\n        return s >= o\n    return False\n\nfor subject, obj in [(\"medium\", \"low\"), (\"medium\", \"high\"), (\"high\", \"high\")]:\n    print(subject, obj, biba_allowed(subject, obj, \"read\"), biba_allowed(subject, obj, \"write\"))\nprint(biba_allowed(\"low\", \"low\", \"delete\"))\n```",
+      "en": "The full solution:\n\n```python\nLEVELS = [\"low\", \"medium\", \"high\"]\n\n\ndef biba_allowed(subject, obj, action):\n    s, o = LEVELS.index(subject), LEVELS.index(obj)\n    if action == \"read\":\n        return s <= o\n    if action == \"write\":\n        return s >= o\n    return False\n\nfor subject, obj in [(\"medium\", \"low\"), (\"medium\", \"high\"), (\"high\", \"high\")]:\n    print(subject, obj, biba_allowed(subject, obj, \"read\"), biba_allowed(subject, obj, \"write\"))\nprint(biba_allowed(\"low\", \"low\", \"delete\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "biba_allowed",
+      "cases": [
+        {
+          "args": [
+            "medium",
+            "low",
+            "read"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "medium",
+            "high",
+            "read"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "medium",
+            "low",
+            "write"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "medium",
+            "high",
+            "write"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "high",
+            "high",
+            "write"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "low",
+            "low",
+            "delete"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "medium low False True\nmedium high True False\nhigh high True True\nFalse"
+    }
+  ]
+}

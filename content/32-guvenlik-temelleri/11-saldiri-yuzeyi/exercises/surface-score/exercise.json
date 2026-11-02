@@ -1,0 +1,114 @@
+{
+  "id": "surface-score",
+  "title": {
+    "tr": "Toplam yüzey",
+    "en": "The whole surface"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her sözlükten `p[\"exposure\"]` ve `p[\"auth\"]` alıp `entry_score`'a ver.",
+      "en": "Take `p[\"exposure\"]` and `p[\"auth\"]` from each dictionary and give them to `entry_score`."
+    },
+    {
+      "tr": "`sum(entry_score(p[\"exposure\"], p[\"auth\"]) for p in points)`.",
+      "en": "`sum(entry_score(p[\"exposure\"], p[\"auth\"]) for p in points)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nWEIGHT = {\"internet\": 3, \"internal\": 2, \"local\": 1}\n\n\ndef entry_score(exposure, auth):\n    weight = WEIGHT.get(exposure, 3)\n    return weight * (1 if auth else 2)\n\n\ndef surface_score(points):\n    return sum(entry_score(p[\"exposure\"], p[\"auth\"]) for p in points)\n\npoints = [\n    {\"name\": \"login\", \"exposure\": \"internet\", \"auth\": True},\n    {\"name\": \"search\", \"exposure\": \"internet\", \"auth\": False},\n    {\"name\": \"admin\", \"exposure\": \"internal\", \"auth\": True},\n]\nprint(surface_score(points))\nprint(surface_score([]))\n```",
+      "en": "The full solution:\n\n```python\nWEIGHT = {\"internet\": 3, \"internal\": 2, \"local\": 1}\n\n\ndef entry_score(exposure, auth):\n    weight = WEIGHT.get(exposure, 3)\n    return weight * (1 if auth else 2)\n\n\ndef surface_score(points):\n    return sum(entry_score(p[\"exposure\"], p[\"auth\"]) for p in points)\n\npoints = [\n    {\"name\": \"login\", \"exposure\": \"internet\", \"auth\": True},\n    {\"name\": \"search\", \"exposure\": \"internet\", \"auth\": False},\n    {\"name\": \"admin\", \"exposure\": \"internal\", \"auth\": True},\n]\nprint(surface_score(points))\nprint(surface_score([]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "surface_score",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "name": "login",
+                "exposure": "internet",
+                "auth": true
+              },
+              {
+                "name": "search",
+                "exposure": "internet",
+                "auth": false
+              },
+              {
+                "name": "admin",
+                "exposure": "internal",
+                "auth": true
+              }
+            ]
+          ],
+          "returns": 11
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              {
+                "name": "cam",
+                "exposure": "partner",
+                "auth": true
+              }
+            ]
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              {
+                "name": "login",
+                "exposure": "internet",
+                "auth": true
+              },
+              {
+                "name": "search",
+                "exposure": "internet",
+                "auth": false
+              },
+              {
+                "name": "admin",
+                "exposure": "internal",
+                "auth": true
+              },
+              {
+                "name": "export",
+                "exposure": "internal",
+                "auth": true
+              },
+              {
+                "name": "cam",
+                "exposure": "partner",
+                "auth": true
+              }
+            ]
+          ],
+          "returns": 16
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "11\n0"
+    }
+  ]
+}

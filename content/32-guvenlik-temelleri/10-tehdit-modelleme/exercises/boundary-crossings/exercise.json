@@ -1,0 +1,111 @@
+{
+  "id": "boundary-crossings",
+  "title": {
+    "tr": "Sınırı geçen akışlar",
+    "en": "Flows crossing a boundary"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu bilinmeyen parçada `KeyError` veriyor; `zones.get(...)` `None` döndürür.",
+      "en": "The starter code raises `KeyError` for an unknown part; `zones.get(...)` returns `None`."
+    },
+    {
+      "tr": "Koşul: `a is None or b is None or a != b`.",
+      "en": "The condition: `a is None or b is None or a != b`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef boundary_crossings(flows, zones):\n    result = []\n    for src, dst in flows:\n        a, b = zones.get(src), zones.get(dst)\n        if a is None or b is None or a != b:\n            result.append(f\"{src}->{dst}\")\n    return result\n\nzones = {\"student\": \"internet\", \"web\": \"dmz\", \"db\": \"internal\", \"worker\": \"internal\"}\nflows = [[\"student\", \"web\"], [\"web\", \"db\"], [\"worker\", \"db\"], [\"db\", \"backup\"]]\nfor flow in boundary_crossings(flows, zones):\n    print(flow)\n```",
+      "en": "The full solution:\n\n```python\ndef boundary_crossings(flows, zones):\n    result = []\n    for src, dst in flows:\n        a, b = zones.get(src), zones.get(dst)\n        if a is None or b is None or a != b:\n            result.append(f\"{src}->{dst}\")\n    return result\n\nzones = {\"student\": \"internet\", \"web\": \"dmz\", \"db\": \"internal\", \"worker\": \"internal\"}\nflows = [[\"student\", \"web\"], [\"web\", \"db\"], [\"worker\", \"db\"], [\"db\", \"backup\"]]\nfor flow in boundary_crossings(flows, zones):\n    print(flow)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "boundary_crossings",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "student",
+                "web"
+              ],
+              [
+                "web",
+                "db"
+              ],
+              [
+                "worker",
+                "db"
+              ],
+              [
+                "db",
+                "backup"
+              ]
+            ],
+            {
+              "student": "internet",
+              "web": "dmz",
+              "db": "internal",
+              "worker": "internal"
+            }
+          ],
+          "returns": [
+            "student->web",
+            "web->db",
+            "db->backup"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ]
+            ],
+            {
+              "a": "x",
+              "b": "x"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "b"
+              ]
+            ],
+            {}
+          ],
+          "returns": [
+            "a->b"
+          ]
+        },
+        {
+          "args": [
+            [],
+            {}
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "student->web\nweb->db\ndb->backup"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "id": "can-edit-post",
+  "title": {
+    "tr": "Gönderiyi kim düzenler?",
+    "en": "Who may edit the post?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce yetkili rolleri ayır; ötekiler için sahiplik sorusu sor.",
+      "en": "Separate the privileged roles first; ask the ownership question for everyone else."
+    },
+    {
+      "tr": "`return post[\"author\"] == user and not post[\"locked\"]`.",
+      "en": "`return post[\"author\"] == user and not post[\"locked\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef can_edit_post(user, role, post):\n    if role in (\"admin\", \"moderator\"):\n        return True\n    return post[\"author\"] == user and not post[\"locked\"]\n\npost = {\"id\": 7, \"author\": \"ada\", \"locked\": False}\nlocked = {\"id\": 8, \"author\": \"ada\", \"locked\": True}\nfor user, role in [(\"ada\", \"user\"), (\"alan\", \"user\"), (\"grace\", \"moderator\")]:\n    print(user, can_edit_post(user, role, post), can_edit_post(user, role, locked))\n```",
+      "en": "The full solution:\n\n```python\ndef can_edit_post(user, role, post):\n    if role in (\"admin\", \"moderator\"):\n        return True\n    return post[\"author\"] == user and not post[\"locked\"]\n\npost = {\"id\": 7, \"author\": \"ada\", \"locked\": False}\nlocked = {\"id\": 8, \"author\": \"ada\", \"locked\": True}\nfor user, role in [(\"ada\", \"user\"), (\"alan\", \"user\"), (\"grace\", \"moderator\")]:\n    print(user, can_edit_post(user, role, post), can_edit_post(user, role, locked))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "can_edit_post",
+      "cases": [
+        {
+          "args": [
+            "ada",
+            "user",
+            {
+              "id": 7,
+              "author": "ada",
+              "locked": false
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "ada",
+            "user",
+            {
+              "id": 8,
+              "author": "ada",
+              "locked": true
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "alan",
+            "user",
+            {
+              "id": 7,
+              "author": "ada",
+              "locked": false
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "grace",
+            "moderator",
+            {
+              "id": 8,
+              "author": "ada",
+              "locked": true
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "root",
+            "admin",
+            {
+              "id": 7,
+              "author": "ada",
+              "locked": false
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "ada",
+            "guest",
+            {
+              "id": 7,
+              "author": "ada",
+              "locked": false
+            }
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada True False\nalan False False\ngrace True True"
+    }
+  ]
+}

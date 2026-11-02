@@ -1,0 +1,70 @@
+{
+  "id": "salted-hash",
+  "title": {
+    "tr": "Tuzlu özet",
+    "en": "Salted hash"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bayt ile bayt toplanır: `salt + password.encode()`.",
+      "en": "Bytes are joined with bytes: `salt + password.encode()`."
+    },
+    {
+      "tr": "`hashlib.sha256(bytes.fromhex(salt_hex) + password.encode()).hexdigest()`.",
+      "en": "`hashlib.sha256(bytes.fromhex(salt_hex) + password.encode()).hexdigest()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef salted_hash(password, salt_hex):\n    salt = bytes.fromhex(salt_hex)\n    return hashlib.sha256(salt + password.encode()).hexdigest()\n\nsalt = \"8f2a1c9e5b7d3f60a4c2e8b1d6f09a37\"\nprint(salted_hash(\"sunshine1\", salt)[:20])\nprint(salted_hash(\"sunshine1\", \"00\" * 16)[:20])\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef salted_hash(password, salt_hex):\n    salt = bytes.fromhex(salt_hex)\n    return hashlib.sha256(salt + password.encode()).hexdigest()\n\nsalt = \"8f2a1c9e5b7d3f60a4c2e8b1d6f09a37\"\nprint(salted_hash(\"sunshine1\", salt)[:20])\nprint(salted_hash(\"sunshine1\", \"00\" * 16)[:20])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "salted_hash",
+      "cases": [
+        {
+          "args": [
+            "sunshine1",
+            "8f2a1c9e5b7d3f60a4c2e8b1d6f09a37"
+          ],
+          "returns": "1a960a97b9446e0bdfb9b505c4c7dfc7696b7278446ffbb880196624276acfec"
+        },
+        {
+          "args": [
+            "sunshine1",
+            "00000000000000000000000000000000"
+          ],
+          "returns": "b0e2d6a339b1c7f7e619e52cfc0be75ae47b56e0a49c85ce11d9912fc1401dc9"
+        },
+        {
+          "args": [
+            "",
+            "8f2a1c9e5b7d3f60a4c2e8b1d6f09a37"
+          ],
+          "returns": "c47ba2557e3555dc964affed94dfaacf5d9468540d08a7a2726c9ece91bf9c79"
+        },
+        {
+          "args": [
+            "abc",
+            ""
+          ],
+          "returns": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1a960a97b9446e0bdfb9\nb0e2d6a339b1c7f7e619"
+    }
+  ]
+}

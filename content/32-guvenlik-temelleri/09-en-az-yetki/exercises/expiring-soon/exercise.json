@@ -1,0 +1,146 @@
+{
+  "id": "expiring-soon",
+  "title": {
+    "tr": "Süresi yaklaşanlar",
+    "en": "Expiring soon"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce iki sınırı tarih yap: `start = date.fromisoformat(today)`, `end = start + timedelta(days=days)`.",
+      "en": "First turn both limits into dates: `start = date.fromisoformat(today)`, `end = start + timedelta(days=days)`."
+    },
+    {
+      "tr": "Zincirli karşılaştırma: `start <= date.fromisoformat(until) <= end`.",
+      "en": "A chained comparison: `start <= date.fromisoformat(until) <= end`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import date, timedelta\n\n\ndef expiring_soon(grants, today, days):\n    start = date.fromisoformat(today)\n    end = start + timedelta(days=days)\n    result = []\n    for user, resource, until in grants:\n        if start <= date.fromisoformat(until) <= end:\n            result.append(f\"{user}:{resource}\")\n    return sorted(result)\n\ngrants = [[\"ada\", \"prod-db\", \"2026-11-05\"], [\"alan\", \"backups\", \"2026-11-20\"],\n          [\"grace\", \"prod-db\", \"2026-10-30\"], [\"linus\", \"logs\", \"2026-11-02\"]]\nprint(expiring_soon(grants, \"2026-11-02\", 7))\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import date, timedelta\n\n\ndef expiring_soon(grants, today, days):\n    start = date.fromisoformat(today)\n    end = start + timedelta(days=days)\n    result = []\n    for user, resource, until in grants:\n        if start <= date.fromisoformat(until) <= end:\n            result.append(f\"{user}:{resource}\")\n    return sorted(result)\n\ngrants = [[\"ada\", \"prod-db\", \"2026-11-05\"], [\"alan\", \"backups\", \"2026-11-20\"],\n          [\"grace\", \"prod-db\", \"2026-10-30\"], [\"linus\", \"logs\", \"2026-11-02\"]]\nprint(expiring_soon(grants, \"2026-11-02\", 7))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "expiring_soon",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "prod-db",
+                "2026-11-05"
+              ],
+              [
+                "alan",
+                "backups",
+                "2026-11-20"
+              ],
+              [
+                "grace",
+                "prod-db",
+                "2026-10-30"
+              ],
+              [
+                "linus",
+                "logs",
+                "2026-11-02"
+              ]
+            ],
+            "2026-11-02",
+            7
+          ],
+          "returns": [
+            "ada:prod-db",
+            "linus:logs"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "prod-db",
+                "2026-11-05"
+              ],
+              [
+                "alan",
+                "backups",
+                "2026-11-20"
+              ],
+              [
+                "grace",
+                "prod-db",
+                "2026-10-30"
+              ],
+              [
+                "linus",
+                "logs",
+                "2026-11-02"
+              ]
+            ],
+            "2026-11-02",
+            30
+          ],
+          "returns": [
+            "ada:prod-db",
+            "alan:backups",
+            "linus:logs"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "prod-db",
+                "2026-11-05"
+              ],
+              [
+                "alan",
+                "backups",
+                "2026-11-20"
+              ],
+              [
+                "grace",
+                "prod-db",
+                "2026-10-30"
+              ],
+              [
+                "linus",
+                "logs",
+                "2026-11-02"
+              ]
+            ],
+            "2026-11-02",
+            0
+          ],
+          "returns": [
+            "linus:logs"
+          ]
+        },
+        {
+          "args": [
+            [],
+            "2026-01-01",
+            5
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['ada:prod-db', 'linus:logs']"
+    }
+  ]
+}

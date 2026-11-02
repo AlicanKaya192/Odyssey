@@ -1,0 +1,89 @@
+{
+  "id": "to-acl",
+  "title": {
+    "tr": "Matristen ACL'ye",
+    "en": "From matrix to ACL"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üç iç içe döngü: özne, nesne, eylem. `acl.setdefault(obj, [])` listeyi yoksa kurar.",
+      "en": "Three nested loops: subject, object, action. `acl.setdefault(obj, [])` creates the list if missing."
+    },
+    {
+      "tr": "Eylemi olmayan nesne için `append` hiç çalışmaz, yani nesne sözlüğe girmez; sonda her listeyi `sorted` yap.",
+      "en": "For an object with no actions `append` never runs, so the object never enters the dictionary; `sorted` every list at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef to_acl(matrix):\n    acl = {}\n    for subject, row in matrix.items():\n        for obj, actions in row.items():\n            for action in actions:\n                acl.setdefault(obj, []).append(f\"{subject}:{action}\")\n    return {obj: sorted(entries) for obj, entries in acl.items()}\n\nmatrix = {\n    \"ada\": {\"grades\": [\"read\", \"write\"]},\n    \"alan\": {\"grades\": [\"read\"], \"payroll\": [\"read\"]},\n}\nacl = to_acl(matrix)\nfor obj in sorted(acl):\n    print(obj, \", \".join(acl[obj]))\n```",
+      "en": "The full solution:\n\n```python\ndef to_acl(matrix):\n    acl = {}\n    for subject, row in matrix.items():\n        for obj, actions in row.items():\n            for action in actions:\n                acl.setdefault(obj, []).append(f\"{subject}:{action}\")\n    return {obj: sorted(entries) for obj, entries in acl.items()}\n\nmatrix = {\n    \"ada\": {\"grades\": [\"read\", \"write\"]},\n    \"alan\": {\"grades\": [\"read\"], \"payroll\": [\"read\"]},\n}\nacl = to_acl(matrix)\nfor obj in sorted(acl):\n    print(obj, \", \".join(acl[obj]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "to_acl",
+      "cases": [
+        {
+          "args": [
+            {
+              "ada": {
+                "grades": [
+                  "read",
+                  "write"
+                ]
+              },
+              "alan": {
+                "grades": [
+                  "read"
+                ],
+                "payroll": [
+                  "read"
+                ]
+              },
+              "eve": {}
+            }
+          ],
+          "returns": {
+            "grades": [
+              "ada:read",
+              "ada:write",
+              "alan:read"
+            ],
+            "payroll": [
+              "alan:read"
+            ]
+          }
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            {
+              "a": {
+                "f": []
+              }
+            }
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "grades ada:read, ada:write, alan:read\npayroll alan:read"
+    }
+  ]
+}

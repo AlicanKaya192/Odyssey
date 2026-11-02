@@ -1,0 +1,170 @@
+{
+  "id": "abac-allow",
+  "title": {
+    "tr": "Hastane kuralı",
+    "en": "The hospital rule"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra önemli: MFA kuralı rol kurallarından **önce** gelmeli, yoksa doktor ona hiç ulaşmaz.",
+      "en": "Order matters: the MFA rule must come **before** the role rules, otherwise the doctor never reaches it."
+    },
+    {
+      "tr": "Fonksiyonun başına `if resource[\"sensitivity\"] == \"high\" and not subject[\"mfa\"]: return False` ekle.",
+      "en": "Add `if resource[\"sensitivity\"] == \"high\" and not subject[\"mfa\"]: return False` at the top of the function."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef abac_allow(subject, resource, action, hour):\n    if resource[\"sensitivity\"] == \"high\" and not subject[\"mfa\"]:\n        return False\n    same_dept = subject[\"dept\"] == resource[\"dept\"]\n    if subject[\"role\"] == \"doctor\":\n        return same_dept\n    if subject[\"role\"] == \"nurse\":\n        return same_dept and action == \"read\" and 7 <= hour < 19\n    return False\n\nnurse = {\"role\": \"nurse\", \"dept\": \"cardiology\", \"mfa\": True}\ndoctor = {\"role\": \"doctor\", \"dept\": \"cardiology\", \"mfa\": False}\nnormal = {\"dept\": \"cardiology\", \"sensitivity\": \"normal\"}\nhigh = {\"dept\": \"cardiology\", \"sensitivity\": \"high\"}\nprint(abac_allow(nurse, normal, \"read\", 10), abac_allow(nurse, high, \"read\", 10))\nprint(abac_allow(doctor, normal, \"write\", 2), abac_allow(doctor, high, \"read\", 10))\n```",
+      "en": "The full solution:\n\n```python\ndef abac_allow(subject, resource, action, hour):\n    if resource[\"sensitivity\"] == \"high\" and not subject[\"mfa\"]:\n        return False\n    same_dept = subject[\"dept\"] == resource[\"dept\"]\n    if subject[\"role\"] == \"doctor\":\n        return same_dept\n    if subject[\"role\"] == \"nurse\":\n        return same_dept and action == \"read\" and 7 <= hour < 19\n    return False\n\nnurse = {\"role\": \"nurse\", \"dept\": \"cardiology\", \"mfa\": True}\ndoctor = {\"role\": \"doctor\", \"dept\": \"cardiology\", \"mfa\": False}\nnormal = {\"dept\": \"cardiology\", \"sensitivity\": \"normal\"}\nhigh = {\"dept\": \"cardiology\", \"sensitivity\": \"high\"}\nprint(abac_allow(nurse, normal, \"read\", 10), abac_allow(nurse, high, \"read\", 10))\nprint(abac_allow(doctor, normal, \"write\", 2), abac_allow(doctor, high, \"read\", 10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "abac_allow",
+      "cases": [
+        {
+          "args": [
+            {
+              "role": "nurse",
+              "dept": "cardiology",
+              "mfa": true
+            },
+            {
+              "dept": "cardiology",
+              "sensitivity": "normal"
+            },
+            "read",
+            10
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "role": "nurse",
+              "dept": "cardiology",
+              "mfa": true
+            },
+            {
+              "dept": "cardiology",
+              "sensitivity": "high"
+            },
+            "read",
+            10
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "role": "nurse",
+              "dept": "cardiology",
+              "mfa": true
+            },
+            {
+              "dept": "cardiology",
+              "sensitivity": "normal"
+            },
+            "read",
+            19
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "role": "doctor",
+              "dept": "cardiology",
+              "mfa": false
+            },
+            {
+              "dept": "cardiology",
+              "sensitivity": "normal"
+            },
+            "write",
+            2
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "role": "doctor",
+              "dept": "cardiology",
+              "mfa": false
+            },
+            {
+              "dept": "cardiology",
+              "sensitivity": "high"
+            },
+            "read",
+            10
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "role": "doctor",
+              "dept": "oncology",
+              "mfa": true
+            },
+            {
+              "dept": "cardiology",
+              "sensitivity": "high"
+            },
+            "read",
+            10
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "role": "clerk",
+              "dept": "cardiology",
+              "mfa": true
+            },
+            {
+              "dept": "cardiology",
+              "sensitivity": "normal"
+            },
+            "read",
+            10
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "role": "nurse",
+              "dept": "cardiology",
+              "mfa": true
+            },
+            {
+              "dept": "cardiology",
+              "sensitivity": "normal"
+            },
+            "write",
+            10
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True True\nTrue False"
+    }
+  ]
+}

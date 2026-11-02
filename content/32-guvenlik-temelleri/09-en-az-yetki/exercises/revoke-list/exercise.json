@@ -1,0 +1,113 @@
+{
+  "id": "revoke-list",
+  "title": {
+    "tr": "Kaldırma önerisi",
+    "en": "Removal suggestions"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Anahtar `f\"{user}:{perm}\"`; `last_used`'da yoksa hiç kullanılmamış demektir.",
+      "en": "The key is `f\"{user}:{perm}\"`; if it is not in `last_used`, it was never used."
+    },
+    {
+      "tr": "Gün farkı: `(now - date.fromisoformat(last_used[key])).days > max_idle`.",
+      "en": "Days passed: `(now - date.fromisoformat(last_used[key])).days > max_idle`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import date\n\n\ndef revoke_list(grants, last_used, today, max_idle):\n    now = date.fromisoformat(today)\n    result = []\n    for user, perm in grants:\n        key = f\"{user}:{perm}\"\n        if key not in last_used:\n            result.append(key)\n        elif (now - date.fromisoformat(last_used[key])).days > max_idle:\n            result.append(key)\n    return sorted(result)\n\ngrants = [[\"ada\", \"crm:read\"], [\"ada\", \"crm:write\"], [\"alan\", \"logs:read\"]]\nlast_used = {\"ada:crm:read\": \"2026-10-28\", \"ada:crm:write\": \"2026-05-01\"}\nprint(revoke_list(grants, last_used, \"2026-11-02\", 90))\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import date\n\n\ndef revoke_list(grants, last_used, today, max_idle):\n    now = date.fromisoformat(today)\n    result = []\n    for user, perm in grants:\n        key = f\"{user}:{perm}\"\n        if key not in last_used:\n            result.append(key)\n        elif (now - date.fromisoformat(last_used[key])).days > max_idle:\n            result.append(key)\n    return sorted(result)\n\ngrants = [[\"ada\", \"crm:read\"], [\"ada\", \"crm:write\"], [\"alan\", \"logs:read\"]]\nlast_used = {\"ada:crm:read\": \"2026-10-28\", \"ada:crm:write\": \"2026-05-01\"}\nprint(revoke_list(grants, last_used, \"2026-11-02\", 90))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "revoke_list",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "crm:read"
+              ],
+              [
+                "ada",
+                "crm:write"
+              ],
+              [
+                "alan",
+                "logs:read"
+              ]
+            ],
+            {
+              "ada:crm:read": "2026-10-28",
+              "ada:crm:write": "2026-05-01"
+            },
+            "2026-11-02",
+            90
+          ],
+          "returns": [
+            "ada:crm:write",
+            "alan:logs:read"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "x"
+              ]
+            ],
+            {
+              "a:x": "2026-08-04"
+            },
+            "2026-11-02",
+            90
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "x"
+              ]
+            ],
+            {
+              "a:x": "2026-08-03"
+            },
+            "2026-11-02",
+            90
+          ],
+          "returns": [
+            "a:x"
+          ]
+        },
+        {
+          "args": [
+            [],
+            {},
+            "2026-11-02",
+            30
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['ada:crm:write', 'alan:logs:read']"
+    }
+  ]
+}

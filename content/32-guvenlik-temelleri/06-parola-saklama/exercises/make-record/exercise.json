@@ -1,0 +1,58 @@
+{
+  "id": "make-record",
+  "title": {
+    "tr": "Parola kaydı",
+    "en": "A password record"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yineleme sayısı sayı; f-string içinde kendiliğinden metne döner.",
+      "en": "The iteration count is a number; inside an f-string it turns into text by itself."
+    },
+    {
+      "tr": "`return f\"pbkdf2_sha256${iterations}${salt_hex}${key_hex}\"`.",
+      "en": "`return f\"pbkdf2_sha256${iterations}${salt_hex}${key_hex}\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef pbkdf2_hex(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations)\n    return key.hex()\n\n\ndef make_record(password, salt_hex, iterations):\n    key_hex = pbkdf2_hex(password, salt_hex, iterations)\n    return f\"pbkdf2_sha256${iterations}${salt_hex}${key_hex}\"\n\nrecord = make_record(\"sunshine1\", \"8f2a1c9e5b7d3f60a4c2e8b1d6f09a37\", 1000)\nfor part in record.split(\"$\"):\n    print(part[:36])\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef pbkdf2_hex(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations)\n    return key.hex()\n\n\ndef make_record(password, salt_hex, iterations):\n    key_hex = pbkdf2_hex(password, salt_hex, iterations)\n    return f\"pbkdf2_sha256${iterations}${salt_hex}${key_hex}\"\n\nrecord = make_record(\"sunshine1\", \"8f2a1c9e5b7d3f60a4c2e8b1d6f09a37\", 1000)\nfor part in record.split(\"$\"):\n    print(part[:36])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "make_record",
+      "cases": [
+        {
+          "args": [
+            "sunshine1",
+            "8f2a1c9e5b7d3f60a4c2e8b1d6f09a37",
+            1000
+          ],
+          "returns": "pbkdf2_sha256$1000$8f2a1c9e5b7d3f60a4c2e8b1d6f09a37$67af6c9fbd0e983a5d9de90813f30d2fd211c21b53d929b1ccc4467be9874eb3"
+        },
+        {
+          "args": [
+            "correct horse",
+            "00112233445566778899aabbccddeeff",
+            2000
+          ],
+          "returns": "pbkdf2_sha256$2000$00112233445566778899aabbccddeeff$ea373ab40939e2a8f17b5931bd845134d582a51b8333abb5804eaa104815e327"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "pbkdf2_sha256\n1000\n8f2a1c9e5b7d3f60a4c2e8b1d6f09a37\n67af6c9fbd0e983a5d9de90813f30d2fd211"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "id": "enumerate-threats",
+  "title": {
+    "tr": "Tehdit listesi",
+    "en": "The threat list"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu bilinmeyen türde `KeyError` veriyor.",
+      "en": "The starter code raises `KeyError` for an unknown kind."
+    },
+    {
+      "tr": "`PER_ELEMENT.get(kind, \"STRIDE\")`: bir metin üzerinde dönmek harf harf gezer.",
+      "en": "`PER_ELEMENT.get(kind, \"STRIDE\")`: looping over a string goes letter by letter."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nPER_ELEMENT = {\"external_entity\": \"SR\", \"process\": \"STRIDE\",\n               \"data_store\": \"TRID\", \"data_flow\": \"TID\"}\n\n\ndef enumerate_threats(elements):\n    threats = []\n    for name, kind in elements:\n        for letter in PER_ELEMENT.get(kind, \"STRIDE\"):\n            threats.append(f\"{name}:{letter}\")\n    return threats\n\nsystem = [[\"student\", \"external_entity\"], [\"login\", \"data_flow\"], [\"plugin\", \"unknown\"]]\nthreats = enumerate_threats(system)\nprint(len(threats))\nfor threat in threats:\n    print(threat)\n```",
+      "en": "The full solution:\n\n```python\nPER_ELEMENT = {\"external_entity\": \"SR\", \"process\": \"STRIDE\",\n               \"data_store\": \"TRID\", \"data_flow\": \"TID\"}\n\n\ndef enumerate_threats(elements):\n    threats = []\n    for name, kind in elements:\n        for letter in PER_ELEMENT.get(kind, \"STRIDE\"):\n            threats.append(f\"{name}:{letter}\")\n    return threats\n\nsystem = [[\"student\", \"external_entity\"], [\"login\", \"data_flow\"], [\"plugin\", \"unknown\"]]\nthreats = enumerate_threats(system)\nprint(len(threats))\nfor threat in threats:\n    print(threat)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "enumerate_threats",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "student",
+                "external_entity"
+              ],
+              [
+                "login",
+                "data_flow"
+              ]
+            ]
+          ],
+          "returns": [
+            "student:S",
+            "student:R",
+            "login:T",
+            "login:I",
+            "login:D"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "plugin",
+                "unknown"
+              ]
+            ]
+          ],
+          "returns": [
+            "plugin:S",
+            "plugin:T",
+            "plugin:R",
+            "plugin:I",
+            "plugin:D",
+            "plugin:E"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "db",
+                "data_store"
+              ]
+            ]
+          ],
+          "returns": [
+            "db:T",
+            "db:R",
+            "db:I",
+            "db:D"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "11\nstudent:S\nstudent:R\nlogin:T\nlogin:I\nlogin:D\nplugin:S\nplugin:T\nplugin:R\nplugin:I\nplugin:D\nplugin:E"
+    }
+  ]
+}

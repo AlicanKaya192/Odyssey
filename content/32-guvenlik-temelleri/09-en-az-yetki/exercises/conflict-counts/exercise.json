@@ -1,0 +1,132 @@
+{
+  "id": "conflict-counts",
+  "title": {
+    "tr": "Kimde çakışma var?",
+    "en": "Who has conflicts?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir çift kişide mi: `set(pair) <= set(perms)`.",
+      "en": "Does a person hold a pair: `set(pair) <= set(perms)`."
+    },
+    {
+      "tr": "`n = sum(1 for pair in conflicts if set(pair) <= held)`; `n` sıfır değilse sözlüğe yaz.",
+      "en": "`n = sum(1 for pair in conflicts if set(pair) <= held)`; write it into the dictionary if `n` is not zero."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef conflict_counts(user_perms, conflicts):\n    counts = {}\n    for user, perms in user_perms.items():\n        held = set(perms)\n        n = sum(1 for pair in conflicts if set(pair) <= held)\n        if n:\n            counts[user] = n\n    return counts\n\nconflicts = [[\"vendor:create\", \"payment:approve\"], [\"code:write\", \"deploy:alone\"]]\nuser_perms = {\n    \"ada\": [\"vendor:create\", \"payment:approve\", \"code:write\", \"deploy:alone\"],\n    \"alan\": [\"vendor:create\"],\n    \"grace\": [\"code:write\", \"deploy:alone\"],\n}\nprint(conflict_counts(user_perms, conflicts))\n```",
+      "en": "The full solution:\n\n```python\ndef conflict_counts(user_perms, conflicts):\n    counts = {}\n    for user, perms in user_perms.items():\n        held = set(perms)\n        n = sum(1 for pair in conflicts if set(pair) <= held)\n        if n:\n            counts[user] = n\n    return counts\n\nconflicts = [[\"vendor:create\", \"payment:approve\"], [\"code:write\", \"deploy:alone\"]]\nuser_perms = {\n    \"ada\": [\"vendor:create\", \"payment:approve\", \"code:write\", \"deploy:alone\"],\n    \"alan\": [\"vendor:create\"],\n    \"grace\": [\"code:write\", \"deploy:alone\"],\n}\nprint(conflict_counts(user_perms, conflicts))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "conflict_counts",
+      "cases": [
+        {
+          "args": [
+            {
+              "ada": [
+                "vendor:create",
+                "payment:approve",
+                "code:write",
+                "deploy:alone"
+              ],
+              "alan": [
+                "vendor:create"
+              ],
+              "grace": [
+                "code:write",
+                "deploy:alone"
+              ]
+            },
+            [
+              [
+                "vendor:create",
+                "payment:approve"
+              ],
+              [
+                "code:write",
+                "deploy:alone"
+              ]
+            ]
+          ],
+          "returns": {
+            "ada": 2,
+            "grace": 1
+          }
+        },
+        {
+          "args": [
+            {
+              "x": [
+                "vendor:create"
+              ]
+            },
+            [
+              [
+                "vendor:create",
+                "payment:approve"
+              ],
+              [
+                "code:write",
+                "deploy:alone"
+              ]
+            ]
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            {},
+            [
+              [
+                "vendor:create",
+                "payment:approve"
+              ],
+              [
+                "code:write",
+                "deploy:alone"
+              ]
+            ]
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            {
+              "ada": [
+                "vendor:create",
+                "payment:approve",
+                "code:write",
+                "deploy:alone"
+              ],
+              "alan": [
+                "vendor:create"
+              ],
+              "grace": [
+                "code:write",
+                "deploy:alone"
+              ]
+            },
+            []
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'ada': 2, 'grace': 1}"
+    }
+  ]
+}

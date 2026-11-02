@@ -1,0 +1,152 @@
+{
+  "id": "next-to-fix",
+  "title": {
+    "tr": "Sıradaki tehdit",
+    "en": "The next threat"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki eksik var: kapatılmış tehditler süzülmüyor ve eşit puanlarda sıra kimliğe göre değil.",
+      "en": "Two things are missing: closed threats are not filtered out and equal scores are not ordered by id."
+    },
+    {
+      "tr": "Önce `t[\"status\"] == \"open\"` olanları seç; anahtar `(-puan, t[\"id\"])`.",
+      "en": "First pick those with `t[\"status\"] == \"open\"`; the key is `(-score, t[\"id\"])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef next_to_fix(threats, n):\n    open_ones = [t for t in threats if t[\"status\"] == \"open\"]\n    open_ones.sort(key=lambda t: (-t[\"likelihood\"] * t[\"impact\"], t[\"id\"]))\n    return [t[\"id\"] for t in open_ones][:n]\n\nthreats = [\n    {\"id\": \"T1\", \"likelihood\": 4, \"impact\": 5, \"status\": \"open\"},\n    {\"id\": \"T2\", \"likelihood\": 5, \"impact\": 4, \"status\": \"open\"},\n    {\"id\": \"T3\", \"likelihood\": 5, \"impact\": 5, \"status\": \"mitigated\"},\n    {\"id\": \"T4\", \"likelihood\": 2, \"impact\": 2, \"status\": \"open\"},\n    {\"id\": \"T5\", \"likelihood\": 3, \"impact\": 3, \"status\": \"accepted\"},\n]\nprint(next_to_fix(threats, 2))\nprint(next_to_fix(threats, 10))\n```",
+      "en": "The full solution:\n\n```python\ndef next_to_fix(threats, n):\n    open_ones = [t for t in threats if t[\"status\"] == \"open\"]\n    open_ones.sort(key=lambda t: (-t[\"likelihood\"] * t[\"impact\"], t[\"id\"]))\n    return [t[\"id\"] for t in open_ones][:n]\n\nthreats = [\n    {\"id\": \"T1\", \"likelihood\": 4, \"impact\": 5, \"status\": \"open\"},\n    {\"id\": \"T2\", \"likelihood\": 5, \"impact\": 4, \"status\": \"open\"},\n    {\"id\": \"T3\", \"likelihood\": 5, \"impact\": 5, \"status\": \"mitigated\"},\n    {\"id\": \"T4\", \"likelihood\": 2, \"impact\": 2, \"status\": \"open\"},\n    {\"id\": \"T5\", \"likelihood\": 3, \"impact\": 3, \"status\": \"accepted\"},\n]\nprint(next_to_fix(threats, 2))\nprint(next_to_fix(threats, 10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "next_to_fix",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "id": "T1",
+                "likelihood": 4,
+                "impact": 5,
+                "status": "open"
+              },
+              {
+                "id": "T2",
+                "likelihood": 5,
+                "impact": 4,
+                "status": "open"
+              },
+              {
+                "id": "T3",
+                "likelihood": 5,
+                "impact": 5,
+                "status": "mitigated"
+              },
+              {
+                "id": "T4",
+                "likelihood": 2,
+                "impact": 2,
+                "status": "open"
+              }
+            ],
+            2
+          ],
+          "returns": [
+            "T1",
+            "T2"
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "T1",
+                "likelihood": 4,
+                "impact": 5,
+                "status": "open"
+              },
+              {
+                "id": "T2",
+                "likelihood": 5,
+                "impact": 4,
+                "status": "open"
+              },
+              {
+                "id": "T3",
+                "likelihood": 5,
+                "impact": 5,
+                "status": "mitigated"
+              },
+              {
+                "id": "T4",
+                "likelihood": 2,
+                "impact": 2,
+                "status": "open"
+              }
+            ],
+            10
+          ],
+          "returns": [
+            "T1",
+            "T2",
+            "T4"
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "id": "T1",
+                "likelihood": 4,
+                "impact": 5,
+                "status": "open"
+              },
+              {
+                "id": "T2",
+                "likelihood": 5,
+                "impact": 4,
+                "status": "open"
+              },
+              {
+                "id": "T3",
+                "likelihood": 5,
+                "impact": 5,
+                "status": "mitigated"
+              },
+              {
+                "id": "T4",
+                "likelihood": 2,
+                "impact": 2,
+                "status": "open"
+              }
+            ],
+            0
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['T1', 'T2']\n['T1', 'T2', 'T4']"
+    }
+  ]
+}

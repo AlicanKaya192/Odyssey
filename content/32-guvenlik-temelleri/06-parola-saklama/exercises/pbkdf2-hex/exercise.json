@@ -1,0 +1,66 @@
+{
+  "id": "pbkdf2-hex",
+  "title": {
+    "tr": "Yavaş özet",
+    "en": "A slow hash"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Tuzu `bytes.fromhex(salt_hex)`, parolayı `password.encode()` ile bayta çevir.",
+      "en": "Turn the salt into bytes with `bytes.fromhex(salt_hex)` and the password with `password.encode()`."
+    },
+    {
+      "tr": "`hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations).hex()`.",
+      "en": "`hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations).hex()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef pbkdf2_hex(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations)\n    return key.hex()\n\nsalt = \"8f2a1c9e5b7d3f60a4c2e8b1d6f09a37\"\nprint(pbkdf2_hex(\"sunshine1\", salt, 1000)[:24])\nprint(len(pbkdf2_hex(\"sunshine1\", salt, 1000)))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef pbkdf2_hex(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations)\n    return key.hex()\n\nsalt = \"8f2a1c9e5b7d3f60a4c2e8b1d6f09a37\"\nprint(pbkdf2_hex(\"sunshine1\", salt, 1000)[:24])\nprint(len(pbkdf2_hex(\"sunshine1\", salt, 1000)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pbkdf2_hex",
+      "cases": [
+        {
+          "args": [
+            "sunshine1",
+            "8f2a1c9e5b7d3f60a4c2e8b1d6f09a37",
+            1000
+          ],
+          "returns": "67af6c9fbd0e983a5d9de90813f30d2fd211c21b53d929b1ccc4467be9874eb3"
+        },
+        {
+          "args": [
+            "sunshine1",
+            "8f2a1c9e5b7d3f60a4c2e8b1d6f09a37",
+            1001
+          ],
+          "returns": "51ee59e7b3169e86dfffce8ae82a80e3f8871cb08a6d60c1cd9ca16ccfb87d28"
+        },
+        {
+          "args": [
+            "x",
+            "00112233445566778899aabbccddeeff",
+            10
+          ],
+          "returns": "8d84c499ae281be8361a454660b3a1058ebb0dd80344e8757218adabe5663dad"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "67af6c9fbd0e983a5d9de908\n64"
+    }
+  ]
+}

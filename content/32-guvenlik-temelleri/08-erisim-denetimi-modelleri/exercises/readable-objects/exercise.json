@@ -1,0 +1,95 @@
+{
+  "id": "readable-objects",
+  "title": {
+    "tr": "Neleri okuyabilir?",
+    "en": "What can they read?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Düzeyleri sayıya çevir: `LEVELS.index(level)`.",
+      "en": "Turn the levels into numbers: `LEVELS.index(level)`."
+    },
+    {
+      "tr": "`[name for name, level in objects.items() if LEVELS.index(level) <= limit]`, sonra `sorted`.",
+      "en": "`[name for name, level in objects.items() if LEVELS.index(level) <= limit]`, then `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nLEVELS = [\"public\", \"internal\", \"secret\", \"top-secret\"]\n\n\ndef readable_objects(clearance, objects):\n    limit = LEVELS.index(clearance)\n    names = [name for name, level in objects.items() if LEVELS.index(level) <= limit]\n    return sorted(names)\n\nobjects = {\"menu\": \"public\", \"plan\": \"internal\", \"salary\": \"secret\", \"codes\": \"top-secret\"}\nprint(readable_objects(\"internal\", objects))\nprint(readable_objects(\"secret\", objects))\nprint(readable_objects(\"public\", {}))\n```",
+      "en": "The full solution:\n\n```python\nLEVELS = [\"public\", \"internal\", \"secret\", \"top-secret\"]\n\n\ndef readable_objects(clearance, objects):\n    limit = LEVELS.index(clearance)\n    names = [name for name, level in objects.items() if LEVELS.index(level) <= limit]\n    return sorted(names)\n\nobjects = {\"menu\": \"public\", \"plan\": \"internal\", \"salary\": \"secret\", \"codes\": \"top-secret\"}\nprint(readable_objects(\"internal\", objects))\nprint(readable_objects(\"secret\", objects))\nprint(readable_objects(\"public\", {}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "readable_objects",
+      "cases": [
+        {
+          "args": [
+            "internal",
+            {
+              "menu": "public",
+              "plan": "internal",
+              "salary": "secret",
+              "codes": "top-secret"
+            }
+          ],
+          "returns": [
+            "menu",
+            "plan"
+          ]
+        },
+        {
+          "args": [
+            "top-secret",
+            {
+              "menu": "public",
+              "plan": "internal",
+              "salary": "secret",
+              "codes": "top-secret"
+            }
+          ],
+          "returns": [
+            "codes",
+            "menu",
+            "plan",
+            "salary"
+          ]
+        },
+        {
+          "args": [
+            "public",
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "public",
+            {
+              "menu": "public",
+              "plan": "internal",
+              "salary": "secret",
+              "codes": "top-secret"
+            }
+          ],
+          "returns": [
+            "menu"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['menu', 'plan']\n['menu', 'plan', 'salary']\n[]"
+    }
+  ]
+}

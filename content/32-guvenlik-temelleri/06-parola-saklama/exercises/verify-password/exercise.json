@@ -1,0 +1,98 @@
+{
+  "id": "verify-password",
+  "title": {
+    "tr": "Parolayı doğrula",
+    "en": "Verify the password"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `parts = record.split(\"$\")` ve parça sayısını, algoritmayı, `isdigit`'i denetle; tutmazsa `return False`.",
+      "en": "First `parts = record.split(\"$\")` and check the number of parts, the algorithm and `isdigit`; `return False` if they fail."
+    },
+    {
+      "tr": "`bytes.fromhex`'i `try: ... except ValueError: return False` içine al.",
+      "en": "Put `bytes.fromhex` inside `try: ... except ValueError: return False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef verify_password(password, record):\n    parts = record.split(\"$\")\n    if len(parts) != 4 or parts[0] != \"pbkdf2_sha256\" or not parts[1].isdigit():\n        return False\n    try:\n        salt = bytes.fromhex(parts[2])\n    except ValueError:\n        return False\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, int(parts[1]))\n    return hmac.compare_digest(key.hex(), parts[3])\n\nsalt = \"8f2a1c9e5b7d3f60a4c2e8b1d6f09a37\"\nkey = hashlib.pbkdf2_hmac(\"sha256\", b\"sunshine1\", bytes.fromhex(salt), 1000)\nrecord = \"pbkdf2_sha256$1000$\" + salt + \"$\" + key.hex()\nprint(verify_password(\"sunshine1\", record))\nprint(verify_password(\"sunshine2\", record))\nprint(verify_password(\"sunshine1\", \"broken\"))\nprint(verify_password(\"sunshine1\", \"md5$1$zz$00\"))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef verify_password(password, record):\n    parts = record.split(\"$\")\n    if len(parts) != 4 or parts[0] != \"pbkdf2_sha256\" or not parts[1].isdigit():\n        return False\n    try:\n        salt = bytes.fromhex(parts[2])\n    except ValueError:\n        return False\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, int(parts[1]))\n    return hmac.compare_digest(key.hex(), parts[3])\n\nsalt = \"8f2a1c9e5b7d3f60a4c2e8b1d6f09a37\"\nkey = hashlib.pbkdf2_hmac(\"sha256\", b\"sunshine1\", bytes.fromhex(salt), 1000)\nrecord = \"pbkdf2_sha256$1000$\" + salt + \"$\" + key.hex()\nprint(verify_password(\"sunshine1\", record))\nprint(verify_password(\"sunshine2\", record))\nprint(verify_password(\"sunshine1\", \"broken\"))\nprint(verify_password(\"sunshine1\", \"md5$1$zz$00\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify_password",
+      "cases": [
+        {
+          "args": [
+            "sunshine1",
+            "pbkdf2_sha256$1000$8f2a1c9e5b7d3f60a4c2e8b1d6f09a37$67af6c9fbd0e983a5d9de90813f30d2fd211c21b53d929b1ccc4467be9874eb3"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "sunshine2",
+            "pbkdf2_sha256$1000$8f2a1c9e5b7d3f60a4c2e8b1d6f09a37$67af6c9fbd0e983a5d9de90813f30d2fd211c21b53d929b1ccc4467be9874eb3"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "correct horse",
+            "pbkdf2_sha256$2000$00112233445566778899aabbccddeeff$ea373ab40939e2a8f17b5931bd845134d582a51b8333abb5804eaa104815e327"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "sunshine1",
+            "pbkdf2_sha256$2000$00112233445566778899aabbccddeeff$ea373ab40939e2a8f17b5931bd845134d582a51b8333abb5804eaa104815e327"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "sunshine1",
+            "broken"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "sunshine1",
+            "md5$1$zz$00"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "x",
+            "pbkdf2_sha256$ten$00$00"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "x",
+            "pbkdf2_sha256$1$zz$00"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse\nFalse"
+    }
+  ]
+}

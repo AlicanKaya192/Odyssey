@@ -1,0 +1,163 @@
+{
+  "id": "explain-access",
+  "title": {
+    "tr": "Bu izin nereden geliyor?",
+    "en": "Where does this permission come from?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kullanıcının rolleri `user_roles.get(user, [])`; her rol için `permission in role_perms.get(role, [])`.",
+      "en": "The user's roles are `user_roles.get(user, [])`; for each role, `permission in role_perms.get(role, [])`."
+    },
+    {
+      "tr": "Bir liste kavrayışı ve `sorted` yeter.",
+      "en": "A list comprehension and `sorted` are enough."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef explain_access(user, permission, user_roles, role_perms):\n    reasons = [role for role in user_roles.get(user, [])\n               if permission in role_perms.get(role, [])]\n    return sorted(reasons)\n\nuser_roles = {\"ada\": [\"teacher\", \"admin\"], \"alan\": [\"student\"]}\nrole_perms = {\"teacher\": [\"grades:read\", \"grades:write\"], \"admin\": [\"grades:read\", \"users:manage\"],\n              \"student\": [\"grades:read_own\"]}\nprint(explain_access(\"ada\", \"grades:read\", user_roles, role_perms))\nprint(explain_access(\"alan\", \"grades:write\", user_roles, role_perms))\n```",
+      "en": "The full solution:\n\n```python\ndef explain_access(user, permission, user_roles, role_perms):\n    reasons = [role for role in user_roles.get(user, [])\n               if permission in role_perms.get(role, [])]\n    return sorted(reasons)\n\nuser_roles = {\"ada\": [\"teacher\", \"admin\"], \"alan\": [\"student\"]}\nrole_perms = {\"teacher\": [\"grades:read\", \"grades:write\"], \"admin\": [\"grades:read\", \"users:manage\"],\n              \"student\": [\"grades:read_own\"]}\nprint(explain_access(\"ada\", \"grades:read\", user_roles, role_perms))\nprint(explain_access(\"alan\", \"grades:write\", user_roles, role_perms))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "explain_access",
+      "cases": [
+        {
+          "args": [
+            "ada",
+            "grades:read",
+            {
+              "ada": [
+                "teacher",
+                "admin"
+              ],
+              "alan": [
+                "student"
+              ]
+            },
+            {
+              "teacher": [
+                "grades:read",
+                "grades:write"
+              ],
+              "admin": [
+                "grades:read",
+                "users:manage"
+              ],
+              "student": [
+                "grades:read_own"
+              ]
+            }
+          ],
+          "returns": [
+            "admin",
+            "teacher"
+          ]
+        },
+        {
+          "args": [
+            "alan",
+            "grades:write",
+            {
+              "ada": [
+                "teacher",
+                "admin"
+              ],
+              "alan": [
+                "student"
+              ]
+            },
+            {
+              "teacher": [
+                "grades:read",
+                "grades:write"
+              ],
+              "admin": [
+                "grades:read",
+                "users:manage"
+              ],
+              "student": [
+                "grades:read_own"
+              ]
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "ada",
+            "users:manage",
+            {
+              "ada": [
+                "teacher",
+                "admin"
+              ],
+              "alan": [
+                "student"
+              ]
+            },
+            {
+              "teacher": [
+                "grades:read",
+                "grades:write"
+              ],
+              "admin": [
+                "grades:read",
+                "users:manage"
+              ],
+              "student": [
+                "grades:read_own"
+              ]
+            }
+          ],
+          "returns": [
+            "admin"
+          ]
+        },
+        {
+          "args": [
+            "nobody",
+            "grades:read",
+            {
+              "ada": [
+                "teacher",
+                "admin"
+              ],
+              "alan": [
+                "student"
+              ]
+            },
+            {
+              "teacher": [
+                "grades:read",
+                "grades:write"
+              ],
+              "admin": [
+                "grades:read",
+                "users:manage"
+              ],
+              "student": [
+                "grades:read_own"
+              ]
+            }
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['admin', 'teacher']\n[]"
+    }
+  ]
+}
