@@ -79,6 +79,8 @@ SHELL_TEXT = {
     "tr": {
         "needs_input": "odyssey: {cmd} klavyeden girdi bekliyor; bu terminal klavye girdisi veremiyor."
                        " Bir dosya ver ({cmd} notes.txt) ya da boruyla gönder (cat notes.txt | {cmd}).",
+        "needs_stdin": "odyssey: {cmd} klavyeden girdi bekliyor; bu terminal klavye girdisi veremiyor."
+                       " {cmd} dosya adı almaz, girdiyi bir dosyadan yönlendir ({example} < notes.txt).",
         "incomplete": "odyssey: Komut tamamlanmadı ('{word}' eksik). Bu terminalde komutun tamamını tek"
                       " satıra yaz, örneğin: if [ -f a.txt ]; then echo var; fi",
         "heredoc": "odyssey: '<<' (heredoc) bu terminalde yok; dosyayı echo ve >> ile satır satır yaz.",
@@ -103,6 +105,8 @@ SHELL_TEXT = {
     "en": {
         "needs_input": "odyssey: {cmd} is waiting for keyboard input, which this terminal cannot give."
                        " Give it a file ({cmd} notes.txt) or send it through a pipe (cat notes.txt | {cmd}).",
+        "needs_stdin": "odyssey: {cmd} is waiting for keyboard input, which this terminal cannot give."
+                       " {cmd} does not take a file name; redirect a file into it ({example} < notes.txt).",
         "incomplete": "odyssey: The command is not finished ('{word}' is missing). In this terminal write the"
                       " whole command on one line, for example: if [ -f a.txt ]; then echo yes; fi",
         "heredoc": "odyssey: '<<' (heredoc) is not available in this terminal; write the file line by line"
@@ -2044,7 +2048,7 @@ class Shell:
             else:
                 names.append(a)
         if io.stdin is None:
-            io.err.err(self.st("needs_input", cmd="read"), "yellow")
+            io.err.err(self.st("needs_stdin", cmd="read", example="read line"), "yellow")
             return 1
         line = io.stdin.read_line()
         names = names or ["REPLY"]
@@ -2824,7 +2828,7 @@ class Shell:
             io.err.err(f"tr: extra operand '{sets[need]}'\nTry 'tr --help' for more information.")
             return 1
         if io.stdin is None:
-            io.err.err(self.st("needs_input", cmd="tr"), "yellow")
+            io.err.err(self.st("needs_stdin", cmd="tr", example="tr a-z A-Z"), "yellow")
             return 1
         text = io.stdin.read_all()
         set1 = _tr_set(sets[0])
