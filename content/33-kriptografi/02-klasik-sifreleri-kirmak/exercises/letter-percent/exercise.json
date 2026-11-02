@@ -1,0 +1,114 @@
+{
+  "id": "letter-percent",
+  "title": {
+    "tr": "Harf yüzdeleri",
+    "en": "Letter percentages"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu boşluğu ve büyük harfi de sayıyor; `most_common` eşitlikte ilk görüleni öne koyuyor.",
+      "en": "The starter code counts spaces and upper case too; `most_common` puts the first seen first on a tie."
+    },
+    {
+      "tr": "Önce yalnızca harfler: `[ch for ch in text.lower() if ch.isalpha()]`; sonra `sorted(..., key=lambda item: (-item[1], item[0]))`.",
+      "en": "First letters only: `[ch for ch in text.lower() if ch.isalpha()]`; then `sorted(..., key=lambda item: (-item[1], item[0]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef letter_percent(text, n):\n    letters = [ch for ch in text.lower() if ch.isalpha()]\n    counts = Counter(letters)\n    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))\n    return [[ch, round(100 * c / len(letters), 1)] for ch, c in ranked[:n]]\n\nfor letter, percent in letter_percent(\"Hello World, hello!\", 3):\n    print(letter, percent)\nprint(letter_percent(\"bbaa\", 2))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef letter_percent(text, n):\n    letters = [ch for ch in text.lower() if ch.isalpha()]\n    counts = Counter(letters)\n    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))\n    return [[ch, round(100 * c / len(letters), 1)] for ch, c in ranked[:n]]\n\nfor letter, percent in letter_percent(\"Hello World, hello!\", 3):\n    print(letter, percent)\nprint(letter_percent(\"bbaa\", 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "letter_percent",
+      "cases": [
+        {
+          "args": [
+            "Hello World, hello!",
+            3
+          ],
+          "returns": [
+            [
+              "l",
+              33.3
+            ],
+            [
+              "o",
+              20.0
+            ],
+            [
+              "e",
+              13.3
+            ]
+          ]
+        },
+        {
+          "args": [
+            "bbaa",
+            2
+          ],
+          "returns": [
+            [
+              "a",
+              50.0
+            ],
+            [
+              "b",
+              50.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            "aaa",
+            5
+          ],
+          "returns": [
+            [
+              "a",
+              100.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            "The secret is in the garden",
+            4
+          ],
+          "returns": [
+            [
+              "e",
+              22.7
+            ],
+            [
+              "t",
+              13.6
+            ],
+            [
+              "h",
+              9.1
+            ],
+            [
+              "i",
+              9.1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "l 33.3\no 20.0\ne 13.3\n[['a', 50.0], ['b', 50.0]]"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "recover-second",
+  "title": {
+    "tr": "Tekrarlanan anahtar",
+    "en": "A reused key"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki adım: `leak = c1 ^ c2`, sonra `leak ^ first.encode()`.",
+      "en": "Two steps: `leak = c1 ^ c2`, then `leak ^ first.encode()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef recover_second(c1_hex, c2_hex, first):\n    c1 = bytes.fromhex(c1_hex)\n    c2 = bytes.fromhex(c2_hex)\n    leak = bytes(a ^ b for a, b in zip(c1, c2))\n    return bytes(x ^ m for x, m in zip(leak, first.encode())).decode()\n\nc1 = \"1e5a7fdb879a5772b5864c6dee03\"\nc2 = \"0d4b7fc881902313a0f22878fc03\"\nprint(recover_second(c1, c2, \"ATTACK AT DAWN\"))\n```",
+      "en": "The full solution:\n\n```python\ndef recover_second(c1_hex, c2_hex, first):\n    c1 = bytes.fromhex(c1_hex)\n    c2 = bytes.fromhex(c2_hex)\n    leak = bytes(a ^ b for a, b in zip(c1, c2))\n    return bytes(x ^ m for x, m in zip(leak, first.encode())).decode()\n\nc1 = \"1e5a7fdb879a5772b5864c6dee03\"\nc2 = \"0d4b7fc881902313a0f22878fc03\"\nprint(recover_second(c1, c2, \"ATTACK AT DAWN\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "recover_second",
+      "cases": [
+        {
+          "args": [
+            "1e5a7fdb879a5772b5864c6dee03",
+            "0d4b7fc881902313a0f22878fc03",
+            "ATTACK AT DAWN"
+          ],
+          "returns": "RETREAT AT TEN"
+        },
+        {
+          "args": [
+            "0d4b7fc881902313a0f22878fc03",
+            "1e5a7fdb879a5772b5864c6dee03",
+            "RETREAT AT TEN"
+          ],
+          "returns": "ATTACK AT DAWN"
+        },
+        {
+          "args": [
+            "1e5a7fdb879a5772b5864c6dee03",
+            "124b6ecee4902313afe94762",
+            "ATTACK AT DAWN"
+          ],
+          "returns": "MEET AT NOON"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "RETREAT AT TEN"
+    }
+  ]
+}

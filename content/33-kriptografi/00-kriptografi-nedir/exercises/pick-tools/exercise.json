@@ -1,0 +1,105 @@
+{
+  "id": "pick-tools",
+  "title": {
+    "tr": "Doğru aracı seç",
+    "en": "Pick the right tool"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu gizlilik için Base64 seçiyor ve olmayan anahtarda `KeyError` veriyor.",
+      "en": "The starter code picks Base64 for secrecy and raises `KeyError` on a missing key."
+    },
+    {
+      "tr": "`needs.get(...)`; imza varsa MAC'e gerek yok: `if third_party ... elif tamper`.",
+      "en": "`needs.get(...)`; with a signature there is no need for a MAC: `if third_party ... elif tamper`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef pick_tools(needs):\n    tools = []\n    if needs.get(\"secret\"):\n        tools.append(\"encryption\")\n    if needs.get(\"password\"):\n        tools.append(\"password-hash\")\n    if needs.get(\"third_party\"):\n        tools.append(\"signature\")\n    elif needs.get(\"tamper\"):\n        tools.append(\"mac\")\n    return sorted(tools)\n\nprint(pick_tools({\"secret\": True}))\nprint(pick_tools({\"tamper\": True}))\nprint(pick_tools({\"tamper\": True, \"third_party\": True}))\nprint(pick_tools({\"secret\": True, \"password\": True}))\nprint(pick_tools({}))\n```",
+      "en": "The full solution:\n\n```python\ndef pick_tools(needs):\n    tools = []\n    if needs.get(\"secret\"):\n        tools.append(\"encryption\")\n    if needs.get(\"password\"):\n        tools.append(\"password-hash\")\n    if needs.get(\"third_party\"):\n        tools.append(\"signature\")\n    elif needs.get(\"tamper\"):\n        tools.append(\"mac\")\n    return sorted(tools)\n\nprint(pick_tools({\"secret\": True}))\nprint(pick_tools({\"tamper\": True}))\nprint(pick_tools({\"tamper\": True, \"third_party\": True}))\nprint(pick_tools({\"secret\": True, \"password\": True}))\nprint(pick_tools({}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pick_tools",
+      "cases": [
+        {
+          "args": [
+            {
+              "secret": true
+            }
+          ],
+          "returns": [
+            "encryption"
+          ]
+        },
+        {
+          "args": [
+            {
+              "tamper": true
+            }
+          ],
+          "returns": [
+            "mac"
+          ]
+        },
+        {
+          "args": [
+            {
+              "tamper": true,
+              "third_party": true
+            }
+          ],
+          "returns": [
+            "signature"
+          ]
+        },
+        {
+          "args": [
+            {
+              "secret": true,
+              "password": true
+            }
+          ],
+          "returns": [
+            "encryption",
+            "password-hash"
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "secret": true,
+              "tamper": true,
+              "password": true
+            }
+          ],
+          "returns": [
+            "encryption",
+            "mac",
+            "password-hash"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['encryption']\n['mac']\n['signature']\n['encryption', 'password-hash']\n[]"
+    }
+  ]
+}

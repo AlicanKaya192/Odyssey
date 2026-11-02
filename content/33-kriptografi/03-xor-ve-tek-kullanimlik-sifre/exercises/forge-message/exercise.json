@@ -1,0 +1,70 @@
+{
+  "id": "forge-message",
+  "title": {
+    "tr": "Anahtarsız değiştir",
+    "en": "Change it without the key"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yama `bytes(a ^ b for a, b in zip(old.encode(), new.encode()))`; aynı harflerde yama 0 olur ve o baytlar değişmez.",
+      "en": "The patch is `bytes(a ^ b for a, b in zip(old.encode(), new.encode()))`; where letters match the patch is 0 and those bytes do not change."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef forge(cipher_hex, old, new):\n    if len(old) != len(new):\n        return None\n    cipher = bytes.fromhex(cipher_hex)\n    patch = bytes(a ^ b for a, b in zip(old.encode(), new.encode()))\n    return bytes(c ^ p for c, p in zip(cipher, patch)).hex()\n\ncipher = \"6ad09d5e491260d699234e\"\nkey = bytes.fromhex(\"3a91c47e0b5d22f6a8137e\")\nforged = forge(cipher, \"PAY BOB 100\", \"PAY BOB 900\")\nprint(forged)\nprint(bytes(c ^ k for c, k in zip(bytes.fromhex(forged), key)).decode())\nprint(forge(cipher, \"PAY BOB 100\", \"PAY EVE 99999\"))\n```",
+      "en": "The full solution:\n\n```python\ndef forge(cipher_hex, old, new):\n    if len(old) != len(new):\n        return None\n    cipher = bytes.fromhex(cipher_hex)\n    patch = bytes(a ^ b for a, b in zip(old.encode(), new.encode()))\n    return bytes(c ^ p for c, p in zip(cipher, patch)).hex()\n\ncipher = \"6ad09d5e491260d699234e\"\nkey = bytes.fromhex(\"3a91c47e0b5d22f6a8137e\")\nforged = forge(cipher, \"PAY BOB 100\", \"PAY BOB 900\")\nprint(forged)\nprint(bytes(c ^ k for c, k in zip(bytes.fromhex(forged), key)).decode())\nprint(forge(cipher, \"PAY BOB 100\", \"PAY EVE 99999\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "forge",
+      "cases": [
+        {
+          "args": [
+            "6ad09d5e491260d699234e",
+            "PAY BOB 100",
+            "PAY BOB 900"
+          ],
+          "returns": "6ad09d5e491260d691234e"
+        },
+        {
+          "args": [
+            "6ad09d5e491260d699234e",
+            "PAY BOB 100",
+            "PAY EVE 100"
+          ],
+          "returns": "6ad09d5e4e0b67d699234e"
+        },
+        {
+          "args": [
+            "6ad09d5e491260d699234e",
+            "PAY BOB 100",
+            "PAY EVE 99999"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "6ad09d5e491260d699234e",
+            "PAY BOB 100",
+            "PAY BOB 100"
+          ],
+          "returns": "6ad09d5e491260d699234e"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6ad09d5e491260d691234e\nPAY BOB 900\nNone"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "otp-decrypt",
+  "title": {
+    "tr": "Tek kullanımlık çöz",
+    "en": "One-time pad decryption"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu bayt döndürüyor ve kısa anahtarı denetlemiyor; `.decode()` ve uzunluk denetimi ekle.",
+      "en": "The starter code returns bytes and does not check a short key; add `.decode()` and a length check."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef otp_decrypt(cipher_hex, key_hex):\n    data = bytes.fromhex(cipher_hex)\n    key = bytes.fromhex(key_hex)\n    if len(key) < len(data):\n        return \"key too short\"\n    return bytes(d ^ k for d, k in zip(data, key)).decode()\n\nprint(otp_decrypt(\"6ad09d5e491260d699234e\", \"3a91c47e0b5d22f6a8137e\"))\nprint(otp_decrypt(\"b7b6\", \"ffff\"))\nprint(otp_decrypt(\"6ad09d5e491260d699234e\", \"3a91\"))\n```",
+      "en": "The full solution:\n\n```python\ndef otp_decrypt(cipher_hex, key_hex):\n    data = bytes.fromhex(cipher_hex)\n    key = bytes.fromhex(key_hex)\n    if len(key) < len(data):\n        return \"key too short\"\n    return bytes(d ^ k for d, k in zip(data, key)).decode()\n\nprint(otp_decrypt(\"6ad09d5e491260d699234e\", \"3a91c47e0b5d22f6a8137e\"))\nprint(otp_decrypt(\"b7b6\", \"ffff\"))\nprint(otp_decrypt(\"6ad09d5e491260d699234e\", \"3a91\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "otp_decrypt",
+      "cases": [
+        {
+          "args": [
+            "6ad09d5e491260d699234e",
+            "3a91c47e0b5d22f6a8137e"
+          ],
+          "returns": "PAY BOB 100"
+        },
+        {
+          "args": [
+            "b7b6",
+            "ffff"
+          ],
+          "returns": "HI"
+        },
+        {
+          "args": [
+            "6ad09d5e491260d699234e",
+            "3a91"
+          ],
+          "returns": "key too short"
+        },
+        {
+          "args": [
+            "",
+            ""
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "PAY BOB 100\nHI\nkey too short"
+    }
+  ]
+}

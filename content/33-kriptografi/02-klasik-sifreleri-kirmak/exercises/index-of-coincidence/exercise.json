@@ -1,0 +1,84 @@
+{
+  "id": "index-of-coincidence",
+  "title": {
+    "tr": "Tesadüf indeksi",
+    "en": "Index of coincidence"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "cipher_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu boşluk ve noktalamayı da sayıyor ve tek harfte sıfıra bölüyor.",
+      "en": "The starter code counts spaces and punctuation too and divides by zero on one letter."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom collections import Counter\n\n\ndef ioc(text):\n    letters = [ch for ch in text.lower() if ch.isalpha()]\n    n = len(letters)\n    if n < 2:\n        return 0.0\n    counts = Counter(letters)\n    return round(sum(v * (v - 1) for v in counts.values()) / (n * (n - 1)), 4)\n\nfrom cipher_data import SAMPLE\n\nprint(ioc(SAMPLE))\nprint(ioc(\"abcdefghijklmnopqrstuvwxyz\"))\nprint(ioc(\"AAaa!\"))\nprint(ioc(\"a\"))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom collections import Counter\n\n\ndef ioc(text):\n    letters = [ch for ch in text.lower() if ch.isalpha()]\n    n = len(letters)\n    if n < 2:\n        return 0.0\n    counts = Counter(letters)\n    return round(sum(v * (v - 1) for v in counts.values()) / (n * (n - 1)), 4)\n\nfrom cipher_data import SAMPLE\n\nprint(ioc(SAMPLE))\nprint(ioc(\"abcdefghijklmnopqrstuvwxyz\"))\nprint(ioc(\"AAaa!\"))\nprint(ioc(\"a\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ioc",
+      "cases": [
+        {
+          "args": [
+            "The old lighthouse stood at the end of the harbour wall, and every evening the keeper climbed the narrow stairs to light the great lamp. Ships far out at sea watched for its slow turning beam, because the rocks near the coast had broken many hulls in the years before the tower was built. The keeper wrote each night in a thick notebook: the weather, the wind, the names of the boats that passed and the time the light was lit. When storms came he stayed awake until morning, cleaning the glass and trimming the wick so the flame would never fail. Children from the village sometimes visited him on summer afternoons, and he told them stories about sailors who had found their way home by following the light through rain and fog. He said that a small light in the right place is worth more than a bright fire in the wrong one, and that the sea always remembers who was kind to her."
+          ],
+          "returns": 0.0682
+        },
+        {
+          "args": [
+            "abcdefghijklmnopqrstuvwxyz"
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            "AAaa!"
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            "a"
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            "Hello World"
+          ],
+          "returns": 0.0889
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.0682\n0.0\n1.0\n0.0"
+    }
+  ]
+}

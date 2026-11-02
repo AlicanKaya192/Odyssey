@@ -1,0 +1,73 @@
+{
+  "id": "otp-encrypt",
+  "title": {
+    "tr": "Tek kullanımlık şifrele",
+    "en": "One-time pad encryption"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu kısa anahtarda mesajın sonunu sessizce atıyor: alıcı eksik bir mesaj alır.",
+      "en": "The starter code silently drops the end of the message with a short key: the receiver gets an incomplete message."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef otp_encrypt(message, key_hex):\n    data = message.encode()\n    key = bytes.fromhex(key_hex)\n    if len(key) < len(data):\n        return \"key too short\"\n    return bytes(d ^ k for d, k in zip(data, key)).hex()\n\nprint(otp_encrypt(\"PAY BOB 100\", \"3a91c47e0b5d22f6a8137e\"))\nprint(otp_encrypt(\"HI\", \"ffff\"))\nprint(otp_encrypt(\"PAY BOB 100\", \"3a91\"))\n```",
+      "en": "The full solution:\n\n```python\ndef otp_encrypt(message, key_hex):\n    data = message.encode()\n    key = bytes.fromhex(key_hex)\n    if len(key) < len(data):\n        return \"key too short\"\n    return bytes(d ^ k for d, k in zip(data, key)).hex()\n\nprint(otp_encrypt(\"PAY BOB 100\", \"3a91c47e0b5d22f6a8137e\"))\nprint(otp_encrypt(\"HI\", \"ffff\"))\nprint(otp_encrypt(\"PAY BOB 100\", \"3a91\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "otp_encrypt",
+      "cases": [
+        {
+          "args": [
+            "PAY BOB 100",
+            "3a91c47e0b5d22f6a8137e"
+          ],
+          "returns": "6ad09d5e491260d699234e"
+        },
+        {
+          "args": [
+            "HI",
+            "ffff"
+          ],
+          "returns": "b7b6"
+        },
+        {
+          "args": [
+            "PAY BOB 100",
+            "3a91"
+          ],
+          "returns": "key too short"
+        },
+        {
+          "args": [
+            "",
+            "00"
+          ],
+          "returns": ""
+        },
+        {
+          "args": [
+            "A",
+            "0102"
+          ],
+          "returns": "40"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6ad09d5e491260d699234e\nb7b6\nkey too short"
+    }
+  ]
+}

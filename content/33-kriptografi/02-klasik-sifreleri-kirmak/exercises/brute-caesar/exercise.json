@@ -1,0 +1,96 @@
+{
+  "id": "brute-caesar",
+  "title": {
+    "tr": "Bütün kaydırmaları dene",
+    "en": "Try every shift"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yalnızca **daha büyük** sayıda güncelle (`>`), eşitlikte ilk bulunan, yani küçük kaydırma kalır.",
+      "en": "Update only on a **larger** count (`>`); on a tie the first found, the smaller shift, stays."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef caesar(text, shift):\n    result = \"\"\n    for ch in text:\n        if ch.isalpha() and ch.isascii():\n            base = ord(\"A\") if ch.isupper() else ord(\"a\")\n            result += chr((ord(ch) - base + shift) % 26 + base)\n        else:\n            result += ch\n    return result\n\n\ndef brute_caesar(secret, common):\n    best = None\n    for shift in range(26):\n        plain = caesar(secret, -shift)\n        hits = sum(word in common for word in plain.split())\n        if best is None or hits > best[0]:\n            best = (hits, shift, plain)\n    return [best[1], best[2]]\n\ncommon = [\"the\", \"is\", \"and\", \"of\", \"in\", \"to\"]\nprint(brute_caesar(\"wkh vhfuhw lv lq wkh jdughq\", common))\nprint(brute_caesar(\"aol ivvr pz vu aol ahisl\", common))\n```",
+      "en": "The full solution:\n\n```python\ndef caesar(text, shift):\n    result = \"\"\n    for ch in text:\n        if ch.isalpha() and ch.isascii():\n            base = ord(\"A\") if ch.isupper() else ord(\"a\")\n            result += chr((ord(ch) - base + shift) % 26 + base)\n        else:\n            result += ch\n    return result\n\n\ndef brute_caesar(secret, common):\n    best = None\n    for shift in range(26):\n        plain = caesar(secret, -shift)\n        hits = sum(word in common for word in plain.split())\n        if best is None or hits > best[0]:\n            best = (hits, shift, plain)\n    return [best[1], best[2]]\n\ncommon = [\"the\", \"is\", \"and\", \"of\", \"in\", \"to\"]\nprint(brute_caesar(\"wkh vhfuhw lv lq wkh jdughq\", common))\nprint(brute_caesar(\"aol ivvr pz vu aol ahisl\", common))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "brute_caesar",
+      "cases": [
+        {
+          "args": [
+            "wkh vhfuhw lv lq wkh jdughq",
+            [
+              "the",
+              "is",
+              "and",
+              "of",
+              "in",
+              "to"
+            ]
+          ],
+          "returns": [
+            3,
+            "the secret is in the garden"
+          ]
+        },
+        {
+          "args": [
+            "aol ivvr pz vu aol ahisl",
+            [
+              "the",
+              "is",
+              "and",
+              "of",
+              "in",
+              "to"
+            ]
+          ],
+          "returns": [
+            7,
+            "the book is on the table"
+          ]
+        },
+        {
+          "args": [
+            "xyz",
+            [
+              "the"
+            ]
+          ],
+          "returns": [
+            0,
+            "xyz"
+          ]
+        },
+        {
+          "args": [
+            "",
+            [
+              "the"
+            ]
+          ],
+          "returns": [
+            0,
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 'the secret is in the garden']\n[7, 'the book is on the table']"
+    }
+  ]
+}

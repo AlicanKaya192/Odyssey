@@ -1,0 +1,80 @@
+{
+  "id": "classify-transform",
+  "title": {
+    "tr": "Kodlama mı, özet mi, şifreleme mi?",
+    "en": "Encoding, hashing or encryption?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Üç küme tut, adı `lower()` ile küçült ve hangi kümede olduğuna bak.",
+      "en": "Keep three sets, lower-case the name with `lower()` and see which set it is in."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nKINDS = {\n    \"encoding\": {\"base64\", \"hex\", \"url\"},\n    \"hashing\": {\"md5\", \"sha1\", \"sha256\", \"sha3-256\"},\n    \"encryption\": {\"aes\", \"chacha20\", \"rsa\"},\n}\n\n\ndef classify_transform(name):\n    name = name.lower()\n    for kind, names in KINDS.items():\n        if name in names:\n            return kind\n    return \"unknown\"\n\nfor name in [\"Base64\", \"sha256\", \"AES\", \"hex\", \"rot13\"]:\n    print(name, classify_transform(name))\n```",
+      "en": "The full solution:\n\n```python\nKINDS = {\n    \"encoding\": {\"base64\", \"hex\", \"url\"},\n    \"hashing\": {\"md5\", \"sha1\", \"sha256\", \"sha3-256\"},\n    \"encryption\": {\"aes\", \"chacha20\", \"rsa\"},\n}\n\n\ndef classify_transform(name):\n    name = name.lower()\n    for kind, names in KINDS.items():\n        if name in names:\n            return kind\n    return \"unknown\"\n\nfor name in [\"Base64\", \"sha256\", \"AES\", \"hex\", \"rot13\"]:\n    print(name, classify_transform(name))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "classify_transform",
+      "cases": [
+        {
+          "args": [
+            "Base64"
+          ],
+          "returns": "encoding"
+        },
+        {
+          "args": [
+            "sha256"
+          ],
+          "returns": "hashing"
+        },
+        {
+          "args": [
+            "AES"
+          ],
+          "returns": "encryption"
+        },
+        {
+          "args": [
+            "hex"
+          ],
+          "returns": "encoding"
+        },
+        {
+          "args": [
+            "rot13"
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            "SHA3-256"
+          ],
+          "returns": "hashing"
+        },
+        {
+          "args": [
+            "ChaCha20"
+          ],
+          "returns": "encryption"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Base64 encoding\nsha256 hashing\nAES encryption\nhex encoding\nrot13 unknown"
+    }
+  ]
+}
