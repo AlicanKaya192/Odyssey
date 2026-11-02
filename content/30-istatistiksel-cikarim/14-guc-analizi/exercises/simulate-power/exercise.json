@@ -1,0 +1,36 @@
+{
+  "id": "simulate-power",
+  "title": {
+    "tr": "Gücü benzetimle ölç",
+    "en": "Measure power by simulation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`p = proportions_ztest([buy_b, buy_a], [n_group, n_group])[1]`.",
+      "en": "`p = proportions_ztest([buy_b, buy_a], [n_group, n_group])[1]`."
+    },
+    {
+      "tr": "`hits += p < 0.05`.",
+      "en": "`hits += p < 0.05`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom statsmodels.stats.power import NormalIndPower\nfrom statsmodels.stats.proportion import proportion_effectsize\nfrom statsmodels.stats.proportion import proportions_ztest\n\nrng = np.random.default_rng(421)\nn_group = 2000\nhits = 0\nfor _ in range(1000):\n    buy_a = rng.binomial(n_group, 0.10)\n    buy_b = rng.binomial(n_group, 0.12)\n    p = proportions_ztest([buy_b, buy_a], [n_group, n_group])[1]\n    hits += p < 0.05\nprint(hits / 1000)\nh = proportion_effectsize(0.12, 0.10)\npower = NormalIndPower().power(effect_size=h, nobs1=n_group, alpha=0.05)\nprint(round(power, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom statsmodels.stats.power import NormalIndPower\nfrom statsmodels.stats.proportion import proportion_effectsize\nfrom statsmodels.stats.proportion import proportions_ztest\n\nrng = np.random.default_rng(421)\nn_group = 2000\nhits = 0\nfor _ in range(1000):\n    buy_a = rng.binomial(n_group, 0.10)\n    buy_b = rng.binomial(n_group, 0.12)\n    p = proportions_ztest([buy_b, buy_a], [n_group, n_group])[1]\n    hits += p < 0.05\nprint(hits / 1000)\nh = proportion_effectsize(0.12, 0.10)\npower = NormalIndPower().power(effect_size=h, nobs1=n_group, alpha=0.05)\nprint(round(power, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.54\n0.525"
+    }
+  ]
+}

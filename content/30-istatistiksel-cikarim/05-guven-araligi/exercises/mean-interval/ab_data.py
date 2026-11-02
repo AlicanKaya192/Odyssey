@@ -107,6 +107,19 @@ def make_devices(n=3000, seed=66):
     return pd.DataFrame({"device": device, "bought": bought})
 
 
+def make_basket_test(n=25, seed=191):
+    """A small A/B test on basket value (money per order), n orders per group.
+
+    Columns: group ("A", "B"), basket. Basket values are very skewed:
+    a few orders are huge. In truth B makes baskets 30% larger.
+    """
+    rng = np.random.default_rng(seed)
+    a = np.round(rng.lognormal(4.6, 0.9, n), 2)
+    b = np.round(rng.lognormal(4.6 + np.log(1.30), 0.9, n), 2)
+    return pd.DataFrame({"group": ["A"] * n + ["B"] * n,
+                         "basket": np.concatenate([a, b])})
+
+
 def make_layout_test(n=150, seed=67):
     """Four page layouts ("A", "B", "C", "D"), n users each.
 

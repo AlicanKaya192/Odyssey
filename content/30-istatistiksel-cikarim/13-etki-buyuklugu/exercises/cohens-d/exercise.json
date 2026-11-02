@@ -1,0 +1,111 @@
+{
+  "id": "cohens-d",
+  "title": {
+    "tr": "Cohen's d",
+    "en": "Cohen's d"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Birleşik varyans: `((na - 1) * a.var(ddof=1) + (nb - 1) * b.var(ddof=1)) / (na + nb - 2)`.",
+      "en": "Pooled variance: `((na - 1) * a.var(ddof=1) + (nb - 1) * b.var(ddof=1)) / (na + nb - 2)`."
+    },
+    {
+      "tr": "Farkı `np.sqrt(pooled_var)`'a böl.",
+      "en": "Divide the difference by `np.sqrt(pooled_var)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef cohens_d(a, b):\n    a, b = np.array(a, dtype=float), np.array(b, dtype=float)\n    na, nb = len(a), len(b)\n    pooled_var = ((na - 1) * a.var(ddof=1)\n                  + (nb - 1) * b.var(ddof=1)) / (na + nb - 2)\n    return round(float((b.mean() - a.mean()) / np.sqrt(pooled_var)), 3)\n\n\nprint(cohens_d([4, 6, 5, 7], [6, 8, 7, 9]))\nprint(cohens_d([10, 12, 11], [10, 11, 13, 14]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef cohens_d(a, b):\n    a, b = np.array(a, dtype=float), np.array(b, dtype=float)\n    na, nb = len(a), len(b)\n    pooled_var = ((na - 1) * a.var(ddof=1)\n                  + (nb - 1) * b.var(ddof=1)) / (na + nb - 2)\n    return round(float((b.mean() - a.mean()) / np.sqrt(pooled_var)), 3)\n\n\nprint(cohens_d([4, 6, 5, 7], [6, 8, 7, 9]))\nprint(cohens_d([10, 12, 11], [10, 11, 13, 14]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cohens_d",
+      "cases": [
+        {
+          "args": [
+            [
+              4,
+              6,
+              5,
+              7
+            ],
+            [
+              6,
+              8,
+              7,
+              9
+            ]
+          ],
+          "returns": 1.549
+        },
+        {
+          "args": [
+            [
+              10,
+              12,
+              11
+            ],
+            [
+              10,
+              11,
+              13,
+              14
+            ]
+          ],
+          "returns": 0.645
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          ],
+          "returns": 0.0
+        },
+        {
+          "args": [
+            [
+              20,
+              30,
+              25,
+              35
+            ],
+            [
+              10,
+              15,
+              12,
+              18
+            ]
+          ],
+          "returns": -2.648
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.549\n0.645"
+    }
+  ]
+}

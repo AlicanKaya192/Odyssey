@@ -1,0 +1,92 @@
+{
+  "id": "practical-decision",
+  "title": {
+    "tr": "Pratik eşikle karar",
+    "en": "Deciding with a practical threshold"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `if low >= threshold:`.",
+      "en": "First `if low >= threshold:`."
+    },
+    {
+      "tr": "Sonra `if high < threshold:`, en sonda `\"unclear\"`.",
+      "en": "Then `if high < threshold:`, finally `\"unclear\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_checkout_test\n\n\ndef decide(low, high, threshold):\n    if low >= threshold:\n        return \"apply\"\n    if high < threshold:\n        return \"skip\"\n    return \"unclear\"\n\n\nshop = make_checkout_test(n=8000, seed=312)\nbuy_a = shop.loc[shop[\"group\"] == \"A\", \"bought\"].sum()\nbuy_b = shop.loc[shop[\"group\"] == \"B\", \"bought\"].sum()\nlow, high = confint_proportions_2indep(buy_b, 8000, buy_a, 8000)\nprint(round(low, 4), round(high, 4))\nprint(decide(low, high, 0.01))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_checkout_test\n\n\ndef decide(low, high, threshold):\n    if low >= threshold:\n        return \"apply\"\n    if high < threshold:\n        return \"skip\"\n    return \"unclear\"\n\n\nshop = make_checkout_test(n=8000, seed=312)\nbuy_a = shop.loc[shop[\"group\"] == \"A\", \"bought\"].sum()\nbuy_b = shop.loc[shop[\"group\"] == \"B\", \"bought\"].sum()\nlow, high = confint_proportions_2indep(buy_b, 8000, buy_a, 8000)\nprint(round(low, 4), round(high, 4))\nprint(decide(low, high, 0.01))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decide",
+      "cases": [
+        {
+          "args": [
+            0.012,
+            0.03,
+            0.01
+          ],
+          "returns": "apply"
+        },
+        {
+          "args": [
+            0.002,
+            0.008,
+            0.01
+          ],
+          "returns": "skip"
+        },
+        {
+          "args": [
+            0.005,
+            0.02,
+            0.01
+          ],
+          "returns": "unclear"
+        },
+        {
+          "args": [
+            0.01,
+            0.02,
+            0.01
+          ],
+          "returns": "apply"
+        },
+        {
+          "args": [
+            -0.004,
+            0.006,
+            0.01
+          ],
+          "returns": "skip"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "-0.0045 0.0155\nunclear"
+    }
+  ]
+}

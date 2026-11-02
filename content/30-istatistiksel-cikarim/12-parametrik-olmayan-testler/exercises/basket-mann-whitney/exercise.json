@@ -1,0 +1,46 @@
+{
+  "id": "basket-mann-whitney",
+  "title": {
+    "tr": "Sepette Mann–Whitney",
+    "en": "Mann–Whitney on baskets"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`u = stats.mannwhitneyu(b, a)`; `u.statistic`, `u.pvalue`.",
+      "en": "`u = stats.mannwhitneyu(b, a)`; `u.statistic`, `u.pvalue`."
+    },
+    {
+      "tr": "`u.statistic / (len(a) * len(b))`.",
+      "en": "`u.statistic / (len(a) * len(b))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_basket_test\n\ntest = make_basket_test(n=150, seed=211)\na = test.loc[test[\"group\"] == \"A\", \"basket\"].to_numpy()\nb = test.loc[test[\"group\"] == \"B\", \"basket\"].to_numpy()\nu = stats.mannwhitneyu(b, a)\nprint(round(np.median(a), 1), round(np.median(b), 1))\nprint(round(u.pvalue, 4))\nprint(round(u.statistic / (len(a) * len(b)), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom ab_data import make_basket_test\n\ntest = make_basket_test(n=150, seed=211)\na = test.loc[test[\"group\"] == \"A\", \"basket\"].to_numpy()\nb = test.loc[test[\"group\"] == \"B\", \"basket\"].to_numpy()\nu = stats.mannwhitneyu(b, a)\nprint(round(np.median(a), 1), round(np.median(b), 1))\nprint(round(u.pvalue, 4))\nprint(round(u.statistic / (len(a) * len(b)), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "92.0 125.1\n0.0023\n0.602"
+    }
+  ]
+}

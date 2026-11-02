@@ -1,0 +1,66 @@
+{
+  "id": "sample-size-means",
+  "title": {
+    "tr": "Ortalamalar için kaç kişi?",
+    "en": "How many people for means?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Güç `power=0.8` olmalı.",
+      "en": "Power should be `power=0.8`."
+    },
+    {
+      "tr": "`int(np.ceil(n))` ile yukarı yuvarla.",
+      "en": "Round up with `int(np.ceil(n))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom statsmodels.stats.power import TTestIndPower\n\n\ndef n_per_group(d):\n    n = TTestIndPower().solve_power(effect_size=d, power=0.8, alpha=0.05)\n    return int(np.ceil(n))\n\n\nprint(n_per_group(0.5))\nprint(n_per_group(0.2))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom statsmodels.stats.power import TTestIndPower\n\n\ndef n_per_group(d):\n    n = TTestIndPower().solve_power(effect_size=d, power=0.8, alpha=0.05)\n    return int(np.ceil(n))\n\n\nprint(n_per_group(0.5))\nprint(n_per_group(0.2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "n_per_group",
+      "cases": [
+        {
+          "args": [
+            0.8
+          ],
+          "returns": 26
+        },
+        {
+          "args": [
+            0.5
+          ],
+          "returns": 64
+        },
+        {
+          "args": [
+            0.3
+          ],
+          "returns": 176
+        },
+        {
+          "args": [
+            0.2
+          ],
+          "returns": 394
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "64\n394"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "winners-curse",
+  "title": {
+    "tr": "Kazananın laneti",
+    "en": "The winner's curse"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Anlamlı olanları seç: `lifts[significant]`.",
+      "en": "Select the significant ones: `lifts[significant]`."
+    },
+    {
+      "tr": "`round(lifts[significant].mean() / 0.02, 2)`.",
+      "en": "`round(lifts[significant].mean() / 0.02, 2)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nfrom statsmodels.stats.proportion import proportions_ztest\n\nrng = np.random.default_rng(422)\nn_group = 800\nlifts, significant = [], []\nfor _ in range(1000):\n    buy_a = rng.binomial(n_group, 0.10)\n    buy_b = rng.binomial(n_group, 0.12)\n    p = proportions_ztest([buy_b, buy_a], [n_group, n_group])[1]\n    lifts.append((buy_b - buy_a) / n_group)\n    significant.append(p < 0.05 and buy_b > buy_a)\nlifts, significant = np.array(lifts), np.array(significant)\nprint(round(significant.mean(), 3))\nprint(round(lifts[significant].mean() / 0.02, 2))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nfrom statsmodels.stats.proportion import proportions_ztest\n\nrng = np.random.default_rng(422)\nn_group = 800\nlifts, significant = [], []\nfor _ in range(1000):\n    buy_a = rng.binomial(n_group, 0.10)\n    buy_b = rng.binomial(n_group, 0.12)\n    p = proportions_ztest([buy_b, buy_a], [n_group, n_group])[1]\n    lifts.append((buy_b - buy_a) / n_group)\n    significant.append(p < 0.05 and buy_b > buy_a)\nlifts, significant = np.array(lifts), np.array(significant)\nprint(round(significant.mean(), 3))\nprint(round(lifts[significant].mean() / 0.02, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.242\n1.95"
+    }
+  ]
+}

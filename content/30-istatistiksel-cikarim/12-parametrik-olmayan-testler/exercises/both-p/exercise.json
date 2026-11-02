@@ -1,0 +1,121 @@
+{
+  "id": "both-p",
+  "title": {
+    "tr": "İki testin p'si",
+    "en": "Two tests' p"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İkinci p: `stats.mannwhitneyu(b, a).pvalue`.",
+      "en": "The second p: `stats.mannwhitneyu(b, a).pvalue`."
+    },
+    {
+      "tr": "`[round(float(p_t), 4), round(float(p_u), 4)]`.",
+      "en": "`[round(float(p_t), 4), round(float(p_u), 4)]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom scipy import stats\n\n\ndef both_p(a, b):\n    p_t = stats.ttest_ind(b, a, equal_var=False).pvalue\n    p_u = stats.mannwhitneyu(b, a).pvalue\n    return [round(float(p_t), 4), round(float(p_u), 4)]\n\n\na = [42, 55, 61, 48, 70, 52, 66, 58]\nb = [68, 75, 81, 72, 90, 77, 85, 79, 900]\nprint(both_p(a, b))\n```",
+      "en": "The full solution:\n\n```python\nfrom scipy import stats\n\n\ndef both_p(a, b):\n    p_t = stats.ttest_ind(b, a, equal_var=False).pvalue\n    p_u = stats.mannwhitneyu(b, a).pvalue\n    return [round(float(p_t), 4), round(float(p_u), 4)]\n\n\na = [42, 55, 61, 48, 70, 52, 66, 58]\nb = [68, 75, 81, 72, 90, 77, 85, 79, 900]\nprint(both_p(a, b))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "both_p",
+      "cases": [
+        {
+          "args": [
+            [
+              42,
+              55,
+              61,
+              48,
+              70,
+              52,
+              66,
+              58
+            ],
+            [
+              68,
+              75,
+              81,
+              72,
+              90,
+              77,
+              85,
+              79,
+              900
+            ]
+          ],
+          "returns": [
+            0.2506,
+            0.0002
+          ]
+        },
+        {
+          "args": [
+            [
+              42,
+              55,
+              61,
+              48,
+              70,
+              52,
+              66,
+              58
+            ],
+            [
+              68,
+              75,
+              81,
+              72,
+              90,
+              77,
+              85,
+              79
+            ]
+          ],
+          "returns": [
+            0.0001,
+            0.0003
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            [
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          ],
+          "returns": [
+            0.0805,
+            0.1138
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.2506, 0.0002]"
+    }
+  ]
+}
