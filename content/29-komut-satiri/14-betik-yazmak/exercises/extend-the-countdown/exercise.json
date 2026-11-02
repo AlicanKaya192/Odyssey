@@ -1,0 +1,75 @@
+{
+  "id": "extend-the-countdown",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Geri sayımı uzat",
+    "en": "Extend the countdown"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    {
+      "write": {
+        "hello.sh": "#!/bin/bash\n# My first script\necho \"Hello from a script\"\necho \"I am running in $PWD\"\n",
+        "greet.sh": "#!/bin/bash\n# Greets the person given as the first argument.\necho \"Hello, $1!\"\necho \"You gave $# arguments: $@\"\necho \"This script is $0\"\n",
+        "check.sh": "#!/bin/bash\nif [ -z \"$1\" ]; then\n  echo \"usage: check.sh FILE\"\n  exit 1\nfi\nif [ -f \"$1\" ]; then\n  lines=$(wc -l < \"$1\")\n  echo \"$1 has $lines lines\"\nelse\n  echo \"$1: no such file\"\n  exit 2\nfi\n",
+        "backup.sh": "#!/bin/bash\nfor f in \"$@\"; do\n  cp \"$f\" \"$f.bak\"\n  echo \"saved $f.bak\"\ndone\n",
+        "countdown.sh": "#!/bin/bash\nn=$1\nwhile [ $n -gt 0 ]; do\n  echo $n\n  n=$((n - 1))\ndone\necho \"Go!\"\n",
+        "report.sh": "#!/bin/bash\ncount_lines() {\n  local file=$1\n  wc -l < \"$file\"\n}\nfor f in *.txt; do\n  echo \"$f: $(count_lines \"$f\") lines\"\ndone\n",
+        "notes.txt": "Buy milk\nCall Ada\nRead a book\n",
+        "todo.txt": "Fix the bike\n"
+      }
+    }
+  ],
+  "solution": [
+    "echo 'echo \"Liftoff\"' >> countdown.sh",
+    "bash countdown.sh 3"
+  ],
+  "hints": [
+    {
+      "tr": "Sona eklemek `>>`. Satırı tek tırnağa al ki içindeki çift tırnaklar dosyaya geçsin.",
+      "en": "Adding to the end is `>>`. Put the line in single quotes so its double quotes reach the file."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\necho 'echo \"Liftoff\"' >> countdown.sh\nbash countdown.sh 3\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\necho 'echo \"Liftoff\"' >> countdown.sh\nbash countdown.sh 3\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "file_match": {
+        "countdown.sh": "^echo \\\"Go!\\\"\\necho [\\\"']?Liftoff[\\\"']?$"
+      },
+      "label": {
+        "tr": "countdown.sh'nin sonunda yeni satır",
+        "en": "The new line is at the end of countdown.sh"
+      }
+    },
+    {
+      "type": "shell_state",
+      "file_match": {
+        "countdown.sh": "\\A#!/bin/bash\\n"
+      },
+      "label": {
+        "tr": "Eski satırlar duruyor",
+        "en": "The old lines are still there"
+      }
+    },
+    {
+      "type": "shell_state",
+      "output": {
+        "text": "3\n2\n1\nGo!\nLiftoff",
+        "command": "countdown\\.sh\\s+3$"
+      },
+      "label": {
+        "tr": "countdown.sh 3 çalıştı",
+        "en": "countdown.sh 3 ran"
+      }
+    }
+  ]
+}

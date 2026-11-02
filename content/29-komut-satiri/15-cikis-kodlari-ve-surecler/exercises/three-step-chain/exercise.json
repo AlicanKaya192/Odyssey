@@ -1,0 +1,60 @@
+{
+  "id": "three-step-chain",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Üç adımlı zincir",
+    "en": "A three-step chain"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir docs",
+    "touch docs/a.md docs/b.md",
+    {
+      "write": {
+        "names.txt": "grace\nada\nlinus\nalan\n",
+        "app.log": "INFO server started\nWARN slow request\nINFO backup done\n",
+        "check_file.sh": "#!/bin/bash\nif [ ! -f \"$1\" ]; then\n  echo \"missing: $1\"\n  exit 3\nfi\necho \"found: $1\"\n"
+      }
+    }
+  ],
+  "solution": [
+    "mkdir -p out && sort names.txt > out/sorted.txt && echo done > out/status.txt"
+  ],
+  "hints": [
+    {
+      "tr": "`mkdir -p` klasör varsa da başarılı biter. Adımları `&&` ile sırala.",
+      "en": "`mkdir -p` also succeeds when the folder exists. Chain the steps with `&&`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\nmkdir -p out && sort names.txt > out/sorted.txt && echo done > out/status.txt\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\nmkdir -p out && sort names.txt > out/sorted.txt && echo done > out/status.txt\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "files": {
+        "out/sorted.txt": "ada\nalan\ngrace\nlinus",
+        "out/status.txt": "done"
+      },
+      "label": {
+        "tr": "out/sorted.txt sıralı, out/status.txt: done",
+        "en": "out/sorted.txt sorted, out/status.txt: done"
+      }
+    },
+    {
+      "type": "shell_state",
+      "command": "&&.*&&",
+      "show": "a && b && c",
+      "label": {
+        "tr": "Üç adımı && ile bağladın",
+        "en": "You joined the three steps with &&"
+      }
+    }
+  ]
+}

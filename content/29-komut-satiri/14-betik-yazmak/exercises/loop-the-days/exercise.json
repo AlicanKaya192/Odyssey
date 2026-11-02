@@ -1,0 +1,69 @@
+{
+  "id": "loop-the-days",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Günleri döngüyle aç",
+    "en": "Create the days with a loop"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    {
+      "write": {
+        "hello.sh": "#!/bin/bash\n# My first script\necho \"Hello from a script\"\necho \"I am running in $PWD\"\n",
+        "greet.sh": "#!/bin/bash\n# Greets the person given as the first argument.\necho \"Hello, $1!\"\necho \"You gave $# arguments: $@\"\necho \"This script is $0\"\n",
+        "check.sh": "#!/bin/bash\nif [ -z \"$1\" ]; then\n  echo \"usage: check.sh FILE\"\n  exit 1\nfi\nif [ -f \"$1\" ]; then\n  lines=$(wc -l < \"$1\")\n  echo \"$1 has $lines lines\"\nelse\n  echo \"$1: no such file\"\n  exit 2\nfi\n",
+        "backup.sh": "#!/bin/bash\nfor f in \"$@\"; do\n  cp \"$f\" \"$f.bak\"\n  echo \"saved $f.bak\"\ndone\n",
+        "countdown.sh": "#!/bin/bash\nn=$1\nwhile [ $n -gt 0 ]; do\n  echo $n\n  n=$((n - 1))\ndone\necho \"Go!\"\n",
+        "report.sh": "#!/bin/bash\ncount_lines() {\n  local file=$1\n  wc -l < \"$file\"\n}\nfor f in *.txt; do\n  echo \"$f: $(count_lines \"$f\") lines\"\ndone\n",
+        "notes.txt": "Buy milk\nCall Ada\nRead a book\n",
+        "todo.txt": "Fix the bike\n"
+      }
+    }
+  ],
+  "solution": [
+    "mkdir week",
+    "for i in $(seq 1 7); do touch \"week/day$i.txt\"; done"
+  ],
+  "hints": [
+    {
+      "tr": "Sayıları `$(seq 1 7)` ya da `{1..7}` verir. Döngünün gövdesi: `touch \"week/day$i.txt\"`.",
+      "en": "`$(seq 1 7)` or `{1..7}` gives the numbers. The body of the loop: `touch \"week/day$i.txt\"`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\nmkdir week\nfor i in $(seq 1 7); do touch \"week/day$i.txt\"; done\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\nmkdir week\nfor i in $(seq 1 7); do touch \"week/day$i.txt\"; done\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "files": {
+        "week/day1.txt": null,
+        "week/day2.txt": null,
+        "week/day3.txt": null,
+        "week/day4.txt": null,
+        "week/day5.txt": null,
+        "week/day6.txt": null,
+        "week/day7.txt": null
+      },
+      "label": {
+        "tr": "week/day1.txt ... day7.txt",
+        "en": "week/day1.txt ... day7.txt"
+      }
+    },
+    {
+      "type": "shell_state",
+      "command": "^for\\b.*\\bdo\\b.*\\bdone\\b",
+      "show": "for ... do ... done",
+      "label": {
+        "tr": "Bir for döngüsü kullandın",
+        "en": "You used a for loop"
+      }
+    }
+  ]
+}

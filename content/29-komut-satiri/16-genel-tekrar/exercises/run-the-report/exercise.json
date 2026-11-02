@@ -1,0 +1,68 @@
+{
+  "id": "run-the-report",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Raporu çalıştır",
+    "en": "Run the report"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir -p tools inbox/cache",
+    {
+      "write": {
+        "server.log": "2026-10-07 10:00 INFO server started\n2026-10-07 10:01 WARN slow request\n2026-10-07 10:02 ERROR db timeout\n2026-10-07 10:03 INFO user ada logged in\n2026-10-07 10:04 WARN high memory\n2026-10-07 10:05 ERROR disk full\n2026-10-07 10:06 WARN slow request\n2026-10-07 10:07 ERROR db timeout\n2026-10-07 10:08 INFO backup done\n2026-10-07 10:09 WARN cache miss\n2026-10-07 10:10 ERROR login failed\n2026-10-07 10:11 WARN slow request\n2026-10-07 10:12 ERROR db timeout\n2026-10-07 10:13 WARN high memory\n2026-10-07 10:14 ERROR disk full\n2026-10-07 10:15 INFO server stopped\n",
+        "tools/report.sh": "#!/bin/bash\nif [ ! -f \"$1\" ]; then\n  echo \"report: $1 not found\"\n  exit 2\nfi\necho \"$1: $(wc -l < \"$1\") lines, $(grep -c ERROR \"$1\") errors\"\n",
+        "inbox/a.log": "started\nstopped\n",
+        "inbox/b.log": "started\nERROR crash\nstopped\n",
+        "inbox/notes.txt": "Buy milk\n",
+        "inbox/data.csv": "id,value\n1,10\n2,20\n",
+        "inbox/draft.tmp": "x\n",
+        "inbox/old.tmp": "y\n",
+        "inbox/cache/page.tmp": "z\n"
+      }
+    }
+  ],
+  "solution": [
+    "chmod 700 tools/report.sh",
+    "./tools/report.sh server.log > report.txt"
+  ],
+  "hints": [
+    {
+      "tr": "Sahip 7 (rwx), grup ve diğerleri 0. Betiğin çıktısını `>` ile dosyaya gönder.",
+      "en": "Owner 7 (rwx), group and others 0. Send the script's output to a file with `>`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\nchmod 700 tools/report.sh\n./tools/report.sh server.log > report.txt\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\nchmod 700 tools/report.sh\n./tools/report.sh server.log > report.txt\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "modes": {
+        "tools/report.sh": "700"
+      },
+      "label": {
+        "tr": "report.sh: rwx------ (700)",
+        "en": "report.sh: rwx------ (700)"
+      }
+    },
+    {
+      "type": "shell_state",
+      "files": {
+        "report.txt": "server.log: 16 lines, 6 errors"
+      },
+      "command": "^\\./tools/report\\.sh\\s+server\\.log",
+      "show": "./tools/report.sh server.log",
+      "label": {
+        "tr": "report.txt: server.log: 16 lines, 6 errors",
+        "en": "report.txt: server.log: 16 lines, 6 errors"
+      }
+    }
+  ]
+}

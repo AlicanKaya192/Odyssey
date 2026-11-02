@@ -1,0 +1,59 @@
+{
+  "id": "write-a-status",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Durum yaz",
+    "en": "Write a status"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir docs",
+    "touch docs/a.md docs/b.md",
+    {
+      "write": {
+        "names.txt": "grace\nada\nlinus\nalan\n",
+        "app.log": "INFO server started\nWARN slow request\nINFO backup done\n",
+        "check_file.sh": "#!/bin/bash\nif [ ! -f \"$1\" ]; then\n  echo \"missing: $1\"\n  exit 3\nfi\necho \"found: $1\"\n"
+      }
+    }
+  ],
+  "solution": [
+    "grep -q ERROR app.log || echo \"no errors\" > status.txt"
+  ],
+  "hints": [
+    {
+      "tr": "grep bulamayınca 1 ile biter; `||` sağındaki komut tam o zaman çalışır.",
+      "en": "grep ends with 1 when it finds nothing; the command right of `||` runs exactly then."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\ngrep -q ERROR app.log || echo \"no errors\" > status.txt\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\ngrep -q ERROR app.log || echo \"no errors\" > status.txt\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "files": {
+        "status.txt": "no errors"
+      },
+      "label": {
+        "tr": "status.txt: no errors",
+        "en": "status.txt: no errors"
+      }
+    },
+    {
+      "type": "shell_state",
+      "command": "grep\\s+-q.*\\|\\|",
+      "show": "grep -q ... || ...",
+      "label": {
+        "tr": "grep -q ve || kullandın",
+        "en": "You used grep -q and ||"
+      }
+    }
+  ]
+}

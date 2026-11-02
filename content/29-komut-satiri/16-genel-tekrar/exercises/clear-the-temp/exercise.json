@@ -1,0 +1,79 @@
+{
+  "id": "clear-the-temp",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Geçici dosyaları temizle",
+    "en": "Clear the temp files"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    "mkdir -p tools inbox/cache",
+    {
+      "write": {
+        "server.log": "2026-10-07 10:00 INFO server started\n2026-10-07 10:01 WARN slow request\n2026-10-07 10:02 ERROR db timeout\n2026-10-07 10:03 INFO user ada logged in\n2026-10-07 10:04 WARN high memory\n2026-10-07 10:05 ERROR disk full\n2026-10-07 10:06 WARN slow request\n2026-10-07 10:07 ERROR db timeout\n2026-10-07 10:08 INFO backup done\n2026-10-07 10:09 WARN cache miss\n2026-10-07 10:10 ERROR login failed\n2026-10-07 10:11 WARN slow request\n2026-10-07 10:12 ERROR db timeout\n2026-10-07 10:13 WARN high memory\n2026-10-07 10:14 ERROR disk full\n2026-10-07 10:15 INFO server stopped\n",
+        "tools/report.sh": "#!/bin/bash\nif [ ! -f \"$1\" ]; then\n  echo \"report: $1 not found\"\n  exit 2\nfi\necho \"$1: $(wc -l < \"$1\") lines, $(grep -c ERROR \"$1\") errors\"\n",
+        "inbox/a.log": "started\nstopped\n",
+        "inbox/b.log": "started\nERROR crash\nstopped\n",
+        "inbox/notes.txt": "Buy milk\n",
+        "inbox/data.csv": "id,value\n1,10\n2,20\n",
+        "inbox/draft.tmp": "x\n",
+        "inbox/old.tmp": "y\n",
+        "inbox/cache/page.tmp": "z\n"
+      }
+    }
+  ],
+  "solution": [
+    "find inbox -name '*.tmp'",
+    "find inbox -name '*.tmp' -delete",
+    "find inbox -type f | wc -l > count.txt"
+  ],
+  "hints": [
+    {
+      "tr": "Önce `-delete`'siz listele. Saymak için `find inbox -type f | wc -l`.",
+      "en": "List first without `-delete`. To count, `find inbox -type f | wc -l`."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\nfind inbox -name '*.tmp'\nfind inbox -name '*.tmp' -delete\nfind inbox -type f | wc -l > count.txt\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\nfind inbox -name '*.tmp'\nfind inbox -name '*.tmp' -delete\nfind inbox -type f | wc -l > count.txt\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "missing": [
+        "inbox/draft.tmp",
+        "inbox/old.tmp",
+        "inbox/cache/page.tmp"
+      ],
+      "label": {
+        "tr": "Üç .tmp dosyası silindi",
+        "en": "The three .tmp files are deleted"
+      }
+    },
+    {
+      "type": "shell_state",
+      "files": {
+        "count.txt": "4",
+        "inbox/notes.txt": null
+      },
+      "label": {
+        "tr": "count.txt: 4, öteki dosyalar yerinde",
+        "en": "count.txt: 4, the other files are still there"
+      }
+    },
+    {
+      "type": "shell_state",
+      "command": "^find\\b.*-delete",
+      "show": "find ... -delete",
+      "label": {
+        "tr": "find -delete kullandın",
+        "en": "You used find -delete"
+      }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "run-with-a-name",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "Adla çalıştır",
+    "en": "Run it with a name"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    {
+      "write": {
+        "hello.sh": "#!/bin/bash\n# My first script\necho \"Hello from a script\"\necho \"I am running in $PWD\"\n",
+        "greet.sh": "#!/bin/bash\n# Greets the person given as the first argument.\necho \"Hello, $1!\"\necho \"You gave $# arguments: $@\"\necho \"This script is $0\"\n",
+        "check.sh": "#!/bin/bash\nif [ -z \"$1\" ]; then\n  echo \"usage: check.sh FILE\"\n  exit 1\nfi\nif [ -f \"$1\" ]; then\n  lines=$(wc -l < \"$1\")\n  echo \"$1 has $lines lines\"\nelse\n  echo \"$1: no such file\"\n  exit 2\nfi\n",
+        "backup.sh": "#!/bin/bash\nfor f in \"$@\"; do\n  cp \"$f\" \"$f.bak\"\n  echo \"saved $f.bak\"\ndone\n",
+        "countdown.sh": "#!/bin/bash\nn=$1\nwhile [ $n -gt 0 ]; do\n  echo $n\n  n=$((n - 1))\ndone\necho \"Go!\"\n",
+        "report.sh": "#!/bin/bash\ncount_lines() {\n  local file=$1\n  wc -l < \"$file\"\n}\nfor f in *.txt; do\n  echo \"$f: $(count_lines \"$f\") lines\"\ndone\n",
+        "notes.txt": "Buy milk\nCall Ada\nRead a book\n",
+        "todo.txt": "Fix the bike\n"
+      }
+    }
+  ],
+  "solution": [
+    "chmod +x greet.sh",
+    "./greet.sh Ada"
+  ],
+  "hints": [
+    {
+      "tr": "Önce `chmod +x`, sonra adın önüne `./` ve arkasına argüman.",
+      "en": "First `chmod +x`, then `./` in front of the name and the argument after it."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\nchmod +x greet.sh\n./greet.sh Ada\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\nchmod +x greet.sh\n./greet.sh Ada\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "executable": [
+        "greet.sh"
+      ],
+      "label": {
+        "tr": "greet.sh çalıştırılabilir",
+        "en": "greet.sh is executable"
+      }
+    },
+    {
+      "type": "shell_state",
+      "output": {
+        "pattern": "^Hello, Ada!$",
+        "command": "^\\./greet\\.sh\\s+Ada$"
+      },
+      "label": {
+        "tr": "./greet.sh Ada çalıştı",
+        "en": "./greet.sh Ada ran"
+      }
+    }
+  ]
+}

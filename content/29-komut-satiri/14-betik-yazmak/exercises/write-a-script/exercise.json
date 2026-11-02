@@ -1,0 +1,87 @@
+{
+  "id": "write-a-script",
+  "kind": "terminal",
+  "language": "shell",
+  "title": {
+    "tr": "İlk betiğini yaz",
+    "en": "Write your first script"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "setup": [
+    {
+      "write": {
+        "hello.sh": "#!/bin/bash\n# My first script\necho \"Hello from a script\"\necho \"I am running in $PWD\"\n",
+        "greet.sh": "#!/bin/bash\n# Greets the person given as the first argument.\necho \"Hello, $1!\"\necho \"You gave $# arguments: $@\"\necho \"This script is $0\"\n",
+        "check.sh": "#!/bin/bash\nif [ -z \"$1\" ]; then\n  echo \"usage: check.sh FILE\"\n  exit 1\nfi\nif [ -f \"$1\" ]; then\n  lines=$(wc -l < \"$1\")\n  echo \"$1 has $lines lines\"\nelse\n  echo \"$1: no such file\"\n  exit 2\nfi\n",
+        "backup.sh": "#!/bin/bash\nfor f in \"$@\"; do\n  cp \"$f\" \"$f.bak\"\n  echo \"saved $f.bak\"\ndone\n",
+        "countdown.sh": "#!/bin/bash\nn=$1\nwhile [ $n -gt 0 ]; do\n  echo $n\n  n=$((n - 1))\ndone\necho \"Go!\"\n",
+        "report.sh": "#!/bin/bash\ncount_lines() {\n  local file=$1\n  wc -l < \"$file\"\n}\nfor f in *.txt; do\n  echo \"$f: $(count_lines \"$f\") lines\"\ndone\n",
+        "notes.txt": "Buy milk\nCall Ada\nRead a book\n",
+        "todo.txt": "Fix the bike\n"
+      }
+    }
+  ],
+  "solution": [
+    "echo '#!/bin/bash' > hi.sh",
+    "echo 'echo \"Hi there\"' >> hi.sh",
+    "chmod +x hi.sh",
+    "./hi.sh"
+  ],
+  "hints": [
+    {
+      "tr": "Satırları **tek tırnak** içinde yaz: tek tırnakta `!` ve içteki çift tırnaklar olduğu gibi kalır.",
+      "en": "Write the lines in **single quotes**: inside single quotes `!` and the inner double quotes stay as they are."
+    },
+    {
+      "tr": "Çözümün tamamı (komutları sırayla yaz):\n\n```bash\necho '#!/bin/bash' > hi.sh\necho 'echo \"Hi there\"' >> hi.sh\nchmod +x hi.sh\n./hi.sh\n```",
+      "en": "The full solution (type the commands in order):\n\n```bash\necho '#!/bin/bash' > hi.sh\necho 'echo \"Hi there\"' >> hi.sh\nchmod +x hi.sh\n./hi.sh\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "shell_state",
+      "file_match": {
+        "hi.sh": "\\A#!/bin/bash\\n"
+      },
+      "label": {
+        "tr": "hi.sh shebang ile başlıyor",
+        "en": "hi.sh starts with the shebang"
+      }
+    },
+    {
+      "type": "shell_state",
+      "file_match": {
+        "hi.sh": "^echo \\\"Hi there\\\"$"
+      },
+      "label": {
+        "tr": "hi.sh'de echo satırı var",
+        "en": "hi.sh has the echo line"
+      }
+    },
+    {
+      "type": "shell_state",
+      "executable": [
+        "hi.sh"
+      ],
+      "label": {
+        "tr": "hi.sh çalıştırılabilir",
+        "en": "hi.sh is executable"
+      }
+    },
+    {
+      "type": "shell_state",
+      "output": {
+        "text": "Hi there",
+        "command": "^\\./hi\\.sh$"
+      },
+      "label": {
+        "tr": "./hi.sh çalıştı",
+        "en": "./hi.sh ran"
+      }
+    }
+  ]
+}
