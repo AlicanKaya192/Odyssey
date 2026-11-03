@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import html
 import json
+import threading
 
 import markdown
 
@@ -38,6 +39,8 @@ from ..paths import content_dir, install_root
 # ve diğer projelerim.
 # Sözlük (0.9.2) SSS'nin yanında: ikisi de "takıldım, bakayım" sayfası.
 SECTIONS = ("info", "faq", "glossary", "license", "links", "extras")
+# Bilgi sayfasının `{{...}}` sayıları (`Catalog.content_stats`); patika sayısı adlardan.
+COUNT_KEYS = ("sections", "questions", "exercises", "problems")
 
 # Lisansın özgün dili. Bu dilde ayrıca çeviri gösterilmiyor.
 FALLBACK_LICENSE_LANGUAGE = "en"
@@ -72,6 +75,8 @@ class AboutView(QWidget):
     # Sözlükte bir terim tekrar kutusuna eklendi ya da çıkarıldı (karşılama
     # kartındaki sayı tazelensin).
     review_changed = Signal()
+    # Bilgi sayfasının sayıları arka planda sayıldı (kaynaktan çalışınca).
+    _counts_ready = Signal()
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None,
                  store=None, catalog: Catalog | None = None) -> None:
@@ -79,6 +84,8 @@ class AboutView(QWidget):
         self._language = language
         self._store = store
         self._catalog = catalog
+        self._counting = False
+        self._counts_ready.connect(self._on_counts_ready)
         self._data = load_about()
         self._faq = load_faq()
         self._section = SECTIONS[0]
@@ -244,14 +251,43 @@ class AboutView(QWidget):
     def _fill_counts(self, text: str) -> str:
         if self._catalog is None:
             self._catalog = Catalog.load(content_dir())
-        values = {key: str(value) for key, value in self._catalog.content_stats().items()}
+        stats = self._catalog.stats
+        if stats is None:
+            # Kaynaktan çalışınca sayılar pakette yok; saymak ~4000 dosya okumak
+            # (soğuk diskte bir dakikayı bulabiliyor, açılışta pencere donuyordu,
+            # Alican 3 Kasım). Arka planda sayılıyor, gelene kadar "…".
+            self._count_in_background()
+            stats = {}
         names = [f"**{self._language.pick(track.title)}**"
                  for group in self._catalog.groups for track in group.tracks if track.chapters]
+        values = {key: str(stats.get(key, "…")) for key in COUNT_KEYS}
+        values["tracks"] = str(len(names))
         values["track_names"] = (", ".join(names[:-1]) + self._language.t("about.list_and") + names[-1]
                                  if len(names) > 1 else "".join(names))
         for key, value in values.items():
             text = text.replace("{{" + key + "}}", value)
         return text
+
+    def _count_in_background(self) -> None:
+        if self._counting:
+            return
+        self._counting = True
+        catalog = self._catalog
+
+        def say() -> None:
+            catalog.content_stats()
+            try:
+                self._counts_ready.emit()
+            except RuntimeError:
+                pass   # görünüm bu arada silindi
+
+        threading.Thread(target=say, name="about-counts", daemon=True).start()
+
+    def _on_counts_ready(self) -> None:
+        if self._section == "info":
+            self.refresh(force=True)
+        else:
+            self._rendered_lang = None   # sonraki girişte yeni sayılarla çizilsin
 
     def _faq_html(self) -> str:
         """Sık sorulanlar, açılıp kapanan başlıklar hâlinde.
