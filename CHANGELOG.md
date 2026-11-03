@@ -50,6 +50,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   terminali %90, %100, %115 ya da %130 boyunda okuyabilirsiniz; değişiklik
   açık ekranlara hemen uygulanır.
 
+### Değişti
+- **Patika kartlarında tahmini süre.** Öğrenme Yolu'ndaki her kart bölüm
+  sayısının yanında patikanın aşağı yukarı kaç saat sürdüğünü gösteriyor
+  ("0 / 72 bölüm · ~59 saat"); hangi patikaya başlayacağınızı planlamak
+  kolaylaşıyor.
+
 ## [1.5.0] — 31 Ekim 2026
 
 ### Eklendi

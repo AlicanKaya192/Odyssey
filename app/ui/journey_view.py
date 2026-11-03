@@ -948,6 +948,9 @@ class TrackCard(GlowCard):
         self._language = language
         self._completed = 0
         self._total = sum(len(chapter.sections) for chapter in track.chapters)
+        # Tahmini süre: bölümlerin `estimated_minutes` toplamı, saate yuvarlanmış.
+        minutes = sum(s.estimated_minutes for chapter in track.chapters for s in chapter.sections)
+        self._hours = max(1, round(minutes / 60)) if minutes else 0
         self._started = False
         self._mode = mode
         self._radius = 18
@@ -1111,7 +1114,8 @@ class TrackCard(GlowCard):
         p = PALETTES.get(self._mode, PALETTES["dark"])
         self._meta_left.setText(
             f"<span style='color:{p['text']};font-weight:700'>{self._completed}</span>"
-            + t("track.meta_sections", total=self._total))
+            + t("track.meta_sections", total=self._total)
+            + (t("track.meta_hours", hours=self._hours) if self._hours else ""))
         self._meta_right.setText(t("home.percent", value=percent))
         if self._prerequisite is not None:
             self._pre.setText(t("track.before", name=self._language.pick(self._prerequisite.title)))

@@ -52,6 +52,12 @@ lecture note does not mean downloading the whole application again.
   code editor and the terminal at 90%, 100%, 115% or 130%; open screens
   change right away.
 
+### Changed
+- **Estimated time on path cards.** Each card on the Learning Path shows
+  roughly how many hours the path takes next to its section count
+  ("0 / 72 sections · ~59 hours"), so it is easier to plan which path to
+  start.
+
 ## [1.5.0] — 31 October 2026
 
 ### Added
