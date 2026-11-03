@@ -49,19 +49,23 @@ badges, XP, levels and titles, a study timer, suggested routes, your own
 notes, a global search, a guided tour, a Turkish/English interface, light
 and dark themes and in-app updates are all in place.
 
-Seventeen paths are complete: **Python Fundamentals**, **CS50 Python**,
-**Git**, **Algorithms**, **Core Libraries**, **SQL**, **Mathematics**,
-**Data Science**, **Machine Learning**, **Time Series**,
-**Natural Language Processing**, **Big Data**, **API**, **Docker**,
-**GenAI and Prompt Engineering**, **System Design** and **Rust**. Some paths have
+Twenty paths are complete: **Python Fundamentals**, **CS50 Python**,
+**Git**, **Command Line**, **Algorithms**, **Core Libraries**, **SQL**,
+**Mathematics**, **Statistics and A/B Testing**, **Data Science**,
+**Machine Learning**, **Time Series**, **Natural Language Processing**,
+**Big Data**, **API**, **Docker**, **GenAI and Prompt Engineering**,
+**System Design**, **Rust** and **Cyber Security with Python**. Some paths have
 several modules: Mathematics covers foundational mathematics for someone
 starting from zero and the linear algebra, calculus, probability and
 statistics that machine learning rests on; Algorithms runs in three modules
 from core algorithms to machine learning algorithms written from scratch;
 Core Libraries in four, from the standard library to scikit-learn; System
-Design covers CI/CD and MLOps; Rust runs in three modules from zero to a very advanced level. CS50 Python is an adaptation of Harvard's
+Design covers CI/CD and MLOps; Rust runs in three modules from zero to a very advanced level;
+Statistics and A/B Testing covers statistical inference and experiment
+design; Cyber Security with Python runs in four modules from security
+fundamentals to cryptography, network and web security and system security. CS50 Python is an adaptation of Harvard's
 CS50 introduction to programming, with the lecture videos and Turkish
-subtitles. Together they hold 522 sections, 13557 quiz questions, 2421
+subtitles. Together they hold 645 sections, 16621 quiz questions, 3036
 exercises and 300 mathematics problems.
 
 If you are new to the application, **Settings › Learning › Guided tour**

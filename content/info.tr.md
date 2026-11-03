@@ -49,19 +49,23 @@ XP, seviyeler ve unvanlar, çalışma zamanlayıcısı, önerilen rotalar, kendi
 notlarınız, genel arama, tanıtım turu, Türkçe/İngilizce arayüz, açık/koyu
 tema ve uygulama içi güncelleme hazırdır.
 
-On yedi patika tamamlanmıştır: **Python Temelleri**, **CS50 Python**,
-**Git**, **Algoritmalar**, **Temel Kütüphaneler**, **SQL**, **Matematik**,
-**Veri Bilimi**, **Makine Öğrenmesi**, **Zaman Serileri**,
-**Doğal Dil İşleme**, **Büyük Veri**, **API**, **Docker**,
-**GenAI ve Prompt Mühendisliği**, **Sistem Tasarımı** ve **Rust**. Bazı patikalar
+Yirmi patika tamamlanmıştır: **Python Temelleri**, **CS50 Python**,
+**Git**, **Komut Satırı**, **Algoritmalar**, **Temel Kütüphaneler**, **SQL**,
+**Matematik**, **İstatistik ve A/B Testi**, **Veri Bilimi**,
+**Makine Öğrenmesi**, **Zaman Serileri**, **Doğal Dil İşleme**,
+**Büyük Veri**, **API**, **Docker**, **GenAI ve Prompt Mühendisliği**,
+**Sistem Tasarımı**, **Rust** ve **Python ile Siber Güvenlik**. Bazı patikalar
 birden fazla modülden oluşur: Matematik, sıfırdan başlayan biri için temel
 matematik ile makine öğrenmesinin dayandığı doğrusal cebir, kalkülüs,
 olasılık ve istatistik; Algoritmalar, temel algoritmalardan sıfırdan
 yazılan makine öğrenmesi algoritmalarına üç modül; Temel Kütüphaneler,
 standart kütüphaneden scikit-learn'e dört modül; Sistem Tasarımı, CI/CD ve
-MLOps; Rust, sıfırdan çok ileri düzeye üç modül. CS50 Python, Harvard'ın CS50 programlamaya giriş dersinin videolu ve
-Türkçe altyazılı uyarlamasıdır. Toplamda 522 bölüm, 13557 sınav sorusu,
-2421 alıştırma ve 300 matematik problemi bulunur.
+MLOps; Rust, sıfırdan çok ileri düzeye üç modül; İstatistik ve A/B Testi,
+istatistiksel çıkarım ile deney tasarımı; Python ile Siber Güvenlik,
+güvenlik temellerinden kriptografiye, ağ ve web güvenliğine ve sistem
+güvenliğine dört modül. CS50 Python, Harvard'ın CS50 programlamaya giriş dersinin videolu ve
+Türkçe altyazılı uyarlamasıdır. Toplamda 645 bölüm, 16621 sınav sorusu,
+3036 alıştırma ve 300 matematik problemi bulunur.
 
 Programı ilk kez kullanıyorsanız **Ayarlar › Öğrenme › Tanıtım turu**
 bütün ekranları sırayla gösterir.
