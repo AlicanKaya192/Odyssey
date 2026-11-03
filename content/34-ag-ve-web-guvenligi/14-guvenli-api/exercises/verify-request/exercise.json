@@ -1,0 +1,98 @@
+{
+  "id": "verify-request",
+  "title": {
+    "tr": "İmzayı doğrula",
+    "en": "Verify the signature"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`expected = sign(secret, ts, body)`; karşılaştırma `hmac.compare_digest(expected, signature)`.",
+      "en": "`expected = sign(secret, ts, body)`; compare with `hmac.compare_digest(expected, signature)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef sign(secret, ts, body):\n    message = f\"{ts}\\n{body}\".encode()\n    return hmac.new(secret.encode(), message, hashlib.sha256).hexdigest()\n\n\ndef verify(secret, ts, now, body, signature):\n    if abs(now - ts) > 300:\n        return \"expired\"\n    expected = sign(secret, ts, body)\n    if not hmac.compare_digest(expected, signature):\n        return \"bad signature\"\n    return \"ok\"\n\nsig = sign(\"demo\", 1000, '{\"amount\": 10}')\nprint(verify(\"demo\", 1000, 1030, '{\"amount\": 10}', sig))\nprint(verify(\"demo\", 1000, 1030, '{\"amount\": 99}', sig))\nprint(verify(\"demo\", 1000, 1400, '{\"amount\": 10}', sig))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef sign(secret, ts, body):\n    message = f\"{ts}\\n{body}\".encode()\n    return hmac.new(secret.encode(), message, hashlib.sha256).hexdigest()\n\n\ndef verify(secret, ts, now, body, signature):\n    if abs(now - ts) > 300:\n        return \"expired\"\n    expected = sign(secret, ts, body)\n    if not hmac.compare_digest(expected, signature):\n        return \"bad signature\"\n    return \"ok\"\n\nsig = sign(\"demo\", 1000, '{\"amount\": 10}')\nprint(verify(\"demo\", 1000, 1030, '{\"amount\": 10}', sig))\nprint(verify(\"demo\", 1000, 1030, '{\"amount\": 99}', sig))\nprint(verify(\"demo\", 1000, 1400, '{\"amount\": 10}', sig))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify",
+      "cases": [
+        {
+          "args": [
+            "demo",
+            1000,
+            1030,
+            "{\"amount\": 10}",
+            "1d21398b2bd2cd2738b49c4438b680bb854cccfaa3a17b311bd40b462735a1e3"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "demo",
+            1000,
+            1030,
+            "{\"amount\": 99}",
+            "1d21398b2bd2cd2738b49c4438b680bb854cccfaa3a17b311bd40b462735a1e3"
+          ],
+          "returns": "bad signature"
+        },
+        {
+          "args": [
+            "demo",
+            1000,
+            1400,
+            "{\"amount\": 10}",
+            "1d21398b2bd2cd2738b49c4438b680bb854cccfaa3a17b311bd40b462735a1e3"
+          ],
+          "returns": "expired"
+        },
+        {
+          "args": [
+            "other",
+            1000,
+            1000,
+            "{\"amount\": 10}",
+            "1d21398b2bd2cd2738b49c4438b680bb854cccfaa3a17b311bd40b462735a1e3"
+          ],
+          "returns": "bad signature"
+        },
+        {
+          "args": [
+            "k2",
+            50,
+            0,
+            "x",
+            "0589ad85ff1cb6ca66e40028900bd8e7183dd9df932e64f9551d46925671a3cd"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "k2",
+            50,
+            351,
+            "x",
+            "0589ad85ff1cb6ca66e40028900bd8e7183dd9df932e64f9551d46925671a3cd"
+          ],
+          "returns": "expired"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\nbad signature\nexpired"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "id": "password-problems",
+  "title": {
+    "tr": "Parola kuralı",
+    "en": "A password rule"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`PASSWORD` de yaygın sayılır: `password.lower() in common`.",
+      "en": "`PASSWORD` counts as common too: `password.lower() in common`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef password_problems(password, user, common):\n    problems = []\n    if len(password) < 8:\n        problems.append(\"too short\")\n    if password.lower() in common:\n        problems.append(\"common\")\n    if user.lower() in password.lower():\n        problems.append(\"contains user name\")\n    return problems\n\nCOMMON = [\"123456\", \"password\", \"qwerty\"]\nfor pw in [\"qwerty\", \"Ada2026!\", \"blue-river-under-stone\", \"PASSWORD\"]:\n    print(pw, password_problems(pw, \"ada\", COMMON))\n```",
+      "en": "The full solution:\n\n```python\ndef password_problems(password, user, common):\n    problems = []\n    if len(password) < 8:\n        problems.append(\"too short\")\n    if password.lower() in common:\n        problems.append(\"common\")\n    if user.lower() in password.lower():\n        problems.append(\"contains user name\")\n    return problems\n\nCOMMON = [\"123456\", \"password\", \"qwerty\"]\nfor pw in [\"qwerty\", \"Ada2026!\", \"blue-river-under-stone\", \"PASSWORD\"]:\n    print(pw, password_problems(pw, \"ada\", COMMON))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "password_problems",
+      "cases": [
+        {
+          "args": [
+            "qwerty",
+            "ada",
+            [
+              "123456",
+              "password",
+              "qwerty"
+            ]
+          ],
+          "returns": [
+            "too short",
+            "common"
+          ]
+        },
+        {
+          "args": [
+            "Ada2026!",
+            "ada",
+            [
+              "123456",
+              "password",
+              "qwerty"
+            ]
+          ],
+          "returns": [
+            "contains user name"
+          ]
+        },
+        {
+          "args": [
+            "blue-river-under-stone",
+            "ada",
+            [
+              "123456",
+              "password",
+              "qwerty"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "PASSWORD",
+            "ada",
+            [
+              "123456",
+              "password",
+              "qwerty"
+            ]
+          ],
+          "returns": [
+            "common"
+          ]
+        },
+        {
+          "args": [
+            "x",
+            "x",
+            []
+          ],
+          "returns": [
+            "too short",
+            "contains user name"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "qwerty ['too short', 'common']\nAda2026! ['contains user name']\nblue-river-under-stone []\nPASSWORD ['common']"
+    }
+  ]
+}

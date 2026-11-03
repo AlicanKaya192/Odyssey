@@ -1,0 +1,82 @@
+{
+  "id": "cors-headers",
+  "title": {
+    "tr": "İzin listesiyle CORS",
+    "en": "CORS with an allow list"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `headers = {\"Vary\": \"Origin\"}`, sonra `if origin in ALLOWED_ORIGINS:`.",
+      "en": "First `headers = {\"Vary\": \"Origin\"}`, then `if origin in ALLOWED_ORIGINS:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nALLOWED_ORIGINS = {\"https://shop.example\", \"https://admin.shop.example\"}\n\n\ndef cors_headers(origin):\n    headers = {\"Vary\": \"Origin\"}\n    if origin in ALLOWED_ORIGINS:\n        headers[\"Access-Control-Allow-Origin\"] = origin\n        headers[\"Access-Control-Allow-Credentials\"] = \"true\"\n    return headers\n\nfor origin in [\"https://shop.example\", \"https://notshop.example\"]:\n    print(origin)\n    for key in sorted(cors_headers(origin)):\n        print(\" \", key)\n```",
+      "en": "The full solution:\n\n```python\nALLOWED_ORIGINS = {\"https://shop.example\", \"https://admin.shop.example\"}\n\n\ndef cors_headers(origin):\n    headers = {\"Vary\": \"Origin\"}\n    if origin in ALLOWED_ORIGINS:\n        headers[\"Access-Control-Allow-Origin\"] = origin\n        headers[\"Access-Control-Allow-Credentials\"] = \"true\"\n    return headers\n\nfor origin in [\"https://shop.example\", \"https://notshop.example\"]:\n    print(origin)\n    for key in sorted(cors_headers(origin)):\n        print(\" \", key)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cors_headers",
+      "cases": [
+        {
+          "args": [
+            "https://shop.example"
+          ],
+          "returns": {
+            "Vary": "Origin",
+            "Access-Control-Allow-Origin": "https://shop.example",
+            "Access-Control-Allow-Credentials": "true"
+          }
+        },
+        {
+          "args": [
+            "https://notshop.example"
+          ],
+          "returns": {
+            "Vary": "Origin"
+          }
+        },
+        {
+          "args": [
+            "null"
+          ],
+          "returns": {
+            "Vary": "Origin"
+          }
+        },
+        {
+          "args": [
+            "http://shop.example"
+          ],
+          "returns": {
+            "Vary": "Origin"
+          }
+        },
+        {
+          "args": [
+            "https://admin.shop.example"
+          ],
+          "returns": {
+            "Vary": "Origin",
+            "Access-Control-Allow-Origin": "https://admin.shop.example",
+            "Access-Control-Allow-Credentials": "true"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "https://shop.example\n  Access-Control-Allow-Credentials\n  Access-Control-Allow-Origin\n  Vary\nhttps://notshop.example\n  Vary"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "safe-path",
+  "title": {
+    "tr": "Klasörün içinde mi?",
+    "en": "Is it inside the folder?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`a/../../x` birleşince hâlâ `base` ile başlıyor; ancak normalleştirince dışarı çıktığı görünür.",
+      "en": "Joined, `a/../../x` still starts with `base`; only after normalising does it show that it goes outside."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport posixpath\n\n\ndef safe_path(base, name):\n    full = posixpath.normpath(posixpath.join(base, name))\n    return full if full.startswith(base + \"/\") else None\n\nBASE = \"/srv/app/uploads\"\nfor name in [\"cat.png\", \"../settings.ini\", \"a/../../x\", \"/etc/x\"]:\n    print(name, safe_path(BASE, name))\n```",
+      "en": "The full solution:\n\n```python\nimport posixpath\n\n\ndef safe_path(base, name):\n    full = posixpath.normpath(posixpath.join(base, name))\n    return full if full.startswith(base + \"/\") else None\n\nBASE = \"/srv/app/uploads\"\nfor name in [\"cat.png\", \"../settings.ini\", \"a/../../x\", \"/etc/x\"]:\n    print(name, safe_path(BASE, name))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "safe_path",
+      "cases": [
+        {
+          "args": [
+            "/srv/app/uploads",
+            "cat.png"
+          ],
+          "returns": "/srv/app/uploads/cat.png"
+        },
+        {
+          "args": [
+            "/srv/app/uploads",
+            "../settings.ini"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "/srv/app/uploads",
+            "a/../../x"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "/srv/app/uploads",
+            "/etc/x"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "/srv/app/uploads",
+            "a/./b.png"
+          ],
+          "returns": "/srv/app/uploads/a/b.png"
+        },
+        {
+          "args": [
+            "/srv/app/uploads",
+            "../uploads-old/x"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "cat.png /srv/app/uploads/cat.png\n../settings.ini None\na/../../x None\n/etc/x None"
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "id": "request-gate",
+  "title": {
+    "tr": "İsteğin kapıları",
+    "en": "The request's gates"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra önemli: önce oturum, sonra `POST` için köken ve jeton, en son sahiplik.",
+      "en": "Order matters: the session first, then origin and token for `POST`, ownership last."
+    },
+    {
+      "tr": "Sahiplik koşulu `note[\"owner\"] == session[\"user\"]`.",
+      "en": "The ownership condition is `note[\"owner\"] == session[\"user\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hmac\n\nALLOWED_ORIGINS = {\"https://notes.example\"}\n\n\ndef gate(req, sessions, notes):\n    session = sessions.get(req.get(\"cookie\", \"\"))\n    if session is None:\n        return 401\n    if req[\"method\"] == \"POST\":\n        if req.get(\"origin\") not in ALLOWED_ORIGINS:\n            return 403\n        if not hmac.compare_digest(req.get(\"csrf\", \"\"), session[\"csrf\"]):\n            return 403\n    for note in notes:\n        if note[\"id\"] == req[\"note\"] and note[\"owner\"] == session[\"user\"]:\n            return 200\n    return 404\n\nSESSIONS = {\n    \"s-ada\": {\"user\": \"ada\", \"csrf\": \"t-1\"},\n    \"s-bob\": {\"user\": \"bob\", \"csrf\": \"t-2\"},\n}\nNOTES = [{\"id\": 1, \"owner\": \"ada\"}, {\"id\": 2, \"owner\": \"bob\"}]\ngood = \"https://notes.example\"\nprint(gate({\"method\": \"GET\", \"cookie\": \"s-ada\", \"note\": 1}, SESSIONS, NOTES))\nprint(gate({\"method\": \"GET\", \"cookie\": \"s-ada\", \"note\": 2}, SESSIONS, NOTES))\nprint(gate({\"method\": \"GET\", \"note\": 1}, SESSIONS, NOTES))\nprint(gate({\"method\": \"POST\", \"cookie\": \"s-ada\", \"note\": 1,\n            \"origin\": good, \"csrf\": \"t-2\"}, SESSIONS, NOTES))\nprint(gate({\"method\": \"POST\", \"cookie\": \"s-ada\", \"note\": 1,\n            \"origin\": good, \"csrf\": \"t-1\"}, SESSIONS, NOTES))\n```",
+      "en": "The full solution:\n\n```python\nimport hmac\n\nALLOWED_ORIGINS = {\"https://notes.example\"}\n\n\ndef gate(req, sessions, notes):\n    session = sessions.get(req.get(\"cookie\", \"\"))\n    if session is None:\n        return 401\n    if req[\"method\"] == \"POST\":\n        if req.get(\"origin\") not in ALLOWED_ORIGINS:\n            return 403\n        if not hmac.compare_digest(req.get(\"csrf\", \"\"), session[\"csrf\"]):\n            return 403\n    for note in notes:\n        if note[\"id\"] == req[\"note\"] and note[\"owner\"] == session[\"user\"]:\n            return 200\n    return 404\n\nSESSIONS = {\n    \"s-ada\": {\"user\": \"ada\", \"csrf\": \"t-1\"},\n    \"s-bob\": {\"user\": \"bob\", \"csrf\": \"t-2\"},\n}\nNOTES = [{\"id\": 1, \"owner\": \"ada\"}, {\"id\": 2, \"owner\": \"bob\"}]\ngood = \"https://notes.example\"\nprint(gate({\"method\": \"GET\", \"cookie\": \"s-ada\", \"note\": 1}, SESSIONS, NOTES))\nprint(gate({\"method\": \"GET\", \"cookie\": \"s-ada\", \"note\": 2}, SESSIONS, NOTES))\nprint(gate({\"method\": \"GET\", \"note\": 1}, SESSIONS, NOTES))\nprint(gate({\"method\": \"POST\", \"cookie\": \"s-ada\", \"note\": 1,\n            \"origin\": good, \"csrf\": \"t-2\"}, SESSIONS, NOTES))\nprint(gate({\"method\": \"POST\", \"cookie\": \"s-ada\", \"note\": 1,\n            \"origin\": good, \"csrf\": \"t-1\"}, SESSIONS, NOTES))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "gate",
+      "cases": [
+        {
+          "args": [
+            {
+              "method": "GET",
+              "cookie": "s-ada",
+              "note": 1
+            },
+            {
+              "s-ada": {
+                "user": "ada",
+                "csrf": "t-1"
+              },
+              "s-bob": {
+                "user": "bob",
+                "csrf": "t-2"
+              }
+            },
+            [
+              {
+                "id": 1,
+                "owner": "ada"
+              },
+              {
+                "id": 2,
+                "owner": "bob"
+              }
+            ]
+          ],
+          "returns": 200
+        },
+        {
+          "args": [
+            {
+              "method": "GET",
+              "cookie": "s-ada",
+              "note": 2
+            },
+            {
+              "s-ada": {
+                "user": "ada",
+                "csrf": "t-1"
+              },
+              "s-bob": {
+                "user": "bob",
+                "csrf": "t-2"
+              }
+            },
+            [
+              {
+                "id": 1,
+                "owner": "ada"
+              },
+              {
+                "id": 2,
+                "owner": "bob"
+              }
+            ]
+          ],
+          "returns": 404
+        },
+        {
+          "args": [
+            {
+              "method": "GET",
+              "note": 1
+            },
+            {
+              "s-ada": {
+                "user": "ada",
+                "csrf": "t-1"
+              },
+              "s-bob": {
+                "user": "bob",
+                "csrf": "t-2"
+              }
+            },
+            [
+              {
+                "id": 1,
+                "owner": "ada"
+              },
+              {
+                "id": 2,
+                "owner": "bob"
+              }
+            ]
+          ],
+          "returns": 401
+        },
+        {
+          "args": [
+            {
+              "method": "POST",
+              "cookie": "s-ada",
+              "note": 1,
+              "origin": "https://notes.example",
+              "csrf": "t-2"
+            },
+            {
+              "s-ada": {
+                "user": "ada",
+                "csrf": "t-1"
+              },
+              "s-bob": {
+                "user": "bob",
+                "csrf": "t-2"
+              }
+            },
+            [
+              {
+                "id": 1,
+                "owner": "ada"
+              },
+              {
+                "id": 2,
+                "owner": "bob"
+              }
+            ]
+          ],
+          "returns": 403
+        },
+        {
+          "args": [
+            {
+              "method": "POST",
+              "cookie": "s-ada",
+              "note": 1,
+              "origin": "https://notes.example",
+              "csrf": "t-1"
+            },
+            {
+              "s-ada": {
+                "user": "ada",
+                "csrf": "t-1"
+              },
+              "s-bob": {
+                "user": "bob",
+                "csrf": "t-2"
+              }
+            },
+            [
+              {
+                "id": 1,
+                "owner": "ada"
+              },
+              {
+                "id": 2,
+                "owner": "bob"
+              }
+            ]
+          ],
+          "returns": 200
+        },
+        {
+          "args": [
+            {
+              "method": "POST",
+              "cookie": "s-bob",
+              "note": 2,
+              "csrf": "t-2"
+            },
+            {
+              "s-ada": {
+                "user": "ada",
+                "csrf": "t-1"
+              },
+              "s-bob": {
+                "user": "bob",
+                "csrf": "t-2"
+              }
+            },
+            [
+              {
+                "id": 1,
+                "owner": "ada"
+              },
+              {
+                "id": 2,
+                "owner": "bob"
+              }
+            ]
+          ],
+          "returns": 403
+        },
+        {
+          "args": [
+            {
+              "method": "GET",
+              "cookie": "s-x",
+              "note": 1
+            },
+            {
+              "s-ada": {
+                "user": "ada",
+                "csrf": "t-1"
+              },
+              "s-bob": {
+                "user": "bob",
+                "csrf": "t-2"
+              }
+            },
+            [
+              {
+                "id": 1,
+                "owner": "ada"
+              },
+              {
+                "id": 2,
+                "owner": "bob"
+              }
+            ]
+          ],
+          "returns": 401
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "200\n404\n401\n403\n200"
+    }
+  ]
+}

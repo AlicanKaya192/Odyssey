@@ -1,0 +1,152 @@
+{
+  "id": "comments-html",
+  "title": {
+    "tr": "Yorum listesi",
+    "en": "A comment list"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `o'brien`'da sorgu hatası veriyor ve `<i>`'yi olduğu gibi yazıyor.",
+      "en": "The starter code raises a query error on `o'brien` and writes `<i>` as it is."
+    },
+    {
+      "tr": "Sorguda `?` ve `(author,)`; çıktıda `html.escape(body)`.",
+      "en": "`?` and `(author,)` in the query; `html.escape(body)` in the output."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport html\nimport sqlite3\n\n\ndef comments_html(rows, author):\n    db = sqlite3.connect(\":memory:\")\n    db.execute(\"CREATE TABLE comments (author TEXT, body TEXT)\")\n    db.executemany(\"INSERT INTO comments VALUES (?, ?)\", rows)\n    query = \"SELECT body FROM comments WHERE author = ? ORDER BY rowid\"\n    found = db.execute(query, (author,)).fetchall()\n    return [\"<li>\" + html.escape(body) + \"</li>\" for (body,) in found]\n\nROWS = [\n    [\"ada\", \"<i>hi</i>\"],\n    [\"bob\", \"a & b\"],\n    [\"o'brien\", \"x < y\"],\n    [\"ada\", \"second\"],\n]\nfor author in [\"ada\", \"o'brien\", \"zeynep\"]:\n    print(author)\n    for line in comments_html(ROWS, author):\n        print(\" \", line)\n```",
+      "en": "The full solution:\n\n```python\nimport html\nimport sqlite3\n\n\ndef comments_html(rows, author):\n    db = sqlite3.connect(\":memory:\")\n    db.execute(\"CREATE TABLE comments (author TEXT, body TEXT)\")\n    db.executemany(\"INSERT INTO comments VALUES (?, ?)\", rows)\n    query = \"SELECT body FROM comments WHERE author = ? ORDER BY rowid\"\n    found = db.execute(query, (author,)).fetchall()\n    return [\"<li>\" + html.escape(body) + \"</li>\" for (body,) in found]\n\nROWS = [\n    [\"ada\", \"<i>hi</i>\"],\n    [\"bob\", \"a & b\"],\n    [\"o'brien\", \"x < y\"],\n    [\"ada\", \"second\"],\n]\nfor author in [\"ada\", \"o'brien\", \"zeynep\"]:\n    print(author)\n    for line in comments_html(ROWS, author):\n        print(\" \", line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "comments_html",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "<i>hi</i>"
+              ],
+              [
+                "bob",
+                "a & b"
+              ],
+              [
+                "o'brien",
+                "x < y"
+              ],
+              [
+                "ada",
+                "second"
+              ]
+            ],
+            "ada"
+          ],
+          "returns": [
+            "<li>&lt;i&gt;hi&lt;/i&gt;</li>",
+            "<li>second</li>"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "<i>hi</i>"
+              ],
+              [
+                "bob",
+                "a & b"
+              ],
+              [
+                "o'brien",
+                "x < y"
+              ],
+              [
+                "ada",
+                "second"
+              ]
+            ],
+            "o'brien"
+          ],
+          "returns": [
+            "<li>x &lt; y</li>"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "<i>hi</i>"
+              ],
+              [
+                "bob",
+                "a & b"
+              ],
+              [
+                "o'brien",
+                "x < y"
+              ],
+              [
+                "ada",
+                "second"
+              ]
+            ],
+            "zeynep"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "ada",
+                "<i>hi</i>"
+              ],
+              [
+                "bob",
+                "a & b"
+              ],
+              [
+                "o'brien",
+                "x < y"
+              ],
+              [
+                "ada",
+                "second"
+              ]
+            ],
+            "bob"
+          ],
+          "returns": [
+            "<li>a &amp; b</li>"
+          ]
+        },
+        {
+          "args": [
+            [],
+            "ada"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada\n  <li>&lt;i&gt;hi&lt;/i&gt;</li>\n  <li>second</li>\no'brien\n  <li>x &lt; y</li>\nzeynep"
+    }
+  ]
+}

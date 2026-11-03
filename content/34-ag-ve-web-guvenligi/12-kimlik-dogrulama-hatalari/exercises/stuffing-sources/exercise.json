@@ -1,0 +1,239 @@
+{
+  "id": "stuffing-sources",
+  "title": {
+    "tr": "Doldurma kaynakları",
+    "en": "Stuffing sources"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başarılı girişler sayılmaz; aynı hesaba tekrarlar bir kez.",
+      "en": "Successful logins do not count; repeats to the same account count once."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef stuffing_sources(log, limit):\n    failed = {}\n    for src, user, ok in log:\n        if not ok:\n            failed.setdefault(src, set()).add(user)\n    found = [src for src, users in failed.items() if len(users) >= limit]\n    return sorted(found, key=ipaddress.ip_address)\n\nlog = [[\"198.51.100.9\", \"u%d\" % i, False] for i in range(12)]\nlog += [[\"198.51.100.10\", \"u1\", False], [\"192.168.1.10\", \"ada\", True]]\nprint(stuffing_sources(log, 10))\nprint(stuffing_sources(log, 1))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef stuffing_sources(log, limit):\n    failed = {}\n    for src, user, ok in log:\n        if not ok:\n            failed.setdefault(src, set()).add(user)\n    found = [src for src, users in failed.items() if len(users) >= limit]\n    return sorted(found, key=ipaddress.ip_address)\n\nlog = [[\"198.51.100.9\", \"u%d\" % i, False] for i in range(12)]\nlog += [[\"198.51.100.10\", \"u1\", False], [\"192.168.1.10\", \"ada\", True]]\nprint(stuffing_sources(log, 10))\nprint(stuffing_sources(log, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "stuffing_sources",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "198.51.100.9",
+                "u0",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u1",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u2",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u3",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u4",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u5",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u6",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u7",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u8",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u9",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u10",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u11",
+                false
+              ],
+              [
+                "198.51.100.10",
+                "u1",
+                false
+              ],
+              [
+                "192.168.1.10",
+                "ada",
+                true
+              ]
+            ],
+            10
+          ],
+          "returns": [
+            "198.51.100.9"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "198.51.100.9",
+                "u0",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u1",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u2",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u3",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u4",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u5",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u6",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u7",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u8",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u9",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u10",
+                false
+              ],
+              [
+                "198.51.100.9",
+                "u11",
+                false
+              ],
+              [
+                "198.51.100.10",
+                "u1",
+                false
+              ],
+              [
+                "192.168.1.10",
+                "ada",
+                true
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            "198.51.100.9",
+            "198.51.100.10"
+          ]
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "10.0.0.1",
+                "ada",
+                false
+              ],
+              [
+                "10.0.0.1",
+                "ada",
+                false
+              ],
+              [
+                "10.0.0.1",
+                "ada",
+                false
+              ],
+              [
+                "10.0.0.1",
+                "ada",
+                false
+              ],
+              [
+                "10.0.0.1",
+                "ada",
+                false
+              ]
+            ],
+            2
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['198.51.100.9']\n['198.51.100.9', '198.51.100.10']"
+    }
+  ]
+}

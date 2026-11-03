@@ -1,0 +1,182 @@
+{
+  "id": "firewall-decide",
+  "title": {
+    "tr": "Güvenlik duvarı kararı",
+    "en": "A firewall decision"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodunun üç hatası var: adresi metinle karşılaştırıyor, son tutan kuralı alıyor ve varsayılanı `allow`.",
+      "en": "The starter code has three mistakes: it compares the address as text, takes the last matching rule and defaults to `allow`."
+    },
+    {
+      "tr": "`address in ipaddress.ip_network(rule[\"src\"])`; tutan ilk kuralda hemen `return`.",
+      "en": "`address in ipaddress.ip_network(rule[\"src\"])`; `return` at once on the first matching rule."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef decide(rules, packet):\n    address = ipaddress.ip_address(packet[\"src\"])\n    for rule in rules:\n        in_network = address in ipaddress.ip_network(rule[\"src\"])\n        if in_network and rule[\"port\"] in (\"*\", packet[\"port\"]):\n            return rule[\"action\"]\n    return \"deny\"\n\nRULES = [\n    {\"action\": \"deny\", \"src\": \"10.0.5.0/24\", \"port\": \"*\"},\n    {\"action\": \"allow\", \"src\": \"10.0.0.0/8\", \"port\": 22},\n    {\"action\": \"allow\", \"src\": \"0.0.0.0/0\", \"port\": 443},\n]\nfor src, port in [(\"10.0.5.7\", 22), (\"10.1.2.3\", 22), (\"192.168.1.5\", 443), (\"192.168.1.5\", 22)]:\n    print(src, port, decide(RULES, {\"src\": src, \"port\": port}))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef decide(rules, packet):\n    address = ipaddress.ip_address(packet[\"src\"])\n    for rule in rules:\n        in_network = address in ipaddress.ip_network(rule[\"src\"])\n        if in_network and rule[\"port\"] in (\"*\", packet[\"port\"]):\n            return rule[\"action\"]\n    return \"deny\"\n\nRULES = [\n    {\"action\": \"deny\", \"src\": \"10.0.5.0/24\", \"port\": \"*\"},\n    {\"action\": \"allow\", \"src\": \"10.0.0.0/8\", \"port\": 22},\n    {\"action\": \"allow\", \"src\": \"0.0.0.0/0\", \"port\": 443},\n]\nfor src, port in [(\"10.0.5.7\", 22), (\"10.1.2.3\", 22), (\"192.168.1.5\", 443), (\"192.168.1.5\", 22)]:\n    print(src, port, decide(RULES, {\"src\": src, \"port\": port}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decide",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "action": "deny",
+                "src": "10.0.5.0/24",
+                "port": "*"
+              },
+              {
+                "action": "allow",
+                "src": "10.0.0.0/8",
+                "port": 22
+              },
+              {
+                "action": "allow",
+                "src": "0.0.0.0/0",
+                "port": 443
+              }
+            ],
+            {
+              "src": "10.0.5.7",
+              "port": 22
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            [
+              {
+                "action": "deny",
+                "src": "10.0.5.0/24",
+                "port": "*"
+              },
+              {
+                "action": "allow",
+                "src": "10.0.0.0/8",
+                "port": 22
+              },
+              {
+                "action": "allow",
+                "src": "0.0.0.0/0",
+                "port": 443
+              }
+            ],
+            {
+              "src": "10.1.2.3",
+              "port": 22
+            }
+          ],
+          "returns": "allow"
+        },
+        {
+          "args": [
+            [
+              {
+                "action": "deny",
+                "src": "10.0.5.0/24",
+                "port": "*"
+              },
+              {
+                "action": "allow",
+                "src": "10.0.0.0/8",
+                "port": 22
+              },
+              {
+                "action": "allow",
+                "src": "0.0.0.0/0",
+                "port": 443
+              }
+            ],
+            {
+              "src": "192.168.1.5",
+              "port": 443
+            }
+          ],
+          "returns": "allow"
+        },
+        {
+          "args": [
+            [
+              {
+                "action": "deny",
+                "src": "10.0.5.0/24",
+                "port": "*"
+              },
+              {
+                "action": "allow",
+                "src": "10.0.0.0/8",
+                "port": 22
+              },
+              {
+                "action": "allow",
+                "src": "0.0.0.0/0",
+                "port": 443
+              }
+            ],
+            {
+              "src": "192.168.1.5",
+              "port": 22
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            [],
+            {
+              "src": "10.0.0.1",
+              "port": 80
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            [
+              {
+                "action": "deny",
+                "src": "10.0.5.0/24",
+                "port": "*"
+              },
+              {
+                "action": "allow",
+                "src": "10.0.0.0/8",
+                "port": 22
+              },
+              {
+                "action": "allow",
+                "src": "0.0.0.0/0",
+                "port": 443
+              }
+            ],
+            {
+              "src": "10.0.5.255",
+              "port": 443
+            }
+          ],
+          "returns": "deny"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "10.0.5.7 22 deny\n10.1.2.3 22 allow\n192.168.1.5 443 allow\n192.168.1.5 22 deny"
+    }
+  ]
+}

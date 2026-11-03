@@ -1,0 +1,93 @@
+{
+  "id": "needs-preflight",
+  "title": {
+    "tr": "Ön kontrol gerekir mi?",
+    "en": "Is a preflight needed?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce yöntem; sonra `for name, value in headers.items():` ile her başlık.",
+      "en": "Method first; then each header with `for name, value in headers.items():`."
+    },
+    {
+      "tr": "İçerik türü için `value.split(\";\")[0].strip().lower()`.",
+      "en": "For the content type, `value.split(\";\")[0].strip().lower()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nSIMPLE_METHODS = {\"GET\", \"HEAD\", \"POST\"}\nSIMPLE_HEADERS = {\"accept\", \"accept-language\", \"content-language\", \"content-type\"}\nSIMPLE_TYPES = {\n    \"application/x-www-form-urlencoded\",\n    \"multipart/form-data\",\n    \"text/plain\",\n}\n\n\ndef needs_preflight(method, headers):\n    if method not in SIMPLE_METHODS:\n        return True\n    for name, value in headers.items():\n        name = name.lower()\n        if name not in SIMPLE_HEADERS:\n            return True\n        if name == \"content-type\" and value.split(\";\")[0].strip().lower() not in SIMPLE_TYPES:\n            return True\n    return False\n\nprint(needs_preflight(\"GET\", {}))\nprint(needs_preflight(\"POST\", {\"Content-Type\": \"text/plain\"}))\nprint(needs_preflight(\"POST\", {\"Content-Type\": \"application/json\"}))\nprint(needs_preflight(\"GET\", {\"X-Api-Key\": \"k\"}))\nprint(needs_preflight(\"PUT\", {}))\n```",
+      "en": "The full solution:\n\n```python\nSIMPLE_METHODS = {\"GET\", \"HEAD\", \"POST\"}\nSIMPLE_HEADERS = {\"accept\", \"accept-language\", \"content-language\", \"content-type\"}\nSIMPLE_TYPES = {\n    \"application/x-www-form-urlencoded\",\n    \"multipart/form-data\",\n    \"text/plain\",\n}\n\n\ndef needs_preflight(method, headers):\n    if method not in SIMPLE_METHODS:\n        return True\n    for name, value in headers.items():\n        name = name.lower()\n        if name not in SIMPLE_HEADERS:\n            return True\n        if name == \"content-type\" and value.split(\";\")[0].strip().lower() not in SIMPLE_TYPES:\n            return True\n    return False\n\nprint(needs_preflight(\"GET\", {}))\nprint(needs_preflight(\"POST\", {\"Content-Type\": \"text/plain\"}))\nprint(needs_preflight(\"POST\", {\"Content-Type\": \"application/json\"}))\nprint(needs_preflight(\"GET\", {\"X-Api-Key\": \"k\"}))\nprint(needs_preflight(\"PUT\", {}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "needs_preflight",
+      "cases": [
+        {
+          "args": [
+            "GET",
+            {}
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "POST",
+            {
+              "Content-Type": "text/plain"
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "POST",
+            {
+              "Content-Type": "application/json"
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "GET",
+            {
+              "X-Api-Key": "k"
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "PUT",
+            {}
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "POST",
+            {
+              "content-type": "Text/Plain; charset=utf-8",
+              "Accept": "*/*"
+            }
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\nFalse\nTrue\nTrue\nTrue"
+    }
+  ]
+}

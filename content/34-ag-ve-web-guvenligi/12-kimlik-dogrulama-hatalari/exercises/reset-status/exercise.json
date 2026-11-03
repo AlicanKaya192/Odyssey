@@ -1,0 +1,94 @@
+{
+  "id": "reset-status",
+  "title": {
+    "tr": "Sıfırlama jetonunu denetle",
+    "en": "Check the reset token"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Özet: `hashlib.sha256(token.encode()).hexdigest()`.",
+      "en": "The hash: `hashlib.sha256(token.encode()).hexdigest()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef status(record, token, now):\n    if record is None:\n        return \"invalid\"\n    if record[\"used\"]:\n        return \"used\"\n    if now >= record[\"expires\"]:\n        return \"expired\"\n    digest = hashlib.sha256(token.encode()).hexdigest()\n    if not hmac.compare_digest(record[\"hash\"], digest):\n        return \"invalid\"\n    return \"ok\"\n\nimport hashlib\n\ngood = hashlib.sha256(b\"tok-abc\").hexdigest()\nfresh = {\"hash\": good, \"expires\": 900, \"used\": False}\nprint(status(fresh, \"tok-abc\", 100))\nprint(status(fresh, \"guess\", 100))\nprint(status(fresh, \"tok-abc\", 900))\nprint(status({\"hash\": good, \"expires\": 900, \"used\": True}, \"tok-abc\", 1))\nprint(status(None, \"tok-abc\", 1))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef status(record, token, now):\n    if record is None:\n        return \"invalid\"\n    if record[\"used\"]:\n        return \"used\"\n    if now >= record[\"expires\"]:\n        return \"expired\"\n    digest = hashlib.sha256(token.encode()).hexdigest()\n    if not hmac.compare_digest(record[\"hash\"], digest):\n        return \"invalid\"\n    return \"ok\"\n\nimport hashlib\n\ngood = hashlib.sha256(b\"tok-abc\").hexdigest()\nfresh = {\"hash\": good, \"expires\": 900, \"used\": False}\nprint(status(fresh, \"tok-abc\", 100))\nprint(status(fresh, \"guess\", 100))\nprint(status(fresh, \"tok-abc\", 900))\nprint(status({\"hash\": good, \"expires\": 900, \"used\": True}, \"tok-abc\", 1))\nprint(status(None, \"tok-abc\", 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "status",
+      "cases": [
+        {
+          "args": [
+            {
+              "hash": "0b9f31c5403adf5a5676eafcf2ed391dec857be4b8d54e9ae0923a3d10f86e47",
+              "expires": 900,
+              "used": false
+            },
+            "tok-abc",
+            100
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            {
+              "hash": "0b9f31c5403adf5a5676eafcf2ed391dec857be4b8d54e9ae0923a3d10f86e47",
+              "expires": 900,
+              "used": false
+            },
+            "guess",
+            100
+          ],
+          "returns": "invalid"
+        },
+        {
+          "args": [
+            {
+              "hash": "0b9f31c5403adf5a5676eafcf2ed391dec857be4b8d54e9ae0923a3d10f86e47",
+              "expires": 900,
+              "used": false
+            },
+            "tok-abc",
+            900
+          ],
+          "returns": "expired"
+        },
+        {
+          "args": [
+            {
+              "hash": "0b9f31c5403adf5a5676eafcf2ed391dec857be4b8d54e9ae0923a3d10f86e47",
+              "expires": 900,
+              "used": true
+            },
+            "tok-abc",
+            1
+          ],
+          "returns": "used"
+        },
+        {
+          "args": [
+            null,
+            "tok-abc",
+            1
+          ],
+          "returns": "invalid"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\ninvalid\nexpired\nused\ninvalid"
+    }
+  ]
+}

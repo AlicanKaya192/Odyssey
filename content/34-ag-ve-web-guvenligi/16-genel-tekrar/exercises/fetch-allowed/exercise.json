@@ -1,0 +1,84 @@
+{
+  "id": "fetch-allowed",
+  "title": {
+    "tr": "Getirilebilir adres mi?",
+    "en": "May this address be fetched?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu metnin içinde arıyor: sorgu parametresindeki ad da, başka bir alanın alt adı da geçiyor.",
+      "en": "The starter code searches the text: the name in a query parameter and a subdomain of another domain both get through."
+    },
+    {
+      "tr": "Üç denetim: `parts.scheme`, `parts.hostname`, `parts.port`.",
+      "en": "Three checks: `parts.scheme`, `parts.hostname`, `parts.port`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\nALLOWED_HOSTS = {\"images.example\", \"cdn.images.example\"}\n\n\ndef fetch_allowed(url):\n    parts = urlsplit(url)\n    if parts.scheme not in (\"http\", \"https\"):\n        return False\n    if parts.hostname not in ALLOWED_HOSTS:\n        return False\n    return parts.port in (None, 80, 443)\n\nfor url in [\n    \"https://images.example/a.png\",\n    \"ftp://images.example/a.png\",\n    \"https://images.example.other.example/a\",\n    \"https://IMAGES.example/a.png\",\n    \"http://cdn.images.example:8080/a\",\n    \"https://other.example/?u=images.example\",\n]:\n    print(fetch_allowed(url))\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\nALLOWED_HOSTS = {\"images.example\", \"cdn.images.example\"}\n\n\ndef fetch_allowed(url):\n    parts = urlsplit(url)\n    if parts.scheme not in (\"http\", \"https\"):\n        return False\n    if parts.hostname not in ALLOWED_HOSTS:\n        return False\n    return parts.port in (None, 80, 443)\n\nfor url in [\n    \"https://images.example/a.png\",\n    \"ftp://images.example/a.png\",\n    \"https://images.example.other.example/a\",\n    \"https://IMAGES.example/a.png\",\n    \"http://cdn.images.example:8080/a\",\n    \"https://other.example/?u=images.example\",\n]:\n    print(fetch_allowed(url))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fetch_allowed",
+      "cases": [
+        {
+          "args": [
+            "https://images.example/a.png"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "ftp://images.example/a.png"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://images.example.other.example/a"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://IMAGES.example/a.png"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "http://cdn.images.example:8080/a"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://other.example/?u=images.example"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://cdn.images.example:443/x"
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse\nTrue\nFalse\nFalse"
+    }
+  ]
+}

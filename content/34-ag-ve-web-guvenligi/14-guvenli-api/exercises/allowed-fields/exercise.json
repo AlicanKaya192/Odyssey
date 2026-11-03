@@ -1,0 +1,92 @@
+{
+  "id": "allowed-fields",
+  "title": {
+    "tr": "Yalnızca izinli alanlar",
+    "en": "Only allowed fields"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde `if key in ALLOWED:` ile yalnızca izinli alanları yaz.",
+      "en": "In a loop, write only allowed fields with `if key in ALLOWED:`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nALLOWED = {\"name\", \"email\", \"bio\"}\n\n\ndef apply_update(profile, body):\n    result = dict(profile)\n    for key, value in body.items():\n        if key in ALLOWED:\n            result[key] = value\n    return result\n\nprofile = {\"name\": \"Ada\", \"role\": \"user\"}\nprint(apply_update(profile, {\"bio\": \"hi\", \"role\": \"admin\"}))\nprint(profile)\n```",
+      "en": "The full solution:\n\n```python\nALLOWED = {\"name\", \"email\", \"bio\"}\n\n\ndef apply_update(profile, body):\n    result = dict(profile)\n    for key, value in body.items():\n        if key in ALLOWED:\n            result[key] = value\n    return result\n\nprofile = {\"name\": \"Ada\", \"role\": \"user\"}\nprint(apply_update(profile, {\"bio\": \"hi\", \"role\": \"admin\"}))\nprint(profile)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "apply_update",
+      "cases": [
+        {
+          "args": [
+            {
+              "name": "Ada",
+              "role": "user"
+            },
+            {
+              "bio": "hi",
+              "role": "admin"
+            }
+          ],
+          "returns": {
+            "name": "Ada",
+            "role": "user",
+            "bio": "hi"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "Ada"
+            },
+            {
+              "name": "Ada L",
+              "email": "a@example.com"
+            }
+          ],
+          "returns": {
+            "name": "Ada L",
+            "email": "a@example.com"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "Ada",
+              "is_admin": false
+            },
+            {
+              "is_admin": true
+            }
+          ],
+          "returns": {
+            "name": "Ada",
+            "is_admin": false
+          }
+        },
+        {
+          "args": [
+            {},
+            {}
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'name': 'Ada', 'role': 'user', 'bio': 'hi'}\n{'name': 'Ada', 'role': 'user'}"
+    }
+  ]
+}

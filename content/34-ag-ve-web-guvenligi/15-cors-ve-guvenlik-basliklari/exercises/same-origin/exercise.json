@@ -1,0 +1,80 @@
+{
+  "id": "same-origin",
+  "title": {
+    "tr": "Aynı köken mi?",
+    "en": "Same origin?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her adres için `(scheme, hostname, port)` demetini kuran yardımcı bir fonksiyon yaz.",
+      "en": "Write a helper that builds the `(scheme, hostname, port)` tuple for each address."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\nDEFAULT_PORTS = {\"http\": 80, \"https\": 443}\n\n\ndef origin(url):\n    parts = urlsplit(url)\n    return parts.scheme, parts.hostname, parts.port or DEFAULT_PORTS[parts.scheme]\n\n\ndef same_origin(a, b):\n    return origin(a) == origin(b)\n\nbase = \"https://shop.example\"\nfor other in [\n    \"https://shop.example:443/a\",\n    \"http://shop.example\",\n    \"https://api.shop.example\",\n    \"https://SHOP.example/b\",\n]:\n    print(same_origin(base, other))\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\nDEFAULT_PORTS = {\"http\": 80, \"https\": 443}\n\n\ndef origin(url):\n    parts = urlsplit(url)\n    return parts.scheme, parts.hostname, parts.port or DEFAULT_PORTS[parts.scheme]\n\n\ndef same_origin(a, b):\n    return origin(a) == origin(b)\n\nbase = \"https://shop.example\"\nfor other in [\n    \"https://shop.example:443/a\",\n    \"http://shop.example\",\n    \"https://api.shop.example\",\n    \"https://SHOP.example/b\",\n]:\n    print(same_origin(base, other))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "same_origin",
+      "cases": [
+        {
+          "args": [
+            "https://shop.example",
+            "https://shop.example:443/a"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "https://shop.example",
+            "http://shop.example"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://shop.example",
+            "https://api.shop.example"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://shop.example",
+            "https://SHOP.example/b"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "http://a.example:8080/x",
+            "http://a.example:8080/y"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "http://a.example",
+            "http://a.example:8080"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse\nTrue"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "id": "cookie-problems",
+  "title": {
+    "tr": "Çerezde eksik özellikler",
+    "en": "Missing cookie attributes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu metnin içinde arıyor: `secure=1` adlı bir çerez \"Secure var\" sayılır, `SECURE` sayılmaz.",
+      "en": "The starter code searches the text: a cookie named `secure=1` counts as \"Secure present\", `SECURE` does not."
+    },
+    {
+      "tr": "`header.split(\";\")[1:]` ilk parçayı atar; adlar `part.split(\"=\")[0].strip().lower()`.",
+      "en": "`header.split(\";\")[1:]` drops the first part; names are `part.split(\"=\")[0].strip().lower()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef cookie_problems(header):\n    parts = header.split(\";\")[1:]\n    names = {part.split(\"=\")[0].strip().lower() for part in parts}\n    missing = []\n    for flag in [\"Secure\", \"HttpOnly\", \"SameSite\"]:\n        if flag.lower() not in names:\n            missing.append(flag)\n    return missing\n\nfor header in [\n    \"sid=abc; Path=/; Secure; HttpOnly; SameSite=Lax\",\n    \"sid=abc; Path=/; HttpOnly\",\n    \"secure=1; Path=/\",\n    \"sid=abc; SECURE; httponly; samesite=Strict\",\n]:\n    print(cookie_problems(header))\n```",
+      "en": "The full solution:\n\n```python\ndef cookie_problems(header):\n    parts = header.split(\";\")[1:]\n    names = {part.split(\"=\")[0].strip().lower() for part in parts}\n    missing = []\n    for flag in [\"Secure\", \"HttpOnly\", \"SameSite\"]:\n        if flag.lower() not in names:\n            missing.append(flag)\n    return missing\n\nfor header in [\n    \"sid=abc; Path=/; Secure; HttpOnly; SameSite=Lax\",\n    \"sid=abc; Path=/; HttpOnly\",\n    \"secure=1; Path=/\",\n    \"sid=abc; SECURE; httponly; samesite=Strict\",\n]:\n    print(cookie_problems(header))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cookie_problems",
+      "cases": [
+        {
+          "args": [
+            "sid=abc; Path=/; Secure; HttpOnly; SameSite=Lax"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "sid=abc; Path=/; HttpOnly"
+          ],
+          "returns": [
+            "Secure",
+            "SameSite"
+          ]
+        },
+        {
+          "args": [
+            "secure=1; Path=/"
+          ],
+          "returns": [
+            "Secure",
+            "HttpOnly",
+            "SameSite"
+          ]
+        },
+        {
+          "args": [
+            "sid=abc; SECURE; httponly; samesite=Strict"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "sid=abc"
+          ],
+          "returns": [
+            "Secure",
+            "HttpOnly",
+            "SameSite"
+          ]
+        },
+        {
+          "args": [
+            "httponly=yes; Secure"
+          ],
+          "returns": [
+            "HttpOnly",
+            "SameSite"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]\n['Secure', 'SameSite']\n['Secure', 'HttpOnly', 'SameSite']\n[]"
+    }
+  ]
+}

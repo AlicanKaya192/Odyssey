@@ -1,0 +1,76 @@
+{
+  "id": "missing-headers",
+  "title": {
+    "tr": "Eksik başlıklar",
+    "en": "Missing headers"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `present = {name.lower() for name in headers}`.",
+      "en": "First `present = {name.lower() for name in headers}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nREQUIRED = [\n    \"content-security-policy\",\n    \"strict-transport-security\",\n    \"x-content-type-options\",\n    \"referrer-policy\",\n    \"x-frame-options\",\n]\n\n\ndef missing_headers(headers):\n    present = {name.lower() for name in headers}\n    return [name for name in REQUIRED if name not in present]\n\nresponse = {\n    \"content-type\": \"text/html\",\n    \"X-Frame-Options\": \"DENY\",\n    \"REFERRER-POLICY\": \"no-referrer\",\n}\nfor name in missing_headers(response):\n    print(name)\n```",
+      "en": "The full solution:\n\n```python\nREQUIRED = [\n    \"content-security-policy\",\n    \"strict-transport-security\",\n    \"x-content-type-options\",\n    \"referrer-policy\",\n    \"x-frame-options\",\n]\n\n\ndef missing_headers(headers):\n    present = {name.lower() for name in headers}\n    return [name for name in REQUIRED if name not in present]\n\nresponse = {\n    \"content-type\": \"text/html\",\n    \"X-Frame-Options\": \"DENY\",\n    \"REFERRER-POLICY\": \"no-referrer\",\n}\nfor name in missing_headers(response):\n    print(name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "missing_headers",
+      "cases": [
+        {
+          "args": [
+            {
+              "content-type": "text/html",
+              "X-Frame-Options": "DENY",
+              "REFERRER-POLICY": "no-referrer"
+            }
+          ],
+          "returns": [
+            "content-security-policy",
+            "strict-transport-security",
+            "x-content-type-options"
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": [
+            "content-security-policy",
+            "strict-transport-security",
+            "x-content-type-options",
+            "referrer-policy",
+            "x-frame-options"
+          ]
+        },
+        {
+          "args": [
+            {
+              "Content-Security-Policy": "default-src 'self'",
+              "Strict-Transport-Security": "max-age=31536000",
+              "X-Content-Type-Options": "nosniff",
+              "Referrer-Policy": "no-referrer",
+              "X-Frame-Options": "DENY"
+            }
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "content-security-policy\nstrict-transport-security\nx-content-type-options"
+    }
+  ]
+}

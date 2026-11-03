@@ -1,0 +1,84 @@
+{
+  "id": "hsts-ok",
+  "title": {
+    "tr": "HSTS değeri yeterli mi?",
+    "en": "Is the HSTS value enough?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her parçada `name, _, number = part.partition(\"=\")`.",
+      "en": "In each part, `name, _, number = part.partition(\"=\")`."
+    },
+    {
+      "tr": "İki bayrak tut: `max_age` ve `subdomains`; sonda ikisini birlikte denetle.",
+      "en": "Keep two flags: `max_age` and `subdomains`; check both together at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef hsts_ok(value):\n    max_age = 0\n    subdomains = False\n    for part in value.split(\";\"):\n        part = part.strip()\n        name, _, number = part.partition(\"=\")\n        name = name.lower()\n        if name == \"max-age\" and re.fullmatch(r\"[0-9]+\", number):\n            max_age = int(number)\n        elif name == \"includesubdomains\":\n            subdomains = True\n    return max_age >= 31536000 and subdomains\n\nfor value in [\n    \"max-age=31536000; includeSubDomains\",\n    \"max-age=600; includeSubDomains\",\n    \"max-age=63072000\",\n    \"Max-Age=31536000;includesubdomains\",\n    \"max-age=abc; includeSubDomains\",\n]:\n    print(hsts_ok(value))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef hsts_ok(value):\n    max_age = 0\n    subdomains = False\n    for part in value.split(\";\"):\n        part = part.strip()\n        name, _, number = part.partition(\"=\")\n        name = name.lower()\n        if name == \"max-age\" and re.fullmatch(r\"[0-9]+\", number):\n            max_age = int(number)\n        elif name == \"includesubdomains\":\n            subdomains = True\n    return max_age >= 31536000 and subdomains\n\nfor value in [\n    \"max-age=31536000; includeSubDomains\",\n    \"max-age=600; includeSubDomains\",\n    \"max-age=63072000\",\n    \"Max-Age=31536000;includesubdomains\",\n    \"max-age=abc; includeSubDomains\",\n]:\n    print(hsts_ok(value))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hsts_ok",
+      "cases": [
+        {
+          "args": [
+            "max-age=31536000; includeSubDomains"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "max-age=600; includeSubDomains"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "max-age=63072000"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "Max-Age=31536000;includesubdomains"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "max-age=abc; includeSubDomains"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "includeSubDomains; max-age=40000000; preload"
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse\nTrue\nFalse"
+    }
+  ]
+}

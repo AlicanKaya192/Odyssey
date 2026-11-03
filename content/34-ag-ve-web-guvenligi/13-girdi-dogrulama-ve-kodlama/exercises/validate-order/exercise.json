@@ -1,0 +1,101 @@
+{
+  "id": "validate-order",
+  "title": {
+    "tr": "Sipariş formunu doğrula",
+    "en": "Validate an order form"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Eksik alan için `form.get(\"zip\", \"\")`: boş metin desene uymaz.",
+      "en": "For a missing field `form.get(\"zip\", \"\")`: empty text does not fit the pattern."
+    },
+    {
+      "tr": "`qty` için önce biçim, sonra `int` ve aralık; `or` kısa devre yapar.",
+      "en": "For `qty`, form first, then `int` and the range; `or` short-circuits."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nCOLORS = {\"red\", \"green\", \"blue\"}\n\n\ndef validate(form):\n    errors = []\n    if not re.fullmatch(r\"[0-9]{5}\", form.get(\"zip\", \"\")):\n        errors.append(\"zip\")\n    qty = form.get(\"qty\", \"\")\n    if not re.fullmatch(r\"[0-9]{1,2}\", qty) or not 1 <= int(qty) <= 99:\n        errors.append(\"qty\")\n    if form.get(\"color\") not in COLORS:\n        errors.append(\"color\")\n    return errors\n\nprint(validate({\"zip\": \"34000\", \"qty\": \"2\", \"color\": \"red\"}))\nprint(validate({\"zip\": \"3400\", \"qty\": \"0\", \"color\": \"pink\"}))\nprint(validate({\"qty\": \"99\", \"color\": \"blue\"}))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nCOLORS = {\"red\", \"green\", \"blue\"}\n\n\ndef validate(form):\n    errors = []\n    if not re.fullmatch(r\"[0-9]{5}\", form.get(\"zip\", \"\")):\n        errors.append(\"zip\")\n    qty = form.get(\"qty\", \"\")\n    if not re.fullmatch(r\"[0-9]{1,2}\", qty) or not 1 <= int(qty) <= 99:\n        errors.append(\"qty\")\n    if form.get(\"color\") not in COLORS:\n        errors.append(\"color\")\n    return errors\n\nprint(validate({\"zip\": \"34000\", \"qty\": \"2\", \"color\": \"red\"}))\nprint(validate({\"zip\": \"3400\", \"qty\": \"0\", \"color\": \"pink\"}))\nprint(validate({\"qty\": \"99\", \"color\": \"blue\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "validate",
+      "cases": [
+        {
+          "args": [
+            {
+              "zip": "34000",
+              "qty": "2",
+              "color": "red"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "zip": "3400",
+              "qty": "0",
+              "color": "pink"
+            }
+          ],
+          "returns": [
+            "zip",
+            "qty",
+            "color"
+          ]
+        },
+        {
+          "args": [
+            {
+              "qty": "99",
+              "color": "blue"
+            }
+          ],
+          "returns": [
+            "zip"
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": [
+            "zip",
+            "qty",
+            "color"
+          ]
+        },
+        {
+          "args": [
+            {
+              "zip": "34000\n",
+              "qty": "-1",
+              "color": "RED"
+            }
+          ],
+          "returns": [
+            "zip",
+            "qty",
+            "color"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]\n['zip', 'qty', 'color']\n['zip']"
+    }
+  ]
+}
