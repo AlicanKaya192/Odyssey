@@ -1,0 +1,143 @@
+{
+  "id": "has-access",
+  "title": {
+    "tr": "Erişebilir mi?",
+    "en": "Can they access it?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce sınıfı seç (`if` / `elif` / `else`), sonra yalnızca o sınıfın üç bitine bak.",
+      "en": "Choose the class first (`if` / `elif` / `else`), then look only at that class's three bits."
+    },
+    {
+      "tr": "Sahip `(mode >> 6) & 7`, grup `(mode >> 3) & 7`, diğerleri `mode & 7`; sonuç `bool(bits & bit)`.",
+      "en": "Owner `(mode >> 6) & 7`, group `(mode >> 3) & 7`, others `mode & 7`; the result is `bool(bits & bit)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef has_access(file, user, groups, action):\n    bit = {\"r\": 4, \"w\": 2, \"x\": 1}[action]\n    mode = file[\"mode\"]\n    if user == file[\"owner\"]:\n        bits = (mode >> 6) & 7\n    elif file[\"group\"] in groups:\n        bits = (mode >> 3) & 7\n    else:\n        bits = mode & 7\n    return bool(bits & bit)\n\nsecret = {\"owner\": \"ada\", \"group\": \"staff\", \"mode\": 0o077}\nreport = {\"owner\": \"ada\", \"group\": \"staff\", \"mode\": 0o640}\nprint(has_access(secret, \"ada\", [\"staff\"], \"r\"))\nprint(has_access(secret, \"bob\", [\"staff\"], \"r\"))\nprint(has_access(report, \"ada\", [], \"w\"))\nprint(has_access(report, \"bob\", [\"staff\"], \"w\"))\nprint(has_access(report, \"eve\", [\"guests\"], \"r\"))\n```",
+      "en": "The full solution:\n\n```python\ndef has_access(file, user, groups, action):\n    bit = {\"r\": 4, \"w\": 2, \"x\": 1}[action]\n    mode = file[\"mode\"]\n    if user == file[\"owner\"]:\n        bits = (mode >> 6) & 7\n    elif file[\"group\"] in groups:\n        bits = (mode >> 3) & 7\n    else:\n        bits = mode & 7\n    return bool(bits & bit)\n\nsecret = {\"owner\": \"ada\", \"group\": \"staff\", \"mode\": 0o077}\nreport = {\"owner\": \"ada\", \"group\": \"staff\", \"mode\": 0o640}\nprint(has_access(secret, \"ada\", [\"staff\"], \"r\"))\nprint(has_access(secret, \"bob\", [\"staff\"], \"r\"))\nprint(has_access(report, \"ada\", [], \"w\"))\nprint(has_access(report, \"bob\", [\"staff\"], \"w\"))\nprint(has_access(report, \"eve\", [\"guests\"], \"r\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "has_access",
+      "cases": [
+        {
+          "args": [
+            {
+              "owner": "ada",
+              "group": "staff",
+              "mode": 63
+            },
+            "ada",
+            [
+              "staff"
+            ],
+            "r"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "owner": "ada",
+              "group": "staff",
+              "mode": 63
+            },
+            "bob",
+            [
+              "staff"
+            ],
+            "r"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "owner": "ada",
+              "group": "staff",
+              "mode": 416
+            },
+            "ada",
+            [],
+            "w"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "owner": "ada",
+              "group": "staff",
+              "mode": 416
+            },
+            "bob",
+            [
+              "staff"
+            ],
+            "w"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "owner": "ada",
+              "group": "staff",
+              "mode": 416
+            },
+            "eve",
+            [
+              "guests"
+            ],
+            "r"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "owner": "ada",
+              "group": "staff",
+              "mode": 416
+            },
+            "bob",
+            [
+              "staff"
+            ],
+            "r"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "owner": "a",
+              "group": "g",
+              "mode": 1
+            },
+            "z",
+            [],
+            "x"
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\nTrue\nTrue\nFalse\nFalse"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "parse-headers",
+  "title": {
+    "tr": "Başlıkları oku",
+    "en": "Read the headers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`line.split(\":\", 1)` yalnızca ilk `:`'dan böler; değerdeki `https://...:8443` bozulmaz.",
+      "en": "`line.split(\":\", 1)` splits only at the first `:`; the `https://...:8443` in the value is not broken."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef parse_headers(text):\n    headers = {}\n    for line in text.split(\"\\n\"):\n        if \":\" not in line:\n            continue\n        name, value = line.split(\":\", 1)\n        headers[name.strip().lower()] = value.strip()\n    return headers\n\ntext = \"Host: shop.example.com\\nCookie:  session=abc123 \\nbroken line\\nX-Mode: test\"\nfor name, value in parse_headers(text).items():\n    print(name, \"=\", value)\n```",
+      "en": "The full solution:\n\n```python\ndef parse_headers(text):\n    headers = {}\n    for line in text.split(\"\\n\"):\n        if \":\" not in line:\n            continue\n        name, value = line.split(\":\", 1)\n        headers[name.strip().lower()] = value.strip()\n    return headers\n\ntext = \"Host: shop.example.com\\nCookie:  session=abc123 \\nbroken line\\nX-Mode: test\"\nfor name, value in parse_headers(text).items():\n    print(name, \"=\", value)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_headers",
+      "cases": [
+        {
+          "args": [
+            "Host: shop.example.com\nCookie:  session=abc123 \nbroken line\nX-Mode: test"
+          ],
+          "returns": {
+            "host": "shop.example.com",
+            "cookie": "session=abc123",
+            "x-mode": "test"
+          }
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            "Location: https://shop.example.com:8443/a"
+          ],
+          "returns": {
+            "location": "https://shop.example.com:8443/a"
+          }
+        },
+        {
+          "args": [
+            "A: 1\nA: 2"
+          ],
+          "returns": {
+            "a": "2"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "host = shop.example.com\ncookie = session=abc123\nx-mode = test"
+    }
+  ]
+}

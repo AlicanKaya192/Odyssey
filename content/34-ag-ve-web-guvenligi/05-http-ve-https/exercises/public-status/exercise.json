@@ -1,0 +1,90 @@
+{
+  "id": "public-status",
+  "title": {
+    "tr": "Ne kadarını söyleyelim?",
+    "en": "How much do we say?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce kimlik: giriş yoksa ne olursa olsun `401`.",
+      "en": "Identity first: with no login it is `401` whatever else."
+    },
+    {
+      "tr": "`403` yerine `404`: yok ile yetkisiz dışarıdan aynı görünsün.",
+      "en": "`404` instead of `403`: missing and forbidden should look the same from outside."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef public_status(found, allowed, logged_in):\n    if not logged_in:\n        return 401\n    if not found or not allowed:\n        return 404\n    return 200\n\nprint(public_status(True, True, False))\nprint(public_status(True, True, True))\nprint(public_status(True, False, True))\nprint(public_status(False, False, True))\n```",
+      "en": "The full solution:\n\n```python\ndef public_status(found, allowed, logged_in):\n    if not logged_in:\n        return 401\n    if not found or not allowed:\n        return 404\n    return 200\n\nprint(public_status(True, True, False))\nprint(public_status(True, True, True))\nprint(public_status(True, False, True))\nprint(public_status(False, False, True))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "public_status",
+      "cases": [
+        {
+          "args": [
+            true,
+            true,
+            false
+          ],
+          "returns": 401
+        },
+        {
+          "args": [
+            true,
+            true,
+            true
+          ],
+          "returns": 200
+        },
+        {
+          "args": [
+            true,
+            false,
+            true
+          ],
+          "returns": 404
+        },
+        {
+          "args": [
+            false,
+            false,
+            true
+          ],
+          "returns": 404
+        },
+        {
+          "args": [
+            false,
+            true,
+            false
+          ],
+          "returns": 401
+        },
+        {
+          "args": [
+            false,
+            true,
+            true
+          ],
+          "returns": 404
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "401\n200\n404\n404"
+    }
+  ]
+}

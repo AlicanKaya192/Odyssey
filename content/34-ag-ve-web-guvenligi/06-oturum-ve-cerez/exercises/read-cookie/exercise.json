@@ -1,0 +1,77 @@
+{
+  "id": "read-cookie",
+  "title": {
+    "tr": "İmzalı çerezi oku",
+    "en": "Read a signed cookie"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`cookie.rpartition(\".\")` son noktadan böler; değerde nokta olabilir.",
+      "en": "`cookie.rpartition(\".\")` splits at the last dot; the value may contain dots."
+    },
+    {
+      "tr": "Nokta yoksa ortadaki parça boş metin olur: `if not dot: return None`.",
+      "en": "If there is no dot, the middle part is empty: `if not dot: return None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef read_cookie(cookie, key):\n    value, dot, tag = cookie.rpartition(\".\")\n    if not dot:\n        return None\n    expected = hmac.new(key.encode(), value.encode(), hashlib.sha256).hexdigest()\n    if hmac.compare_digest(tag, expected):\n        return value\n    return None\n\nimport hashlib\nimport hmac\n\nkey = \"server-only-secret\"\ntag = hmac.new(key.encode(), b\"user=ada\", hashlib.sha256).hexdigest()\nprint(read_cookie(\"user=ada.\" + tag, key))\nprint(read_cookie(\"user=eve.\" + tag, key))\nprint(read_cookie(\"no-dot-here\", key))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef read_cookie(cookie, key):\n    value, dot, tag = cookie.rpartition(\".\")\n    if not dot:\n        return None\n    expected = hmac.new(key.encode(), value.encode(), hashlib.sha256).hexdigest()\n    if hmac.compare_digest(tag, expected):\n        return value\n    return None\n\nimport hashlib\nimport hmac\n\nkey = \"server-only-secret\"\ntag = hmac.new(key.encode(), b\"user=ada\", hashlib.sha256).hexdigest()\nprint(read_cookie(\"user=ada.\" + tag, key))\nprint(read_cookie(\"user=eve.\" + tag, key))\nprint(read_cookie(\"no-dot-here\", key))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "read_cookie",
+      "cases": [
+        {
+          "args": [
+            "user=ada.dc3be646310d4d63844b2a153aca5815ff3051aff7e4c331f088adbad8a46699",
+            "server-only-secret"
+          ],
+          "returns": "user=ada"
+        },
+        {
+          "args": [
+            "user=eve.dc3be646310d4d63844b2a153aca5815ff3051aff7e4c331f088adbad8a46699",
+            "server-only-secret"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "no-dot-here",
+            "server-only-secret"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "a.b.c.cbedabffa29fc354b4dfd5e8911479861e8a06ff7c4bc23563c573508087dc46",
+            "server-only-secret"
+          ],
+          "returns": "a.b.c"
+        },
+        {
+          "args": [
+            "user=ada.dc3be646310d4d63844b2a153aca5815ff3051aff7e4c331f088adbad8a46699",
+            "other-key"
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "user=ada\nNone\nNone"
+    }
+  ]
+}

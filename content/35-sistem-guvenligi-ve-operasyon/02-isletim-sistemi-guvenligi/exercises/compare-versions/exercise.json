@@ -1,0 +1,117 @@
+{
+  "id": "compare-versions",
+  "title": {
+    "tr": "Sürüm karşılaştır",
+    "en": "Compare versions"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`text.split(\".\")` parçaları verir; her birini `int` ile sayıya çevir ve `tuple(...)` ile demet yap.",
+      "en": "`text.split(\".\")` gives the parts; turn each into a number with `int` and make a tuple with `tuple(...)`."
+    },
+    {
+      "tr": "`needs_patch` iki tarafı da `parse_version`'dan geçirip `<` ile karşılaştırsın.",
+      "en": "`needs_patch` should pass both sides through `parse_version` and compare with `<`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef parse_version(text):\n    return tuple(int(part) for part in text.split(\".\"))\n\n\ndef needs_patch(installed, fixed):\n    return parse_version(installed) < parse_version(fixed)\n\nprint(parse_version(\"2.4.10\"))\nprint(needs_patch(\"2.4.9\", \"2.4.10\"))\nprint(needs_patch(\"2.4.10\", \"2.4.9\"))\nprint(needs_patch(\"1.10\", \"1.9\"))\nprint(needs_patch(\"3.0\", \"3.0\"))\n```",
+      "en": "The full solution:\n\n```python\ndef parse_version(text):\n    return tuple(int(part) for part in text.split(\".\"))\n\n\ndef needs_patch(installed, fixed):\n    return parse_version(installed) < parse_version(fixed)\n\nprint(parse_version(\"2.4.10\"))\nprint(needs_patch(\"2.4.9\", \"2.4.10\"))\nprint(needs_patch(\"2.4.10\", \"2.4.9\"))\nprint(needs_patch(\"1.10\", \"1.9\"))\nprint(needs_patch(\"3.0\", \"3.0\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_version",
+      "cases": [
+        {
+          "args": [
+            "2.4.10"
+          ],
+          "returns": {
+            "__tuple__": [
+              2,
+              4,
+              10
+            ]
+          }
+        },
+        {
+          "args": [
+            "1"
+          ],
+          "returns": {
+            "__tuple__": [
+              1
+            ]
+          }
+        },
+        {
+          "args": [
+            "10.0.1"
+          ],
+          "returns": {
+            "__tuple__": [
+              10,
+              0,
+              1
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "needs_patch",
+      "cases": [
+        {
+          "args": [
+            "2.4.9",
+            "2.4.10"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "2.4.10",
+            "2.4.9"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "1.10",
+            "1.9"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "3.0",
+            "3.0"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "1.2",
+            "1.2.1"
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(2, 4, 10)\nTrue\nFalse\nFalse\nFalse"
+    }
+  ]
+}

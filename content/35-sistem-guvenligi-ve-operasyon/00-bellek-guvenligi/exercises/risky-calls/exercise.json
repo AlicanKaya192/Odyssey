@@ -1,0 +1,86 @@
+{
+  "id": "risky-calls",
+  "title": {
+    "tr": "Tehlikeli çağrılar",
+    "en": "Risky calls"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `name in line` ile arıyor: `fgets` içindeki `gets`'i de buluyor.",
+      "en": "The starter code searches with `name in line`: it also finds the `gets` inside `fgets`."
+    },
+    {
+      "tr": "`re.compile(r\"\\b(gets|strcpy|strcat|sprintf)\\s*\\(\")` ve `finditer` ile sırayla gez.",
+      "en": "Use `re.compile(r\"\\b(gets|strcpy|strcat|sprintf)\\s*\\(\")` and walk the matches in order with `finditer`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nPATTERN = re.compile(r\"\\b(gets|strcpy|strcat|sprintf)\\s*\\(\")\n\n\ndef risky_calls(lines):\n    found = []\n    for number, line in enumerate(lines, 1):\n        for match in PATTERN.finditer(line):\n            found.append(f\"{number}: {match.group(1)}\")\n    return found\n\nSOURCE = [\n    \"char name[8];\",\n    \"fgets(name, sizeof name, stdin);\",\n    \"strcpy(copy, name);\",\n    'snprintf(out, 16, \"%s\", name);',\n    \"gets(line); strcat(line, tail);\",\n]\nfor item in risky_calls(SOURCE):\n    print(item)\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nPATTERN = re.compile(r\"\\b(gets|strcpy|strcat|sprintf)\\s*\\(\")\n\n\ndef risky_calls(lines):\n    found = []\n    for number, line in enumerate(lines, 1):\n        for match in PATTERN.finditer(line):\n            found.append(f\"{number}: {match.group(1)}\")\n    return found\n\nSOURCE = [\n    \"char name[8];\",\n    \"fgets(name, sizeof name, stdin);\",\n    \"strcpy(copy, name);\",\n    'snprintf(out, 16, \"%s\", name);',\n    \"gets(line); strcat(line, tail);\",\n]\nfor item in risky_calls(SOURCE):\n    print(item)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "risky_calls",
+      "cases": [
+        {
+          "args": [
+            [
+              "char name[8];",
+              "fgets(name, sizeof name, stdin);",
+              "strcpy(copy, name);",
+              "snprintf(out, 16, \"%s\", name);",
+              "gets(line); strcat(line, tail);"
+            ]
+          ],
+          "returns": [
+            "3: strcpy",
+            "5: gets",
+            "5: strcat"
+          ]
+        },
+        {
+          "args": [
+            [
+              "sprintf (buf, fmt);",
+              "my_strcpy(a, b);"
+            ]
+          ],
+          "returns": [
+            "1: sprintf"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "strcat(a, b); strcat(a, c);"
+            ]
+          ],
+          "returns": [
+            "1: strcat",
+            "1: strcat"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3: strcpy\n5: gets\n5: strcat"
+    }
+  ]
+}

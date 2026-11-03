@@ -1,0 +1,117 @@
+{
+  "id": "audit-files",
+  "title": {
+    "tr": "İzin denetimi",
+    "en": "A permission audit"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu sırları denetlemiyor ve yola göre sıralamıyor.",
+      "en": "The starter code does not check secrets and does not sort by path."
+    },
+    {
+      "tr": "`sorted(files, key=lambda item: item[\"path\"])` ile gez; her dosyada önce yazma, sonra sır denetimi.",
+      "en": "Walk with `sorted(files, key=lambda item: item[\"path\"])`; in each file check writing first, then the secret."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef audit_files(files):\n    lines = []\n    for f in sorted(files, key=lambda item: item[\"path\"]):\n        if f[\"mode\"] & 0o002:\n            lines.append(f[\"path\"] + \": world-writable\")\n        if f[\"secret\"] and f[\"mode\"] & 0o077:\n            lines.append(f[\"path\"] + \": secret exposed\")\n    return lines\n\nFILES = [\n    {\"path\": \"/srv/app/run.sh\", \"mode\": 0o755, \"secret\": False},\n    {\"path\": \"/srv/app/config.ini\", \"mode\": 0o666, \"secret\": False},\n    {\"path\": \"/home/ada/.env\", \"mode\": 0o640, \"secret\": True},\n    {\"path\": \"/tmp/notes.txt\", \"mode\": 0o777, \"secret\": True},\n    {\"path\": \"/home/ada/id_key\", \"mode\": 0o600, \"secret\": True},\n]\nfor line in audit_files(FILES):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef audit_files(files):\n    lines = []\n    for f in sorted(files, key=lambda item: item[\"path\"]):\n        if f[\"mode\"] & 0o002:\n            lines.append(f[\"path\"] + \": world-writable\")\n        if f[\"secret\"] and f[\"mode\"] & 0o077:\n            lines.append(f[\"path\"] + \": secret exposed\")\n    return lines\n\nFILES = [\n    {\"path\": \"/srv/app/run.sh\", \"mode\": 0o755, \"secret\": False},\n    {\"path\": \"/srv/app/config.ini\", \"mode\": 0o666, \"secret\": False},\n    {\"path\": \"/home/ada/.env\", \"mode\": 0o640, \"secret\": True},\n    {\"path\": \"/tmp/notes.txt\", \"mode\": 0o777, \"secret\": True},\n    {\"path\": \"/home/ada/id_key\", \"mode\": 0o600, \"secret\": True},\n]\nfor line in audit_files(FILES):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "audit_files",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "path": "/srv/app/run.sh",
+                "mode": 493,
+                "secret": false
+              },
+              {
+                "path": "/srv/app/config.ini",
+                "mode": 438,
+                "secret": false
+              },
+              {
+                "path": "/home/ada/.env",
+                "mode": 416,
+                "secret": true
+              },
+              {
+                "path": "/tmp/notes.txt",
+                "mode": 511,
+                "secret": true
+              },
+              {
+                "path": "/home/ada/id_key",
+                "mode": 384,
+                "secret": true
+              }
+            ]
+          ],
+          "returns": [
+            "/home/ada/.env: secret exposed",
+            "/srv/app/config.ini: world-writable",
+            "/tmp/notes.txt: world-writable",
+            "/tmp/notes.txt: secret exposed"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "path": "/a",
+                "mode": 384,
+                "secret": true
+              }
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "path": "/b",
+                "mode": 388,
+                "secret": true
+              },
+              {
+                "path": "/a",
+                "mode": 422,
+                "secret": false
+              }
+            ]
+          ],
+          "returns": [
+            "/a: world-writable",
+            "/b: secret exposed"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "/home/ada/.env: secret exposed\n/srv/app/config.ini: world-writable\n/tmp/notes.txt: world-writable\n/tmp/notes.txt: secret exposed"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "id": "lookalikes",
+  "title": {
+    "tr": "Benzer adlar",
+    "en": "Lookalike names"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`any(0 < distance(name, p) <= 2 for p in protected)`.",
+      "en": "`any(0 < distance(name, p) <= 2 for p in protected)`."
+    },
+    {
+      "tr": "`example.org` hem korunuyor hem `example.com`'a uzaklığı 3; listeye girmemeli.",
+      "en": "`example.org` is protected and its distance to `example.com` is 3; it must not be in the list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef distance(a, b):\n    prev = list(range(len(b) + 1))\n    for i, ca in enumerate(a, 1):\n        cur = [i]\n        for j, cb in enumerate(b, 1):\n            cur.append(min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb)))\n        prev = cur\n    return prev[-1]\n\n\ndef lookalikes(names, protected):\n    found = []\n    for name in names:\n        if any(0 < distance(name, p) <= 2 for p in protected):\n            found.append(name)\n    return sorted(found)\n\nPROTECTED = [\"example.com\", \"example.org\"]\nnames = [\"examp1e.com\", \"example.org\", \"exarnple.com\",\n         \"sample.net\", \"exampel.org\"]\nfor name in lookalikes(names, PROTECTED):\n    print(name)\n```",
+      "en": "The full solution:\n\n```python\ndef distance(a, b):\n    prev = list(range(len(b) + 1))\n    for i, ca in enumerate(a, 1):\n        cur = [i]\n        for j, cb in enumerate(b, 1):\n            cur.append(min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb)))\n        prev = cur\n    return prev[-1]\n\n\ndef lookalikes(names, protected):\n    found = []\n    for name in names:\n        if any(0 < distance(name, p) <= 2 for p in protected):\n            found.append(name)\n    return sorted(found)\n\nPROTECTED = [\"example.com\", \"example.org\"]\nnames = [\"examp1e.com\", \"example.org\", \"exarnple.com\",\n         \"sample.net\", \"exampel.org\"]\nfor name in lookalikes(names, PROTECTED):\n    print(name)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lookalikes",
+      "cases": [
+        {
+          "args": [
+            [
+              "examp1e.com",
+              "example.org",
+              "exarnple.com",
+              "sample.net",
+              "exampel.org"
+            ],
+            [
+              "example.com",
+              "example.org"
+            ]
+          ],
+          "returns": [
+            "examp1e.com",
+            "exampel.org",
+            "exarnple.com"
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              "example.com"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "example.com"
+            ],
+            [
+              "example.com"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "exam.com",
+              "examplee.com"
+            ],
+            [
+              "example.com"
+            ]
+          ],
+          "returns": [
+            "examplee.com"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "examp1e.com\nexampel.org\nexarnple.com"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "id": "invoice-owner",
+  "title": {
+    "tr": "Faturanın sahibi",
+    "en": "The invoice's owner"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Numara tutsa bile sahibi `user` değilse fatura verilmez.",
+      "en": "Even if the number matches, the invoice is not given if its owner is not `user`."
+    },
+    {
+      "tr": "İki şartı tek `if`'te birleştir; gerisi `\"not found\"`.",
+      "en": "Combine both conditions in one `if`; everything else is `\"not found\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef get_invoice(invoices, user, invoice_id):\n    for invoice in invoices:\n        if invoice[\"id\"] == invoice_id and invoice[\"owner\"] == user:\n            return invoice[\"amount\"]\n    return \"not found\"\n\nINVOICES = [{\"id\": 101, \"owner\": \"ada\", \"amount\": 250},\n            {\"id\": 102, \"owner\": \"bob\", \"amount\": 990}]\nprint(get_invoice(INVOICES, \"ada\", 101))\nprint(get_invoice(INVOICES, \"ada\", 102))\nprint(get_invoice(INVOICES, \"ada\", 999))\n```",
+      "en": "The full solution:\n\n```python\ndef get_invoice(invoices, user, invoice_id):\n    for invoice in invoices:\n        if invoice[\"id\"] == invoice_id and invoice[\"owner\"] == user:\n            return invoice[\"amount\"]\n    return \"not found\"\n\nINVOICES = [{\"id\": 101, \"owner\": \"ada\", \"amount\": 250},\n            {\"id\": 102, \"owner\": \"bob\", \"amount\": 990}]\nprint(get_invoice(INVOICES, \"ada\", 101))\nprint(get_invoice(INVOICES, \"ada\", 102))\nprint(get_invoice(INVOICES, \"ada\", 999))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "get_invoice",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "id": 101,
+                "owner": "ada",
+                "amount": 250
+              },
+              {
+                "id": 102,
+                "owner": "bob",
+                "amount": 990
+              }
+            ],
+            "ada",
+            101
+          ],
+          "returns": 250
+        },
+        {
+          "args": [
+            [
+              {
+                "id": 101,
+                "owner": "ada",
+                "amount": 250
+              },
+              {
+                "id": 102,
+                "owner": "bob",
+                "amount": 990
+              }
+            ],
+            "ada",
+            102
+          ],
+          "returns": "not found"
+        },
+        {
+          "args": [
+            [
+              {
+                "id": 101,
+                "owner": "ada",
+                "amount": 250
+              },
+              {
+                "id": 102,
+                "owner": "bob",
+                "amount": 990
+              }
+            ],
+            "ada",
+            999
+          ],
+          "returns": "not found"
+        },
+        {
+          "args": [
+            [
+              {
+                "id": 101,
+                "owner": "ada",
+                "amount": 250
+              },
+              {
+                "id": 102,
+                "owner": "bob",
+                "amount": 990
+              }
+            ],
+            "bob",
+            102
+          ],
+          "returns": 990
+        },
+        {
+          "args": [
+            [],
+            "ada",
+            101
+          ],
+          "returns": "not found"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "250\nnot found\nnot found"
+    }
+  ]
+}

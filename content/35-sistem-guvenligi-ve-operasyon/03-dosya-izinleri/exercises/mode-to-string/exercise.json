@@ -1,0 +1,86 @@
+{
+  "id": "mode-to-string",
+  "title": {
+    "tr": "Sayıdan dizeye",
+    "en": "Number to string"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir sınıfın üç biti: `(mode >> shift) & 7`; `shift` sırasıyla 6, 3, 0.",
+      "en": "A class's three bits: `(mode >> shift) & 7`; `shift` is 6, 3, 0 in turn."
+    },
+    {
+      "tr": "Her sınıfta `bits & 4` ise `r`, `bits & 2` ise `w`, `bits & 1` ise `x`.",
+      "en": "In each class `r` if `bits & 4`, `w` if `bits & 2`, `x` if `bits & 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef mode_to_string(mode):\n    letters = \"\"\n    for shift in (6, 3, 0):\n        bits = (mode >> shift) & 7\n        letters += \"r\" if bits & 4 else \"-\"\n        letters += \"w\" if bits & 2 else \"-\"\n        letters += \"x\" if bits & 1 else \"-\"\n    return letters\n\nfor mode in [0o755, 0o640, 0o600, 0o7]:\n    print(oct(mode), mode_to_string(mode))\n```",
+      "en": "The full solution:\n\n```python\ndef mode_to_string(mode):\n    letters = \"\"\n    for shift in (6, 3, 0):\n        bits = (mode >> shift) & 7\n        letters += \"r\" if bits & 4 else \"-\"\n        letters += \"w\" if bits & 2 else \"-\"\n        letters += \"x\" if bits & 1 else \"-\"\n    return letters\n\nfor mode in [0o755, 0o640, 0o600, 0o7]:\n    print(oct(mode), mode_to_string(mode))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mode_to_string",
+      "cases": [
+        {
+          "args": [
+            493
+          ],
+          "returns": "rwxr-xr-x"
+        },
+        {
+          "args": [
+            416
+          ],
+          "returns": "rw-r-----"
+        },
+        {
+          "args": [
+            384
+          ],
+          "returns": "rw-------"
+        },
+        {
+          "args": [
+            7
+          ],
+          "returns": "------rwx"
+        },
+        {
+          "args": [
+            511
+          ],
+          "returns": "rwxrwxrwx"
+        },
+        {
+          "args": [
+            0
+          ],
+          "returns": "---------"
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "call": "filemode",
+      "hint": {
+        "tr": "Bu alıştırmada bitleri kendin oku; `stat.filemode` kullanma.",
+        "en": "In this exercise read the bits yourself; do not use `stat.filemode`."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0o755 rwxr-xr-x\n0o640 rw-r-----\n0o600 rw-------\n0o7 ------rwx"
+    }
+  ]
+}

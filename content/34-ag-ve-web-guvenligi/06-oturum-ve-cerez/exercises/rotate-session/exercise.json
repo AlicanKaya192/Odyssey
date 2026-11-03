@@ -1,0 +1,88 @@
+{
+  "id": "rotate-session",
+  "title": {
+    "tr": "Girişte kimliği yenile",
+    "en": "Renew the ID at login"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`dict(sessions)` bir kopya verir; asıl sözlük değişmez.",
+      "en": "`dict(sessions)` gives a copy; the original does not change."
+    },
+    {
+      "tr": "`result.pop(old_id)` eskisini siler ve kullanıcıyı döndürür.",
+      "en": "`result.pop(old_id)` deletes the old one and returns the user."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef rotate(sessions, old_id, new_id):\n    result = dict(sessions)\n    if old_id in result:\n        result[new_id] = result.pop(old_id)\n    return result\n\nsessions = {\"old123\": \"ada\", \"x9\": \"bob\"}\nafter = rotate(sessions, \"old123\", \"new456\")\nprint(sorted(after.items()))\nprint(rotate(sessions, \"missing\", \"zzz\") == sessions)\n```",
+      "en": "The full solution:\n\n```python\ndef rotate(sessions, old_id, new_id):\n    result = dict(sessions)\n    if old_id in result:\n        result[new_id] = result.pop(old_id)\n    return result\n\nsessions = {\"old123\": \"ada\", \"x9\": \"bob\"}\nafter = rotate(sessions, \"old123\", \"new456\")\nprint(sorted(after.items()))\nprint(rotate(sessions, \"missing\", \"zzz\") == sessions)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rotate",
+      "cases": [
+        {
+          "args": [
+            {
+              "old123": "ada",
+              "x9": "bob"
+            },
+            "old123",
+            "new456"
+          ],
+          "returns": {
+            "x9": "bob",
+            "new456": "ada"
+          }
+        },
+        {
+          "args": [
+            {
+              "old123": "ada"
+            },
+            "missing",
+            "zzz"
+          ],
+          "returns": {
+            "old123": "ada"
+          }
+        },
+        {
+          "args": [
+            {},
+            "a",
+            "b"
+          ],
+          "returns": {}
+        },
+        {
+          "args": [
+            {
+              "a": "ada"
+            },
+            "a",
+            "b"
+          ],
+          "returns": {
+            "b": "ada"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[('new456', 'ada'), ('x9', 'bob')]\nTrue"
+    }
+  ]
+}

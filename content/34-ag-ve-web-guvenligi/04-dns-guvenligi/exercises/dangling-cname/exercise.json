@@ -1,0 +1,102 @@
+{
+  "id": "dangling-cname",
+  "title": {
+    "tr": "Sahipsiz CNAME'ler",
+    "en": "Dangling CNAMEs"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "A kayıtlarının `value`'su adres; yalnızca `kind == \"CNAME\"` olanlara bak.",
+      "en": "The `value` of A records is an address; look only at those with `kind == \"CNAME\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef dangling(records):\n    found = []\n    for name, (kind, value) in records.items():\n        if kind == \"CNAME\" and value not in records:\n            found.append(name)\n    return sorted(found)\n\nRECORDS = {\n    \"example.com\": [\"A\", \"203.0.113.10\"],\n    \"www.example.com\": [\"CNAME\", \"example.com\"],\n    \"shop.example.com\": [\"CNAME\", \"old-shop.example.net\"],\n    \"blog.example.com\": [\"CNAME\", \"pages.example.net\"],\n    \"pages.example.net\": [\"A\", \"198.51.100.20\"],\n}\nprint(dangling(RECORDS))\n```",
+      "en": "The full solution:\n\n```python\ndef dangling(records):\n    found = []\n    for name, (kind, value) in records.items():\n        if kind == \"CNAME\" and value not in records:\n            found.append(name)\n    return sorted(found)\n\nRECORDS = {\n    \"example.com\": [\"A\", \"203.0.113.10\"],\n    \"www.example.com\": [\"CNAME\", \"example.com\"],\n    \"shop.example.com\": [\"CNAME\", \"old-shop.example.net\"],\n    \"blog.example.com\": [\"CNAME\", \"pages.example.net\"],\n    \"pages.example.net\": [\"A\", \"198.51.100.20\"],\n}\nprint(dangling(RECORDS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "dangling",
+      "cases": [
+        {
+          "args": [
+            {
+              "example.com": [
+                "A",
+                "203.0.113.10"
+              ],
+              "www.example.com": [
+                "CNAME",
+                "example.com"
+              ],
+              "shop.example.com": [
+                "CNAME",
+                "old-shop.example.net"
+              ],
+              "blog.example.com": [
+                "CNAME",
+                "pages.example.net"
+              ],
+              "pages.example.net": [
+                "A",
+                "198.51.100.20"
+              ]
+            }
+          ],
+          "returns": [
+            "shop.example.com"
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a.example": [
+                "A",
+                "10.0.0.1"
+              ]
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "z.example": [
+                "CNAME",
+                "gone.example"
+              ],
+              "b.example": [
+                "CNAME",
+                "gone2.example"
+              ]
+            }
+          ],
+          "returns": [
+            "b.example",
+            "z.example"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['shop.example.com']"
+    }
+  ]
+}

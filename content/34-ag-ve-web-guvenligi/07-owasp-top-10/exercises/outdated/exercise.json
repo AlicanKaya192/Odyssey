@@ -1,0 +1,95 @@
+{
+  "id": "outdated",
+  "title": {
+    "tr": "Güncellenmesi gerekenler",
+    "en": "What needs updating"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`\"1.10.0\" < \"1.9.2\"` metin olarak `True`: `imagelib` yanlışlıkla eski sayılıyor.",
+      "en": "`\"1.10.0\" < \"1.9.2\"` is `True` as text: `imagelib` is wrongly counted as old."
+    },
+    {
+      "tr": "Dersteki `parse` ile sürümü tam sayı demetine çevirip karşılaştır.",
+      "en": "Turn the version into a tuple of integers with the lesson's `parse` and compare."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef parse(version):\n    return tuple(int(p) for p in version.split(\".\"))\n\n\ndef outdated(installed, minimum):\n    found = []\n    for name, version in installed.items():\n        if name in minimum and parse(version) < parse(minimum[name]):\n            found.append(name)\n    return sorted(found)\n\ninstalled = {\"pagekit\": \"2.4.1\", \"imagelib\": \"1.10.0\",\n             \"parser\": \"0.9.3\", \"tool\": \"3.0.0\"}\nminimum = {\"pagekit\": \"2.4.1\", \"imagelib\": \"1.9.2\", \"parser\": \"1.0.0\"}\nprint(outdated(installed, minimum))\n```",
+      "en": "The full solution:\n\n```python\ndef parse(version):\n    return tuple(int(p) for p in version.split(\".\"))\n\n\ndef outdated(installed, minimum):\n    found = []\n    for name, version in installed.items():\n        if name in minimum and parse(version) < parse(minimum[name]):\n            found.append(name)\n    return sorted(found)\n\ninstalled = {\"pagekit\": \"2.4.1\", \"imagelib\": \"1.10.0\",\n             \"parser\": \"0.9.3\", \"tool\": \"3.0.0\"}\nminimum = {\"pagekit\": \"2.4.1\", \"imagelib\": \"1.9.2\", \"parser\": \"1.0.0\"}\nprint(outdated(installed, minimum))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "outdated",
+      "cases": [
+        {
+          "args": [
+            {
+              "pagekit": "2.4.1",
+              "imagelib": "1.10.0",
+              "parser": "0.9.3",
+              "tool": "3.0.0"
+            },
+            {
+              "pagekit": "2.4.1",
+              "imagelib": "1.9.2",
+              "parser": "1.0.0"
+            }
+          ],
+          "returns": [
+            "parser"
+          ]
+        },
+        {
+          "args": [
+            {},
+            {
+              "pagekit": "2.4.1",
+              "imagelib": "1.9.2",
+              "parser": "1.0.0"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": "2.0.0"
+            },
+            {
+              "a": "10.0.0"
+            }
+          ],
+          "returns": [
+            "a"
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": "1.2.10"
+            },
+            {
+              "a": "1.2.9"
+            }
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['parser']"
+    }
+  ]
+}

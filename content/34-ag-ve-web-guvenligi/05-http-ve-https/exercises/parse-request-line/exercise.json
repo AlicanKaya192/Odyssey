@@ -1,0 +1,92 @@
+{
+  "id": "parse-request-line",
+  "title": {
+    "tr": "İstek satırını oku",
+    "en": "Read the request line"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `len(parts) != 3` ise `None`; sonra üç değişkene aç.",
+      "en": "First `None` if `len(parts) != 3`; then unpack into three variables."
+    },
+    {
+      "tr": "`method not in ALLOWED or not path.startswith(\"/\")` ise `None`.",
+      "en": "`None` if `method not in ALLOWED or not path.startswith(\"/\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nALLOWED = {\"GET\", \"POST\", \"PUT\", \"PATCH\", \"DELETE\"}\n\n\ndef parse_request_line(line):\n    parts = line.split(\" \")\n    if len(parts) != 3:\n        return None\n    method, path, version = parts\n    if method not in ALLOWED or not path.startswith(\"/\"):\n        return None\n    return [method, path, version]\n\nfor line in [\"GET /cart HTTP/1.1\", \"BREW /pot HTTP/1.1\",\n             \"GET cart HTTP/1.1\", \"POST /login\"]:\n    print(parse_request_line(line))\n```",
+      "en": "The full solution:\n\n```python\nALLOWED = {\"GET\", \"POST\", \"PUT\", \"PATCH\", \"DELETE\"}\n\n\ndef parse_request_line(line):\n    parts = line.split(\" \")\n    if len(parts) != 3:\n        return None\n    method, path, version = parts\n    if method not in ALLOWED or not path.startswith(\"/\"):\n        return None\n    return [method, path, version]\n\nfor line in [\"GET /cart HTTP/1.1\", \"BREW /pot HTTP/1.1\",\n             \"GET cart HTTP/1.1\", \"POST /login\"]:\n    print(parse_request_line(line))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_request_line",
+      "cases": [
+        {
+          "args": [
+            "GET /cart HTTP/1.1"
+          ],
+          "returns": [
+            "GET",
+            "/cart",
+            "HTTP/1.1"
+          ]
+        },
+        {
+          "args": [
+            "BREW /pot HTTP/1.1"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "GET cart HTTP/1.1"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "POST /login"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            "DELETE /item/7 HTTP/1.1"
+          ],
+          "returns": [
+            "DELETE",
+            "/item/7",
+            "HTTP/1.1"
+          ]
+        },
+        {
+          "args": [
+            "GET /a b HTTP/1.1"
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": null
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['GET', '/cart', 'HTTP/1.1']\nNone\nNone\nNone"
+    }
+  ]
+}

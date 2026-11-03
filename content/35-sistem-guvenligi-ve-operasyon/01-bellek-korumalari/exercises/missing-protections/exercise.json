@@ -1,0 +1,87 @@
+{
+  "id": "missing-protections",
+  "title": {
+    "tr": "Eksik korumalar",
+    "en": "Missing protections"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu olmayan anahtarda `KeyError` veriyor. `binary.get(name, False)` olmayanı da eksik sayar.",
+      "en": "The starter code raises `KeyError` on a missing key. `binary.get(name, False)` counts an absent one as missing too."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nREQUIRED = [\"canary\", \"nx\", \"pie\"]\n\n\ndef missing_protections(binary):\n    missing = []\n    for name in REQUIRED:\n        if not binary.get(name, False):\n            missing.append(name)\n    return sorted(missing)\n\nBINARIES = [\n    {\"name\": \"app\", \"canary\": True, \"nx\": True, \"pie\": True},\n    {\"name\": \"tool\", \"canary\": False, \"nx\": True},\n    {\"name\": \"old\", \"nx\": False},\n]\nfor binary in BINARIES:\n    missing = missing_protections(binary)\n    print(binary[\"name\"] + \":\", \", \".join(missing) or \"ok\")\n```",
+      "en": "The full solution:\n\n```python\nREQUIRED = [\"canary\", \"nx\", \"pie\"]\n\n\ndef missing_protections(binary):\n    missing = []\n    for name in REQUIRED:\n        if not binary.get(name, False):\n            missing.append(name)\n    return sorted(missing)\n\nBINARIES = [\n    {\"name\": \"app\", \"canary\": True, \"nx\": True, \"pie\": True},\n    {\"name\": \"tool\", \"canary\": False, \"nx\": True},\n    {\"name\": \"old\", \"nx\": False},\n]\nfor binary in BINARIES:\n    missing = missing_protections(binary)\n    print(binary[\"name\"] + \":\", \", \".join(missing) or \"ok\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "missing_protections",
+      "cases": [
+        {
+          "args": [
+            {
+              "name": "app",
+              "canary": true,
+              "nx": true,
+              "pie": true
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "name": "tool",
+              "canary": false,
+              "nx": true
+            }
+          ],
+          "returns": [
+            "canary",
+            "pie"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "old",
+              "nx": false
+            }
+          ],
+          "returns": [
+            "canary",
+            "nx",
+            "pie"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "x"
+            }
+          ],
+          "returns": [
+            "canary",
+            "nx",
+            "pie"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "app: ok\ntool: canary, pie\nold: canary, nx, pie"
+    }
+  ]
+}

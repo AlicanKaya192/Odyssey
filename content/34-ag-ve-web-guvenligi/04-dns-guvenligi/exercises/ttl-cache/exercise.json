@@ -1,0 +1,117 @@
+{
+  "id": "ttl-cache",
+  "title": {
+    "tr": "TTL'li önbellek",
+    "en": "A cache with a TTL"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`expires[name] = now + ttl` yalnızca miss'te yazılır.",
+      "en": "`expires[name] = now + ttl` is written only on a miss."
+    },
+    {
+      "tr": "Hit şartı: `name in expires and now < expires[name]`.",
+      "en": "Hit condition: `name in expires and now < expires[name]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef cache_results(queries, ttl):\n    expires = {}\n    results = []\n    for now, name in queries:\n        if name in expires and now < expires[name]:\n            results.append(\"hit\")\n        else:\n            results.append(\"miss\")\n            expires[name] = now + ttl\n    return results\n\nqueries = [[0, \"example.com\"], [100, \"example.com\"],\n           [150, \"www.example.com\"], [300, \"example.com\"],\n           [449, \"www.example.com\"], [450, \"www.example.com\"]]\nfor (t, name), result in zip(queries, cache_results(queries, 300)):\n    print(t, name, result)\n```",
+      "en": "The full solution:\n\n```python\ndef cache_results(queries, ttl):\n    expires = {}\n    results = []\n    for now, name in queries:\n        if name in expires and now < expires[name]:\n            results.append(\"hit\")\n        else:\n            results.append(\"miss\")\n            expires[name] = now + ttl\n    return results\n\nqueries = [[0, \"example.com\"], [100, \"example.com\"],\n           [150, \"www.example.com\"], [300, \"example.com\"],\n           [449, \"www.example.com\"], [450, \"www.example.com\"]]\nfor (t, name), result in zip(queries, cache_results(queries, 300)):\n    print(t, name, result)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cache_results",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                "example.com"
+              ],
+              [
+                100,
+                "example.com"
+              ],
+              [
+                150,
+                "www.example.com"
+              ],
+              [
+                300,
+                "example.com"
+              ],
+              [
+                449,
+                "www.example.com"
+              ],
+              [
+                450,
+                "www.example.com"
+              ]
+            ],
+            300
+          ],
+          "returns": [
+            "miss",
+            "hit",
+            "miss",
+            "miss",
+            "hit",
+            "miss"
+          ]
+        },
+        {
+          "args": [
+            [],
+            60
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                "a.example"
+              ],
+              [
+                0,
+                "a.example"
+              ],
+              [
+                59,
+                "a.example"
+              ],
+              [
+                60,
+                "a.example"
+              ]
+            ],
+            60
+          ],
+          "returns": [
+            "miss",
+            "hit",
+            "hit",
+            "miss"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 example.com miss\n100 example.com hit\n150 www.example.com miss\n300 example.com miss\n449 www.example.com hit\n450 www.example.com miss"
+    }
+  ]
+}

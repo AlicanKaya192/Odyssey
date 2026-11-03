@@ -1,0 +1,66 @@
+{
+  "id": "key-check",
+  "title": {
+    "tr": "Anahtar özetini denetle",
+    "en": "Check the key hash"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`hashlib.sha256(presented.encode()).hexdigest()`, sonra `hmac.compare_digest`.",
+      "en": "`hashlib.sha256(presented.encode()).hexdigest()`, then `hmac.compare_digest`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef key_ok(presented, published):\n    digest = hashlib.sha256(presented.encode()).hexdigest()\n    return hmac.compare_digest(digest, published)\n\nimport hashlib\n\nreal = \"example.com zone key 2026\"\npublished = hashlib.sha256(real.encode()).hexdigest()\nprint(key_ok(real, published))\nprint(key_ok(\"example.com forged key\", published))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef key_ok(presented, published):\n    digest = hashlib.sha256(presented.encode()).hexdigest()\n    return hmac.compare_digest(digest, published)\n\nimport hashlib\n\nreal = \"example.com zone key 2026\"\npublished = hashlib.sha256(real.encode()).hexdigest()\nprint(key_ok(real, published))\nprint(key_ok(\"example.com forged key\", published))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "key_ok",
+      "cases": [
+        {
+          "args": [
+            "example.com zone key 2026",
+            "48661abd2985f7027c9714665879740be3e89077842da58807f1ba4b3b332a21"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "example.com forged key",
+            "48661abd2985f7027c9714665879740be3e89077842da58807f1ba4b3b332a21"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "",
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "example.com zone key 2026",
+            "00"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse"
+    }
+  ]
+}

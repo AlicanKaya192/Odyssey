@@ -1,0 +1,111 @@
+{
+  "id": "hardening-findings",
+  "title": {
+    "tr": "Sıkılaştırma bulguları",
+    "en": "Hardening findings"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`config.get(key)` olmayan anahtarda `None` döner ve istenen değere eşit olmaz.",
+      "en": "`config.get(key)` returns `None` for a missing key and does not equal the wanted value."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef hardening_findings(config, rules):\n    found = []\n    for key, wanted, advice in rules:\n        if config.get(key) != wanted:\n            found.append(advice)\n    return found\n\nCONFIG = {\"auto_update\": True, \"firewall\": False, \"guest_account\": True}\nRULES = [\n    [\"auto_update\", True, \"turn on updates\"],\n    [\"firewall\", True, \"turn on the firewall\"],\n    [\"guest_account\", False, \"disable guest\"],\n    [\"disk_encryption\", True, \"encrypt the disk\"],\n]\nfor advice in hardening_findings(CONFIG, RULES):\n    print(advice)\n```",
+      "en": "The full solution:\n\n```python\ndef hardening_findings(config, rules):\n    found = []\n    for key, wanted, advice in rules:\n        if config.get(key) != wanted:\n            found.append(advice)\n    return found\n\nCONFIG = {\"auto_update\": True, \"firewall\": False, \"guest_account\": True}\nRULES = [\n    [\"auto_update\", True, \"turn on updates\"],\n    [\"firewall\", True, \"turn on the firewall\"],\n    [\"guest_account\", False, \"disable guest\"],\n    [\"disk_encryption\", True, \"encrypt the disk\"],\n]\nfor advice in hardening_findings(CONFIG, RULES):\n    print(advice)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hardening_findings",
+      "cases": [
+        {
+          "args": [
+            {
+              "auto_update": true,
+              "firewall": false,
+              "guest_account": true
+            },
+            [
+              [
+                "auto_update",
+                true,
+                "turn on updates"
+              ],
+              [
+                "firewall",
+                true,
+                "turn on the firewall"
+              ],
+              [
+                "guest_account",
+                false,
+                "disable guest"
+              ],
+              [
+                "disk_encryption",
+                true,
+                "encrypt the disk"
+              ]
+            ]
+          ],
+          "returns": [
+            "turn on the firewall",
+            "disable guest",
+            "encrypt the disk"
+          ]
+        },
+        {
+          "args": [
+            {},
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": 1
+            },
+            [
+              [
+                "a",
+                1,
+                "x"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            [
+              [
+                "b",
+                false,
+                "set b"
+              ]
+            ]
+          ],
+          "returns": [
+            "set b"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "turn on the firewall\ndisable guest\nencrypt the disk"
+    }
+  ]
+}

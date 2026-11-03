@@ -1,0 +1,94 @@
+{
+  "id": "config-audit",
+  "title": {
+    "tr": "Yapılandırma denetimi",
+    "en": "Configuration audit"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dört ayrı `if`; `elif` değil, çünkü birden çok sorun olabilir.",
+      "en": "Four separate `if`s; not `elif`, because there can be several problems."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nDEFAULTS = {\"admin\", \"password\", \"1234\"}\n\n\ndef audit(config):\n    problems = []\n    if config[\"debug\"]:\n        problems.append(\"debug\")\n    if config[\"admin_password\"] in DEFAULTS:\n        problems.append(\"default-password\")\n    if config[\"dir_listing\"]:\n        problems.append(\"listing\")\n    if not config[\"https_only\"]:\n        problems.append(\"http\")\n    return problems\n\nprint(audit({\"debug\": True, \"admin_password\": \"admin\",\n             \"dir_listing\": False, \"https_only\": False}))\nprint(audit({\"debug\": False, \"admin_password\": \"x7#kq2\",\n             \"dir_listing\": False, \"https_only\": True}))\n```",
+      "en": "The full solution:\n\n```python\nDEFAULTS = {\"admin\", \"password\", \"1234\"}\n\n\ndef audit(config):\n    problems = []\n    if config[\"debug\"]:\n        problems.append(\"debug\")\n    if config[\"admin_password\"] in DEFAULTS:\n        problems.append(\"default-password\")\n    if config[\"dir_listing\"]:\n        problems.append(\"listing\")\n    if not config[\"https_only\"]:\n        problems.append(\"http\")\n    return problems\n\nprint(audit({\"debug\": True, \"admin_password\": \"admin\",\n             \"dir_listing\": False, \"https_only\": False}))\nprint(audit({\"debug\": False, \"admin_password\": \"x7#kq2\",\n             \"dir_listing\": False, \"https_only\": True}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "audit",
+      "cases": [
+        {
+          "args": [
+            {
+              "debug": true,
+              "admin_password": "admin",
+              "dir_listing": false,
+              "https_only": false
+            }
+          ],
+          "returns": [
+            "debug",
+            "default-password",
+            "http"
+          ]
+        },
+        {
+          "args": [
+            {
+              "debug": false,
+              "admin_password": "x7#kq2",
+              "dir_listing": false,
+              "https_only": true
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "debug": false,
+              "admin_password": "1234",
+              "dir_listing": true,
+              "https_only": true
+            }
+          ],
+          "returns": [
+            "default-password",
+            "listing"
+          ]
+        },
+        {
+          "args": [
+            {
+              "debug": true,
+              "admin_password": "password",
+              "dir_listing": true,
+              "https_only": false
+            }
+          ],
+          "returns": [
+            "debug",
+            "default-password",
+            "listing",
+            "http"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['debug', 'default-password', 'http']\n[]"
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "id": "resolve-chain",
+  "title": {
+    "tr": "CNAME zincirini izle",
+    "en": "Follow the CNAME chain"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Döngüde `kind == \"A\"` ise dur; CNAME ise `name = value` ile devam et.",
+      "en": "In the loop, stop if `kind == \"A\"`; on a CNAME continue with `name = value`."
+    },
+    {
+      "tr": "8 CNAME izleyip dokuzuncu adda A bulmak geçerlidir: döngü 9 kez döner, sonra `\"LOOP\"`.",
+      "en": "Following 8 CNAMEs and finding an A on the ninth name is valid: the loop runs 9 times, then `\"LOOP\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef resolve(records, name):\n    for _ in range(9):\n        record = records.get(name)\n        if record is None:\n            return \"NXDOMAIN\"\n        kind, value = record\n        if kind == \"A\":\n            return value\n        name = value\n    return \"LOOP\"\n\nRECORDS = {\n    \"example.com\": [\"A\", \"203.0.113.10\"],\n    \"www.example.com\": [\"CNAME\", \"example.com\"],\n    \"a.example\": [\"CNAME\", \"b.example\"],\n    \"b.example\": [\"CNAME\", \"a.example\"],\n}\nfor name in [\"www.example.com\", \"mail.example.com\", \"a.example\"]:\n    print(name, resolve(RECORDS, name))\n```",
+      "en": "The full solution:\n\n```python\ndef resolve(records, name):\n    for _ in range(9):\n        record = records.get(name)\n        if record is None:\n            return \"NXDOMAIN\"\n        kind, value = record\n        if kind == \"A\":\n            return value\n        name = value\n    return \"LOOP\"\n\nRECORDS = {\n    \"example.com\": [\"A\", \"203.0.113.10\"],\n    \"www.example.com\": [\"CNAME\", \"example.com\"],\n    \"a.example\": [\"CNAME\", \"b.example\"],\n    \"b.example\": [\"CNAME\", \"a.example\"],\n}\nfor name in [\"www.example.com\", \"mail.example.com\", \"a.example\"]:\n    print(name, resolve(RECORDS, name))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "resolve",
+      "cases": [
+        {
+          "args": [
+            {
+              "example.com": [
+                "A",
+                "203.0.113.10"
+              ],
+              "www.example.com": [
+                "CNAME",
+                "example.com"
+              ],
+              "a.example": [
+                "CNAME",
+                "b.example"
+              ],
+              "b.example": [
+                "CNAME",
+                "a.example"
+              ],
+              "x.example": [
+                "CNAME",
+                "www.example.com"
+              ]
+            },
+            "www.example.com"
+          ],
+          "returns": "203.0.113.10"
+        },
+        {
+          "args": [
+            {
+              "example.com": [
+                "A",
+                "203.0.113.10"
+              ],
+              "www.example.com": [
+                "CNAME",
+                "example.com"
+              ],
+              "a.example": [
+                "CNAME",
+                "b.example"
+              ],
+              "b.example": [
+                "CNAME",
+                "a.example"
+              ],
+              "x.example": [
+                "CNAME",
+                "www.example.com"
+              ]
+            },
+            "example.com"
+          ],
+          "returns": "203.0.113.10"
+        },
+        {
+          "args": [
+            {
+              "example.com": [
+                "A",
+                "203.0.113.10"
+              ],
+              "www.example.com": [
+                "CNAME",
+                "example.com"
+              ],
+              "a.example": [
+                "CNAME",
+                "b.example"
+              ],
+              "b.example": [
+                "CNAME",
+                "a.example"
+              ],
+              "x.example": [
+                "CNAME",
+                "www.example.com"
+              ]
+            },
+            "mail.example.com"
+          ],
+          "returns": "NXDOMAIN"
+        },
+        {
+          "args": [
+            {
+              "example.com": [
+                "A",
+                "203.0.113.10"
+              ],
+              "www.example.com": [
+                "CNAME",
+                "example.com"
+              ],
+              "a.example": [
+                "CNAME",
+                "b.example"
+              ],
+              "b.example": [
+                "CNAME",
+                "a.example"
+              ],
+              "x.example": [
+                "CNAME",
+                "www.example.com"
+              ]
+            },
+            "a.example"
+          ],
+          "returns": "LOOP"
+        },
+        {
+          "args": [
+            {
+              "example.com": [
+                "A",
+                "203.0.113.10"
+              ],
+              "www.example.com": [
+                "CNAME",
+                "example.com"
+              ],
+              "a.example": [
+                "CNAME",
+                "b.example"
+              ],
+              "b.example": [
+                "CNAME",
+                "a.example"
+              ],
+              "x.example": [
+                "CNAME",
+                "www.example.com"
+              ]
+            },
+            "x.example"
+          ],
+          "returns": "203.0.113.10"
+        },
+        {
+          "args": [
+            {
+              "n0": [
+                "CNAME",
+                "n1"
+              ],
+              "n1": [
+                "CNAME",
+                "n2"
+              ],
+              "n2": [
+                "CNAME",
+                "n3"
+              ],
+              "n3": [
+                "CNAME",
+                "n4"
+              ],
+              "n4": [
+                "CNAME",
+                "n5"
+              ],
+              "n5": [
+                "CNAME",
+                "n6"
+              ],
+              "n6": [
+                "CNAME",
+                "n7"
+              ],
+              "n7": [
+                "CNAME",
+                "n8"
+              ],
+              "n8": [
+                "A",
+                "10.0.0.8"
+              ]
+            },
+            "n0"
+          ],
+          "returns": "10.0.0.8"
+        },
+        {
+          "args": [
+            {
+              "m": [
+                "CNAME",
+                "gone.example"
+              ]
+            },
+            "m"
+          ],
+          "returns": "NXDOMAIN"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "www.example.com 203.0.113.10\nmail.example.com NXDOMAIN\na.example LOOP"
+    }
+  ]
+}

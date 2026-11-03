@@ -1,0 +1,106 @@
+{
+  "id": "kernel-gate",
+  "title": {
+    "tr": "Çekirdek kapısı",
+    "en": "The kernel gate"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki liste de `policy.get(..., [])` ile alınsın; olmayan anahtar boş liste olur.",
+      "en": "Take both lists with `policy.get(..., [])`; a missing key becomes an empty list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef allowed(role, operation, policy):\n    if operation in policy.get(\"everyone\", []):\n        return True\n    return operation in policy.get(role, [])\n\nPOLICY = {\n    \"everyone\": [\"open_window\"],\n    \"user\": [\"read_own_file\"],\n    \"admin\": [\"read_own_file\", \"install_driver\"],\n}\nprint(allowed(\"user\", \"read_own_file\", POLICY))\nprint(allowed(\"user\", \"install_driver\", POLICY))\nprint(allowed(\"guest\", \"open_window\", POLICY))\nprint(allowed(\"guest\", \"read_own_file\", POLICY))\n```",
+      "en": "The full solution:\n\n```python\ndef allowed(role, operation, policy):\n    if operation in policy.get(\"everyone\", []):\n        return True\n    return operation in policy.get(role, [])\n\nPOLICY = {\n    \"everyone\": [\"open_window\"],\n    \"user\": [\"read_own_file\"],\n    \"admin\": [\"read_own_file\", \"install_driver\"],\n}\nprint(allowed(\"user\", \"read_own_file\", POLICY))\nprint(allowed(\"user\", \"install_driver\", POLICY))\nprint(allowed(\"guest\", \"open_window\", POLICY))\nprint(allowed(\"guest\", \"read_own_file\", POLICY))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "allowed",
+      "cases": [
+        {
+          "args": [
+            "user",
+            "read_own_file",
+            {
+              "everyone": [
+                "open_window"
+              ],
+              "user": [
+                "read_own_file"
+              ]
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "user",
+            "install_driver",
+            {
+              "everyone": [
+                "open_window"
+              ],
+              "user": [
+                "read_own_file"
+              ]
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "guest",
+            "open_window",
+            {
+              "everyone": [
+                "open_window"
+              ],
+              "user": [
+                "read_own_file"
+              ]
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "guest",
+            "read_own_file",
+            {
+              "everyone": [
+                "open_window"
+              ],
+              "user": [
+                "read_own_file"
+              ]
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "admin",
+            "x",
+            {}
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nTrue\nFalse"
+    }
+  ]
+}

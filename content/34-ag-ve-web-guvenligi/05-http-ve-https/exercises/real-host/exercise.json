@@ -1,0 +1,78 @@
+{
+  "id": "real-host",
+  "title": {
+    "tr": "Gerçek ana bilgisayar",
+    "en": "The real host"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`hostname` zaten küçük harf verir; yoksa `None` döner.",
+      "en": "`hostname` already gives lower case; if there is none it returns `None`."
+    },
+    {
+      "tr": "`return host or \"\"`.",
+      "en": "`return host or \"\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef real_host(url):\n    host = urlsplit(url).hostname\n    return host or \"\"\n\nfor url in [\"https://shop.example.com/cart\",\n            \"https://shop.example.com@203.0.113.66/\",\n            \"HTTPS://Shop.Example.com/x\",\n            \"not a url\"]:\n    print(repr(real_host(url)))\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef real_host(url):\n    host = urlsplit(url).hostname\n    return host or \"\"\n\nfor url in [\"https://shop.example.com/cart\",\n            \"https://shop.example.com@203.0.113.66/\",\n            \"HTTPS://Shop.Example.com/x\",\n            \"not a url\"]:\n    print(repr(real_host(url)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "real_host",
+      "cases": [
+        {
+          "args": [
+            "https://shop.example.com/cart"
+          ],
+          "returns": "shop.example.com"
+        },
+        {
+          "args": [
+            "https://shop.example.com@203.0.113.66/"
+          ],
+          "returns": "203.0.113.66"
+        },
+        {
+          "args": [
+            "HTTPS://Shop.Example.com/x"
+          ],
+          "returns": "shop.example.com"
+        },
+        {
+          "args": [
+            "not a url"
+          ],
+          "returns": ""
+        },
+        {
+          "args": [
+            "http://shop.example.com:8080/login"
+          ],
+          "returns": "shop.example.com"
+        },
+        {
+          "args": [
+            "https://shop.example.com.attacker.example/"
+          ],
+          "returns": "shop.example.com.attacker.example"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "'shop.example.com'\n'203.0.113.66'\n'shop.example.com'\n''"
+    }
+  ]
+}

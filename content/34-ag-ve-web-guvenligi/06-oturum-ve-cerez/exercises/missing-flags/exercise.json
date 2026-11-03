@@ -1,0 +1,85 @@
+{
+  "id": "missing-flags",
+  "title": {
+    "tr": "Eksik öznitelikler",
+    "en": "Missing attributes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk parça çerezin kendisidir (`securetoken=1` bir öznitelik değil); `parts[1:]`'e bak.",
+      "en": "The first part is the cookie itself (`securetoken=1` is not an attribute); look at `parts[1:]`."
+    },
+    {
+      "tr": "`p.partition(\"=\")[0].strip().lower()` adı verir; bir kümede topla.",
+      "en": "`p.partition(\"=\")[0].strip().lower()` gives the name; collect them in a set."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef missing_flags(header):\n    parts = [p.strip() for p in header.split(\";\")]\n    present = {p.partition(\"=\")[0].strip().lower() for p in parts[1:]}\n    return [flag for flag in [\"HttpOnly\", \"SameSite\", \"Secure\"]\n            if flag.lower() not in present]\n\nfor header in [\"session=abc; Path=/\",\n               \"session=abc; secure; httponly\",\n               \"session=abc; Secure; HttpOnly; SameSite=Strict\"]:\n    print(missing_flags(header))\n```",
+      "en": "The full solution:\n\n```python\ndef missing_flags(header):\n    parts = [p.strip() for p in header.split(\";\")]\n    present = {p.partition(\"=\")[0].strip().lower() for p in parts[1:]}\n    return [flag for flag in [\"HttpOnly\", \"SameSite\", \"Secure\"]\n            if flag.lower() not in present]\n\nfor header in [\"session=abc; Path=/\",\n               \"session=abc; secure; httponly\",\n               \"session=abc; Secure; HttpOnly; SameSite=Strict\"]:\n    print(missing_flags(header))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "missing_flags",
+      "cases": [
+        {
+          "args": [
+            "session=abc; Path=/"
+          ],
+          "returns": [
+            "HttpOnly",
+            "SameSite",
+            "Secure"
+          ]
+        },
+        {
+          "args": [
+            "session=abc; secure; httponly"
+          ],
+          "returns": [
+            "SameSite"
+          ]
+        },
+        {
+          "args": [
+            "session=abc; Secure; HttpOnly; SameSite=Strict"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "session=abc"
+          ],
+          "returns": [
+            "HttpOnly",
+            "SameSite",
+            "Secure"
+          ]
+        },
+        {
+          "args": [
+            "securetoken=1; SameSite=Lax"
+          ],
+          "returns": [
+            "HttpOnly",
+            "Secure"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['HttpOnly', 'SameSite', 'Secure']\n['SameSite']\n[]"
+    }
+  ]
+}

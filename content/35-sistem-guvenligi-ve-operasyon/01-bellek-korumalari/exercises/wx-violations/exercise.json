@@ -1,0 +1,79 @@
+{
+  "id": "wx-violations",
+  "title": {
+    "tr": "W^X ihlalleri",
+    "en": "W^X violations"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki şart birlikte: `\"w\" in perms and \"x\" in perms`; sonda `sorted`.",
+      "en": "Both conditions together: `\"w\" in perms and \"x\" in perms`; `sorted` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef wx_violations(regions):\n    found = []\n    for name, perms in regions.items():\n        if \"w\" in perms and \"x\" in perms:\n            found.append(name)\n    return sorted(found)\n\nREGIONS = {\n    \"code\": \"r-x\",\n    \"data\": \"rw-\",\n    \"stack\": \"rw-\",\n    \"jit\": \"rwx\",\n    \"plugin\": \"-wx\",\n}\nprint(wx_violations(REGIONS))\n```",
+      "en": "The full solution:\n\n```python\ndef wx_violations(regions):\n    found = []\n    for name, perms in regions.items():\n        if \"w\" in perms and \"x\" in perms:\n            found.append(name)\n    return sorted(found)\n\nREGIONS = {\n    \"code\": \"r-x\",\n    \"data\": \"rw-\",\n    \"stack\": \"rw-\",\n    \"jit\": \"rwx\",\n    \"plugin\": \"-wx\",\n}\nprint(wx_violations(REGIONS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "wx_violations",
+      "cases": [
+        {
+          "args": [
+            {
+              "code": "r-x",
+              "data": "rw-",
+              "stack": "rw-",
+              "jit": "rwx",
+              "plugin": "-wx"
+            }
+          ],
+          "returns": [
+            "jit",
+            "plugin"
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "b": "rwx",
+              "a": "rwx"
+            }
+          ],
+          "returns": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "args": [
+            {
+              "x": "--x"
+            }
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['jit', 'plugin']"
+    }
+  ]
+}

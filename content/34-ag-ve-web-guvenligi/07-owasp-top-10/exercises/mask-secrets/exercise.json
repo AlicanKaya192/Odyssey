@@ -1,0 +1,66 @@
+{
+  "id": "mask-secrets",
+  "title": {
+    "tr": "Sırları maskele",
+    "en": "Mask the secrets"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Düzenli ifadedeki grup birden çok adı `|` ile kabul eder.",
+      "en": "The group in the regular expression accepts several names with `|`."
+    },
+    {
+      "tr": "`(password|token|api_key)`; `\\1` adı geri yazar.",
+      "en": "`(password|token|api_key)`; `\\1` writes the name back."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef mask(line):\n    return re.sub(r\"(password|token|api_key)=[^&\\s]+\", r\"\\1=***\", line)\n\nprint(mask(\"user=ada&password=s3cret\"))\nprint(mask(\"token=abc123 api_key=K9x status=200\"))\nprint(mask(\"nothing secret here\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef mask(line):\n    return re.sub(r\"(password|token|api_key)=[^&\\s]+\", r\"\\1=***\", line)\n\nprint(mask(\"user=ada&password=s3cret\"))\nprint(mask(\"token=abc123 api_key=K9x status=200\"))\nprint(mask(\"nothing secret here\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mask",
+      "cases": [
+        {
+          "args": [
+            "user=ada&password=s3cret"
+          ],
+          "returns": "user=ada&password=***"
+        },
+        {
+          "args": [
+            "token=abc123 api_key=K9x status=200"
+          ],
+          "returns": "token=*** api_key=*** status=200"
+        },
+        {
+          "args": [
+            "nothing secret here"
+          ],
+          "returns": "nothing secret here"
+        },
+        {
+          "args": [
+            "password=a&token=b&password=c"
+          ],
+          "returns": "password=***&token=***&password=***"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "user=ada&password=***\ntoken=*** api_key=*** status=200\nnothing secret here"
+    }
+  ]
+}

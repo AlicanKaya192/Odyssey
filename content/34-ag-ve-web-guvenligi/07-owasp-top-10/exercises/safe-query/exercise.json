@@ -1,0 +1,72 @@
+{
+  "id": "safe-query",
+  "title": {
+    "tr": "Parametreli sorgu",
+    "en": "A parameterised query"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Metin birleştirme `'` işaretini sorgunun parçası yapıyor.",
+      "en": "Joining text makes the `'` part of the query."
+    },
+    {
+      "tr": "`conn.execute(\"SELECT city FROM users WHERE name = ?\", (name,))`; tek elemanlı demette virgül unutulmaz.",
+      "en": "`conn.execute(\"SELECT city FROM users WHERE name = ?\", (name,))`; do not forget the comma in a one-item tuple."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE users (name TEXT, city TEXT)\")\nconn.executemany(\"INSERT INTO users VALUES (?, ?)\",\n                 [(\"Ada\", \"Istanbul\"), (\"O'Brien\", \"Izmir\"),\n                  ('Ann \"Jr\" Lee', \"Ankara\")])\n\n\ndef city_of(name):\n    row = conn.execute(\"SELECT city FROM users WHERE name = ?\", (name,)).fetchone()\n    return row[0] if row else \"unknown\"\n\nfor name in [\"Ada\", \"O'Brien\", 'Ann \"Jr\" Lee', \"Nobody\"]:\n    print(city_of(name))\n```",
+      "en": "The full solution:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE users (name TEXT, city TEXT)\")\nconn.executemany(\"INSERT INTO users VALUES (?, ?)\",\n                 [(\"Ada\", \"Istanbul\"), (\"O'Brien\", \"Izmir\"),\n                  ('Ann \"Jr\" Lee', \"Ankara\")])\n\n\ndef city_of(name):\n    row = conn.execute(\"SELECT city FROM users WHERE name = ?\", (name,)).fetchone()\n    return row[0] if row else \"unknown\"\n\nfor name in [\"Ada\", \"O'Brien\", 'Ann \"Jr\" Lee', \"Nobody\"]:\n    print(city_of(name))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "city_of",
+      "cases": [
+        {
+          "args": [
+            "Ada"
+          ],
+          "returns": "Istanbul"
+        },
+        {
+          "args": [
+            "O'Brien"
+          ],
+          "returns": "Izmir"
+        },
+        {
+          "args": [
+            "Ann \"Jr\" Lee"
+          ],
+          "returns": "Ankara"
+        },
+        {
+          "args": [
+            "Nobody"
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": "unknown"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Istanbul\nIzmir\nAnkara\nunknown"
+    }
+  ]
+}
