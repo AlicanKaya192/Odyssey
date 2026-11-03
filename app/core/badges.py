@@ -71,6 +71,10 @@ RUST3_CHAPTER = "28-ileri-rust"
 SHELL_CHAPTER = "29-komut-satiri"
 STATS1_CHAPTER = "30-istatistiksel-cikarim"
 STATS2_CHAPTER = "31-deney-tasarimi-ve-ab-testi"
+SEC1_CHAPTER = "32-guvenlik-temelleri"
+SEC2_CHAPTER = "33-kriptografi"
+SEC3_CHAPTER = "34-ag-ve-web-guvenligi"
+SEC4_CHAPTER = "35-sistem-guvenligi-ve-operasyon"
 
 # Şaka rozeti (Alican 23 Ekim): CS50'de bir bölümü açmak yetiyor. Açmak
 # ilerleme kaydı bırakmadığı için ilk açılış bu ayara yazılıyor.
@@ -164,6 +168,16 @@ SHELL_SCRIPT_SECTION = (SHELL_CHAPTER, "14-betik-yazmak")
 STATS_INTERVAL_SECTION = (STATS1_CHAPTER, "05-guven-araligi")
 STATS_AB_SECTION = (STATS2_CHAPTER, "04-ilk-ab-testi")
 STATS_CUPED_SECTION = (STATS2_CHAPTER, "08-varyans-azaltma")
+SEC_PASSWORD_SECTION = (SEC1_CHAPTER, "06-parola-saklama")
+SEC_THREAT_SECTION = (SEC1_CHAPTER, "10-tehdit-modelleme")
+SEC_CAESAR_SECTION = (SEC2_CHAPTER, "02-klasik-sifreleri-kirmak")
+SEC_AEAD_SECTION = (SEC2_CHAPTER, "09-dogrulanmis-sifreleme")
+SEC_DH_SECTION = (SEC2_CHAPTER, "13-anahtar-degisimi")
+SEC_FIREWALL_SECTION = (SEC3_CHAPTER, "02-guvenlik-duvari")
+SEC_SQLI_SECTION = (SEC3_CHAPTER, "08-sql-enjeksiyonu")
+SEC_SCAN_SECTION = (SEC4_CHAPTER, "06-kod-inceleme")
+SEC_LOG_SECTION = (SEC4_CHAPTER, "09-kayit-ve-izleme")
+SEC_FORENSICS_SECTION = (SEC4_CHAPTER, "12-adli-bilisim")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -196,6 +210,10 @@ RUST3_SECTION_COUNT = 20
 SHELL_SECTION_COUNT = 17
 STATS1_SECTION_COUNT = 17
 STATS2_SECTION_COUNT = 17
+SEC1_SECTION_COUNT = 17
+SEC2_SECTION_COUNT = 19
+SEC3_SECTION_COUNT = 17
+SEC4_SECTION_COUNT = 19
 
 
 def note_section_opened(store, chapter_id: str) -> bool:
@@ -398,6 +416,20 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "first-ab-test": STATS_AB_SECTION in bitenler,
         "noise-hunter": STATS_CUPED_SECTION in bitenler,
         "abtest-complete": modul_basina.get(STATS2_CHAPTER, 0) >= STATS2_SECTION_COUNT,
+        "salted-password": SEC_PASSWORD_SECTION in bitenler,
+        "threat-mapper": SEC_THREAT_SECTION in bitenler,
+        "secfund-complete": modul_basina.get(SEC1_CHAPTER, 0) >= SEC1_SECTION_COUNT,
+        "caesar-broken": SEC_CAESAR_SECTION in bitenler,
+        "sealed-packet": SEC_AEAD_SECTION in bitenler,
+        "shared-secret": SEC_DH_SECTION in bitenler,
+        "crypto-complete": modul_basina.get(SEC2_CHAPTER, 0) >= SEC2_SECTION_COUNT,
+        "wall-builder": SEC_FIREWALL_SECTION in bitenler,
+        "query-sealer": SEC_SQLI_SECTION in bitenler,
+        "netweb-complete": modul_basina.get(SEC3_CHAPTER, 0) >= SEC3_SECTION_COUNT,
+        "first-scan": SEC_SCAN_SECTION in bitenler,
+        "log-keeper": SEC_LOG_SECTION in bitenler,
+        "trail-follower": SEC_FORENSICS_SECTION in bitenler,
+        "sysops-complete": modul_basina.get(SEC4_CHAPTER, 0) >= SEC4_SECTION_COUNT,
     }
 
 

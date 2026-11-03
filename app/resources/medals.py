@@ -564,6 +564,78 @@ GLYPHS: dict[str, str] = {
                              '<g fill="#fff" stroke="none"><circle cx="5" cy="16.4" r="1"/><circle cx="7.6" cy="17" r="1"/>'
                              '<circle cx="5.8" cy="19.4" r="1"/></g>'
                              '<path d="M9.4 14.4l3-3M9.6 11.6h2.8v2.8" stroke-width="1.5"/>'),
+    # Parolayı saklamak: eğik tuzluk, dökülen taneler (tuzlu özet).
+    "salt-shaker": ('<g transform="rotate(-35 12 13)"><path d="M8.2 9.6h7.6l-1 11.2H9.2z" fill="#fff" fill-opacity=".3" stroke-width="1.5"/>'
+                    '<path d="M8.6 9.6V7.4a3.4 3.4 0 0 1 6.8 0v2.2" stroke-width="1.5"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="10.6" cy="6.6" r=".7"/><circle cx="12" cy="5.4" r=".7"/>'
+                    '<circle cx="13.4" cy="6.6" r=".7"/></g></g>'
+                    '<g fill="#fff" stroke="none"><circle cx="4.6" cy="7.4" r=".9"/><circle cx="3" cy="11" r=".9"/>'
+                    '<circle cx="5.2" cy="13.6" r=".9"/><circle cx="2.6" cy="16.4" r=".9"/></g>'),
+    # Tehdit modelleme: iki parça, aralarındaki akış güven sınırını (kesik çizgi) geçiyor.
+    "trust-boundary": ('<path d="M12 1.8v20.4" stroke-width="1.3" stroke-dasharray="2 1.8"/>'
+                       '<rect x="2" y="3.6" width="7" height="6" rx="1.2" stroke-width="1.5"/>'
+                       '<rect x="15" y="14.4" width="7" height="6" rx="1.2" fill="#fff" fill-opacity=".35" stroke-width="1.5"/>'
+                       '<path d="M7.6 9.6l7 6.2M14.6 12.4v3.4h-3.4" stroke-width="1.6"/>'),
+    # Güvenlik Temelleri'nin tamamı: CIA üçlüsü (gizlilik, bütünlük, erişilebilirlik).
+    "cia-triangle": ('<path d="M12 3.6 20.4 18.6H3.6z" fill="#fff" fill-opacity=".25" stroke-width="1.5"/>'
+                     '<g fill="#fff" stroke="none"><circle cx="12" cy="3.8" r="2.5"/><circle cx="20.2" cy="18.6" r="2.5"/>'
+                     '<circle cx="3.8" cy="18.6" r="2.5"/></g>'),
+    # Klasik şifreyi kırmak: Sezar çarkı ve dış halkadaki çatlak.
+    "cipher-wheel": ('<circle cx="12" cy="12" r="9.4" stroke-width="1.5"/><circle cx="12" cy="12" r="5.4" stroke-width="1.3"/>'
+                     '<path d="M17.8 12h3.6M12 17.8v3.6M2.6 12h3.6M12 2.6v3.6M16.1 16.1l2.5 2.5M7.9 16.1l-2.5 2.5'
+                     'M7.9 7.9 5.4 5.4" stroke-width="1.3"/>'
+                     '<circle cx="12" cy="12" r="1.4" fill="#fff" stroke="none"/>'
+                     '<path d="M20.4 3.2l-2.6 3.6 1.8 1.2-2.4 3" stroke-width="1.5"/>'),
+    # Doğrulanmış şifreleme: mühürlü zarf.
+    "sealed-envelope": ('<rect x="2.4" y="5" width="19.2" height="14" rx="1.6" stroke-width="1.5"/>'
+                        '<path d="M2.8 5.6l9.2 7 9.2-7" stroke-width="1.4"/>'
+                        '<circle cx="12" cy="15.6" r="3.4" fill="#fff" stroke="none"/>'),
+    # Diffie-Hellman: iki taraf, ortada aynı anahtar.
+    "key-exchange": ('<g fill="#fff" stroke="none"><circle cx="3.6" cy="19.4" r="2.4"/><circle cx="20.4" cy="19.4" r="2.4"/></g>'
+                     '<path d="M5.4 17.6 10.4 13M18.6 17.6 13.6 13" stroke-width="1.4" stroke-dasharray="1.8 1.6"/>'
+                     '<circle cx="12" cy="5" r="2.8" stroke-width="1.6"/>'
+                     '<path d="M12 7.8v5.8M12 10.6h2.2M12 13h1.8" stroke-width="1.6"/>'),
+    # Kriptografi'nin tamamı: skitale (şeridi çubuğa sarılı Sparta şifresi).
+    "scytale": ('<g transform="rotate(-45 12 12)">'
+                '<rect x="1.4" y="8.4" width="21.2" height="7.2" rx="3.6" fill="#fff" fill-opacity=".25" stroke-width="1.5"/>'
+                '<path d="M5 8.4l2.6 7.2M9.2 8.4l2.6 7.2M13.4 8.4l2.6 7.2M17.6 8.4l2.6 7.2" stroke-width="1.7"/>'
+                '<path d="M20.2 15.6c.6 2 1.8 3 3.4 3.4" stroke-width="1.5"/></g>'),
+    # Güvenlik duvarı: tuğla duvar.
+    "brick-wall": ('<rect x="2.4" y="4.6" width="19.2" height="14.8" rx="1" fill="#fff" fill-opacity=".2" stroke-width="1.5"/>'
+                   '<path d="M2.4 9.5h19.2M2.4 14.5h19.2M8.8 4.6v4.9M15.2 4.6v4.9M5.6 9.5v5M12 9.5v5M18.4 9.5v5'
+                   'M8.8 14.5v4.9M15.2 14.5v4.9" stroke-width="1.3"/>'),
+    # SQL enjeksiyonunu durdurmak: üstü çizili şırınga.
+    "blocked-syringe": ('<circle cx="12" cy="12" r="9.8" stroke-width="1.5"/>'
+                        '<g transform="rotate(45 12 12) translate(12 12) scale(.7) translate(-12 -12)">'
+                        '<rect x="9" y="5" width="6" height="11" rx="1" fill="#fff" fill-opacity=".35" stroke-width="2"/>'
+                        '<path d="M12 5V1.6M9.4 1.6h5.2M7.6 5h8.8M12 16v6" stroke-width="2"/></g>'
+                        '<path d="M5 5l14 14" stroke-width="1.8"/>'),
+    # Ağ ve Web Güvenliği'nin tamamı: küre ve önünde kalkan.
+    "globe-shield": ('<circle cx="10" cy="10.6" r="7.6" stroke-width="1.4"/>'
+                     '<ellipse cx="10" cy="10.6" rx="3.2" ry="7.6" stroke-width="1.2"/>'
+                     '<path d="M2.4 10.6h15.2M3.6 6.6h12.8M3.6 14.6h7" stroke-width="1.1"/>'
+                     '<path d="M17.6 12.4c1.4.9 2.6 1.2 4.2 1.2v3.6c0 2.6-1.8 4-4.2 5-2.4-1-4.2-2.4-4.2-5v-3.6c1.6 0 2.8-.3 4.2-1.2z"'
+                     ' fill="#fff" stroke-width="1.2"/>'),
+    # İlk statik analiz: kod satırlarının üstünden geçen tarama çizgisi.
+    "scan-lines": ('<path d="M3.4 4.4h11M3.4 8.2h15.4M3.4 15.8h8.6M3.4 19.6h13.2" stroke-width="1.5"/>'
+                   '<rect x="1.6" y="10.4" width="20.8" height="3.2" rx="1.6" fill="#fff" stroke="none"/>'
+                   '<path d="M20.4 3.4v6" stroke-width="1.3" stroke-opacity=".7"/>'),
+    # Kayıt ve izleme: kayıt satırları, her biri bir öncekine özetle bağlı.
+    "log-chain": ('<path d="M2.6 5h10M2.6 12h10M2.6 19h10" stroke-width="1.6"/>'
+                  '<g fill="#fff" stroke="none"><rect x="16" y="2.6" width="5" height="4.8" rx="1"/>'
+                  '<rect x="16" y="9.6" width="5" height="4.8" rx="1"/><rect x="16" y="16.6" width="5" height="4.8" rx="1"/></g>'
+                  '<path d="M18.5 7.4v2.2M18.5 14.4v2.2" stroke-width="1.6"/>'),
+    # Adli bilişim: ayak izleri.
+    "footprints": ('<g fill="#fff" stroke="none"><ellipse cx="7.4" cy="13.6" rx="2.6" ry="4.2" transform="rotate(-10 7.4 13.6)"/>'
+                   '<ellipse cx="8.2" cy="20" rx="1.8" ry="1.6"/>'
+                   '<ellipse cx="16.4" cy="5.4" rx="2.6" ry="4.2" transform="rotate(10 16.4 5.4)"/>'
+                   '<ellipse cx="15.8" cy="11.8" rx="1.8" ry="1.6"/></g>'),
+    # Sistem Güvenliği ve Operasyon'un tamamı: gözcü deniz feneri.
+    "lighthouse": ('<path d="M9.2 21h5.6l-1-10.6h-3.6z" fill="#fff" fill-opacity=".3" stroke-width="1.5"/>'
+                   '<rect x="9.6" y="6.6" width="4.8" height="3.8" rx=".6" stroke-width="1.4"/>'
+                   '<path d="M9.2 6.6 12 3.6l2.8 3" stroke-width="1.4"/>'
+                   '<path d="M5.4 21h13.2M9.9 15.4h4.2" stroke-width="1.4"/>'
+                   '<path d="M15.4 7.4l6-2.2M15.4 9.4l6 2.2M8.6 7.4l-6-2.2M8.6 9.4l-6 2.2" stroke-width="1.2" stroke-opacity=".8"/>'),
     # Deney Tasarımı'nın tamamı: iki kefeli terazi (adil karşılaştırma).
     "balance-scale": ('<path d="M12 4.6v15M7.4 20.6h9.2M3.8 7.2h16.4" stroke-width="1.6"/>'
                       '<circle cx="12" cy="4" r="1.5" fill="#fff" stroke="none"/>'
