@@ -1,0 +1,100 @@
+{
+  "id": "breach-after-fails",
+  "title": {
+    "tr": "Başarısızlıktan sonra giriş",
+    "en": "Login after failures"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Satırları sırayla gez: `FAIL`'de sayacı artır, `OK`'de sayaç `limit`'e ulaşmışsa adresi ekle.",
+      "en": "Walk the lines in order: on `FAIL` increase the counter, on `OK` add the address if the counter has reached `limit`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef breaches(lines, limit):\n    fails = Counter()\n    found = set()\n    for line in lines:\n        _, status, *pairs = line.split()\n        ip = dict(pair.split(\"=\", 1) for pair in pairs)[\"ip\"]\n        if status == \"FAIL\":\n            fails[ip] += 1\n        elif status == \"OK\" and fails[ip] >= limit:\n            found.add(ip)\n    return sorted(found)\n\nLOG = [\n    \"2026-11-02T09:00:05 FAIL user=ada ip=10.0.0.7\",\n    \"2026-11-02T09:00:09 FAIL user=ada ip=10.0.0.7\",\n    \"2026-11-02T09:00:12 FAIL user=root ip=10.0.0.7\",\n    \"2026-11-02T09:00:15 OK user=ada ip=10.0.0.7\",\n    \"2026-11-02T09:01:00 FAIL user=bob ip=10.0.0.9\",\n    \"2026-11-02T09:01:02 FAIL user=bob ip=10.0.0.9\",\n    \"2026-11-02T09:01:04 FAIL user=bob ip=10.0.0.9\",\n    \"2026-11-02T09:02:00 OK user=eve ip=10.0.0.4\",\n    \"2026-11-02T09:02:30 FAIL user=eve ip=10.0.0.4\",\n]\nprint(breaches(LOG, 3))\nprint(breaches(LOG, 4))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef breaches(lines, limit):\n    fails = Counter()\n    found = set()\n    for line in lines:\n        _, status, *pairs = line.split()\n        ip = dict(pair.split(\"=\", 1) for pair in pairs)[\"ip\"]\n        if status == \"FAIL\":\n            fails[ip] += 1\n        elif status == \"OK\" and fails[ip] >= limit:\n            found.add(ip)\n    return sorted(found)\n\nLOG = [\n    \"2026-11-02T09:00:05 FAIL user=ada ip=10.0.0.7\",\n    \"2026-11-02T09:00:09 FAIL user=ada ip=10.0.0.7\",\n    \"2026-11-02T09:00:12 FAIL user=root ip=10.0.0.7\",\n    \"2026-11-02T09:00:15 OK user=ada ip=10.0.0.7\",\n    \"2026-11-02T09:01:00 FAIL user=bob ip=10.0.0.9\",\n    \"2026-11-02T09:01:02 FAIL user=bob ip=10.0.0.9\",\n    \"2026-11-02T09:01:04 FAIL user=bob ip=10.0.0.9\",\n    \"2026-11-02T09:02:00 OK user=eve ip=10.0.0.4\",\n    \"2026-11-02T09:02:30 FAIL user=eve ip=10.0.0.4\",\n]\nprint(breaches(LOG, 3))\nprint(breaches(LOG, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "breaches",
+      "cases": [
+        {
+          "args": [
+            [
+              "2026-11-02T09:00:05 FAIL user=ada ip=10.0.0.7",
+              "2026-11-02T09:00:09 FAIL user=ada ip=10.0.0.7",
+              "2026-11-02T09:00:12 FAIL user=root ip=10.0.0.7",
+              "2026-11-02T09:00:15 OK user=ada ip=10.0.0.7",
+              "2026-11-02T09:01:00 FAIL user=bob ip=10.0.0.9",
+              "2026-11-02T09:01:02 FAIL user=bob ip=10.0.0.9",
+              "2026-11-02T09:01:04 FAIL user=bob ip=10.0.0.9",
+              "2026-11-02T09:02:00 OK user=eve ip=10.0.0.4",
+              "2026-11-02T09:02:30 FAIL user=eve ip=10.0.0.4"
+            ],
+            3
+          ],
+          "returns": [
+            "10.0.0.7"
+          ]
+        },
+        {
+          "args": [
+            [
+              "2026-11-02T09:00:05 FAIL user=ada ip=10.0.0.7",
+              "2026-11-02T09:00:09 FAIL user=ada ip=10.0.0.7",
+              "2026-11-02T09:00:12 FAIL user=root ip=10.0.0.7",
+              "2026-11-02T09:00:15 OK user=ada ip=10.0.0.7",
+              "2026-11-02T09:01:00 FAIL user=bob ip=10.0.0.9",
+              "2026-11-02T09:01:02 FAIL user=bob ip=10.0.0.9",
+              "2026-11-02T09:01:04 FAIL user=bob ip=10.0.0.9",
+              "2026-11-02T09:02:00 OK user=eve ip=10.0.0.4",
+              "2026-11-02T09:02:30 FAIL user=eve ip=10.0.0.4"
+            ],
+            4
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "2026-11-02T09:00:05 FAIL user=ada ip=10.0.0.7",
+              "2026-11-02T09:00:09 FAIL user=ada ip=10.0.0.7",
+              "2026-11-02T09:00:12 FAIL user=root ip=10.0.0.7",
+              "2026-11-02T09:00:15 OK user=ada ip=10.0.0.7",
+              "2026-11-02T09:01:00 FAIL user=bob ip=10.0.0.9",
+              "2026-11-02T09:01:02 FAIL user=bob ip=10.0.0.9",
+              "2026-11-02T09:01:04 FAIL user=bob ip=10.0.0.9",
+              "2026-11-02T09:02:00 OK user=eve ip=10.0.0.4",
+              "2026-11-02T09:02:30 FAIL user=eve ip=10.0.0.4"
+            ],
+            1
+          ],
+          "returns": [
+            "10.0.0.7"
+          ]
+        },
+        {
+          "args": [
+            [],
+            3
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['10.0.0.7']\n[]"
+    }
+  ]
+}

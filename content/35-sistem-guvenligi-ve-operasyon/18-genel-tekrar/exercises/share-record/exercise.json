@@ -1,0 +1,101 @@
+{
+  "id": "share-record",
+  "title": {
+    "tr": "Kaydı paylaş",
+    "en": "Share a record"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`clean = result[\"email\"].strip().lower()`, sonra `hmac.new(key.encode(), clean.encode(), hashlib.sha256).hexdigest()[:12]`.",
+      "en": "`clean = result[\"email\"].strip().lower()`, then `hmac.new(key.encode(), clean.encode(), hashlib.sha256).hexdigest()[:12]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef share_record(record, allowed, key):\n    result = {k: v for k, v in record.items() if k in allowed}\n    if \"email\" in result:\n        clean = result[\"email\"].strip().lower()\n        digest = hmac.new(key.encode(), clean.encode(), hashlib.sha256)\n        result[\"email\"] = digest.hexdigest()[:12]\n    return result\n\nRECORD = {\"name\": \"Ada\", \"email\": \" Ada@Example.org\",\n          \"phone\": \"555-0100\", \"plan\": \"pro\"}\nshared = share_record(RECORD, [\"email\", \"plan\"], \"vault-key\")\nfor key in sorted(shared):\n    print(key, shared[key])\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef share_record(record, allowed, key):\n    result = {k: v for k, v in record.items() if k in allowed}\n    if \"email\" in result:\n        clean = result[\"email\"].strip().lower()\n        digest = hmac.new(key.encode(), clean.encode(), hashlib.sha256)\n        result[\"email\"] = digest.hexdigest()[:12]\n    return result\n\nRECORD = {\"name\": \"Ada\", \"email\": \" Ada@Example.org\",\n          \"phone\": \"555-0100\", \"plan\": \"pro\"}\nshared = share_record(RECORD, [\"email\", \"plan\"], \"vault-key\")\nfor key in sorted(shared):\n    print(key, shared[key])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "share_record",
+      "cases": [
+        {
+          "args": [
+            {
+              "name": "Ada",
+              "email": " Ada@Example.org",
+              "phone": "555-0100",
+              "plan": "pro"
+            },
+            [
+              "email",
+              "plan"
+            ],
+            "vault-key"
+          ],
+          "returns": {
+            "email": "5e979343af4e",
+            "plan": "pro"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "Ada",
+              "email": " Ada@Example.org",
+              "phone": "555-0100",
+              "plan": "pro"
+            },
+            [
+              "plan"
+            ],
+            "vault-key"
+          ],
+          "returns": {
+            "plan": "pro"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "Ada",
+              "email": " Ada@Example.org",
+              "phone": "555-0100",
+              "plan": "pro"
+            },
+            [
+              "email"
+            ],
+            "other-key"
+          ],
+          "returns": {
+            "email": "cfa192be9cd7"
+          }
+        },
+        {
+          "args": [
+            {},
+            [
+              "email"
+            ],
+            "k"
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "email 5e979343af4e\nplan pro"
+    }
+  ]
+}

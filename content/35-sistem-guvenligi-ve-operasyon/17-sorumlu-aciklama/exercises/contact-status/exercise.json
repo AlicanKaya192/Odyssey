@@ -1,0 +1,109 @@
+{
+  "id": "contact-status",
+  "title": {
+    "tr": "İletişim geçerli mi?",
+    "en": "Is the contact valid?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Son adımda `if expires <= datetime.fromisoformat(now): return \"expired\"`.",
+      "en": "At the last step, `if expires <= datetime.fromisoformat(now): return \"expired\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import datetime\n\n\ndef contact_status(fields, now):\n    if not fields.get(\"contact\"):\n        return \"no contact\"\n    if not fields.get(\"expires\"):\n        return \"no expiry\"\n    expires = datetime.fromisoformat(fields[\"expires\"][0])\n    if expires <= datetime.fromisoformat(now):\n        return \"expired\"\n    return \"ok\"\n\nOK = {\"contact\": [\"mailto:security@example.org\"],\n      \"expires\": [\"2026-12-31T23:59:59Z\"]}\nOLD = {\"contact\": [\"mailto:security@example.org\"],\n       \"expires\": [\"2026-01-31T00:00:00Z\"]}\nNOW = \"2026-11-03T12:00:00Z\"\nprint(contact_status(OK, NOW))\nprint(contact_status(OLD, NOW))\nprint(contact_status({}, NOW))\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import datetime\n\n\ndef contact_status(fields, now):\n    if not fields.get(\"contact\"):\n        return \"no contact\"\n    if not fields.get(\"expires\"):\n        return \"no expiry\"\n    expires = datetime.fromisoformat(fields[\"expires\"][0])\n    if expires <= datetime.fromisoformat(now):\n        return \"expired\"\n    return \"ok\"\n\nOK = {\"contact\": [\"mailto:security@example.org\"],\n      \"expires\": [\"2026-12-31T23:59:59Z\"]}\nOLD = {\"contact\": [\"mailto:security@example.org\"],\n       \"expires\": [\"2026-01-31T00:00:00Z\"]}\nNOW = \"2026-11-03T12:00:00Z\"\nprint(contact_status(OK, NOW))\nprint(contact_status(OLD, NOW))\nprint(contact_status({}, NOW))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "contact_status",
+      "cases": [
+        {
+          "args": [
+            {
+              "contact": [
+                "mailto:security@example.org"
+              ],
+              "expires": [
+                "2026-12-31T23:59:59Z"
+              ]
+            },
+            "2026-11-03T12:00:00Z"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            {
+              "contact": [
+                "mailto:security@example.org"
+              ],
+              "expires": [
+                "2026-01-31T00:00:00Z"
+              ]
+            },
+            "2026-11-03T12:00:00Z"
+          ],
+          "returns": "expired"
+        },
+        {
+          "args": [
+            {
+              "expires": [
+                "2026-12-31T23:59:59Z"
+              ]
+            },
+            "2026-11-03T12:00:00Z"
+          ],
+          "returns": "no contact"
+        },
+        {
+          "args": [
+            {
+              "contact": [
+                "mailto:security@example.org"
+              ]
+            },
+            "2026-11-03T12:00:00Z"
+          ],
+          "returns": "no expiry"
+        },
+        {
+          "args": [
+            {},
+            "2026-11-03T12:00:00Z"
+          ],
+          "returns": "no contact"
+        },
+        {
+          "args": [
+            {
+              "contact": [
+                "mailto:security@example.org"
+              ],
+              "expires": [
+                "2026-12-31T23:59:59Z"
+              ]
+            },
+            "2026-12-31T23:59:59Z"
+          ],
+          "returns": "expired"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\nexpired\nno contact"
+    }
+  ]
+}

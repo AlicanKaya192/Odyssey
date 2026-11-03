@@ -1,0 +1,68 @@
+{
+  "id": "parse-security-txt",
+  "title": {
+    "tr": "security.txt oku",
+    "en": "Read security.txt"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu yorum satırını da okuyor ve adları küçültmüyor. `line.startswith(\"#\")` ve `name.strip().lower()`.",
+      "en": "The starter code also reads the comment line and does not lower-case names. `line.startswith(\"#\")` and `name.strip().lower()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef parse_security_txt(text):\n    fields = {}\n    for line in text.splitlines():\n        if not line or line.startswith(\"#\") or \":\" not in line:\n            continue\n        name, value = line.split(\":\", 1)\n        fields.setdefault(name.strip().lower(), []).append(value.strip())\n    return fields\n\nTEXT = \"\"\"# Contact: see below\nContact: mailto:security@example.org\n\nContact: https://example.org/report\nExpires: 2026-12-31T23:59:59Z\n\"\"\"\nfields = parse_security_txt(TEXT)\nfor name in sorted(fields):\n    print(name, len(fields[name]))\n```",
+      "en": "The full solution:\n\n```python\ndef parse_security_txt(text):\n    fields = {}\n    for line in text.splitlines():\n        if not line or line.startswith(\"#\") or \":\" not in line:\n            continue\n        name, value = line.split(\":\", 1)\n        fields.setdefault(name.strip().lower(), []).append(value.strip())\n    return fields\n\nTEXT = \"\"\"# Contact: see below\nContact: mailto:security@example.org\n\nContact: https://example.org/report\nExpires: 2026-12-31T23:59:59Z\n\"\"\"\nfields = parse_security_txt(TEXT)\nfor name in sorted(fields):\n    print(name, len(fields[name]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "parse_security_txt",
+      "cases": [
+        {
+          "args": [
+            "# Contact: see below\nContact: mailto:security@example.org\n\nContact: https://example.org/report\nExpires: 2026-12-31T23:59:59Z\n"
+          ],
+          "returns": {
+            "contact": [
+              "mailto:security@example.org",
+              "https://example.org/report"
+            ],
+            "expires": [
+              "2026-12-31T23:59:59Z"
+            ]
+          }
+        },
+        {
+          "args": [
+            "Policy: https://example.org/policy\n"
+          ],
+          "returns": {
+            "policy": [
+              "https://example.org/policy"
+            ]
+          }
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": {}
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "contact 2\nexpires 1"
+    }
+  ]
+}

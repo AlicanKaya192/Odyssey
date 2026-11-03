@@ -1,0 +1,141 @@
+{
+  "id": "scope-check",
+  "title": {
+    "tr": "Kapsam denetimi",
+    "en": "Scope check"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Pencereden sonra, ağdan önce: `if target in excluded: return \"excluded\"`.",
+      "en": "After the window, before the network: `if target in excluded: return \"excluded\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\nfrom datetime import date\n\n\ndef scope_check(target, day, scope, excluded, window):\n    address = ipaddress.ip_address(target)\n    when = date.fromisoformat(day)\n    start = date.fromisoformat(window[0])\n    end = date.fromisoformat(window[1])\n    if not start <= when <= end:\n        return \"outside the window\"\n    if target in excluded:\n        return \"excluded\"\n    if not any(address in ipaddress.ip_network(net) for net in scope):\n        return \"out of scope\"\n    return \"in scope\"\n\nSCOPE = [\"10.20.0.0/24\"]\nEXCLUDED = [\"10.20.0.5\"]\nWINDOW = [\"2026-11-10\", \"2026-11-14\"]\nfor target, day in [[\"10.20.0.17\", \"2026-11-14\"],\n                    [\"10.20.0.5\", \"2026-11-11\"],\n                    [\"10.30.0.8\", \"2026-11-11\"]]:\n    print(scope_check(target, day, SCOPE, EXCLUDED, WINDOW))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\nfrom datetime import date\n\n\ndef scope_check(target, day, scope, excluded, window):\n    address = ipaddress.ip_address(target)\n    when = date.fromisoformat(day)\n    start = date.fromisoformat(window[0])\n    end = date.fromisoformat(window[1])\n    if not start <= when <= end:\n        return \"outside the window\"\n    if target in excluded:\n        return \"excluded\"\n    if not any(address in ipaddress.ip_network(net) for net in scope):\n        return \"out of scope\"\n    return \"in scope\"\n\nSCOPE = [\"10.20.0.0/24\"]\nEXCLUDED = [\"10.20.0.5\"]\nWINDOW = [\"2026-11-10\", \"2026-11-14\"]\nfor target, day in [[\"10.20.0.17\", \"2026-11-14\"],\n                    [\"10.20.0.5\", \"2026-11-11\"],\n                    [\"10.30.0.8\", \"2026-11-11\"]]:\n    print(scope_check(target, day, SCOPE, EXCLUDED, WINDOW))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "scope_check",
+      "cases": [
+        {
+          "args": [
+            "10.20.0.17",
+            "2026-11-14",
+            [
+              "10.20.0.0/24"
+            ],
+            [
+              "10.20.0.5"
+            ],
+            [
+              "2026-11-10",
+              "2026-11-14"
+            ]
+          ],
+          "returns": "in scope"
+        },
+        {
+          "args": [
+            "10.20.0.5",
+            "2026-11-11",
+            [
+              "10.20.0.0/24"
+            ],
+            [
+              "10.20.0.5"
+            ],
+            [
+              "2026-11-10",
+              "2026-11-14"
+            ]
+          ],
+          "returns": "excluded"
+        },
+        {
+          "args": [
+            "10.30.0.8",
+            "2026-11-11",
+            [
+              "10.20.0.0/24"
+            ],
+            [
+              "10.20.0.5"
+            ],
+            [
+              "2026-11-10",
+              "2026-11-14"
+            ]
+          ],
+          "returns": "out of scope"
+        },
+        {
+          "args": [
+            "10.20.0.17",
+            "2026-11-09",
+            [
+              "10.20.0.0/24"
+            ],
+            [
+              "10.20.0.5"
+            ],
+            [
+              "2026-11-10",
+              "2026-11-14"
+            ]
+          ],
+          "returns": "outside the window"
+        },
+        {
+          "args": [
+            "10.20.0.5",
+            "2026-11-20",
+            [
+              "10.20.0.0/24"
+            ],
+            [
+              "10.20.0.5"
+            ],
+            [
+              "2026-11-10",
+              "2026-11-14"
+            ]
+          ],
+          "returns": "outside the window"
+        },
+        {
+          "args": [
+            "10.30.0.8",
+            "2026-11-10",
+            [
+              "10.20.0.0/24",
+              "10.30.0.0/16"
+            ],
+            [
+              "10.20.0.5"
+            ],
+            [
+              "2026-11-10",
+              "2026-11-14"
+            ]
+          ],
+          "returns": "in scope"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "in scope\nexcluded\nout of scope"
+    }
+  ]
+}

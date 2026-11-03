@@ -1,0 +1,146 @@
+{
+  "id": "backup-problems",
+  "title": {
+    "tr": "Yedek planı denetimi",
+    "en": "Backup plan check"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Farklı ortamlar bir küme: `len({media for media, _, _ in copies}) < 2`.",
+      "en": "The different media are a set: `len({media for media, _, _ in copies}) < 2`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef backup_problems(copies, rpo_hours):\n    problems = []\n    if len(copies) < 3:\n        problems.append(\"fewer than 3 copies\")\n    if len({media for media, _, _ in copies}) < 2:\n        problems.append(\"fewer than 2 media\")\n    if not any(offsite for _, offsite, _ in copies):\n        problems.append(\"no offsite copy\")\n    if not copies or min(hours for _, _, hours in copies) > rpo_hours:\n        problems.append(\"newest copy too old\")\n    return problems\n\nGOOD = [[\"disk\", False, 2], [\"tape\", False, 20], [\"cloud\", True, 26]]\nSAME = [[\"disk\", False, 1], [\"disk\", True, 5], [\"disk\", False, 9]]\nBAD = [[\"disk\", False, 30], [\"disk\", False, 40]]\nfor name, copies in [[\"GOOD\", GOOD], [\"SAME\", SAME], [\"BAD\", BAD]]:\n    print(name)\n    for problem in backup_problems(copies, 24):\n        print(\"-\", problem)\n```",
+      "en": "The full solution:\n\n```python\ndef backup_problems(copies, rpo_hours):\n    problems = []\n    if len(copies) < 3:\n        problems.append(\"fewer than 3 copies\")\n    if len({media for media, _, _ in copies}) < 2:\n        problems.append(\"fewer than 2 media\")\n    if not any(offsite for _, offsite, _ in copies):\n        problems.append(\"no offsite copy\")\n    if not copies or min(hours for _, _, hours in copies) > rpo_hours:\n        problems.append(\"newest copy too old\")\n    return problems\n\nGOOD = [[\"disk\", False, 2], [\"tape\", False, 20], [\"cloud\", True, 26]]\nSAME = [[\"disk\", False, 1], [\"disk\", True, 5], [\"disk\", False, 9]]\nBAD = [[\"disk\", False, 30], [\"disk\", False, 40]]\nfor name, copies in [[\"GOOD\", GOOD], [\"SAME\", SAME], [\"BAD\", BAD]]:\n    print(name)\n    for problem in backup_problems(copies, 24):\n        print(\"-\", problem)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "backup_problems",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "disk",
+                false,
+                2
+              ],
+              [
+                "tape",
+                false,
+                20
+              ],
+              [
+                "cloud",
+                true,
+                26
+              ]
+            ],
+            24
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "disk",
+                false,
+                1
+              ],
+              [
+                "disk",
+                true,
+                5
+              ],
+              [
+                "disk",
+                false,
+                9
+              ]
+            ],
+            24
+          ],
+          "returns": [
+            "fewer than 2 media"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "disk",
+                false,
+                30
+              ],
+              [
+                "disk",
+                false,
+                40
+              ]
+            ],
+            24
+          ],
+          "returns": [
+            "fewer than 3 copies",
+            "fewer than 2 media",
+            "no offsite copy",
+            "newest copy too old"
+          ]
+        },
+        {
+          "args": [
+            [],
+            24
+          ],
+          "returns": [
+            "fewer than 3 copies",
+            "fewer than 2 media",
+            "no offsite copy",
+            "newest copy too old"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "disk",
+                false,
+                2
+              ],
+              [
+                "tape",
+                false,
+                20
+              ],
+              [
+                "cloud",
+                true,
+                26
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            "newest copy too old"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "GOOD\nSAME\n- fewer than 2 media\nBAD\n- fewer than 3 copies\n- fewer than 2 media\n- no offsite copy\n- newest copy too old"
+    }
+  ]
+}

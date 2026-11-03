@@ -1,0 +1,90 @@
+{
+  "id": "audit-files",
+  "title": {
+    "tr": "Dosya denetimi",
+    "en": "File audit"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu yalnızca `777`'yi görüyor: `666` de herkese yazılabilir. Satır satır bak; `<p>password=</p>` satırı `password=` ile başlamıyor.",
+      "en": "The starter code only sees `777`: `666` is world-writable too. Look line by line; the `<p>password=</p>` line does not start with `password=`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nSECRET_KEYS = (\"password=\", \"api_key=\", \"token=\")\n\n\ndef audit_files(files):\n    findings = []\n    for path, mode, content in files:\n        if int(mode[-1]) & 2:\n            findings.append(path + \": world-writable\")\n        for line in content.splitlines():\n            if line.strip().lower().startswith(SECRET_KEYS):\n                findings.append(path + \": secret\")\n                break\n    return sorted(findings)\n\nFILES = [\n    [\"app/config.ini\", \"640\", \"debug=false\\npassword=hunter2\\n\"],\n    [\"app/run.sh\", \"755\", \"echo start\\n\"],\n    [\"tmp/notes.txt\", \"666\", \"API_KEY=abc123\\n\"],\n    [\"web/index.html\", \"644\", \"<p>password=</p>\\n\"],\n]\nfor finding in audit_files(FILES):\n    print(finding)\n```",
+      "en": "The full solution:\n\n```python\nSECRET_KEYS = (\"password=\", \"api_key=\", \"token=\")\n\n\ndef audit_files(files):\n    findings = []\n    for path, mode, content in files:\n        if int(mode[-1]) & 2:\n            findings.append(path + \": world-writable\")\n        for line in content.splitlines():\n            if line.strip().lower().startswith(SECRET_KEYS):\n                findings.append(path + \": secret\")\n                break\n    return sorted(findings)\n\nFILES = [\n    [\"app/config.ini\", \"640\", \"debug=false\\npassword=hunter2\\n\"],\n    [\"app/run.sh\", \"755\", \"echo start\\n\"],\n    [\"tmp/notes.txt\", \"666\", \"API_KEY=abc123\\n\"],\n    [\"web/index.html\", \"644\", \"<p>password=</p>\\n\"],\n]\nfor finding in audit_files(FILES):\n    print(finding)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "audit_files",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "app/config.ini",
+                "640",
+                "debug=false\npassword=hunter2\n"
+              ],
+              [
+                "app/run.sh",
+                "755",
+                "echo start\n"
+              ],
+              [
+                "tmp/notes.txt",
+                "666",
+                "API_KEY=abc123\n"
+              ],
+              [
+                "web/index.html",
+                "644",
+                "<p>password=</p>\n"
+              ]
+            ]
+          ],
+          "returns": [
+            "app/config.ini: secret",
+            "tmp/notes.txt: secret",
+            "tmp/notes.txt: world-writable"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "a.txt",
+                "662",
+                "Token=x"
+              ]
+            ]
+          ],
+          "returns": [
+            "a.txt: secret",
+            "a.txt: world-writable"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "app/config.ini: secret\ntmp/notes.txt: secret\ntmp/notes.txt: world-writable"
+    }
+  ]
+}

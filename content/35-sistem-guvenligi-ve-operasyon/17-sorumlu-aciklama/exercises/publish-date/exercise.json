@@ -1,0 +1,74 @@
+{
+  "id": "publish-date",
+  "title": {
+    "tr": "Duyuru tarihi",
+    "en": "Announcement date"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `None` için `TypeError` veriyor. Önce `if fixed is None: return deadline.isoformat()`.",
+      "en": "The starter code raises `TypeError` for `None`. First `if fixed is None: return deadline.isoformat()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import date, timedelta\n\n\ndef publish_date(reported, fixed, deadline_days, grace_days):\n    deadline = date.fromisoformat(reported) + timedelta(days=deadline_days)\n    if fixed is None:\n        return deadline.isoformat()\n    after_fix = date.fromisoformat(fixed) + timedelta(days=grace_days)\n    return min(deadline, after_fix).isoformat()\n\nprint(publish_date(\"2026-11-03\", \"2027-01-10\", 90, 14))\nprint(publish_date(\"2026-11-03\", \"2027-02-20\", 90, 14))\nprint(publish_date(\"2026-11-03\", None, 90, 14))\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import date, timedelta\n\n\ndef publish_date(reported, fixed, deadline_days, grace_days):\n    deadline = date.fromisoformat(reported) + timedelta(days=deadline_days)\n    if fixed is None:\n        return deadline.isoformat()\n    after_fix = date.fromisoformat(fixed) + timedelta(days=grace_days)\n    return min(deadline, after_fix).isoformat()\n\nprint(publish_date(\"2026-11-03\", \"2027-01-10\", 90, 14))\nprint(publish_date(\"2026-11-03\", \"2027-02-20\", 90, 14))\nprint(publish_date(\"2026-11-03\", None, 90, 14))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "publish_date",
+      "cases": [
+        {
+          "args": [
+            "2026-11-03",
+            "2027-01-10",
+            90,
+            14
+          ],
+          "returns": "2027-01-24"
+        },
+        {
+          "args": [
+            "2026-11-03",
+            "2027-02-20",
+            90,
+            14
+          ],
+          "returns": "2027-02-01"
+        },
+        {
+          "args": [
+            "2026-11-03",
+            null,
+            90,
+            14
+          ],
+          "returns": "2027-02-01"
+        },
+        {
+          "args": [
+            "2026-01-01",
+            "2026-01-01",
+            30,
+            0
+          ],
+          "returns": "2026-01-01"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2027-01-24\n2027-02-01\n2027-02-01"
+    }
+  ]
+}

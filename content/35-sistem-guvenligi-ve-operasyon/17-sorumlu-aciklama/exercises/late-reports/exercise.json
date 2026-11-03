@@ -1,0 +1,140 @@
+{
+  "id": "late-reports",
+  "title": {
+    "tr": "Geciken bildirimler",
+    "en": "Late reports"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu cevaplanmamış bildirimleri atlıyor; en çok bekleyen onlar. `end = ... if acknowledged else now`.",
+      "en": "The starter code skips unanswered reports; they are the ones waiting longest. `end = ... if acknowledged else now`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import date\n\n\ndef late_reports(reports, today, limit):\n    now = date.fromisoformat(today)\n    late = []\n    for rid, received, acknowledged in reports:\n        end = date.fromisoformat(acknowledged) if acknowledged else now\n        if (end - date.fromisoformat(received)).days > limit:\n            late.append(rid)\n    return sorted(late)\n\nREPORTS = [[\"R-1\", \"2026-10-20\", \"2026-10-21\"],\n           [\"R-2\", \"2026-10-25\", None],\n           [\"R-3\", \"2026-11-01\", None],\n           [\"R-4\", \"2026-10-01\", \"2026-10-09\"]]\nprint(late_reports(REPORTS, \"2026-11-03\", 5))\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import date\n\n\ndef late_reports(reports, today, limit):\n    now = date.fromisoformat(today)\n    late = []\n    for rid, received, acknowledged in reports:\n        end = date.fromisoformat(acknowledged) if acknowledged else now\n        if (end - date.fromisoformat(received)).days > limit:\n            late.append(rid)\n    return sorted(late)\n\nREPORTS = [[\"R-1\", \"2026-10-20\", \"2026-10-21\"],\n           [\"R-2\", \"2026-10-25\", None],\n           [\"R-3\", \"2026-11-01\", None],\n           [\"R-4\", \"2026-10-01\", \"2026-10-09\"]]\nprint(late_reports(REPORTS, \"2026-11-03\", 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "late_reports",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "R-1",
+                "2026-10-20",
+                "2026-10-21"
+              ],
+              [
+                "R-2",
+                "2026-10-25",
+                null
+              ],
+              [
+                "R-3",
+                "2026-11-01",
+                null
+              ],
+              [
+                "R-4",
+                "2026-10-01",
+                "2026-10-09"
+              ]
+            ],
+            "2026-11-03",
+            5
+          ],
+          "returns": [
+            "R-2",
+            "R-4"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "R-1",
+                "2026-10-20",
+                "2026-10-21"
+              ],
+              [
+                "R-2",
+                "2026-10-25",
+                null
+              ],
+              [
+                "R-3",
+                "2026-11-01",
+                null
+              ],
+              [
+                "R-4",
+                "2026-10-01",
+                "2026-10-09"
+              ]
+            ],
+            "2026-11-03",
+            30
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [],
+            "2026-11-03",
+            5
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "R-1",
+                "2026-10-20",
+                "2026-10-21"
+              ],
+              [
+                "R-2",
+                "2026-10-25",
+                null
+              ],
+              [
+                "R-3",
+                "2026-11-01",
+                null
+              ],
+              [
+                "R-4",
+                "2026-10-01",
+                "2026-10-09"
+              ]
+            ],
+            "2026-11-30",
+            7
+          ],
+          "returns": [
+            "R-2",
+            "R-3",
+            "R-4"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['R-2', 'R-4']"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "id": "cannot-authorise",
+  "title": {
+    "tr": "Kim izin veremez?",
+    "en": "Who cannot authorise?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sahibi bilinmeyen hedef de izinsizdir: `owners.get(target) != signed_by`.",
+      "en": "A target with an unknown owner is also unauthorised: `owners.get(target) != signed_by`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef cannot_authorise(owners, signed_by, targets):\n    found = []\n    for target in targets:\n        if owners.get(target) != signed_by:\n            found.append(target)\n    return sorted(found)\n\nOWNERS = {\"shop.example.org\": \"Eve\", \"mail.example.org\": \"Bob\"}\nTARGETS = [\"shop.example.org\", \"mail.example.org\", \"vpn.example.org\"]\nprint(cannot_authorise(OWNERS, \"Bob\", TARGETS))\n```",
+      "en": "The full solution:\n\n```python\ndef cannot_authorise(owners, signed_by, targets):\n    found = []\n    for target in targets:\n        if owners.get(target) != signed_by:\n            found.append(target)\n    return sorted(found)\n\nOWNERS = {\"shop.example.org\": \"Eve\", \"mail.example.org\": \"Bob\"}\nTARGETS = [\"shop.example.org\", \"mail.example.org\", \"vpn.example.org\"]\nprint(cannot_authorise(OWNERS, \"Bob\", TARGETS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cannot_authorise",
+      "cases": [
+        {
+          "args": [
+            {
+              "shop.example.org": "Eve",
+              "mail.example.org": "Bob"
+            },
+            "Bob",
+            [
+              "shop.example.org",
+              "mail.example.org",
+              "vpn.example.org"
+            ]
+          ],
+          "returns": [
+            "shop.example.org",
+            "vpn.example.org"
+          ]
+        },
+        {
+          "args": [
+            {
+              "shop.example.org": "Eve",
+              "mail.example.org": "Bob"
+            },
+            "Eve",
+            [
+              "shop.example.org",
+              "mail.example.org",
+              "vpn.example.org"
+            ]
+          ],
+          "returns": [
+            "mail.example.org",
+            "vpn.example.org"
+          ]
+        },
+        {
+          "args": [
+            {
+              "shop.example.org": "Eve",
+              "mail.example.org": "Bob"
+            },
+            "Bob",
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            "Bob",
+            [
+              "a.example.org"
+            ]
+          ],
+          "returns": [
+            "a.example.org"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['shop.example.org', 'vpn.example.org']"
+    }
+  ]
+}

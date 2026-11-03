@@ -1,0 +1,56 @@
+{
+  "id": "redact-report",
+  "title": {
+    "tr": "Raporu temizle",
+    "en": "Redact a report"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İçeride `def mask(match):` yaz; `match.group(0).split(\"@\", 1)` kullanıcıyı ve alan adını verir. Sonra `re.sub(PATTERN, mask, text)`.",
+      "en": "Write `def mask(match):` inside; `match.group(0).split(\"@\", 1)` gives the user and the domain. Then `re.sub(PATTERN, mask, text)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nPATTERN = r\"[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\"\n\n\ndef redact(text):\n    def mask(match):\n        user, domain = match.group(0).split(\"@\", 1)\n        return user[0] + \"***@\" + domain\n    return re.sub(PATTERN, mask, text)\n\nprint(redact(\"Owner: ada@example.org\"))\nprint(redact(\"Seen: b.lee@example.org, x@y.org\"))\nprint(redact(\"No address here.\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nPATTERN = r\"[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\"\n\n\ndef redact(text):\n    def mask(match):\n        user, domain = match.group(0).split(\"@\", 1)\n        return user[0] + \"***@\" + domain\n    return re.sub(PATTERN, mask, text)\n\nprint(redact(\"Owner: ada@example.org\"))\nprint(redact(\"Seen: b.lee@example.org, x@y.org\"))\nprint(redact(\"No address here.\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "redact",
+      "cases": [
+        {
+          "args": [
+            "Error shows ada@example.org and b.lee@example.org."
+          ],
+          "returns": "Error shows a***@example.org and b***@example.org."
+        },
+        {
+          "args": [
+            "no addresses here"
+          ],
+          "returns": "no addresses here"
+        },
+        {
+          "args": [
+            "x@y.org"
+          ],
+          "returns": "x***@y.org"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Owner: a***@example.org\nSeen: b***@example.org, x***@y.org\nNo address here."
+    }
+  ]
+}
