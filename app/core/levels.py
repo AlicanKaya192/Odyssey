@@ -28,16 +28,14 @@ SECTION_XP = 60
 # Rozetin `xp` alanı yoksa kademesine göre.
 TIER_XP = {"bronze": 100, "silver": 200, "gold": 400, "legendary": 1000}
 
-MAX_LEVEL = 50
-# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 140 artıyor.
-# (1.0'da 40'tan önce 55'e, Temel Kütüphaneler'in üç modülüyle 70'e, 1.1'de
-# NLP patikasıyla 80'e, GenAI patikasıyla 90'a, 1.3'te Sistem Tasarımı
-# patikasıyla 100'e, 1.5'te Rust patikasıyla 110'a, 1.6'da Komut Satırı ve
-# İstatistik patikalarıyla 130'a, Siber Güvenlik patikasıyla 140'a çıktı:
-# içeriğin tamamı her seferinde 40'a ulaşmıştı; 40 ve 50 ileride yazılacak
-# patikalara kalsın.)
+# İçerik büyüyünce adım değil en yüksek seviye artıyor: başlarda seviye
+# atlamak yine kolay kalsın. İçeriğin tamamı en yüksek seviyenin 10 altına
+# gelince sınır yükseltilir (1.6'da 50'den 56'ya; içerik 46. seviye).
+MAX_LEVEL = 56
+# Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 100 artıyor.
+# (1.0'dan 1.4'e kadar her yeni patikada adım büyütülüyordu: 40'tan 100'e.)
 FIRST_STEP = 100
-STEP_GROWTH = 140
+STEP_GROWTH = 100
 
 SEEN_LEVEL_KEY = "level_seen"
 EARNED_TAGS_KEY = "tags_earned"
