@@ -1,0 +1,89 @@
+{
+  "id": "find-weak",
+  "title": {
+    "tr": "Yanlış kaynağı bul",
+    "en": "Find the wrong source"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `code = line.strip()`; yorum ve `random.SystemRandom` satırlarını `continue` ile atla.",
+      "en": "First `code = line.strip()`; skip comment and `random.SystemRandom` lines with `continue`."
+    },
+    {
+      "tr": "Kalanlarda `\"random.\" in code or code.startswith(\"from random import\")`.",
+      "en": "For the rest, `\"random.\" in code or code.startswith(\"from random import\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef find_weak(lines):\n    found = []\n    for number, line in enumerate(lines, 1):\n        code = line.strip()\n        if code.startswith(\"#\") or \"random.SystemRandom\" in code:\n            continue\n        if \"random.\" in code or code.startswith(\"from random import\"):\n            found.append(number)\n    return found\n\ncode = [\n    \"import random\",\n    \"import secrets\",\n    \"pin = random.randint(1000, 9999)\",\n    \"# random.seed(1) is only for tests\",\n    \"key = os.urandom(32)\",\n    \"rng = random.SystemRandom()\",\n    \"from random import choice\",\n]\nprint(find_weak(code))\n```",
+      "en": "The full solution:\n\n```python\ndef find_weak(lines):\n    found = []\n    for number, line in enumerate(lines, 1):\n        code = line.strip()\n        if code.startswith(\"#\") or \"random.SystemRandom\" in code:\n            continue\n        if \"random.\" in code or code.startswith(\"from random import\"):\n            found.append(number)\n    return found\n\ncode = [\n    \"import random\",\n    \"import secrets\",\n    \"pin = random.randint(1000, 9999)\",\n    \"# random.seed(1) is only for tests\",\n    \"key = os.urandom(32)\",\n    \"rng = random.SystemRandom()\",\n    \"from random import choice\",\n]\nprint(find_weak(code))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_weak",
+      "cases": [
+        {
+          "args": [
+            [
+              "import random",
+              "import os",
+              "import secrets",
+              "token = secrets.token_hex(16)",
+              "pin = random.randint(1000, 9999)",
+              "# random.seed(1) is only for tests",
+              "key = os.urandom(32)",
+              "rng = random.SystemRandom()",
+              "from random import choice",
+              "    nonce = random.randbytes(12)"
+            ]
+          ],
+          "returns": [
+            5,
+            9,
+            10
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "x = 1",
+              "import secrets"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "   # random.random()",
+              "random.shuffle(cards)"
+            ]
+          ],
+          "returns": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 7]"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "make-token",
+  "title": {
+    "tr": "Güvenli jeton",
+    "en": "A secure token"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`import secrets` yaz ve `random.choices` yerine her karakter için `secrets.choice(alphabet)`.",
+      "en": "Write `import secrets` and use `secrets.choice(alphabet)` for each character instead of `random.choices`."
+    },
+    {
+      "tr": "`\"\".join(secrets.choice(alphabet) for _ in range(length))`.",
+      "en": "`\"\".join(secrets.choice(alphabet) for _ in range(length))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport secrets\n\n\ndef make_token(length, alphabet):\n    return \"\".join(secrets.choice(alphabet) for _ in range(length))\n\nimport random\n\nALPHABET = \"abcdefghijkmnpqrstuvwxyz23456789\"\ntokens = [make_token(20, ALPHABET) for _ in range(100)]\nprint(\"lengths ok:\", all(len(t) == 20 for t in tokens))\nprint(\"alphabet ok:\", all(set(t) <= set(ALPHABET) for t in tokens))\nprint(\"all different:\", len(set(tokens)) == 100)\nrandom.seed(1)\na = make_token(20, ALPHABET)\nrandom.seed(1)\nb = make_token(20, ALPHABET)\nprint(\"seed has no effect:\", a != b)\n```",
+      "en": "The full solution:\n\n```python\nimport secrets\n\n\ndef make_token(length, alphabet):\n    return \"\".join(secrets.choice(alphabet) for _ in range(length))\n\nimport random\n\nALPHABET = \"abcdefghijkmnpqrstuvwxyz23456789\"\ntokens = [make_token(20, ALPHABET) for _ in range(100)]\nprint(\"lengths ok:\", all(len(t) == 20 for t in tokens))\nprint(\"alphabet ok:\", all(set(t) <= set(ALPHABET) for t in tokens))\nprint(\"all different:\", len(set(tokens)) == 100)\nrandom.seed(1)\na = make_token(20, ALPHABET)\nrandom.seed(1)\nb = make_token(20, ALPHABET)\nprint(\"seed has no effect:\", a != b)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "lengths ok: True\nalphabet ok: True\nall different: True\nseed has no effect: True"
+    }
+  ]
+}
