@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from . import text_scale
 from .terminal_view import COLORS
 
 # Benzeticinin renk adları → terminal renkleri (Git Bash'e yakın).
@@ -39,6 +40,8 @@ LINE_COLORS = {
     "": COLORS["text"],
 }
 MONO = "Cascadia Mono, Consolas, monospace"
+# Yazı boyu ayarı %100'deyken hedeflerin, ekranın ve komut satırının boyu.
+BASE_TEXT_PX = 13
 # Ekranda en fazla bu kadar satır tutuluyor (eskiler düşüyor).
 MAX_LINES = 1500
 
@@ -123,19 +126,11 @@ class GitTerminal(QFrame):
         self._goals = QLabel()
         self._goals.setWordWrap(True)
         self._goals.setTextFormat(Qt.TextFormat.RichText)
-        self._goals.setStyleSheet(
-            f"color: {COLORS['text']}; background: #11141B; border-top: 1px solid {COLORS['border']};"
-            f" border-bottom: 1px solid {COLORS['border']}; padding: 10px 16px; font-size: 13px;"
-        )
         layout.addWidget(self._goals)
 
         self._screen = QTextEdit()
         self._screen.setReadOnly(True)
         self._screen.setFrameShape(QFrame.Shape.NoFrame)
-        self._screen.setStyleSheet(
-            f"QTextEdit {{ background: {COLORS['bg']}; color: {COLORS['text']}; border: none;"
-            f" padding: 8px 14px; font-family: {MONO}; font-size: 13px; }}"
-        )
         self._screen.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         self._screen.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         layout.addWidget(self._screen, 1)
@@ -144,19 +139,32 @@ class GitTerminal(QFrame):
         satir.setContentsMargins(14, 8, 14, 12)
         satir.setSpacing(8)
         self._prompt = QLabel()
-        self._prompt.setStyleSheet(f"color: {COLORS['prompt']}; font-family: {MONO}; font-size: 13px;"
-                                   " font-weight: 700; background: transparent;")
         satir.addWidget(self._prompt)
         self._input = _Input()
-        self._input.setStyleSheet(
-            f"QLineEdit {{ background: transparent; color: {COLORS['text']}; border: none;"
-            f" font-family: {MONO}; font-size: 13px; selection-background-color: #2A2F3A; }}"
-        )
         self._input.submitted.connect(self.command_entered)
         self._input.clear_requested.connect(self.clear_screen)
         satir.addWidget(self._input, 1)
         layout.addLayout(satir)
         self._lines = 0
+        text_scale.listen(self.apply_text_scale)
+
+    def apply_text_scale(self, scale: float) -> None:
+        """Yazı boyu ayarı: hedefler, ekran ve komut satırı (başlık şeridi aynı kalıyor)."""
+        px = round(BASE_TEXT_PX * scale)
+        self._goals.setStyleSheet(
+            f"color: {COLORS['text']}; background: #11141B; border-top: 1px solid {COLORS['border']};"
+            f" border-bottom: 1px solid {COLORS['border']}; padding: 10px 16px; font-size: {px}px;"
+        )
+        self._screen.setStyleSheet(
+            f"QTextEdit {{ background: {COLORS['bg']}; color: {COLORS['text']}; border: none;"
+            f" padding: 8px 14px; font-family: {MONO}; font-size: {px}px; }}"
+        )
+        self._prompt.setStyleSheet(f"color: {COLORS['prompt']}; font-family: {MONO}; font-size: {px}px;"
+                                   " font-weight: 700; background: transparent;")
+        self._input.setStyleSheet(
+            f"QLineEdit {{ background: transparent; color: {COLORS['text']}; border: none;"
+            f" font-family: {MONO}; font-size: {px}px; selection-background-color: #2A2F3A; }}"
+        )
 
     @staticmethod
     def _button_qss() -> str:
