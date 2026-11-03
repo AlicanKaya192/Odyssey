@@ -57,6 +57,9 @@ lecture note does not mean downloading the whole application again.
   roughly how many hours the path takes next to its section count
   ("0 / 72 sections · ~59 hours"), so it is easier to plan which path to
   start.
+- **Volume control in videos.** The CS50 Python video bar has a volume
+  button and slider; M mutes and unmutes, ↑ ↓ turn the volume up and down,
+  and the level you pick is kept for the next video.
 
 ## [1.5.0] — 31 October 2026
 

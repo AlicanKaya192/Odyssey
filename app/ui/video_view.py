@@ -71,7 +71,8 @@ EMBED_URL = ("https://www.youtube.com/embed/{id}?enablejsapi=1&controls=0&rel=0&
 QUALITIES = ("auto", "hd1080", "hd720", "large")
 # `lang` boşsa (hiç seçilmemiş) altyazı arayüzün dilinde açılıyor, o dil yoksa ilk olanda.
 # `bar`: kontrol çubuğu görünür mü (Alican 23 Ekim: gizlenip istenince açılsın).
-DEFAULT_PREFS = {"lang": "", "size": 0, "quality": "hd1080", "bar": True}
+# `volume` 0–100 ve `muted`: kendi çubuğumuzdaki ses (Alican 3 Kasım: ses ayarı yoktu).
+DEFAULT_PREFS = {"lang": "", "size": 0, "quality": "hd1080", "bar": True, "volume": 100, "muted": False}
 # Kendi altyazımızın dilleri ve menüdeki adları (dilin kendi adıyla).
 SUBTITLE_LANGS = {"en": "English", "tr": "Türkçe"}
 # Oynatıcının kendi nesnesi; `setPlaybackQualityRange` IFrame API'sinde yok.
@@ -109,6 +110,12 @@ _ICONS = {
              'stroke-linecap="round" stroke-linejoin="round"/>',
     "down": '<path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" '
             'stroke-linecap="round" stroke-linejoin="round"/>',
+    "vol": '<path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z" fill="currentColor"/>'
+           '<path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" '
+           'stroke-width="2" stroke-linecap="round"/>',
+    "mute": '<path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z" fill="currentColor"/>'
+            '<path d="m16 9.5 5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="2" '
+            'stroke-linecap="round"/>',
 }
 
 
@@ -145,7 +152,8 @@ def embed_html(video_id: str, language: LanguageManager, palette: dict, prefs: d
     kaynak = html.escape(EMBED_URL.format(id=video_id, lang=language.language), quote=True)
     etiket = {k: t(f"video.{k}") for k in ("play", "pause", "back10", "fwd10", "captions", "smaller",
                                            "larger", "speed", "quality", "auto", "fullscreen",
-                                           "subtitles", "subtitles_off", "hide_bar", "show_bar")}
+                                           "subtitles", "subtitles_off", "hide_bar", "show_bar",
+                                           "mute", "unmute", "volume")}
     renk = {k: html.escape(palette[k], quote=True)
             for k in ("bg", "surface", "surface_hover", "border", "text", "text_muted", "accent")}
     a = lambda k: html.escape(etiket[k], quote=True)  # noqa: E731
@@ -159,11 +167,14 @@ def embed_html(video_id: str, language: LanguageManager, palette: dict, prefs: d
     tercih = language.language if language.language in diller else (diller or ["off"])[0]
     secili = prefs["lang"] if prefs["lang"] in diller or prefs["lang"] == "off" else tercih
     ayar = json.dumps({"prefs": {"lang": secili, "size": int(prefs["size"]), "quality": prefs["quality"],
-                                 "bar": bool(prefs.get("bar", True))},
+                                 "bar": bool(prefs.get("bar", True)),
+                                 "volume": int(prefs.get("volume", 100)), "muted": bool(prefs.get("muted"))},
                        "subs": {d: [[round(s, 3), round(e, 3), y] for s, e, y in subs[d]] for d in diller},
                        "preferred": tercih,
-                       "labels": {"play": etiket["play"], "pause": etiket["pause"]},
-                       "icons": {"play": _svg("play"), "pause": _svg("pause")}}, ensure_ascii=False)
+                       "labels": {"play": etiket["play"], "pause": etiket["pause"],
+                                  "mute": etiket["mute"], "unmute": etiket["unmute"]},
+                       "icons": {"play": _svg("play"), "pause": _svg("pause"),
+                                 "vol": _svg("vol"), "mute": _svg("mute")}}, ensure_ascii=False)
     ayar = ayar.replace("</", "<\\/")
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
 :root {{ --bg: {renk['bg']}; --surface: {renk['surface']}; --hover: {renk['surface_hover']};
@@ -222,6 +233,7 @@ button:focus-visible, .opt:focus-visible {{ outline: 2px solid var(--accent); ou
 .nosubs #cc, .nosubs #smaller, .nosubs #larger {{ display: none; }}
 #time {{ color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; padding: 0 4px; }}
 #seek {{ flex: 1; min-width: 60px; accent-color: var(--accent); cursor: pointer; }}
+#vol {{ width: 72px; flex: none; accent-color: var(--accent); cursor: pointer; }}
 .sep {{ width: 1px; height: 20px; background: var(--border); margin: 0 2px; }}
 </style></head><body>
 <div class="stage"><div class="wrap"><iframe id="yt" src="{kaynak}"
@@ -232,6 +244,8 @@ button:focus-visible, .opt:focus-visible {{ outline: 2px solid var(--accent); ou
  <button id="play" title="{a('play')}">{_svg('play')}</button>
  <button id="back" title="{a('back10')}">{_svg('back')}</button>
  <button id="fwd" title="{a('fwd10')}">{_svg('fwd')}</button>
+ <button id="mute" title="{a('mute')}">{_svg('vol')}</button>
+ <input id="vol" type="range" min="0" max="100" value="100" title="{a('volume')}" aria-label="{a('volume')}">
  <span id="time">0:00 / 0:00</span>
  <input id="seek" type="range" min="0" max="1000" value="0">
  <span class="sep"></span>
@@ -309,9 +323,35 @@ function toggle() {{
   player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo();
 }}
 function skip(s) {{ if (player) player.seekTo(Math.max(0, player.getCurrentTime() + s), true); }}
+// Ses: YouTube'un çubuğu kapalı, ses yalnızca buradan. Uygulamaya `vol:70`, sessizse `vol:70m`.
+function volumeShown() {{
+  const off = S.muted || S.volume === 0;
+  $('mute').innerHTML = off ? CFG.icons.mute : CFG.icons.vol;
+  $('mute').title = off ? CFG.labels.unmute : CFG.labels.mute;
+  $('vol').value = S.muted ? 0 : S.volume;
+}}
+function applyVolume() {{
+  volumeShown();
+  if (!player || !player.setVolume) return;
+  player.setVolume(S.volume);
+  S.muted ? player.mute() : player.unMute();
+}}
+function saveVolume() {{ tell('vol:' + S.volume + (S.muted ? 'm' : '')); }}
+function setVolume(v) {{
+  S.volume = Math.max(0, Math.min(100, Math.round(v)));
+  S.muted = S.volume === 0;
+  applyVolume();
+}}
+// Sessizden açınca önceki düzey; kaydırıcı 0'a çekilmişse yarıya.
+function toggleMute() {{
+  if (S.muted || S.volume === 0) {{ S.muted = false; if (S.volume === 0) S.volume = 50; }}
+  else S.muted = true;
+  applyVolume();
+  saveVolume();
+}}
 function onYouTubeIframeAPIReady() {{
   player = new YT.Player('yt', {{ events: {{
-    onReady: () => {{ youtubeCaptionsOff(); captions(); setInterval(tick, 250); setInterval(subTick, 100); }},
+    onReady: () => {{ youtubeCaptionsOff(); captions(); applyVolume(); setInterval(tick, 250); setInterval(subTick, 100); }},
     onStateChange: e => {{ playing(e.data === 1); if (e.data === 1) {{ youtubeCaptionsOff(); tell('playing'); }} }}
   }} }});
 }}
@@ -382,6 +422,10 @@ $('seek').onchange = () => {{
   if (player) player.seekTo($('seek').value / 1000 * d, true);
   dragging = false;
 }};
+$('mute').onclick = toggleMute;
+$('vol').oninput = () => setVolume(Number($('vol').value));
+$('vol').onchange = saveVolume;
+volumeShown();
 $('smaller').onclick = () => {{ S.size = Math.max(-1, S.size - 1); captions(); tell('size:' + S.size); }};
 $('larger').onclick = () => {{ S.size = Math.min(3, S.size + 1); captions(); tell('size:' + S.size); }};
 $('fs').onclick = () => document.fullscreenElement ? document.exitFullscreen()
@@ -393,7 +437,15 @@ document.addEventListener('keydown', e => {{
   const el = e.target instanceof Element ? e.target : null;
   if (el && el.closest('.menu')) return;   // açık listede tuşlar listenin
   if (el && el.tagName === 'BUTTON' && (e.key === ' ' || e.key === 'Enter')) return;   // düğmeyi basar
+  // Kaydırıcı ya da seçici odaktayken ↑ ↓ onların (değer, liste).
+  const field = el && (el.tagName === 'INPUT' || el.closest('.picker'));
   if (e.key === ' ' || e.key === 'k') {{ toggle(); e.preventDefault(); }}
+  else if (e.key === 'm') toggleMute();
+  else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !field) {{
+    setVolume(S.volume + (e.key === 'ArrowUp' ? 5 : -5));
+    saveVolume();
+    e.preventDefault();
+  }}
   else if (e.key === 'ArrowLeft') skip(-5);
   else if (e.key === 'ArrowRight') skip(5);
   else if (e.key === 'f') $('fs').click();
@@ -535,10 +587,16 @@ class VideoView(QWidget):
         dil = self._get("video_caption_lang", "")
         if not dil and self._get("video_captions", "1") == "0":
             dil = "off"   # eski ayar: YouTube altyazısı kapatılmıştı
+        try:
+            ses = int(self._get("video_volume", "100"))
+        except ValueError:
+            ses = DEFAULT_PREFS["volume"]
         return {"lang": dil if dil == "off" or dil in SUBTITLE_LANGS else "",
                 "size": boyut if -1 <= boyut <= 3 else 0,
                 "quality": kalite if kalite in QUALITIES else DEFAULT_PREFS["quality"],
-                "bar": self._get("video_bar", "1") != "0"}
+                "bar": self._get("video_bar", "1") != "0",
+                "volume": ses if 0 <= ses <= 100 else DEFAULT_PREFS["volume"],
+                "muted": self._get("video_muted", "0") == "1"}
 
     def _on_title(self, title: str) -> None:
         """Sayfanın mesajı: `q:hd720#3`, `cl:tr#4`, `size:2#5`, `playing#6`.
@@ -557,6 +615,9 @@ class VideoView(QWidget):
             self._set("video_caption_size", deger)
         elif tur == "bar" and deger in ("0", "1"):
             self._set("video_bar", deger)
+        elif tur == "vol" and deger.removesuffix("m").isdigit() and int(deger.removesuffix("m")) <= 100:
+            self._set("video_volume", str(int(deger.removesuffix("m"))))
+            self._set("video_muted", "1" if deger.endswith("m") else "0")
         elif tur == "menu" and deger in ("0", "1"):
             self.menu_open = deger == "1"
         elif mesaj == "playing":

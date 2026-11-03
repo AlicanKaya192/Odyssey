@@ -55,6 +55,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   sayısının yanında patikanın aşağı yukarı kaç saat sürdüğünü gösteriyor
   ("0 / 72 bölüm · ~59 saat"); hangi patikaya başlayacağınızı planlamak
   kolaylaşıyor.
+- **Videoda ses ayarı.** CS50 Python videolarının çubuğunda ses düğmesi ve
+  kaydırıcısı var; M tuşu sesi kapatıp açıyor, ↑ ↓ sesi açıp kısıyor ve
+  seçtiğiniz düzey bir sonraki videoda da korunuyor.
 
 ## [1.5.0] — 31 Ekim 2026
 
