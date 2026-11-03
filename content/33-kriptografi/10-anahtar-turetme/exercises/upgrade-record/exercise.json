@@ -1,0 +1,74 @@
+{
+  "id": "upgrade-record",
+  "title": {
+    "tr": "Tekrar sayısını yükselt",
+    "en": "Raise the iteration count"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu doğru parolada kaydı hep aynen döndürüyor; eski, düşük tekrar sayısı hiç yükselmiyor.",
+      "en": "The starter code always returns the record unchanged for a right password; the old, low iteration count never rises."
+    },
+    {
+      "tr": "`if int(iterations) < minimum: return make_record(password, salt_hex, minimum)`.",
+      "en": "`if int(iterations) < minimum: return make_record(password, salt_hex, minimum)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_record(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)\n    return f\"pbkdf2_sha256${iterations}${salt_hex}${key.hex()}\"\n\n\ndef upgrade(password, record, minimum):\n    algorithm, iterations, salt_hex, key_hex = record.split(\"$\")\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, int(iterations), dklen=32)\n    if not hmac.compare_digest(key.hex(), key_hex):\n        return \"wrong password\"\n    if int(iterations) < minimum:\n        return make_record(password, salt_hex, minimum)\n    return record\n\nsalt = \"a1b2c3d4e5f60718293a4b5c6d7e8f90\"\nold = make_record(\"sunflower\", salt, 1000)\nnew = upgrade(\"sunflower\", old, 3000)\nprint(new.split(\"$\")[1])\nprint(upgrade(\"sunflower\", new, 3000) == new)\nprint(upgrade(\"tulip\", old, 3000))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_record(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)\n    return f\"pbkdf2_sha256${iterations}${salt_hex}${key.hex()}\"\n\n\ndef upgrade(password, record, minimum):\n    algorithm, iterations, salt_hex, key_hex = record.split(\"$\")\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, int(iterations), dklen=32)\n    if not hmac.compare_digest(key.hex(), key_hex):\n        return \"wrong password\"\n    if int(iterations) < minimum:\n        return make_record(password, salt_hex, minimum)\n    return record\n\nsalt = \"a1b2c3d4e5f60718293a4b5c6d7e8f90\"\nold = make_record(\"sunflower\", salt, 1000)\nnew = upgrade(\"sunflower\", old, 3000)\nprint(new.split(\"$\")[1])\nprint(upgrade(\"sunflower\", new, 3000) == new)\nprint(upgrade(\"tulip\", old, 3000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "upgrade",
+      "cases": [
+        {
+          "args": [
+            "sunflower",
+            "pbkdf2_sha256$1000$a1b2c3d4e5f60718293a4b5c6d7e8f90$8df9ca2cddbf5a5ab1373ea5cef1c035c5b405c728b21b25cbbffae0971054a3",
+            3000
+          ],
+          "returns": "pbkdf2_sha256$3000$a1b2c3d4e5f60718293a4b5c6d7e8f90$cca98b40f9162162e2cd74560f1c26a76cdc153671fb90b42bb81b54a09445b9"
+        },
+        {
+          "args": [
+            "sunflower",
+            "pbkdf2_sha256$4000$a1b2c3d4e5f60718293a4b5c6d7e8f90$f5047d60b83cc12ee76aacbf725374b9dc644a68daf427207c8292cf16113795",
+            3000
+          ],
+          "returns": "pbkdf2_sha256$4000$a1b2c3d4e5f60718293a4b5c6d7e8f90$f5047d60b83cc12ee76aacbf725374b9dc644a68daf427207c8292cf16113795"
+        },
+        {
+          "args": [
+            "tulip",
+            "pbkdf2_sha256$1000$a1b2c3d4e5f60718293a4b5c6d7e8f90$8df9ca2cddbf5a5ab1373ea5cef1c035c5b405c728b21b25cbbffae0971054a3",
+            3000
+          ],
+          "returns": "wrong password"
+        },
+        {
+          "args": [
+            "sunflower",
+            "pbkdf2_sha256$1000$a1b2c3d4e5f60718293a4b5c6d7e8f90$8df9ca2cddbf5a5ab1373ea5cef1c035c5b405c728b21b25cbbffae0971054a3",
+            1000
+          ],
+          "returns": "pbkdf2_sha256$1000$a1b2c3d4e5f60718293a4b5c6d7e8f90$8df9ca2cddbf5a5ab1373ea5cef1c035c5b405c728b21b25cbbffae0971054a3"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3000\nTrue\nwrong password"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "hkdf-expand",
+  "title": {
+    "tr": "HKDF genişletme",
+    "en": "HKDF expand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu yalnızca ilk bloğu üretiyor; 80 bayt istenince 32 bayt dönüyor.",
+      "en": "The starter code makes only the first block; asked for 80 bytes it returns 32."
+    },
+    {
+      "tr": "`while len(out) < length:` döngüsünde her bloğu bir öncekinden üret ve `counter`'ı artır.",
+      "en": "In a `while len(out) < length:` loop, make each block from the previous one and increase `counter`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hkdf_expand(prk_hex, info_hex, length):\n    prk = bytes.fromhex(prk_hex)\n    info = bytes.fromhex(info_hex)\n    out, block, counter = b\"\", b\"\", 1\n    while len(out) < length:\n        step = block + info + bytes([counter])\n        block = hmac.new(prk, step, hashlib.sha256).digest()\n        out += block\n        counter += 1\n    return out[:length].hex()\n\nprk = \"9f\" * 32\nprint(len(hkdf_expand(prk, b\"a\".hex(), 16)) // 2)\nprint(len(hkdf_expand(prk, b\"a\".hex(), 80)) // 2)\nshort = hkdf_expand(prk, b\"a\".hex(), 16)\nlong = hkdf_expand(prk, b\"a\".hex(), 80)\nprint(long.startswith(short))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hkdf_expand(prk_hex, info_hex, length):\n    prk = bytes.fromhex(prk_hex)\n    info = bytes.fromhex(info_hex)\n    out, block, counter = b\"\", b\"\", 1\n    while len(out) < length:\n        step = block + info + bytes([counter])\n        block = hmac.new(prk, step, hashlib.sha256).digest()\n        out += block\n        counter += 1\n    return out[:length].hex()\n\nprk = \"9f\" * 32\nprint(len(hkdf_expand(prk, b\"a\".hex(), 16)) // 2)\nprint(len(hkdf_expand(prk, b\"a\".hex(), 80)) // 2)\nshort = hkdf_expand(prk, b\"a\".hex(), 16)\nlong = hkdf_expand(prk, b\"a\".hex(), 80)\nprint(long.startswith(short))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hkdf_expand",
+      "cases": [
+        {
+          "args": [
+            "077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e5",
+            "f0f1f2f3f4f5f6f7f8f9",
+            42
+          ],
+          "returns": "3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865"
+        },
+        {
+          "args": [
+            "9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f",
+            "6d6163",
+            32
+          ],
+          "returns": "e57bb76141679631c6dfe42056fa985952f5d3240740e60f58afb6a7e1668fd6"
+        },
+        {
+          "args": [
+            "9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f",
+            "",
+            100
+          ],
+          "returns": "ecd0b8d5330d3a063442d92a6af54b87a52d3a75616e9759df87f7d44d0975c10f129ab77cc01084f96ec79e00315003552cc5ce1d98ddecba4cb0317bd2472e1f320343320a05f2e9b92b8d7d9fe0f57a0ce50eba10f4e219620b43ab3ab6647ee6f7a5"
+        },
+        {
+          "args": [
+            "9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f",
+            "61",
+            5
+          ],
+          "returns": "4ddf645097"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "16\n80\nTrue"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "derive-key",
+  "title": {
+    "tr": "Paroladan anahtar",
+    "en": "A key from a password"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodunun çıktısı tuz ve tekrar sayısı değişince hiç değişmiyor.",
+      "en": "The starter code's output does not change at all when the salt or the iteration count changes."
+    },
+    {
+      "tr": "`hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)`.",
+      "en": "`hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef derive_key(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)\n    return key.hex()\n\nsalt = \"a1b2c3d4e5f60718293a4b5c6d7e8f90\"\nother = \"00112233445566778899aabbccddeeff\"\nkey = derive_key(\"sunflower\", salt, 1000)\nprint(len(key) // 2, \"bytes\")\nprint(key == derive_key(\"sunflower\", salt, 1000))\nprint(key == derive_key(\"sunflower\", other, 1000))\nprint(key == derive_key(\"sunflower\", salt, 2000))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef derive_key(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)\n    return key.hex()\n\nsalt = \"a1b2c3d4e5f60718293a4b5c6d7e8f90\"\nother = \"00112233445566778899aabbccddeeff\"\nkey = derive_key(\"sunflower\", salt, 1000)\nprint(len(key) // 2, \"bytes\")\nprint(key == derive_key(\"sunflower\", salt, 1000))\nprint(key == derive_key(\"sunflower\", other, 1000))\nprint(key == derive_key(\"sunflower\", salt, 2000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "derive_key",
+      "cases": [
+        {
+          "args": [
+            "sunflower",
+            "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            1000
+          ],
+          "returns": "8df9ca2cddbf5a5ab1373ea5cef1c035c5b405c728b21b25cbbffae0971054a3"
+        },
+        {
+          "args": [
+            "sunflower",
+            "00000000000000000000000000000000",
+            1000
+          ],
+          "returns": "03dd95aa101824ab8bc418f2e43c18c419821c544e5189f2ded5a1fea8ed74aa"
+        },
+        {
+          "args": [
+            "sunflower",
+            "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            2000
+          ],
+          "returns": "a83473fc4d0f6f0c2fd6d524959c23a18c6f5ba28b6837a5cba9777396ed9c20"
+        },
+        {
+          "args": [
+            "",
+            "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            1000
+          ],
+          "returns": "f378b75d7e3872d44ff77665e1557b5d6f307f18318535bdb8ed6a7cb15fc3de"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "32 bytes\nTrue\nFalse\nFalse"
+    }
+  ]
+}

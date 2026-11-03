@@ -1,0 +1,86 @@
+{
+  "id": "aad-open",
+  "title": {
+    "tr": "Uyarı yetmez, reddet",
+    "en": "A warning is not enough, reject"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Uyarı yazıp devam etmek, \"etiket tutmadı\" hatasını yutmakla aynı şey: değiştirilmiş veri kullanılıyor.",
+      "en": "Printing a warning and carrying on is the same as swallowing a \"tag mismatch\" error: changed data gets used."
+    },
+    {
+      "tr": "`print(...)` satırının yerine `return \"rejected\"` yaz.",
+      "en": "Replace the `print(...)` line with `return \"rejected\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef keystream(key, nonce, length):\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef toy_cipher(key_hex, nonce_hex, data_hex):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key, nonce, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef seal_aad(enc_key_hex, mac_key_hex, nonce_hex, header_hex, message_hex):\n    cipher_hex = toy_cipher(enc_key_hex, nonce_hex, message_hex)\n    mac_key = bytes.fromhex(mac_key_hex)\n    header = bytes.fromhex(header_hex)\n    signed = len(header).to_bytes(4, \"big\") + header\n    signed += bytes.fromhex(nonce_hex + cipher_hex)\n    tag = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    return [cipher_hex, tag]\n\n\ndef open_aad(enc_key_hex, mac_key_hex, nonce_hex, header_hex, cipher_hex, tag_hex):\n    mac_key = bytes.fromhex(mac_key_hex)\n    header = bytes.fromhex(header_hex)\n    signed = len(header).to_bytes(4, \"big\") + header\n    signed += bytes.fromhex(nonce_hex + cipher_hex)\n    expected = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    if not hmac.compare_digest(tag_hex, expected):\n        return \"rejected\"\n    return toy_cipher(enc_key_hex, nonce_hex, cipher_hex)\n\nenc = \"11\" * 16\nmac = \"22\" * 16\nnonce = \"00\" * 8\nhead = b\"to:ada\".hex()\ncipher, tag = seal_aad(enc, mac, nonce, head, b\"pay 100\".hex())\nplain = open_aad(enc, mac, nonce, head, cipher, tag)\nprint(bytes.fromhex(plain))\nprint(open_aad(enc, mac, nonce, b\"to:bob\".hex(), cipher, tag))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef keystream(key, nonce, length):\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef toy_cipher(key_hex, nonce_hex, data_hex):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key, nonce, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef seal_aad(enc_key_hex, mac_key_hex, nonce_hex, header_hex, message_hex):\n    cipher_hex = toy_cipher(enc_key_hex, nonce_hex, message_hex)\n    mac_key = bytes.fromhex(mac_key_hex)\n    header = bytes.fromhex(header_hex)\n    signed = len(header).to_bytes(4, \"big\") + header\n    signed += bytes.fromhex(nonce_hex + cipher_hex)\n    tag = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    return [cipher_hex, tag]\n\n\ndef open_aad(enc_key_hex, mac_key_hex, nonce_hex, header_hex, cipher_hex, tag_hex):\n    mac_key = bytes.fromhex(mac_key_hex)\n    header = bytes.fromhex(header_hex)\n    signed = len(header).to_bytes(4, \"big\") + header\n    signed += bytes.fromhex(nonce_hex + cipher_hex)\n    expected = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    if not hmac.compare_digest(tag_hex, expected):\n        return \"rejected\"\n    return toy_cipher(enc_key_hex, nonce_hex, cipher_hex)\n\nenc = \"11\" * 16\nmac = \"22\" * 16\nnonce = \"00\" * 8\nhead = b\"to:ada\".hex()\ncipher, tag = seal_aad(enc, mac, nonce, head, b\"pay 100\".hex())\nplain = open_aad(enc, mac, nonce, head, cipher, tag)\nprint(bytes.fromhex(plain))\nprint(open_aad(enc, mac, nonce, b\"to:bob\".hex(), cipher, tag))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "open_aad",
+      "cases": [
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0000000000000000",
+            "746f3a616461",
+            "49d2dfee644b43",
+            "af7473dfc9a1645c2d279e990453d74c33bc4b53fe33d4fbd6585e58a794ce43"
+          ],
+          "returns": "70617920313030"
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0000000000000000",
+            "746f3a626f62",
+            "49d2dfee644b43",
+            "af7473dfc9a1645c2d279e990453d74c33bc4b53fe33d4fbd6585e58a794ce43"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0102030405060708",
+            "746f3a616461",
+            "49d2dfee644b43",
+            "af7473dfc9a1645c2d279e990453d74c33bc4b53fe33d4fbd6585e58a794ce43"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0000000000000000",
+            "746f3a616461",
+            "49d2dfee644b43",
+            "0000000000000000000000000000000000000000000000000000000000000000"
+          ],
+          "returns": "rejected"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "b'pay 100'\nrejected"
+    }
+  ]
+}

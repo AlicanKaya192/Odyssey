@@ -1,0 +1,74 @@
+{
+  "id": "etm-open",
+  "title": {
+    "tr": "Önce doğrula, sonra çöz",
+    "en": "Verify first, then decrypt"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu etiketi hiç denetlemiyor; değiştirilmiş paket de çözülüyor.",
+      "en": "The starter code never checks the tag; a changed package is decrypted too."
+    },
+    {
+      "tr": "`expected = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()` hesapla, `compare_digest` tutmazsa `\"rejected\"` döndür.",
+      "en": "Compute `expected = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()`; if `compare_digest` fails, return `\"rejected\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef keystream(key, nonce, length):\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef toy_cipher(key_hex, nonce_hex, data_hex):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key, nonce, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef seal(enc_key_hex, mac_key_hex, nonce_hex, message_hex):\n    cipher_hex = toy_cipher(enc_key_hex, nonce_hex, message_hex)\n    mac_key = bytes.fromhex(mac_key_hex)\n    signed = bytes.fromhex(nonce_hex + cipher_hex)\n    tag = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    return nonce_hex + cipher_hex + tag\n\n\ndef open_box(enc_key_hex, mac_key_hex, box_hex):\n    nonce_hex = box_hex[:16]\n    cipher_hex = box_hex[16:-64]\n    tag_hex = box_hex[-64:]\n    mac_key = bytes.fromhex(mac_key_hex)\n    signed = bytes.fromhex(nonce_hex + cipher_hex)\n    expected = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    if not hmac.compare_digest(tag_hex, expected):\n        return \"rejected\"\n    return toy_cipher(enc_key_hex, nonce_hex, cipher_hex)\n\nenc = \"11\" * 16\nmac = \"22\" * 16\nbox = seal(enc, mac, \"00\" * 8, b\"pay 100\".hex())\nprint(bytes.fromhex(open_box(enc, mac, box)))\nchanged = box[:16] + \"ff\" + box[18:]\nprint(open_box(enc, mac, changed))\nprint(open_box(enc, \"33\" * 16, box))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef keystream(key, nonce, length):\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef toy_cipher(key_hex, nonce_hex, data_hex):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key, nonce, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef seal(enc_key_hex, mac_key_hex, nonce_hex, message_hex):\n    cipher_hex = toy_cipher(enc_key_hex, nonce_hex, message_hex)\n    mac_key = bytes.fromhex(mac_key_hex)\n    signed = bytes.fromhex(nonce_hex + cipher_hex)\n    tag = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    return nonce_hex + cipher_hex + tag\n\n\ndef open_box(enc_key_hex, mac_key_hex, box_hex):\n    nonce_hex = box_hex[:16]\n    cipher_hex = box_hex[16:-64]\n    tag_hex = box_hex[-64:]\n    mac_key = bytes.fromhex(mac_key_hex)\n    signed = bytes.fromhex(nonce_hex + cipher_hex)\n    expected = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    if not hmac.compare_digest(tag_hex, expected):\n        return \"rejected\"\n    return toy_cipher(enc_key_hex, nonce_hex, cipher_hex)\n\nenc = \"11\" * 16\nmac = \"22\" * 16\nbox = seal(enc, mac, \"00\" * 8, b\"pay 100\".hex())\nprint(bytes.fromhex(open_box(enc, mac, box)))\nchanged = box[:16] + \"ff\" + box[18:]\nprint(open_box(enc, mac, changed))\nprint(open_box(enc, \"33\" * 16, box))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "open_box",
+      "cases": [
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "000000000000000049d2dfee644b43adb15fcffbfc0cd1d290b2a3469bb1b9764a2b36b222594d20e73b3544b88408"
+          ],
+          "returns": "70617920313030"
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0000000000000000ffd2dfee644b43adb15fcffbfc0cd1d290b2a3469bb1b9764a2b36b222594d20e73b3544b88408"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "010203040506070849d2dfee644b43adb15fcffbfc0cd1d290b2a3469bb1b9764a2b36b222594d20e73b3544b88408"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "33333333333333333333333333333333",
+            "000000000000000049d2dfee644b43adb15fcffbfc0cd1d290b2a3469bb1b9764a2b36b222594d20e73b3544b88408"
+          ],
+          "returns": "rejected"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "b'pay 100'\nrejected\nrejected"
+    }
+  ]
+}

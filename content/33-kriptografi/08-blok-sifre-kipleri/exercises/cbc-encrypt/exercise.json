@@ -1,0 +1,74 @@
+{
+  "id": "cbc-encrypt",
+  "title": {
+    "tr": "CBC ile şifrele",
+    "en": "Encrypt with CBC"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu her bloğu hep IV ile XOR'luyor; `prev` hiç değişmediği için zincir kurulmuyor.",
+      "en": "The starter code always XORs each block with the IV; `prev` never changes, so there is no chain."
+    },
+    {
+      "tr": "Şifreli bloğu `prev`'e yaz: `prev = bytes.fromhex(encrypt_block(key_hex, block.hex()))`, sonra `out += prev`.",
+      "en": "Store the ciphertext block in `prev`: `prev = bytes.fromhex(encrypt_block(key_hex, block.hex()))`, then `out += prev`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef round_fn(key, i, half):\n    return hashlib.sha256(key + bytes([i]) + half).digest()[:8]\n\n\ndef encrypt_block(key_hex, block_hex):\n    key = bytes.fromhex(key_hex)\n    block = bytes.fromhex(block_hex)\n    left, right = block[:8], block[8:]\n    for i in range(4):\n        mixed = bytes(a ^ b for a, b in zip(left, round_fn(key, i, right)))\n        left, right = right, mixed\n    return (left + right).hex()\n\n\ndef cbc_encrypt(key_hex, iv_hex, data_hex):\n    data = bytes.fromhex(data_hex)\n    prev = bytes.fromhex(iv_hex)\n    out = b\"\"\n    for i in range(0, len(data), 16):\n        block = bytes(a ^ b for a, b in zip(data[i:i + 16], prev))\n        prev = bytes.fromhex(encrypt_block(key_hex, block.hex()))\n        out += prev\n    return out.hex()\n\nkey = \"746f792d626c6f636b2d6b65792d3136\"\niv = \"000102030405060708090a0b0c0d0e0f\"\nsame = \"59454c4c4f57205355424d4152494e45\" * 2\ncipher = cbc_encrypt(key, iv, same)\nprint(cipher[:32] == cipher[32:])\nprint(len(cipher) // 2, \"bytes\")\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef round_fn(key, i, half):\n    return hashlib.sha256(key + bytes([i]) + half).digest()[:8]\n\n\ndef encrypt_block(key_hex, block_hex):\n    key = bytes.fromhex(key_hex)\n    block = bytes.fromhex(block_hex)\n    left, right = block[:8], block[8:]\n    for i in range(4):\n        mixed = bytes(a ^ b for a, b in zip(left, round_fn(key, i, right)))\n        left, right = right, mixed\n    return (left + right).hex()\n\n\ndef cbc_encrypt(key_hex, iv_hex, data_hex):\n    data = bytes.fromhex(data_hex)\n    prev = bytes.fromhex(iv_hex)\n    out = b\"\"\n    for i in range(0, len(data), 16):\n        block = bytes(a ^ b for a, b in zip(data[i:i + 16], prev))\n        prev = bytes.fromhex(encrypt_block(key_hex, block.hex()))\n        out += prev\n    return out.hex()\n\nkey = \"746f792d626c6f636b2d6b65792d3136\"\niv = \"000102030405060708090a0b0c0d0e0f\"\nsame = \"59454c4c4f57205355424d4152494e45\" * 2\ncipher = cbc_encrypt(key, iv, same)\nprint(cipher[:32] == cipher[32:])\nprint(len(cipher) // 2, \"bytes\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cbc_encrypt",
+      "cases": [
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "000102030405060708090a0b0c0d0e0f",
+            "59454c4c4f57205355424d4152494e4559454c4c4f57205355424d4152494e45"
+          ],
+          "returns": "871ae63311938bc0f243009794ac7095da06ba5c67e3f9f9680d97f98f67aaca"
+        },
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "000102030405060708090a0b0c0d0e0f",
+            "59454c4c4f57205355424d4152494e4559454c4c4f57205355424d4152494e45616e6f7468657220626c6f636b203136"
+          ],
+          "returns": "871ae63311938bc0f243009794ac7095da06ba5c67e3f9f9680d97f98f67aacab087d8c8a6f82a2da98b7578b3a4c78e"
+        },
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "ffffffffffffffffffffffffffffffff",
+            "59454c4c4f57205355424d4152494e4559454c4c4f57205355424d4152494e45"
+          ],
+          "returns": "5c1197b155c7c5f53421680e25296d09f84c9a56c45adbb56f5e5df32dd8c606"
+        },
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "000102030405060708090a0b0c0d0e0f",
+            ""
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\n32 bytes"
+    }
+  ]
+}

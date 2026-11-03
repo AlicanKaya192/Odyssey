@@ -1,0 +1,72 @@
+{
+  "id": "split-box",
+  "title": {
+    "tr": "Paketi böl",
+    "en": "Split the package"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu etiketi baştan alıyor; pakette etiket en sonda.",
+      "en": "The starter code takes the tag from the front; in the package the tag is at the end."
+    },
+    {
+      "tr": "`box_hex[:16]` nonce, `box_hex[16:-64]` şifreli metin, `box_hex[-64:]` etiket.",
+      "en": "`box_hex[:16]` is the nonce, `box_hex[16:-64]` the ciphertext, `box_hex[-64:]` the tag."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef split_box(box_hex):\n    # nonce 8 bytes, tag 32 bytes\n    nonce = box_hex[:16]\n    cipher = box_hex[16:-64]\n    tag = box_hex[-64:]\n    return [nonce, cipher, tag]\n\nbox = \"11\" * 8 + \"aabbcc\" + \"ee\" * 32\nnonce, cipher, tag = split_box(box)\nprint(nonce)\nprint(cipher)\nprint(len(tag) // 2, \"byte tag\")\n```",
+      "en": "The full solution:\n\n```python\ndef split_box(box_hex):\n    # nonce 8 bytes, tag 32 bytes\n    nonce = box_hex[:16]\n    cipher = box_hex[16:-64]\n    tag = box_hex[-64:]\n    return [nonce, cipher, tag]\n\nbox = \"11\" * 8 + \"aabbcc\" + \"ee\" * 32\nnonce, cipher, tag = split_box(box)\nprint(nonce)\nprint(cipher)\nprint(len(tag) // 2, \"byte tag\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split_box",
+      "cases": [
+        {
+          "args": [
+            "000000000000000049d2dfee644b43adb15fcffbfc0cd1d290b2a3469bb1b9764a2b36b222594d20e73b3544b88408"
+          ],
+          "returns": [
+            "0000000000000000",
+            "49d2dfee644b43",
+            "adb15fcffbfc0cd1d290b2a3469bb1b9764a2b36b222594d20e73b3544b88408"
+          ]
+        },
+        {
+          "args": [
+            "0102030405060708107f99ea1c1a07f041830bdfc4f96a5dee6a5199f1221d411c4ffdbf46ea2ce6cf6930e19e5b321838a8ce32"
+          ],
+          "returns": [
+            "0102030405060708",
+            "107f99ea1c1a07f041830bdf",
+            "c4f96a5dee6a5199f1221d411c4ffdbf46ea2ce6cf6930e19e5b321838a8ce32"
+          ]
+        },
+        {
+          "args": [
+            "1111111111111111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          ],
+          "returns": [
+            "1111111111111111",
+            "",
+            "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1111111111111111\naabbcc\n32 byte tag"
+    }
+  ]
+}

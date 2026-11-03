@@ -1,0 +1,74 @@
+{
+  "id": "ctr-mode",
+  "title": {
+    "tr": "CTR kipi",
+    "en": "CTR mode"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu her blokta sayacı 0 alıyor; bütün bloklar aynı anahtar dizisiyle XOR'lanıyor.",
+      "en": "The starter code uses counter 0 for every block; all blocks are XORed with the same keystream."
+    },
+    {
+      "tr": "Sayaç bloğunda `(0)` yerine döngünün `n`'ini kullan: `n.to_bytes(8, \"big\").hex()`.",
+      "en": "Use the loop's `n` instead of `(0)` in the counter block: `n.to_bytes(8, \"big\").hex()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef round_fn(key, i, half):\n    return hashlib.sha256(key + bytes([i]) + half).digest()[:8]\n\n\ndef encrypt_block(key_hex, block_hex):\n    key = bytes.fromhex(key_hex)\n    block = bytes.fromhex(block_hex)\n    left, right = block[:8], block[8:]\n    for i in range(4):\n        mixed = bytes(a ^ b for a, b in zip(left, round_fn(key, i, right)))\n        left, right = right, mixed\n    return (left + right).hex()\n\n\ndef ctr_crypt(key_hex, nonce_hex, data_hex):\n    data = bytes.fromhex(data_hex)\n    out = b\"\"\n    for n, i in enumerate(range(0, len(data), 16)):\n        counter_block = nonce_hex + n.to_bytes(8, \"big\").hex()\n        stream = bytes.fromhex(encrypt_block(key_hex, counter_block))\n        out += bytes(a ^ b for a, b in zip(data[i:i + 16], stream))\n    return out.hex()\n\nkey = \"746f792d626c6f636b2d6b65792d3136\"\nnonce = \"0000000000000001\"\ntext = b\"the same block!!\" * 2 + b\"end\"\nsecret = ctr_crypt(key, nonce, text.hex())\nprint(len(secret) // 2, \"bytes\")\nprint(secret[:32] == secret[32:64])\nprint(bytes.fromhex(ctr_crypt(key, nonce, secret)))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef round_fn(key, i, half):\n    return hashlib.sha256(key + bytes([i]) + half).digest()[:8]\n\n\ndef encrypt_block(key_hex, block_hex):\n    key = bytes.fromhex(key_hex)\n    block = bytes.fromhex(block_hex)\n    left, right = block[:8], block[8:]\n    for i in range(4):\n        mixed = bytes(a ^ b for a, b in zip(left, round_fn(key, i, right)))\n        left, right = right, mixed\n    return (left + right).hex()\n\n\ndef ctr_crypt(key_hex, nonce_hex, data_hex):\n    data = bytes.fromhex(data_hex)\n    out = b\"\"\n    for n, i in enumerate(range(0, len(data), 16)):\n        counter_block = nonce_hex + n.to_bytes(8, \"big\").hex()\n        stream = bytes.fromhex(encrypt_block(key_hex, counter_block))\n        out += bytes(a ^ b for a, b in zip(data[i:i + 16], stream))\n    return out.hex()\n\nkey = \"746f792d626c6f636b2d6b65792d3136\"\nnonce = \"0000000000000001\"\ntext = b\"the same block!!\" * 2 + b\"end\"\nsecret = ctr_crypt(key, nonce, text.hex())\nprint(len(secret) // 2, \"bytes\")\nprint(secret[:32] == secret[32:64])\nprint(bytes.fromhex(ctr_crypt(key, nonce, secret)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ctr_crypt",
+      "cases": [
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "0000000000000001",
+            "59454c4c4f57205355424d4152494e4559454c4c4f57205355424d4152494e45616e6f7468657220626c6f636b203136"
+          ],
+          "returns": "b12547adaca256936fa6c140f4551a7da862b5019a855db2b03c404f6494c53bef15048a0641829b6980d4faa5e07a2f"
+        },
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "0000000000000001",
+            "656e64"
+          ],
+          "returns": "8d0e6f"
+        },
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "0000000000000000",
+            "59454c4c4f57205355424d4152494e4559454c4c4f57205355424d4152494e4521"
+          ],
+          "returns": "e4d8fd086d0f8493c02a4eacfd55927b65c271e1075f2eb26b83c9ce848489eb09"
+        },
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "0000000000000001",
+            ""
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "35 bytes\nFalse\nb'the same block!!the same block!!end'"
+    }
+  ]
+}

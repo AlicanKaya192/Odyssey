@@ -1,0 +1,72 @@
+{
+  "id": "split-keys",
+  "title": {
+    "tr": "İki ayrı anahtar",
+    "en": "Two separate keys"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Aynı `info` aynı anahtarı verir; anahtarları ayıran şey etikettir.",
+      "en": "The same `info` gives the same key; the label is what separates the keys."
+    },
+    {
+      "tr": "`hkdf_expand(prk, b\"encryption\", 32)` ve `hkdf_expand(prk, b\"mac\", 32)`.",
+      "en": "`hkdf_expand(prk, b\"encryption\", 32)` and `hkdf_expand(prk, b\"mac\", 32)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hkdf_extract(salt, secret):\n    return hmac.new(salt, secret, hashlib.sha256).digest()\n\n\ndef hkdf_expand(prk, info, length):\n    out, block, counter = b\"\", b\"\", 1\n    while len(out) < length:\n        step = block + info + bytes([counter])\n        block = hmac.new(prk, step, hashlib.sha256).digest()\n        out += block\n        counter += 1\n    return out[:length]\n\n\ndef derive_pair(master_hex, salt_hex):\n    master = bytes.fromhex(master_hex)\n    salt = bytes.fromhex(salt_hex)\n    prk = hkdf_extract(salt, master)\n    enc_key = hkdf_expand(prk, b\"encryption\", 32)\n    mac_key = hkdf_expand(prk, b\"mac\", 32)\n    return [enc_key.hex(), mac_key.hex()]\n\nenc, mac = derive_pair(\"9f\" * 32, b\"app-salt-v1\".hex())\nprint(enc == mac)\nprint(len(enc) // 2, len(mac) // 2)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hkdf_extract(salt, secret):\n    return hmac.new(salt, secret, hashlib.sha256).digest()\n\n\ndef hkdf_expand(prk, info, length):\n    out, block, counter = b\"\", b\"\", 1\n    while len(out) < length:\n        step = block + info + bytes([counter])\n        block = hmac.new(prk, step, hashlib.sha256).digest()\n        out += block\n        counter += 1\n    return out[:length]\n\n\ndef derive_pair(master_hex, salt_hex):\n    master = bytes.fromhex(master_hex)\n    salt = bytes.fromhex(salt_hex)\n    prk = hkdf_extract(salt, master)\n    enc_key = hkdf_expand(prk, b\"encryption\", 32)\n    mac_key = hkdf_expand(prk, b\"mac\", 32)\n    return [enc_key.hex(), mac_key.hex()]\n\nenc, mac = derive_pair(\"9f\" * 32, b\"app-salt-v1\".hex())\nprint(enc == mac)\nprint(len(enc) // 2, len(mac) // 2)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "derive_pair",
+      "cases": [
+        {
+          "args": [
+            "9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f",
+            "6170702d73616c742d7631"
+          ],
+          "returns": [
+            "5f4c56ef395b22b3fa31b1052a5a0b8bd47232fbef3b44e2d0e62dfac69fca7c",
+            "f5a50669606b806b355c43abeb38da351e92e6b83fc77fb17e7861bdf3f66190"
+          ]
+        },
+        {
+          "args": [
+            "0101010101010101010101010101010101010101010101010101010101010101",
+            ""
+          ],
+          "returns": [
+            "7ef25193af97e2794c6bf6874a09cd5951d904488ff7d1901e46fc0a45ef88c3",
+            "f9301c39add65ff38f00d5b8199b2779c230ed7e66fbbe8db9caf7bc91acf076"
+          ]
+        },
+        {
+          "args": [
+            "9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f",
+            "00000000000000000000000000000000"
+          ],
+          "returns": [
+            "d9cef2310b1d4abb4e0c9c32c6a7b212a949383cf080db8c276af1e8881bac93",
+            "73d10b8689869e9b3f1036b6e25344914ee1aaa9f7c34eb0bce95e84a4a390a7"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\n32 32"
+    }
+  ]
+}

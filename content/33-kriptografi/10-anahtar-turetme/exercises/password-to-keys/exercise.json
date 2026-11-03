@@ -1,0 +1,75 @@
+{
+  "id": "password-to-keys",
+  "title": {
+    "tr": "Paroladan iki anahtar",
+    "en": "Two keys from a password"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodunda `iterations` hiç kullanılmıyor; tekrar sayısı değişse de anahtar aynı.",
+      "en": "The starter code never uses `iterations`; the key is the same when the count changes."
+    },
+    {
+      "tr": "`master = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)`.",
+      "en": "`master = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hkdf_extract(salt, secret):\n    return hmac.new(salt, secret, hashlib.sha256).digest()\n\n\ndef hkdf_expand(prk, info, length):\n    out, block, counter = b\"\", b\"\", 1\n    while len(out) < length:\n        step = block + info + bytes([counter])\n        block = hmac.new(prk, step, hashlib.sha256).digest()\n        out += block\n        counter += 1\n    return out[:length]\n\n\ndef keys_from_password(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    master = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)\n    prk = hkdf_extract(salt, master)\n    enc_key = hkdf_expand(prk, b\"encryption\", 32)\n    mac_key = hkdf_expand(prk, b\"mac\", 32)\n    return [enc_key.hex(), mac_key.hex()]\n\nsalt = \"a1b2c3d4e5f60718293a4b5c6d7e8f90\"\na = keys_from_password(\"sunflower\", salt, 1000)\nb = keys_from_password(\"sunflower\", salt, 2000)\nprint(a[0] == a[1])\nprint(a[0] == b[0])\nprint(a == keys_from_password(\"sunflower\", salt, 1000))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef hkdf_extract(salt, secret):\n    return hmac.new(salt, secret, hashlib.sha256).digest()\n\n\ndef hkdf_expand(prk, info, length):\n    out, block, counter = b\"\", b\"\", 1\n    while len(out) < length:\n        step = block + info + bytes([counter])\n        block = hmac.new(prk, step, hashlib.sha256).digest()\n        out += block\n        counter += 1\n    return out[:length]\n\n\ndef keys_from_password(password, salt_hex, iterations):\n    salt = bytes.fromhex(salt_hex)\n    master = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)\n    prk = hkdf_extract(salt, master)\n    enc_key = hkdf_expand(prk, b\"encryption\", 32)\n    mac_key = hkdf_expand(prk, b\"mac\", 32)\n    return [enc_key.hex(), mac_key.hex()]\n\nsalt = \"a1b2c3d4e5f60718293a4b5c6d7e8f90\"\na = keys_from_password(\"sunflower\", salt, 1000)\nb = keys_from_password(\"sunflower\", salt, 2000)\nprint(a[0] == a[1])\nprint(a[0] == b[0])\nprint(a == keys_from_password(\"sunflower\", salt, 1000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "keys_from_password",
+      "cases": [
+        {
+          "args": [
+            "sunflower",
+            "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            1000
+          ],
+          "returns": [
+            "fc62884444c0f8045fb15b6edff0918cc47b168197ac7eae97b81997d4fdf652",
+            "9f3bab80b5d7410092b24f2d7dfa4860c92a2f8040b7bbe57c9d7a685ed029da"
+          ]
+        },
+        {
+          "args": [
+            "sunflower",
+            "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            2000
+          ],
+          "returns": [
+            "3a037f069935b166ca942f214da6a4ccbc362bf08898ffeeab39cdfd4f61c033",
+            "4078fa336bbb648ed38f873d56ffc3a9e6bcd9c4eaf1cfe605851ee03f5f22da"
+          ]
+        },
+        {
+          "args": [
+            "tulip",
+            "00000000000000000000000000000000",
+            1000
+          ],
+          "returns": [
+            "d66f561e19f2ca3a9e8886be0918323187c19b60c74adb126b310957fb77ce36",
+            "09cddea3de5925acffc5a4538133c1bc65bf96f8bc3aca7231ba0a6fb42de5c0"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\nFalse\nTrue"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "etm-seal",
+  "title": {
+    "tr": "Önce şifrele, sonra MAC",
+    "en": "Encrypt-then-MAC"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu etiketi düz metinden alıyor; bu \"şifrele ve MAC\" olur ve etiket düz metin hakkında bilgi verir.",
+      "en": "The starter code takes the tag over the plaintext; that is \"encrypt-and-MAC\" and the tag gives information about the plaintext."
+    },
+    {
+      "tr": "İmzalanan baytlar `bytes.fromhex(nonce_hex + cipher_hex)` olmalı.",
+      "en": "The signed bytes must be `bytes.fromhex(nonce_hex + cipher_hex)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef keystream(key, nonce, length):\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef toy_cipher(key_hex, nonce_hex, data_hex):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key, nonce, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef seal(enc_key_hex, mac_key_hex, nonce_hex, message_hex):\n    cipher_hex = toy_cipher(enc_key_hex, nonce_hex, message_hex)\n    mac_key = bytes.fromhex(mac_key_hex)\n    signed = bytes.fromhex(nonce_hex + cipher_hex)\n    tag = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    return nonce_hex + cipher_hex + tag\n\nenc = \"11\" * 16\nmac = \"22\" * 16\nbox = seal(enc, mac, \"00\" * 8, b\"pay 100\".hex())\nprint(len(box) // 2, \"bytes\")\nprint(box[:16])\nprint(box[16:30])\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef keystream(key, nonce, length):\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef toy_cipher(key_hex, nonce_hex, data_hex):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key, nonce, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef seal(enc_key_hex, mac_key_hex, nonce_hex, message_hex):\n    cipher_hex = toy_cipher(enc_key_hex, nonce_hex, message_hex)\n    mac_key = bytes.fromhex(mac_key_hex)\n    signed = bytes.fromhex(nonce_hex + cipher_hex)\n    tag = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    return nonce_hex + cipher_hex + tag\n\nenc = \"11\" * 16\nmac = \"22\" * 16\nbox = seal(enc, mac, \"00\" * 8, b\"pay 100\".hex())\nprint(len(box) // 2, \"bytes\")\nprint(box[:16])\nprint(box[16:30])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "seal",
+      "cases": [
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0000000000000000",
+            "70617920313030"
+          ],
+          "returns": "000000000000000049d2dfee644b43adb15fcffbfc0cd1d290b2a3469bb1b9764a2b36b222594d20e73b3544b88408"
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0102030405060708",
+            "6d656574206174206e6f6f6e"
+          ],
+          "returns": "0102030405060708107f99ea1c1a07f041830bdfc4f96a5dee6a5199f1221d411c4ffdbf46ea2ce6cf6930e19e5b321838a8ce32"
+        },
+        {
+          "args": [
+            "33333333333333333333333333333333",
+            "22222222222222222222222222222222",
+            "0000000000000000",
+            ""
+          ],
+          "returns": "0000000000000000b90533cad745efb88d84737d4e0f3dfec363ec8730fec31cc07e6d9b82064737"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "47 bytes\n0000000000000000\n49d2dfee644b43"
+    }
+  ]
+}

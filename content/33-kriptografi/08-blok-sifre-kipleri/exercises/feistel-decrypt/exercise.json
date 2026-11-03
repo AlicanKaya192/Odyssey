@@ -1,0 +1,63 @@
+{
+  "id": "feistel-decrypt",
+  "title": {
+    "tr": "Bloğu çöz",
+    "en": "Decrypt the block"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu turları `range(4)` ile ileri sırayla çalıştırıyor; çözmek için son tur önce geri alınır.",
+      "en": "The starter code runs the rounds forwards with `range(4)`; to decrypt, the last round is undone first."
+    },
+    {
+      "tr": "`for i in reversed(range(4)):` yaz; döngünün içi aynı kalır.",
+      "en": "Write `for i in reversed(range(4)):`; the loop body stays the same."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef round_fn(key, i, half):\n    return hashlib.sha256(key + bytes([i]) + half).digest()[:8]\n\n\ndef encrypt_block(key_hex, block_hex):\n    key = bytes.fromhex(key_hex)\n    block = bytes.fromhex(block_hex)\n    left, right = block[:8], block[8:]\n    for i in range(4):\n        mixed = bytes(a ^ b for a, b in zip(left, round_fn(key, i, right)))\n        left, right = right, mixed\n    return (left + right).hex()\n\n\ndef decrypt_block(key_hex, block_hex):\n    key = bytes.fromhex(key_hex)\n    block = bytes.fromhex(block_hex)\n    left, right = block[:8], block[8:]\n    for i in reversed(range(4)):\n        mixed = bytes(a ^ b for a, b in zip(right, round_fn(key, i, left)))\n        left, right = mixed, left\n    return (left + right).hex()\n\n\nkey = \"746f792d626c6f636b2d6b65792d3136\"\nplain = b\"exactly16bytes!!\".hex()\ncipher = encrypt_block(key, plain)\nprint(cipher[:16])\nprint(decrypt_block(key, cipher) == plain)\nprint(bytes.fromhex(decrypt_block(key, cipher)))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef round_fn(key, i, half):\n    return hashlib.sha256(key + bytes([i]) + half).digest()[:8]\n\n\ndef encrypt_block(key_hex, block_hex):\n    key = bytes.fromhex(key_hex)\n    block = bytes.fromhex(block_hex)\n    left, right = block[:8], block[8:]\n    for i in range(4):\n        mixed = bytes(a ^ b for a, b in zip(left, round_fn(key, i, right)))\n        left, right = right, mixed\n    return (left + right).hex()\n\n\ndef decrypt_block(key_hex, block_hex):\n    key = bytes.fromhex(key_hex)\n    block = bytes.fromhex(block_hex)\n    left, right = block[:8], block[8:]\n    for i in reversed(range(4)):\n        mixed = bytes(a ^ b for a, b in zip(right, round_fn(key, i, left)))\n        left, right = mixed, left\n    return (left + right).hex()\n\n\nkey = \"746f792d626c6f636b2d6b65792d3136\"\nplain = b\"exactly16bytes!!\".hex()\ncipher = encrypt_block(key, plain)\nprint(cipher[:16])\nprint(decrypt_block(key, cipher) == plain)\nprint(bytes.fromhex(decrypt_block(key, cipher)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decrypt_block",
+      "cases": [
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+          ],
+          "returns": "ce2d3d6a3accebf721150e8a0d819112"
+        },
+        {
+          "args": [
+            "746f792d626c6f636b2d6b65792d3136",
+            "00000000000000000000000000000000"
+          ],
+          "returns": "cdc600778ae717d045c650eef634133a"
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "0123456789abcdef0123456789abcdef"
+          ],
+          "returns": "99826bd1fea4eb606b8f862a6b5f24d3"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6fcb9dd4b0ccbb92\nTrue\nb'exactly16bytes!!'"
+    }
+  ]
+}

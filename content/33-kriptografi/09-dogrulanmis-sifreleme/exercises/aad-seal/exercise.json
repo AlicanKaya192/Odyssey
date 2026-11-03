@@ -1,0 +1,81 @@
+{
+  "id": "aad-seal",
+  "title": {
+    "tr": "Başlığı etikete kat",
+    "en": "Put the header into the tag"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu başlığı okuyor ama etikete katmıyor; başlık değişse de etiket aynı kalıyor.",
+      "en": "The starter code reads the header but leaves it out of the tag; the tag stays the same when the header changes."
+    },
+    {
+      "tr": "Önce `signed = len(header).to_bytes(4, \"big\") + header`, sonra `signed += bytes.fromhex(nonce_hex + cipher_hex)`.",
+      "en": "First `signed = len(header).to_bytes(4, \"big\") + header`, then `signed += bytes.fromhex(nonce_hex + cipher_hex)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef keystream(key, nonce, length):\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef toy_cipher(key_hex, nonce_hex, data_hex):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key, nonce, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef seal_aad(enc_key_hex, mac_key_hex, nonce_hex, header_hex, message_hex):\n    cipher_hex = toy_cipher(enc_key_hex, nonce_hex, message_hex)\n    mac_key = bytes.fromhex(mac_key_hex)\n    header = bytes.fromhex(header_hex)\n    signed = len(header).to_bytes(4, \"big\") + header\n    signed += bytes.fromhex(nonce_hex + cipher_hex)\n    tag = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    return [cipher_hex, tag]\n\nenc = \"11\" * 16\nmac = \"22\" * 16\nnonce = \"00\" * 8\na = seal_aad(enc, mac, nonce, b\"to:ada\".hex(), b\"pay\".hex())\nb = seal_aad(enc, mac, nonce, b\"to:bob\".hex(), b\"pay\".hex())\nprint(a[0] == b[0])\nprint(a[1] == b[1])\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef keystream(key, nonce, length):\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef toy_cipher(key_hex, nonce_hex, data_hex):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key, nonce, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef seal_aad(enc_key_hex, mac_key_hex, nonce_hex, header_hex, message_hex):\n    cipher_hex = toy_cipher(enc_key_hex, nonce_hex, message_hex)\n    mac_key = bytes.fromhex(mac_key_hex)\n    header = bytes.fromhex(header_hex)\n    signed = len(header).to_bytes(4, \"big\") + header\n    signed += bytes.fromhex(nonce_hex + cipher_hex)\n    tag = hmac.new(mac_key, signed, hashlib.sha256).hexdigest()\n    return [cipher_hex, tag]\n\nenc = \"11\" * 16\nmac = \"22\" * 16\nnonce = \"00\" * 8\na = seal_aad(enc, mac, nonce, b\"to:ada\".hex(), b\"pay\".hex())\nb = seal_aad(enc, mac, nonce, b\"to:bob\".hex(), b\"pay\".hex())\nprint(a[0] == b[0])\nprint(a[1] == b[1])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "seal_aad",
+      "cases": [
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0000000000000000",
+            "746f3a616461",
+            "70617920313030"
+          ],
+          "returns": [
+            "49d2dfee644b43",
+            "af7473dfc9a1645c2d279e990453d74c33bc4b53fe33d4fbd6585e58a794ce43"
+          ]
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0000000000000000",
+            "746f3a626f62",
+            "70617920313030"
+          ],
+          "returns": [
+            "49d2dfee644b43",
+            "7650f8b050d6901485afedca9e3af544ecb34bc5024b7653d6292d16a6e1f43d"
+          ]
+        },
+        {
+          "args": [
+            "11111111111111111111111111111111",
+            "22222222222222222222222222222222",
+            "0102030405060708",
+            "",
+            "6d656574206174206e6f6f6e"
+          ],
+          "returns": [
+            "107f99ea1c1a07f041830bdf",
+            "87a8f63a942de20a67e64f9ef2757a833b29407ff0836e3b3248da90154af332"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse"
+    }
+  ]
+}
