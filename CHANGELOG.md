@@ -24,6 +24,26 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [1.6.0] — Yayınlanmadı
 
 ### Eklendi
+- **Python ile Siber Güvenlik patikası.** Bir bilgisayar mühendisliği
+  öğrencisinin dört yılda gördüğü güvenlik konuları, dört modülde ve
+  savunma tarafından: Güvenlik Temelleri (tehdit modeli, kimlik doğrulama,
+  parola saklama), Kriptografi (özet, HMAC, şifreleme kipleri, RSA,
+  Diffie-Hellman, imza, TLS), Ağ ve Web Güvenliği (güvenlik duvarı, DNS,
+  OWASP Top 10, SQL enjeksiyonu, XSS, CSRF, SSRF) ve Sistem Güvenliği ve
+  Operasyon (bellek güvenliği, sır yönetimi, kayıt ve saldırı tespiti, olay
+  müdahalesi, adli bilişim, gizlilik, etik ve sorumlu açıklama). Her şey
+  Python'la, bilgisayarınızın içinde kurulan küçük örneklerle; hiçbir
+  alıştırma ağa çıkmaz ya da gerçek bir sisteme dokunmaz.
+- **İstatistik ve A/B Testi patikası.** İki modül: İstatistiksel Çıkarım
+  (örneklem, dağılımlar, güven aralığı, hipotez testleri, güç analizi) ve
+  Deney Tasarımı ve A/B Testi (deneyi kurmak, sonuçları okumak, sıralı
+  bakma, çoklu karşılaştırma, CUPED, ağ etkisi, karar vermek). Sayıların
+  hepsi benzetimle ölçülüyor; bir hatanın deneyi nasıl yanılttığını kendi
+  verinizde görüyorsunuz.
+- **Komut Satırı patikası.** Terminal, dosya sistemi, borular, grep ve
+  find, izinler, ortam değişkenleri, betik yazmak ve çıkış kodları.
+  Alıştırmalar programın içindeki bir Linux terminalinde yapılıyor;
+  bilgisayarınıza hiçbir şey kurulmuyor, hiçbir dosyanıza dokunulmuyor.
 - **Yazı boyu.** Ayarlar › Görünüm'den dersleri, notları, kod editörünü ve
   terminali %90, %100, %115 ya da %130 boyunda okuyabilirsiniz; değişiklik
   açık ekranlara hemen uygulanır.

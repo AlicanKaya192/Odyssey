@@ -26,6 +26,26 @@ lecture note does not mean downloading the whole application again.
 ## [1.6.0] — Unreleased
 
 ### Added
+- **Cyber Security with Python path.** The security topics a computer
+  science student meets over four years, in four modules and from the
+  defender's side: Security Fundamentals (threat modelling, authentication,
+  password storage), Cryptography (hashes, HMAC, cipher modes, RSA,
+  Diffie-Hellman, signatures, TLS), Network and Web Security (firewalls,
+  DNS, the OWASP Top 10, SQL injection, XSS, CSRF, SSRF) and System Security
+  and Operations (memory safety, secrets management, logging and intrusion
+  detection, incident response, forensics, privacy, ethics and responsible
+  disclosure). Everything is done in Python with small examples built inside
+  your computer; no exercise goes on the network or touches a real system.
+- **Statistics and A/B Testing path.** Two modules: Statistical Inference
+  (samples, distributions, confidence intervals, hypothesis tests, power
+  analysis) and Experiment Design and A/B Testing (setting up an experiment,
+  reading the results, peeking, multiple comparisons, CUPED, network
+  effects, making the decision). Every number is measured by simulation, so
+  you see on your own data how a mistake misleads an experiment.
+- **Command Line path.** The terminal, the file system, pipes, grep and
+  find, permissions, environment variables, writing scripts and exit codes.
+  The exercises run in a Linux terminal inside the program; nothing is
+  installed on your computer and none of your files are touched.
 - **Text size.** In Settings › Appearance you can show lessons, notes, the
   code editor and the terminal at 90%, 100%, 115% or 130%; open screens
   change right away.
