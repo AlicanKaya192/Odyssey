@@ -1,0 +1,46 @@
+{
+  "id": "cohort-curves",
+  "title": {
+    "tr": "İki kohortun eğrisi",
+    "en": "Two cohorts' curves"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for new, part in clicks.groupby(\"is_new\"):`.",
+      "en": "`for new, part in clicks.groupby(\"is_new\"):`."
+    },
+    {
+      "tr": "`part.groupby([\"week\", \"group\"])[\"clicks\"].mean().unstack()`.",
+      "en": "`part.groupby([\"week\", \"group\"])[\"clicks\"].mean().unstack()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom ab_data import make_novelty_test\n\nclicks = make_novelty_test(n=10000, seed=12)\nclicks[\"week\"] = (clicks[\"day\"] - 1) // 7 + 1\nfor new, part in clicks.groupby(\"is_new\"):\n    w = part.groupby([\"week\", \"group\"])[\"clicks\"].mean().unstack()\n    print(new, (w[\"B\"] / w[\"A\"] - 1).round(3).tolist())\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom ab_data import make_novelty_test\n\nclicks = make_novelty_test(n=10000, seed=12)\nclicks[\"week\"] = (clicks[\"day\"] - 1) // 7 + 1\nfor new, part in clicks.groupby(\"is_new\"):\n    w = part.groupby([\"week\", \"group\"])[\"clicks\"].mean().unstack()\n    print(new, (w[\"B\"] / w[\"A\"] - 1).round(3).tolist())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False [0.186, 0.088, 0.064, 0.071]\nTrue [0.099, 0.102, 0.105, 0.097]"
+    }
+  ]
+}

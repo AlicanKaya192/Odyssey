@@ -263,3 +263,98 @@ def make_pageviews(n=6000, seed=77, lift=0.0):
     clicks = rng.binomial(pageviews, rate)
     return pd.DataFrame({"user_id": [f"P{i:05d}" for i in range(1, n + 1)], "group": group,
                          "pageviews": pageviews, "clicks": clicks})
+
+
+def make_ramp_test(n_week1=20_000, n_week2=20_000, seed=78, lift=0.05):
+    """A test whose traffic share for B was raised after the first week.
+
+    Columns: user_id, week (1 or 2), group, bought (0/1). In week 1 B got
+    10% of the users, in week 2 50%. Week 1 had a sale, so everyone bought
+    more. In both weeks B truly raises buying by `lift` (relative).
+    """
+    rng = np.random.default_rng(seed)
+    week = np.repeat([1, 2], [n_week1, n_week2])
+    share_b = np.where(week == 1, 0.1, 0.5)
+    group = np.where(rng.random(len(week)) < share_b, "B", "A")
+    p_buy = np.where(week == 1, 0.12, 0.05)
+    p_buy = np.where(group == "B", p_buy * (1 + lift), p_buy)
+    bought = (rng.random(len(week)) < p_buy).astype(int)
+    return pd.DataFrame({"user_id": [f"R{i:05d}" for i in range(1, len(week) + 1)], "week": week,
+                         "group": group, "bought": bought})
+
+
+def make_segment_test(n=40_000, seed=79, lift=0.08):
+    """A 50/50 test with 16 segments, one row per user.
+
+    Columns: user_id, group, platform (mobile / desktop), country (8
+    countries), bought (0/1). Segments differ in how much they buy, but B
+    truly raises buying by the same `lift` (relative) in every segment.
+    """
+    rng = np.random.default_rng(seed)
+    countries = np.array(["TR", "DE", "FR", "UK", "US", "BR", "IN", "JP"])
+    base = dict(zip(countries, [0.05, 0.07, 0.06, 0.08, 0.09, 0.04, 0.03, 0.06]))
+    group = np.where(rng.random(n) < 0.5, "A", "B")
+    platform = np.where(rng.random(n) < 0.6, "mobile", "desktop")
+    country = rng.choice(countries, n)
+    p_buy = np.array([base[c] for c in country])
+    p_buy = np.where(platform == "mobile", p_buy * 0.8, p_buy)
+    p_buy = np.where(group == "B", p_buy * (1 + lift), p_buy)
+    bought = (rng.random(n) < p_buy).astype(int)
+    return pd.DataFrame({"user_id": [f"S{i:05d}" for i in range(1, n + 1)], "group": group,
+                         "platform": platform, "country": country, "bought": bought})
+
+
+def make_novelty_test(n=30_000, seed=80, days=28, lasting=0.04, novelty=0.20):
+    """Daily clicks of a 28-day test, one row per user per day.
+
+    Columns: user_id, group, is_new (True for users who never saw the old
+    design), day (1..days), clicks. For B the lasting effect is `lasting`
+    (relative). Existing B users also get a novelty bonus that starts at
+    `novelty` and halves every 3 days; new users get no novelty bonus.
+    """
+    rng = np.random.default_rng(seed)
+    group = np.where(rng.random(n) < 0.5, "A", "B")
+    is_new = rng.random(n) < 0.2
+    level = rng.lognormal(0.5, 0.5, n)
+    day = np.arange(1, days + 1)
+    bonus = novelty * 0.5 ** ((day - 1) / 3)
+    effect = np.where(group[:, None] == "B",
+                      1 + lasting + np.where(is_new[:, None], 0.0, bonus[None, :]), 1.0)
+    clicks = rng.poisson(level[:, None] * effect)
+    ids = np.array([f"N{i:05d}" for i in range(1, n + 1)])
+    return pd.DataFrame({"user_id": np.repeat(ids, days), "group": np.repeat(group, days),
+                         "is_new": np.repeat(is_new, days), "day": np.tile(day, n),
+                         "clicks": clicks.ravel()})
+
+
+def make_market(n_cities=100, users=300, seed=81, design="user", share_b=0.5, boost=0.2):
+    """A ride-sharing market where riders in a city share the same drivers.
+
+    Columns: user_id, city, group, requested, completed. B makes riders
+    request `boost` (relative) more rides. Each city has a fixed number of
+    drivers; when requests exceed it, every request in the city has the
+    same lower chance of being completed. design="user" assigns riders
+    one by one (B with `share_b`), design="city" assigns whole cities
+    (that share of the cities). The cities and riders depend only on
+    `seed`, so the same seed with share_b=0 and share_b=1 gives the same
+    market in an "all A" and an "all B" world.
+    """
+    world = np.random.default_rng([seed, 0])
+    size = world.lognormal(0.0, 0.3, n_cities)
+    want = world.gamma(2.0, 1.0, (n_cities, users)) * size[:, None]
+    capacity = want.sum(axis=1) * world.uniform(0.85, 1.05, n_cities)
+    assign = np.random.default_rng([seed, 1])
+    if design == "city":
+        city_b = np.zeros(n_cities, bool)
+        city_b[assign.permutation(n_cities)[:round(n_cities * share_b)]] = True
+        is_b = np.repeat(city_b[:, None], users, axis=1)
+    else:
+        is_b = assign.random((n_cities, users)) < share_b
+    noise = np.random.default_rng([seed, 2])
+    requested = noise.poisson(np.where(is_b, want * (1 + boost), want))
+    p_done = np.minimum(1.0, capacity / np.maximum(requested.sum(axis=1), 1))
+    completed = noise.binomial(requested, p_done[:, None])
+    city = np.repeat([f"C{c + 1:03d}" for c in range(n_cities)], users)
+    user = [f"{c}-{u + 1:03d}" for c, u in zip(city, np.tile(np.arange(users), n_cities))]
+    return pd.DataFrame({"user_id": user, "city": city, "group": np.where(is_b.ravel(), "B", "A"),
+                         "requested": requested.ravel(), "completed": completed.ravel()})

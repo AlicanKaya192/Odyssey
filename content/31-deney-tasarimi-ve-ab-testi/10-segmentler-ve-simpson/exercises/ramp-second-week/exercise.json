@@ -1,0 +1,46 @@
+{
+  "id": "ramp-second-week",
+  "title": {
+    "tr": "Sabit oranlı dönem",
+    "en": "The fixed-ratio period"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İkinci hafta `ramp[ramp[\"week\"] == 2]`.",
+      "en": "The second week is `ramp[ramp[\"week\"] == 2]`."
+    },
+    {
+      "tr": "`proportions_ztest([k[\"B\"], k[\"A\"]], [n[\"B\"], n[\"A\"]])[1]`.",
+      "en": "`proportions_ztest([k[\"B\"], k[\"A\"]], [n[\"B\"], n[\"A\"]])[1]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_ramp_test\n\nramp = make_ramp_test(seed=11)\npooled = ramp.groupby(\"group\")[\"bought\"].mean()\nprint(round(float(pooled[\"A\"]), 4), round(float(pooled[\"B\"]), 4))\nweek2 = ramp[ramp[\"week\"] == 2]\nrates = week2.groupby(\"group\")[\"bought\"].mean()\nprint(round(float(rates[\"A\"]), 4), round(float(rates[\"B\"]), 4))\nk = week2.groupby(\"group\")[\"bought\"].sum()\nn = week2.groupby(\"group\").size()\nprint(round(float(proportions_ztest([k[\"B\"], k[\"A\"]], [n[\"B\"], n[\"A\"]])[1]), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import proportions_ztest\nfrom ab_data import make_ramp_test\n\nramp = make_ramp_test(seed=11)\npooled = ramp.groupby(\"group\")[\"bought\"].mean()\nprint(round(float(pooled[\"A\"]), 4), round(float(pooled[\"B\"]), 4))\nweek2 = ramp[ramp[\"week\"] == 2]\nrates = week2.groupby(\"group\")[\"bought\"].mean()\nprint(round(float(rates[\"A\"]), 4), round(float(rates[\"B\"]), 4))\nk = week2.groupby(\"group\")[\"bought\"].sum()\nn = week2.groupby(\"group\").size()\nprint(round(float(proportions_ztest([k[\"B\"], k[\"A\"]], [n[\"B\"], n[\"A\"]])[1]), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.0947 0.0668\n0.0494 0.053\n0.256"
+    }
+  ]
+}

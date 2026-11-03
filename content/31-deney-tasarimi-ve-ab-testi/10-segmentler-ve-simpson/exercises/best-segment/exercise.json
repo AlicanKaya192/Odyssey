@@ -1,0 +1,46 @@
+{
+  "id": "best-segment",
+  "title": {
+    "tr": "En iyi segmentin laneti",
+    "en": "The best segment's curse"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "`t.groupby(keys)[\"bought\"].mean().unstack()` A ve B'yi sütun yapar.",
+      "en": "`t.groupby(keys)[\"bought\"].mean().unstack()` makes A and B columns."
+    },
+    {
+      "tr": "`(cells[\"B\"] / cells[\"A\"] - 1).max()`.",
+      "en": "`(cells[\"B\"] / cells[\"A\"] - 1).max()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_segment_test\n\nkeys = [\"country\", \"platform\", \"group\"]\nbest, overall = [], []\nfor s in range(500, 550):\n    t = make_segment_test(n=20000, seed=s)\n    cells = t.groupby(keys)[\"bought\"].mean().unstack()\n    best.append((cells[\"B\"] / cells[\"A\"] - 1).max())\n    m = t.groupby(\"group\")[\"bought\"].mean()\n    overall.append(m[\"B\"] / m[\"A\"] - 1)\nprint(round(float(np.mean(overall)), 3))\nprint(round(float(np.mean(best)), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_segment_test\n\nkeys = [\"country\", \"platform\", \"group\"]\nbest, overall = [], []\nfor s in range(500, 550):\n    t = make_segment_test(n=20000, seed=s)\n    cells = t.groupby(keys)[\"bought\"].mean().unstack()\n    best.append((cells[\"B\"] / cells[\"A\"] - 1).max())\n    m = t.groupby(\"group\")[\"bought\"].mean()\n    overall.append(m[\"B\"] / m[\"A\"] - 1)\nprint(round(float(np.mean(overall)), 3))\nprint(round(float(np.mean(best)), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.09\n0.726"
+    }
+  ]
+}

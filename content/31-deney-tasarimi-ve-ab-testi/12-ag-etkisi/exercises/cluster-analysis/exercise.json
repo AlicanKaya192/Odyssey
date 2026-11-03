@@ -1,0 +1,46 @@
+{
+  "id": "cluster-analysis",
+  "title": {
+    "tr": "Küme düzeyinde analiz",
+    "en": "Cluster-level analysis"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Şehir ortalaması: `groupby([\"city\", \"group\"])[\"completed\"].mean()`.",
+      "en": "City means: `groupby([\"city\", \"group\"])[\"completed\"].mean()`."
+    },
+    {
+      "tr": "İkinci test için `cities` satırlarını doğrudan kullan.",
+      "en": "For the second test use the rows of `cities` directly."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_market\n\ncities = make_market(seed=22, design=\"city\")\nper_city = cities.groupby([\"city\", \"group\"])[\"completed\"].mean().reset_index()\nb = per_city.loc[per_city[\"group\"] == \"B\", \"completed\"]\na = per_city.loc[per_city[\"group\"] == \"A\", \"completed\"]\nprint(round(float(stats.ttest_ind(b, a, equal_var=False).pvalue), 3))\nub = cities.loc[cities[\"group\"] == \"B\", \"completed\"]\nua = cities.loc[cities[\"group\"] == \"A\", \"completed\"]\nprint(round(float(stats.ttest_ind(ub, ua, equal_var=False).pvalue), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom scipy import stats\nfrom ab_data import make_market\n\ncities = make_market(seed=22, design=\"city\")\nper_city = cities.groupby([\"city\", \"group\"])[\"completed\"].mean().reset_index()\nb = per_city.loc[per_city[\"group\"] == \"B\", \"completed\"]\na = per_city.loc[per_city[\"group\"] == \"A\", \"completed\"]\nprint(round(float(stats.ttest_ind(b, a, equal_var=False).pvalue), 3))\nub = cities.loc[cities[\"group\"] == \"B\", \"completed\"]\nua = cities.loc[cities[\"group\"] == \"A\", \"completed\"]\nprint(round(float(stats.ttest_ind(ub, ua, equal_var=False).pvalue), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.057\n0.0"
+    }
+  ]
+}
