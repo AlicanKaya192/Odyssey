@@ -719,6 +719,8 @@ class Catalog:
     chapters: list[Chapter] = field(default_factory=list)
     tracks: list[Track] = field(default_factory=list)
     groups: list[TrackGroup] = field(default_factory=list)
+    # İçerik sayıları (`content_stats`); pakette hazır, kaynakta ilk istendiğinde sayılıyor.
+    stats: dict[str, int] | None = None
 
     @classmethod
     def load(cls, content_dir: Path) -> "Catalog":
@@ -726,12 +728,26 @@ class Catalog:
             raise ContentError(f"İçerik klasörü bulunamadı: {content_dir}")
 
         bundle = content_dir / BUNDLE_NAME
+        stats = None
         if bundle.exists():
-            chapters = cls._chapters_from_bundle(content_dir, _read_json(bundle))
+            data = _read_json(bundle)
+            chapters = cls._chapters_from_bundle(content_dir, data)
+            stats = data.get("stats")
         else:
             chapters = cls._scan_chapters(content_dir)
         tracks, groups = cls._load_tracks(content_dir, chapters)
-        return cls(chapters=chapters, tracks=tracks, groups=groups)
+        return cls(chapters=chapters, tracks=tracks, groups=groups, stats=stats)
+
+    def content_stats(self) -> dict[str, int]:
+        """Yazılmış patika, bölüm, sınav sorusu, alıştırma ve matematik problemi sayısı.
+
+        Hakkında › Bilgi bunları gösteriyor (önce elle yazılıyordu, eskiyordu).
+        Saymak ~4000 dosya okumak demek: kurulu programda derlemede sayılıp
+        katalog paketine yazılıyor, kaynakta ilk istendiğinde sayılıyor.
+        """
+        if self.stats is None:
+            self.stats = _count_content(self.tracks)
+        return dict(self.stats)
 
     @staticmethod
     def _scan_chapters(content_dir: Path) -> list[Chapter]:
@@ -818,10 +834,32 @@ class Catalog:
         return None, None
 
 
+def _count_content(tracks: list[Track]) -> dict[str, int]:
+    """README'deki yöntem: yazılmış patikaların modüllerindeki her bölüm."""
+    stats = {"tracks": 0, "sections": 0, "questions": 0, "exercises": 0, "problems": 0}
+    for track in tracks:
+        if not track.chapters:
+            continue
+        stats["tracks"] += 1
+        for chapter in track.chapters:
+            for section in chapter.sections:
+                stats["sections"] += 1
+                quiz = section.directory / "quiz.json"
+                if quiz.exists():
+                    data = _read_json(quiz)
+                    stats["questions"] += len(data["questions"] if isinstance(data, dict) else data)
+                for path in section.directory.glob("exercises/*/exercise.json"):
+                    kind = _read_json(path).get("kind")
+                    stats["problems" if kind == "problem" else "exercises"] += 1
+    return stats
+
+
 def write_bundle(content_dir: Path, target: Path) -> None:
     """İçeriği tarayıp `BUNDLE_NAME` dosyasını yazar (derlemede, paketin içine)."""
     chapters = Catalog._scan_chapters(content_dir)
+    tracks, _ = Catalog._load_tracks(content_dir, chapters)
     data = {
+        "stats": _count_content(tracks),
         "chapters": [
             {
                 "dir": chapter.directory.name,

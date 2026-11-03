@@ -525,7 +525,7 @@ class MainWindow(QMainWindow):
         return notebook
 
     def _build_about(self) -> AboutView:
-        about = AboutView(self._language, store=self._store)
+        about = AboutView(self._language, store=self._store, catalog=self._catalog)
         about.review_changed.connect(self._journey.refresh)
         self._about_segments.changed.connect(about.show_index)
         about.section_changed.connect(lambda _: self._update_headers())

@@ -28,6 +28,7 @@ from PySide6.QtCore import QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
+from ..core.catalog import Catalog
 from ..core.glossary import REVIEW_TERM
 from ..core.language import LanguageManager
 from ..paths import content_dir, install_root
@@ -73,10 +74,11 @@ class AboutView(QWidget):
     review_changed = Signal()
 
     def __init__(self, language: LanguageManager, parent: QWidget | None = None,
-                 store=None) -> None:
+                 store=None, catalog: Catalog | None = None) -> None:
         super().__init__(parent)
         self._language = language
         self._store = store
+        self._catalog = catalog
         self._data = load_about()
         self._faq = load_faq()
         self._section = SECTIONS[0]
@@ -227,16 +229,29 @@ class AboutView(QWidget):
 
         Markdown olarak `content/` altında duruyor; ders metinleriyle aynı
         yerde yazılıp aynı biçimde çiziliyor. İngilizcesi yoksa Türkçesine
-        düşüyor.
+        düşüyor. Sayılar ve patika adları elle yazılmıyor (1.6.0'da eski
+        kalmıştı): `{{sections}}` gibi yer tutucuları katalog dolduruyor.
         """
         for code in (self._language.language, "tr"):
             path = content_dir() / f"info.{code}.md"
             if path.exists():
                 return markdown.markdown(
-                    path.read_text(encoding="utf-8"),
+                    self._fill_counts(path.read_text(encoding="utf-8")),
                     extensions=MARKDOWN_EXTENSIONS,
                 )
         return ""
+
+    def _fill_counts(self, text: str) -> str:
+        if self._catalog is None:
+            self._catalog = Catalog.load(content_dir())
+        values = {key: str(value) for key, value in self._catalog.content_stats().items()}
+        names = [f"**{self._language.pick(track.title)}**"
+                 for group in self._catalog.groups for track in group.tracks if track.chapters]
+        values["track_names"] = (", ".join(names[:-1]) + self._language.t("about.list_and") + names[-1]
+                                 if len(names) > 1 else "".join(names))
+        for key, value in values.items():
+            text = text.replace("{{" + key + "}}", value)
+        return text
 
     def _faq_html(self) -> str:
         """Sık sorulanlar, açılıp kapanan başlıklar hâlinde.
