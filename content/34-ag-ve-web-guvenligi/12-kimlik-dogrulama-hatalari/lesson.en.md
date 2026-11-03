@@ -216,7 +216,7 @@ calendar; using a password manager is encouraged.
 ## Other common mistakes
 
 - **Default passwords:** the `admin/admin` account that came with the
-  installation stays live (overlaps with A05 in the OWASP Top 10).
+  installation stays live (overlaps with A02 in the OWASP Top 10).
 - **Carrying credentials in the URL:** a password or token in the address
   goes into logs and the `Referer` (the HTTP and HTTPS section).
 - **Leaving MFA skippable:** if the MFA step is a separate page and the

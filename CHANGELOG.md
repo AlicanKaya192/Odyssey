@@ -29,7 +29,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   savunma tarafından: Güvenlik Temelleri (tehdit modeli, kimlik doğrulama,
   parola saklama), Kriptografi (özet, HMAC, şifreleme kipleri, RSA,
   Diffie-Hellman, imza, TLS), Ağ ve Web Güvenliği (güvenlik duvarı, DNS,
-  OWASP Top 10, SQL enjeksiyonu, XSS, CSRF, SSRF) ve Sistem Güvenliği ve
+  OWASP Top 10:2025, SQL enjeksiyonu, XSS, CSRF, SSRF) ve Sistem Güvenliği ve
   Operasyon (bellek güvenliği, sır yönetimi, kayıt ve saldırı tespiti, olay
   müdahalesi, adli bilişim, gizlilik, etik ve sorumlu açıklama). Her şey
   Python'la, bilgisayarınızın içinde kurulan küçük örneklerle; hiçbir

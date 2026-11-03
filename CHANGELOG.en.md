@@ -31,7 +31,7 @@ lecture note does not mean downloading the whole application again.
   defender's side: Security Fundamentals (threat modelling, authentication,
   password storage), Cryptography (hashes, HMAC, cipher modes, RSA,
   Diffie-Hellman, signatures, TLS), Network and Web Security (firewalls,
-  DNS, the OWASP Top 10, SQL injection, XSS, CSRF, SSRF) and System Security
+  DNS, the OWASP Top 10:2025, SQL injection, XSS, CSRF, SSRF) and System Security
   and Operations (memory safety, secrets management, logging and intrusion
   detection, incident response, forensics, privacy, ethics and responsible
   disclosure). Everything is done in Python with small examples built inside

@@ -214,7 +214,7 @@ takvime göre değil; parola yöneticisi kullanmak teşvik edilir.
 ## Başka sık hatalar
 
 - **Varsayılan parolalar:** kurulumla gelen `admin/admin` hesabı yayında
-  kalır (OWASP Top 10'daki A05 ile kesişir).
+  kalır (OWASP Top 10'daki A02 ile kesişir).
 - **Kimlik bilgisini URL'de taşımak:** parola ya da jeton adreste olursa
   kayıtlara ve `Referer`'a gider (HTTP ve HTTPS bölümü).
 - **MFA'yı atlanabilir bırakmak:** MFA adımı ayrı bir sayfaysa ve sunucu
