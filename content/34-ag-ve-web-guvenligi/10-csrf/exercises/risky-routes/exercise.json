@@ -1,0 +1,86 @@
+{
+  "id": "risky-routes",
+  "title": {
+    "tr": "Durum değiştiren GET",
+    "en": "GET that changes state"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki şart birlikte: güvenli sayılan yöntem **ve** durum değiştiriyor.",
+      "en": "Both conditions together: a method considered safe **and** it changes state."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef risky_routes(routes):\n    found = []\n    for method, path, changes_state in routes:\n        if method in (\"GET\", \"HEAD\") and changes_state:\n            found.append(path)\n    return found\n\nroutes = [[\"GET\", \"/home\", False], [\"GET\", \"/delete-account\", True],\n          [\"POST\", \"/transfer\", True], [\"HEAD\", \"/ping\", True]]\nprint(risky_routes(routes))\n```",
+      "en": "The full solution:\n\n```python\ndef risky_routes(routes):\n    found = []\n    for method, path, changes_state in routes:\n        if method in (\"GET\", \"HEAD\") and changes_state:\n            found.append(path)\n    return found\n\nroutes = [[\"GET\", \"/home\", False], [\"GET\", \"/delete-account\", True],\n          [\"POST\", \"/transfer\", True], [\"HEAD\", \"/ping\", True]]\nprint(risky_routes(routes))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "risky_routes",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "GET",
+                "/home",
+                false
+              ],
+              [
+                "GET",
+                "/delete-account",
+                true
+              ],
+              [
+                "POST",
+                "/transfer",
+                true
+              ],
+              [
+                "HEAD",
+                "/ping",
+                true
+              ]
+            ]
+          ],
+          "returns": [
+            "/delete-account",
+            "/ping"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "POST",
+                "/a",
+                true
+              ]
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['/delete-account', '/ping']"
+    }
+  ]
+}

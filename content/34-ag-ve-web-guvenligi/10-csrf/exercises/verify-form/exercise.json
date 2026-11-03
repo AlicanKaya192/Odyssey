@@ -1,0 +1,105 @@
+{
+  "id": "verify-form",
+  "title": {
+    "tr": "Formu doğrula",
+    "en": "Verify the form"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başka bir oturumun jetonu (`tok-2`) da reddedilir: jeton oturuma bağlı.",
+      "en": "Another session's token (`tok-2`) is refused too: the token is tied to the session."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hmac\n\n\ndef verify(sessions, sid, form):\n    expected = sessions.get(sid)\n    sent = form.get(\"csrf\")\n    if not expected or not sent:\n        return \"rejected\"\n    if hmac.compare_digest(expected, sent):\n        return \"ok\"\n    return \"rejected\"\n\nsessions = {\"s-ada\": \"tok-1\", \"s-bob\": \"tok-2\"}\nprint(verify(sessions, \"s-ada\", {\"csrf\": \"tok-1\", \"amount\": \"50\"}))\nprint(verify(sessions, \"s-ada\", {\"csrf\": \"tok-2\", \"amount\": \"50\"}))\nprint(verify(sessions, \"s-ada\", {\"amount\": \"50\"}))\nprint(verify(sessions, \"s-eve\", {\"csrf\": \"tok-1\"}))\n```",
+      "en": "The full solution:\n\n```python\nimport hmac\n\n\ndef verify(sessions, sid, form):\n    expected = sessions.get(sid)\n    sent = form.get(\"csrf\")\n    if not expected or not sent:\n        return \"rejected\"\n    if hmac.compare_digest(expected, sent):\n        return \"ok\"\n    return \"rejected\"\n\nsessions = {\"s-ada\": \"tok-1\", \"s-bob\": \"tok-2\"}\nprint(verify(sessions, \"s-ada\", {\"csrf\": \"tok-1\", \"amount\": \"50\"}))\nprint(verify(sessions, \"s-ada\", {\"csrf\": \"tok-2\", \"amount\": \"50\"}))\nprint(verify(sessions, \"s-ada\", {\"amount\": \"50\"}))\nprint(verify(sessions, \"s-eve\", {\"csrf\": \"tok-1\"}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify",
+      "cases": [
+        {
+          "args": [
+            {
+              "s-ada": "tok-1",
+              "s-bob": "tok-2"
+            },
+            "s-ada",
+            {
+              "csrf": "tok-1",
+              "amount": "50"
+            }
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            {
+              "s-ada": "tok-1",
+              "s-bob": "tok-2"
+            },
+            "s-ada",
+            {
+              "csrf": "tok-2",
+              "amount": "50"
+            }
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            {
+              "s-ada": "tok-1",
+              "s-bob": "tok-2"
+            },
+            "s-ada",
+            {
+              "amount": "50"
+            }
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            {
+              "s-ada": "tok-1",
+              "s-bob": "tok-2"
+            },
+            "s-eve",
+            {
+              "csrf": "tok-1"
+            }
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            {
+              "s-ada": "tok-1",
+              "s-bob": "tok-2"
+            },
+            "s-bob",
+            {
+              "csrf": "tok-2"
+            }
+          ],
+          "returns": "ok"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\nrejected\nrejected\nrejected"
+    }
+  ]
+}

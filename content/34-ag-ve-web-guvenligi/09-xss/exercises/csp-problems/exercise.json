@@ -1,0 +1,89 @@
+{
+  "id": "csp-problems",
+  "title": {
+    "tr": "CSP denetimi",
+    "en": "A CSP check"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Dersteki `parse_csp` sözlüğü kurar.",
+      "en": "The lesson's `parse_csp` builds the dictionary."
+    },
+    {
+      "tr": "`policy.get(\"script-src\", policy.get(\"default-src\"))` ikisi de yoksa `None` verir.",
+      "en": "`policy.get(\"script-src\", policy.get(\"default-src\"))` gives `None` if both are missing."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef csp_problems(header):\n    policy = {}\n    for part in header.split(\";\"):\n        words = part.split()\n        if words:\n            policy[words[0].lower()] = words[1:]\n    sources = policy.get(\"script-src\", policy.get(\"default-src\"))\n    if sources is None:\n        return [\"no-script-src\"]\n    problems = []\n    if \"'unsafe-inline'\" in sources:\n        problems.append(\"unsafe-inline\")\n    if \"*\" in sources:\n        problems.append(\"wildcard\")\n    return problems\n\nprint(csp_problems(\"default-src 'self'\"))\nprint(csp_problems(\"script-src 'self' 'unsafe-inline'\"))\nprint(csp_problems(\"img-src *\"))\nprint(csp_problems(\"default-src *\"))\n```",
+      "en": "The full solution:\n\n```python\ndef csp_problems(header):\n    policy = {}\n    for part in header.split(\";\"):\n        words = part.split()\n        if words:\n            policy[words[0].lower()] = words[1:]\n    sources = policy.get(\"script-src\", policy.get(\"default-src\"))\n    if sources is None:\n        return [\"no-script-src\"]\n    problems = []\n    if \"'unsafe-inline'\" in sources:\n        problems.append(\"unsafe-inline\")\n    if \"*\" in sources:\n        problems.append(\"wildcard\")\n    return problems\n\nprint(csp_problems(\"default-src 'self'\"))\nprint(csp_problems(\"script-src 'self' 'unsafe-inline'\"))\nprint(csp_problems(\"img-src *\"))\nprint(csp_problems(\"default-src *\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "csp_problems",
+      "cases": [
+        {
+          "args": [
+            "default-src 'self'"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "script-src 'self' 'unsafe-inline'"
+          ],
+          "returns": [
+            "unsafe-inline"
+          ]
+        },
+        {
+          "args": [
+            "img-src *"
+          ],
+          "returns": [
+            "no-script-src"
+          ]
+        },
+        {
+          "args": [
+            "default-src *"
+          ],
+          "returns": [
+            "wildcard"
+          ]
+        },
+        {
+          "args": [
+            "default-src 'self'; script-src * 'unsafe-inline'"
+          ],
+          "returns": [
+            "unsafe-inline",
+            "wildcard"
+          ]
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": [
+            "no-script-src"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]\n['unsafe-inline']\n['no-script-src']\n['wildcard']"
+    }
+  ]
+}

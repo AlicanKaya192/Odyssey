@@ -1,0 +1,83 @@
+{
+  "id": "in-list",
+  "title": {
+    "tr": "IN listesi parametreyle",
+    "en": "An IN list with parameters"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sorgu metnine yalnızca `?` işaretleri girer; bunları biz üretiyoruz, kullanıcının verisi değil.",
+      "en": "Only `?` marks enter the query text; we generate them, they are not the user's data."
+    },
+    {
+      "tr": "Değerler ikinci argümanda: `conn.execute(sql, cities)`.",
+      "en": "The values go in the second argument: `conn.execute(sql, cities)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE users (name TEXT, city TEXT)\")\nconn.executemany(\"INSERT INTO users VALUES (?, ?)\",\n                 [(\"Ada\", \"Izmir\"), (\"Bob\", \"L'Aquila\"), (\"Cem\", \"Izmir\"),\n                  (\"Dan\", \"Oslo\")])\n\n\ndef count_in(cities):\n    if not cities:\n        return 0\n    marks = \", \".join(\"?\" * len(cities))\n    row = conn.execute(f\"SELECT COUNT(*) FROM users WHERE city IN ({marks})\", cities).fetchone()\n    return row[0]\n\nprint(count_in([\"Izmir\"]))\nprint(count_in([\"Izmir\", \"L'Aquila\"]))\nprint(count_in([\"Paris\"]))\nprint(count_in([]))\n```",
+      "en": "The full solution:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE users (name TEXT, city TEXT)\")\nconn.executemany(\"INSERT INTO users VALUES (?, ?)\",\n                 [(\"Ada\", \"Izmir\"), (\"Bob\", \"L'Aquila\"), (\"Cem\", \"Izmir\"),\n                  (\"Dan\", \"Oslo\")])\n\n\ndef count_in(cities):\n    if not cities:\n        return 0\n    marks = \", \".join(\"?\" * len(cities))\n    row = conn.execute(f\"SELECT COUNT(*) FROM users WHERE city IN ({marks})\", cities).fetchone()\n    return row[0]\n\nprint(count_in([\"Izmir\"]))\nprint(count_in([\"Izmir\", \"L'Aquila\"]))\nprint(count_in([\"Paris\"]))\nprint(count_in([]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_in",
+      "cases": [
+        {
+          "args": [
+            [
+              "Izmir"
+            ]
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            [
+              "Izmir",
+              "L'Aquila"
+            ]
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              "Paris"
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              "Oslo",
+              "Izmir",
+              "Oslo"
+            ]
+          ],
+          "returns": 3
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\n3\n0\n0"
+    }
+  ]
+}

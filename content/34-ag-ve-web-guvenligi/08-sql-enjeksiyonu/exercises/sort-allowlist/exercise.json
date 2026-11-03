@@ -1,0 +1,93 @@
+{
+  "id": "sort-allowlist",
+  "title": {
+    "tr": "Sıralama için izin listesi",
+    "en": "An allow list for sorting"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`SORTABLE.get(sort, \"name\")`: sorguya giren metin hep sözlükten gelir.",
+      "en": "`SORTABLE.get(sort, \"name\")`: the text entering the query always comes from the dictionary."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE products (name TEXT, price INTEGER)\")\nconn.executemany(\"INSERT INTO products VALUES (?, ?)\",\n                 [(\"pen\", 3), (\"book\", 12), (\"bag\", 30), (\"cup\", 7)])\nSORTABLE = {\"name\": \"name\", \"price\": \"price\"}\n\n\ndef sorted_names(sort):\n    column = SORTABLE.get(sort, \"name\")\n    rows = conn.execute(f\"SELECT name FROM products ORDER BY {column}\")\n    return [r[0] for r in rows]\n\nprint(sorted_names(\"price\"))\nprint(sorted_names(\"name\"))\nprint(sorted_names(\"price DESC\"))\n```",
+      "en": "The full solution:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE products (name TEXT, price INTEGER)\")\nconn.executemany(\"INSERT INTO products VALUES (?, ?)\",\n                 [(\"pen\", 3), (\"book\", 12), (\"bag\", 30), (\"cup\", 7)])\nSORTABLE = {\"name\": \"name\", \"price\": \"price\"}\n\n\ndef sorted_names(sort):\n    column = SORTABLE.get(sort, \"name\")\n    rows = conn.execute(f\"SELECT name FROM products ORDER BY {column}\")\n    return [r[0] for r in rows]\n\nprint(sorted_names(\"price\"))\nprint(sorted_names(\"name\"))\nprint(sorted_names(\"price DESC\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sorted_names",
+      "cases": [
+        {
+          "args": [
+            "price"
+          ],
+          "returns": [
+            "pen",
+            "cup",
+            "book",
+            "bag"
+          ]
+        },
+        {
+          "args": [
+            "name"
+          ],
+          "returns": [
+            "bag",
+            "book",
+            "cup",
+            "pen"
+          ]
+        },
+        {
+          "args": [
+            "price DESC"
+          ],
+          "returns": [
+            "bag",
+            "book",
+            "cup",
+            "pen"
+          ]
+        },
+        {
+          "args": [
+            "rating"
+          ],
+          "returns": [
+            "bag",
+            "book",
+            "cup",
+            "pen"
+          ]
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": [
+            "bag",
+            "book",
+            "cup",
+            "pen"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['pen', 'cup', 'book', 'bag']\n['bag', 'book', 'cup', 'pen']\n['bag', 'book', 'cup', 'pen']"
+    }
+  ]
+}

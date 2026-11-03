@@ -1,0 +1,90 @@
+{
+  "id": "internal-ip",
+  "title": {
+    "tr": "İç adres mi?",
+    "en": "Is it an internal address?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`try` / `except ValueError: return True` geçersiz metni yakalar.",
+      "en": "`try` / `except ValueError: return True` catches invalid text."
+    },
+    {
+      "tr": "Beş özellik `or` ile birleşir (dersteki `is_internal`).",
+      "en": "The five properties are joined with `or` (the lesson's `is_internal`)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef is_internal(text):\n    try:\n        ip = ipaddress.ip_address(text)\n    except ValueError:\n        return True\n    return (ip.is_private or ip.is_loopback or ip.is_link_local\n            or ip.is_unspecified or ip.is_reserved)\n\nfor text in [\"100.20.30.40\", \"127.0.0.1\", \"10.1.2.3\",\n             \"169.254.169.254\", \"0.0.0.0\", \"not-an-ip\"]:\n    print(text, is_internal(text))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef is_internal(text):\n    try:\n        ip = ipaddress.ip_address(text)\n    except ValueError:\n        return True\n    return (ip.is_private or ip.is_loopback or ip.is_link_local\n            or ip.is_unspecified or ip.is_reserved)\n\nfor text in [\"100.20.30.40\", \"127.0.0.1\", \"10.1.2.3\",\n             \"169.254.169.254\", \"0.0.0.0\", \"not-an-ip\"]:\n    print(text, is_internal(text))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "is_internal",
+      "cases": [
+        {
+          "args": [
+            "100.20.30.40"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "127.0.0.1"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "10.1.2.3"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "169.254.169.254"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "0.0.0.0"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "not-an-ip"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "240.0.0.1"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "172.32.0.9"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "100.20.30.40 False\n127.0.0.1 True\n10.1.2.3 True\n169.254.169.254 True\n0.0.0.0 True\nnot-an-ip True"
+    }
+  ]
+}

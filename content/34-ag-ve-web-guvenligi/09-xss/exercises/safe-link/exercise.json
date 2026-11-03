@@ -1,0 +1,77 @@
+{
+  "id": "safe-link",
+  "title": {
+    "tr": "Güvenli bağlantı",
+    "en": "A safe link"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `urlsplit(url).scheme not in (\"http\", \"https\")` ise yalnızca etiket.",
+      "en": "First, if `urlsplit(url).scheme not in (\"http\", \"https\")`, only the label."
+    },
+    {
+      "tr": "Bağlantıda adres de etiket de kodlanır; adresteki `&` `&amp;` olur.",
+      "en": "In the link both the address and the label are encoded; the `&` in the address becomes `&amp;`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport html\nfrom urllib.parse import urlsplit\n\n\ndef safe_link(url, label):\n    if urlsplit(url).scheme not in (\"http\", \"https\"):\n        return html.escape(label)\n    return f'<a href=\"{html.escape(url)}\">{html.escape(label)}</a>'\n\nprint(safe_link(\"https://a.example/\", \"docs\"))\nprint(safe_link(\"javascript:go()\", \"<b>click</b>\"))\nprint(safe_link(\"http://a.example/?p=1&q\", \"x\"))\n```",
+      "en": "The full solution:\n\n```python\nimport html\nfrom urllib.parse import urlsplit\n\n\ndef safe_link(url, label):\n    if urlsplit(url).scheme not in (\"http\", \"https\"):\n        return html.escape(label)\n    return f'<a href=\"{html.escape(url)}\">{html.escape(label)}</a>'\n\nprint(safe_link(\"https://a.example/\", \"docs\"))\nprint(safe_link(\"javascript:go()\", \"<b>click</b>\"))\nprint(safe_link(\"http://a.example/?p=1&q\", \"x\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "safe_link",
+      "cases": [
+        {
+          "args": [
+            "https://example.com/",
+            "docs"
+          ],
+          "returns": "<a href=\"https://example.com/\">docs</a>"
+        },
+        {
+          "args": [
+            "javascript:go()",
+            "<b>click</b>"
+          ],
+          "returns": "&lt;b&gt;click&lt;/b&gt;"
+        },
+        {
+          "args": [
+            "http://example.com/?a=1&b=2",
+            "x"
+          ],
+          "returns": "<a href=\"http://example.com/?a=1&amp;b=2\">x</a>"
+        },
+        {
+          "args": [
+            "https://example.com/\" title=\"x",
+            "q"
+          ],
+          "returns": "<a href=\"https://example.com/&quot; title=&quot;x\">q</a>"
+        },
+        {
+          "args": [
+            "ftp://example.com/f",
+            "file"
+          ],
+          "returns": "file"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "<a href=\"https://a.example/\">docs</a>\n&lt;b&gt;click&lt;/b&gt;\n<a href=\"http://a.example/?p=1&amp;q\">x</a>"
+    }
+  ]
+}

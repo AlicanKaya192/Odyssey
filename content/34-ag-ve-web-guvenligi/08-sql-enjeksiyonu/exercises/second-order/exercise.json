@@ -1,0 +1,65 @@
+{
+  "id": "second-order",
+  "title": {
+    "tr": "İkinci dereceden enjeksiyon",
+    "en": "Second-order injection"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Veritabanından gelen ad da kullanıcının yazdığı bir değerdir.",
+      "en": "The name from the database is also a value the user wrote."
+    },
+    {
+      "tr": "İkinci sorguyu da `?` ve `(row[0],)` ile yaz.",
+      "en": "Write the second query with `?` and `(row[0],)` too."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE users (id INTEGER, name TEXT)\")\nconn.execute(\"CREATE TABLE posts (author TEXT, title TEXT)\")\nconn.executemany(\"INSERT INTO users VALUES (?, ?)\", [(1, \"ada\"), (2, \"O'Brien\")])\nconn.executemany(\"INSERT INTO posts VALUES (?, ?)\",\n                 [(\"ada\", \"hello\"), (\"O'Brien\", \"notes\"), (\"O'Brien\", \"ideas\")])\n\n\ndef report(user_id):\n    row = conn.execute(\"SELECT name FROM users WHERE id = ?\", (user_id,)).fetchone()\n    if row is None:\n        return []\n    rows = conn.execute(\"SELECT title FROM posts WHERE author = ?\", (row[0],))\n    return [r[0] for r in rows]\n\nprint(report(1))\nprint(report(2))\nprint(report(3))\n```",
+      "en": "The full solution:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE users (id INTEGER, name TEXT)\")\nconn.execute(\"CREATE TABLE posts (author TEXT, title TEXT)\")\nconn.executemany(\"INSERT INTO users VALUES (?, ?)\", [(1, \"ada\"), (2, \"O'Brien\")])\nconn.executemany(\"INSERT INTO posts VALUES (?, ?)\",\n                 [(\"ada\", \"hello\"), (\"O'Brien\", \"notes\"), (\"O'Brien\", \"ideas\")])\n\n\ndef report(user_id):\n    row = conn.execute(\"SELECT name FROM users WHERE id = ?\", (user_id,)).fetchone()\n    if row is None:\n        return []\n    rows = conn.execute(\"SELECT title FROM posts WHERE author = ?\", (row[0],))\n    return [r[0] for r in rows]\n\nprint(report(1))\nprint(report(2))\nprint(report(3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "report",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            "hello"
+          ]
+        },
+        {
+          "args": [
+            2
+          ],
+          "returns": [
+            "notes",
+            "ideas"
+          ]
+        },
+        {
+          "args": [
+            3
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['hello']\n['notes', 'ideas']\n[]"
+    }
+  ]
+}

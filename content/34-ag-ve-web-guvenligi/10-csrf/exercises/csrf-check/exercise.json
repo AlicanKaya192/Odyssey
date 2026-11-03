@@ -1,0 +1,80 @@
+{
+  "id": "csrf-check",
+  "title": {
+    "tr": "Jetonu denetle",
+    "en": "Check the token"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`None` ve `\"\"` ikisi de \"yok\" demektir: `if not expected or not sent: return False`.",
+      "en": "`None` and `\"\"` both mean \"missing\": `if not expected or not sent: return False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hmac\n\n\ndef check(expected, sent):\n    if not expected or not sent:\n        return False\n    return hmac.compare_digest(expected, sent)\n\ntoken = \"tok-8f2a\"\nprint(check(token, \"tok-8f2a\"))\nprint(check(token, \"guess\"))\nprint(check(None, None))\nprint(check(\"\", \"\"))\n```",
+      "en": "The full solution:\n\n```python\nimport hmac\n\n\ndef check(expected, sent):\n    if not expected or not sent:\n        return False\n    return hmac.compare_digest(expected, sent)\n\ntoken = \"tok-8f2a\"\nprint(check(token, \"tok-8f2a\"))\nprint(check(token, \"guess\"))\nprint(check(None, None))\nprint(check(\"\", \"\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check",
+      "cases": [
+        {
+          "args": [
+            "tok-8f2a",
+            "tok-8f2a"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "tok-8f2a",
+            "guess"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            null,
+            null
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "",
+            ""
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "tok",
+            null
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            null,
+            "tok"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse\nFalse"
+    }
+  ]
+}

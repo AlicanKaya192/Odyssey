@@ -1,0 +1,106 @@
+{
+  "id": "safe-target",
+  "title": {
+    "tr": "Çözümlemeden sonra denetle",
+    "en": "Check after resolution"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce ad yoksa (`None`) `\"unknown host\"`.",
+      "en": "First, if there is no name (`None`), `\"unknown host\"`."
+    },
+    {
+      "tr": "`ipaddress.ip_address(dns.get(host, host))`; `ValueError` çözülemeyen ad demek.",
+      "en": "`ipaddress.ip_address(dns.get(host, host))`; `ValueError` means a name that cannot be resolved."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef is_internal_ip(ip):\n    return (ip.is_private or ip.is_loopback or ip.is_link_local\n            or ip.is_unspecified or ip.is_reserved)\n\n\nfrom urllib.parse import urlsplit\n\n\ndef safe_target(url, dns):\n    host = urlsplit(url).hostname\n    if not host:\n        return \"unknown host\"\n    try:\n        ip = ipaddress.ip_address(dns.get(host, host))\n    except ValueError:\n        return \"unknown host\"\n    return \"blocked\" if is_internal_ip(ip) else \"ok\"\n\nDNS = {\"images.example.com\": \"100.20.30.40\",\n       \"intranet.example.net\": \"10.20.0.15\"}\nfor url in [\"https://images.example.com/a.png\",\n            \"https://intranet.example.net/\",\n            \"http://127.0.0.1/admin\",\n            \"https://nowhere.example/\",\n            \"not a url\"]:\n    print(safe_target(url, DNS))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef is_internal_ip(ip):\n    return (ip.is_private or ip.is_loopback or ip.is_link_local\n            or ip.is_unspecified or ip.is_reserved)\n\n\nfrom urllib.parse import urlsplit\n\n\ndef safe_target(url, dns):\n    host = urlsplit(url).hostname\n    if not host:\n        return \"unknown host\"\n    try:\n        ip = ipaddress.ip_address(dns.get(host, host))\n    except ValueError:\n        return \"unknown host\"\n    return \"blocked\" if is_internal_ip(ip) else \"ok\"\n\nDNS = {\"images.example.com\": \"100.20.30.40\",\n       \"intranet.example.net\": \"10.20.0.15\"}\nfor url in [\"https://images.example.com/a.png\",\n            \"https://intranet.example.net/\",\n            \"http://127.0.0.1/admin\",\n            \"https://nowhere.example/\",\n            \"not a url\"]:\n    print(safe_target(url, DNS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "safe_target",
+      "cases": [
+        {
+          "args": [
+            "https://images.example.com/a.png",
+            {
+              "images.example.com": "100.20.30.40",
+              "intranet.example.net": "10.20.0.15"
+            }
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "https://intranet.example.net/",
+            {
+              "images.example.com": "100.20.30.40",
+              "intranet.example.net": "10.20.0.15"
+            }
+          ],
+          "returns": "blocked"
+        },
+        {
+          "args": [
+            "http://127.0.0.1/admin",
+            {
+              "images.example.com": "100.20.30.40",
+              "intranet.example.net": "10.20.0.15"
+            }
+          ],
+          "returns": "blocked"
+        },
+        {
+          "args": [
+            "https://nowhere.example/",
+            {
+              "images.example.com": "100.20.30.40",
+              "intranet.example.net": "10.20.0.15"
+            }
+          ],
+          "returns": "unknown host"
+        },
+        {
+          "args": [
+            "not a url",
+            {
+              "images.example.com": "100.20.30.40",
+              "intranet.example.net": "10.20.0.15"
+            }
+          ],
+          "returns": "unknown host"
+        },
+        {
+          "args": [
+            "http://100.20.30.40/",
+            {}
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "http://169.254.169.254/",
+            {}
+          ],
+          "returns": "blocked"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\nblocked\nblocked\nunknown host\nunknown host"
+    }
+  ]
+}

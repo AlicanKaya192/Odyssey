@@ -1,0 +1,107 @@
+{
+  "id": "origin-ok",
+  "title": {
+    "tr": "Köken denetimi",
+    "en": "An origin check"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`origin` varsa karar yalnızca ona göre verilir; `referer`'a düşülmez.",
+      "en": "If `origin` is present, the decision is made on it alone; do not fall back to `referer`."
+    },
+    {
+      "tr": "`referer`'ın kökeni metin aramasıyla değil, `urlsplit` ile bulunur.",
+      "en": "The `referer`'s origin is found with `urlsplit`, not by text search."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef origin_ok(headers, allowed):\n    if \"origin\" in headers:\n        return headers[\"origin\"] in allowed\n    if \"referer\" in headers:\n        parts = urlsplit(headers[\"referer\"])\n        return parts.scheme + \"://\" + parts.netloc in allowed\n    return False\n\nALLOWED = [\"https://bank.example\"]\nprint(origin_ok({\"origin\": \"https://bank.example\"}, ALLOWED))\nprint(origin_ok({\"origin\": \"https://games.example\"}, ALLOWED))\nprint(origin_ok({\"referer\": \"https://bank.example/pay?x=1\"}, ALLOWED))\nprint(origin_ok({}, ALLOWED))\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef origin_ok(headers, allowed):\n    if \"origin\" in headers:\n        return headers[\"origin\"] in allowed\n    if \"referer\" in headers:\n        parts = urlsplit(headers[\"referer\"])\n        return parts.scheme + \"://\" + parts.netloc in allowed\n    return False\n\nALLOWED = [\"https://bank.example\"]\nprint(origin_ok({\"origin\": \"https://bank.example\"}, ALLOWED))\nprint(origin_ok({\"origin\": \"https://games.example\"}, ALLOWED))\nprint(origin_ok({\"referer\": \"https://bank.example/pay?x=1\"}, ALLOWED))\nprint(origin_ok({}, ALLOWED))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "origin_ok",
+      "cases": [
+        {
+          "args": [
+            {
+              "origin": "https://bank.example"
+            },
+            [
+              "https://bank.example"
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "origin": "https://games.example"
+            },
+            [
+              "https://bank.example"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "referer": "https://bank.example/pay?x=1"
+            },
+            [
+              "https://bank.example"
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "referer": "https://bank.example.games.example/"
+            },
+            [
+              "https://bank.example"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {},
+            [
+              "https://bank.example"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "origin": "https://games.example",
+              "referer": "https://bank.example/"
+            },
+            [
+              "https://bank.example"
+            ]
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nTrue\nFalse"
+    }
+  ]
+}

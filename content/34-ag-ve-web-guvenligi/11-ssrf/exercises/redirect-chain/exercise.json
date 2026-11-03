@@ -1,0 +1,88 @@
+{
+  "id": "redirect-chain",
+  "title": {
+    "tr": "Yönlendirme zinciri",
+    "en": "A redirect chain"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`enumerate(chain)` ile her adresi sırasıyla denetle; ilk düşeni hemen döndür.",
+      "en": "Check every address in order with `enumerate(chain)`; return the first failure at once."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef ok(url, hosts):\n    parts = urlsplit(url)\n    return parts.scheme in (\"http\", \"https\") and parts.hostname in hosts\n\n\ndef first_bad(chain, hosts):\n    for i, url in enumerate(chain):\n        if not ok(url, hosts):\n            return i\n    return -1\n\nHOSTS = [\"images.example.com\", \"cdn.example.com\"]\nchain = [\"https://images.example.com/a\", \"https://cdn.example.com/b\",\n         \"http://127.0.0.1/admin\"]\nprint(first_bad(chain, HOSTS))\nprint(first_bad(chain[:2], HOSTS))\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef ok(url, hosts):\n    parts = urlsplit(url)\n    return parts.scheme in (\"http\", \"https\") and parts.hostname in hosts\n\n\ndef first_bad(chain, hosts):\n    for i, url in enumerate(chain):\n        if not ok(url, hosts):\n            return i\n    return -1\n\nHOSTS = [\"images.example.com\", \"cdn.example.com\"]\nchain = [\"https://images.example.com/a\", \"https://cdn.example.com/b\",\n         \"http://127.0.0.1/admin\"]\nprint(first_bad(chain, HOSTS))\nprint(first_bad(chain[:2], HOSTS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "first_bad",
+      "cases": [
+        {
+          "args": [
+            [
+              "https://images.example.com/a",
+              "https://cdn.example.com/b",
+              "http://127.0.0.1/admin"
+            ],
+            [
+              "images.example.com",
+              "cdn.example.com"
+            ]
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            [
+              "https://images.example.com/a",
+              "https://cdn.example.com/b"
+            ],
+            [
+              "images.example.com",
+              "cdn.example.com"
+            ]
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            [],
+            [
+              "images.example.com",
+              "cdn.example.com"
+            ]
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            [
+              "http://10.0.0.1/",
+              "https://images.example.com/"
+            ],
+            [
+              "images.example.com",
+              "cdn.example.com"
+            ]
+          ],
+          "returns": 0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\n-1"
+    }
+  ]
+}

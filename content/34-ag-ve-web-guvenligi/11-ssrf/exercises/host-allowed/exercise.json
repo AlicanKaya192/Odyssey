@@ -1,0 +1,96 @@
+{
+  "id": "host-allowed",
+  "title": {
+    "tr": "İzin listesi",
+    "en": "An allow list"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`parts.hostname` küçük harfle ve `@`'dan sonraki gerçek ana bilgisayarı verir.",
+      "en": "`parts.hostname` gives the real host after `@`, in lower case."
+    },
+    {
+      "tr": "Şema ve ana bilgisayar birlikte: `and`.",
+      "en": "Scheme and host together: `and`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef allowed(url, hosts):\n    parts = urlsplit(url)\n    return parts.scheme in (\"http\", \"https\") and parts.hostname in hosts\n\nHOSTS = [\"images.example.com\"]\nfor url in [\"https://images.example.com/cat.png\",\n            \"http://127.0.0.1/admin\",\n            \"https://images.example.com@127.0.0.1/\",\n            \"file:///app/settings.ini\"]:\n    print(allowed(url, HOSTS))\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\n\ndef allowed(url, hosts):\n    parts = urlsplit(url)\n    return parts.scheme in (\"http\", \"https\") and parts.hostname in hosts\n\nHOSTS = [\"images.example.com\"]\nfor url in [\"https://images.example.com/cat.png\",\n            \"http://127.0.0.1/admin\",\n            \"https://images.example.com@127.0.0.1/\",\n            \"file:///app/settings.ini\"]:\n    print(allowed(url, HOSTS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "allowed",
+      "cases": [
+        {
+          "args": [
+            "https://images.example.com/cat.png",
+            [
+              "images.example.com"
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "http://127.0.0.1/admin",
+            [
+              "images.example.com"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://images.example.com@127.0.0.1/",
+            [
+              "images.example.com"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "file:///app/settings.ini",
+            [
+              "images.example.com"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://images.example.com.attacker.example/",
+            [
+              "images.example.com"
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "HTTP://IMAGES.EXAMPLE.COM/x",
+            [
+              "images.example.com"
+            ]
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse\nFalse"
+    }
+  ]
+}

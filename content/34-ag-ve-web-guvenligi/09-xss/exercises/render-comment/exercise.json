@@ -1,0 +1,66 @@
+{
+  "id": "render-comment",
+  "title": {
+    "tr": "Yorumu güvenle yaz",
+    "en": "Write a comment safely"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yalnızca kullanıcıdan gelen iki değer kodlanır; `<p>` ve `<b>` bizim etiketimiz.",
+      "en": "Only the two values from the user are encoded; `<p>` and `<b>` are our own tags."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport html\n\n\ndef render_comment(author, text):\n    return f\"<p><b>{html.escape(author)}</b>: {html.escape(text)}</p>\"\n\nprint(render_comment(\"ada\", \"1 < 2 & ok\"))\nprint(render_comment(\"<b>bob</b>\", \"hi\"))\n```",
+      "en": "The full solution:\n\n```python\nimport html\n\n\ndef render_comment(author, text):\n    return f\"<p><b>{html.escape(author)}</b>: {html.escape(text)}</p>\"\n\nprint(render_comment(\"ada\", \"1 < 2 & ok\"))\nprint(render_comment(\"<b>bob</b>\", \"hi\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "render_comment",
+      "cases": [
+        {
+          "args": [
+            "ada",
+            "1 < 2 & ok"
+          ],
+          "returns": "<p><b>ada</b>: 1 &lt; 2 &amp; ok</p>"
+        },
+        {
+          "args": [
+            "<b>bob</b>",
+            "hi"
+          ],
+          "returns": "<p><b>&lt;b&gt;bob&lt;/b&gt;</b>: hi</p>"
+        },
+        {
+          "args": [
+            "eve",
+            "<script>go()</script>"
+          ],
+          "returns": "<p><b>eve</b>: &lt;script&gt;go()&lt;/script&gt;</p>"
+        },
+        {
+          "args": [
+            "",
+            ""
+          ],
+          "returns": "<p><b></b>: </p>"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "<p><b>ada</b>: 1 &lt; 2 &amp; ok</p>\n<p><b>&lt;b&gt;bob&lt;/b&gt;</b>: hi</p>"
+    }
+  ]
+}

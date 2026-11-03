@@ -1,0 +1,101 @@
+{
+  "id": "samesite-send",
+  "title": {
+    "tr": "Çerez gider mi?",
+    "en": "Does the cookie go?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk soru: istek başka siteden mi? Değilse her zaman `True`.",
+      "en": "First question: is the request from another site? If not, always `True`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef sends_cookie(samesite, cross_site, method, top_level):\n    if not cross_site:\n        return True\n    if samesite == \"Strict\":\n        return False\n    if samesite == \"Lax\":\n        return method == \"GET\" and top_level\n    return True\n\nfor samesite, cross, method, top in [[\"Strict\", True, \"GET\", True],\n                                     [\"Lax\", True, \"POST\", False],\n                                     [\"Lax\", True, \"GET\", True],\n                                     [\"Lax\", False, \"POST\", False],\n                                     [\"None\", True, \"POST\", False]]:\n    print(samesite, method, sends_cookie(samesite, cross, method, top))\n```",
+      "en": "The full solution:\n\n```python\ndef sends_cookie(samesite, cross_site, method, top_level):\n    if not cross_site:\n        return True\n    if samesite == \"Strict\":\n        return False\n    if samesite == \"Lax\":\n        return method == \"GET\" and top_level\n    return True\n\nfor samesite, cross, method, top in [[\"Strict\", True, \"GET\", True],\n                                     [\"Lax\", True, \"POST\", False],\n                                     [\"Lax\", True, \"GET\", True],\n                                     [\"Lax\", False, \"POST\", False],\n                                     [\"None\", True, \"POST\", False]]:\n    print(samesite, method, sends_cookie(samesite, cross, method, top))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sends_cookie",
+      "cases": [
+        {
+          "args": [
+            "Strict",
+            true,
+            "GET",
+            true
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "Lax",
+            true,
+            "POST",
+            false
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "Lax",
+            true,
+            "GET",
+            true
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "Lax",
+            true,
+            "GET",
+            false
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "Lax",
+            false,
+            "POST",
+            false
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "None",
+            true,
+            "POST",
+            false
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "Strict",
+            false,
+            "POST",
+            false
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "Strict GET False\nLax POST False\nLax GET True\nLax POST True\nNone POST True"
+    }
+  ]
+}

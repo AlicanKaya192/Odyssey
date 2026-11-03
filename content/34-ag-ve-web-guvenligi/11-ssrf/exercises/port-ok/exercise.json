@@ -1,0 +1,78 @@
+{
+  "id": "port-ok",
+  "title": {
+    "tr": "Port denetimi",
+    "en": "A port check"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce şema `DEFAULTS` içinde mi; değilse `False`.",
+      "en": "First, is the scheme in `DEFAULTS`; if not, `False`."
+    },
+    {
+      "tr": "`parts.port` okumayı `try` içine al; `None` ise varsayılan.",
+      "en": "Put reading `parts.port` inside `try`; if it is `None`, the default."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom urllib.parse import urlsplit\n\nDEFAULTS = {\"http\": 80, \"https\": 443}\n\n\ndef port_ok(url):\n    parts = urlsplit(url)\n    if parts.scheme not in DEFAULTS:\n        return False\n    try:\n        port = parts.port\n    except ValueError:\n        return False\n    if port is None:\n        port = DEFAULTS[parts.scheme]\n    return port in (80, 443)\n\nfor url in [\"https://images.example.com/\", \"http://images.example.com:8080/\",\n            \"https://images.example.com:443/\", \"ftp://images.example.com/\",\n            \"http://images.example.com:99999/\"]:\n    print(port_ok(url))\n```",
+      "en": "The full solution:\n\n```python\nfrom urllib.parse import urlsplit\n\nDEFAULTS = {\"http\": 80, \"https\": 443}\n\n\ndef port_ok(url):\n    parts = urlsplit(url)\n    if parts.scheme not in DEFAULTS:\n        return False\n    try:\n        port = parts.port\n    except ValueError:\n        return False\n    if port is None:\n        port = DEFAULTS[parts.scheme]\n    return port in (80, 443)\n\nfor url in [\"https://images.example.com/\", \"http://images.example.com:8080/\",\n            \"https://images.example.com:443/\", \"ftp://images.example.com/\",\n            \"http://images.example.com:99999/\"]:\n    print(port_ok(url))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "port_ok",
+      "cases": [
+        {
+          "args": [
+            "https://images.example.com/"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "http://images.example.com:8080/"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "https://images.example.com:443/"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "ftp://images.example.com/"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "http://images.example.com:99999/"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "http://images.example.com:443/"
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nTrue\nFalse\nFalse"
+    }
+  ]
+}

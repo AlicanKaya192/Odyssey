@@ -1,0 +1,68 @@
+{
+  "id": "escape-like",
+  "title": {
+    "tr": "LIKE desenini kaç",
+    "en": "Escape a LIKE pattern"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her `replace` bir öncekinin sonucunda çalışır; `\\` en son kaçılırsa `\\%` içindeki `\\` de ikilenir.",
+      "en": "Each `replace` works on the previous result; if `\\` is escaped last, the `\\` inside `\\%` is doubled too."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef escape_like(term):\n    return term.replace(\"\\\\\", \"\\\\\\\\\").replace(\"%\", \"\\\\%\").replace(\"_\", \"\\\\_\")\n\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE notes (text TEXT)\")\nconn.executemany(\"INSERT INTO notes VALUES (?)\",\n                 [(\"50% discount\",), (\"500 pens\",), (\"plan_b\",)])\nfor term in [\"0%\", \"_\", \"n_b\"]:\n    pattern = \"%\" + escape_like(term) + \"%\"\n    rows = conn.execute(\"SELECT text FROM notes WHERE text LIKE ? ESCAPE '\\\\'\",\n                        (pattern,)).fetchall()\n    print(term, [r[0] for r in rows])\n```",
+      "en": "The full solution:\n\n```python\ndef escape_like(term):\n    return term.replace(\"\\\\\", \"\\\\\\\\\").replace(\"%\", \"\\\\%\").replace(\"_\", \"\\\\_\")\n\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE notes (text TEXT)\")\nconn.executemany(\"INSERT INTO notes VALUES (?)\",\n                 [(\"50% discount\",), (\"500 pens\",), (\"plan_b\",)])\nfor term in [\"0%\", \"_\", \"n_b\"]:\n    pattern = \"%\" + escape_like(term) + \"%\"\n    rows = conn.execute(\"SELECT text FROM notes WHERE text LIKE ? ESCAPE '\\\\'\",\n                        (pattern,)).fetchall()\n    print(term, [r[0] for r in rows])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "escape_like",
+      "cases": [
+        {
+          "args": [
+            "50%"
+          ],
+          "returns": "50\\%"
+        },
+        {
+          "args": [
+            "plan_b"
+          ],
+          "returns": "plan\\_b"
+        },
+        {
+          "args": [
+            "a\\b"
+          ],
+          "returns": "a\\\\b"
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": ""
+        },
+        {
+          "args": [
+            "100%_x"
+          ],
+          "returns": "100\\%\\_x"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0% ['50% discount']\n_ ['plan_b']\nn_b ['plan_b']"
+    }
+  ]
+}

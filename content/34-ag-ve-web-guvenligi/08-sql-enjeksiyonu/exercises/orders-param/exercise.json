@@ -1,0 +1,75 @@
+{
+  "id": "orders-param",
+  "title": {
+    "tr": "Parametreli sipariş sorgusu",
+    "en": "A parameterised order query"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yer tutucu `?` ve ikinci argüman olarak tek elemanlı demet: `(owner,)`.",
+      "en": "The placeholder `?` and a one-item tuple as the second argument: `(owner,)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE orders (owner TEXT, item TEXT)\")\nconn.executemany(\"INSERT INTO orders VALUES (?, ?)\",\n                 [(\"ada\", \"book\"), (\"ada\", \"pen\"), (\"O'Brien\", \"lamp\"),\n                  (\"bob\", \"laptop\")])\n\n\ndef orders_for(owner):\n    rows = conn.execute(\"SELECT item FROM orders WHERE owner = ?\", (owner,))\n    return [r[0] for r in rows]\n\nfor owner in [\"ada\", \"O'Brien\", \"x' OR '1'='1\", \"\"]:\n    print(repr(owner), orders_for(owner))\n```",
+      "en": "The full solution:\n\n```python\nimport sqlite3\n\nconn = sqlite3.connect(\":memory:\")\nconn.execute(\"CREATE TABLE orders (owner TEXT, item TEXT)\")\nconn.executemany(\"INSERT INTO orders VALUES (?, ?)\",\n                 [(\"ada\", \"book\"), (\"ada\", \"pen\"), (\"O'Brien\", \"lamp\"),\n                  (\"bob\", \"laptop\")])\n\n\ndef orders_for(owner):\n    rows = conn.execute(\"SELECT item FROM orders WHERE owner = ?\", (owner,))\n    return [r[0] for r in rows]\n\nfor owner in [\"ada\", \"O'Brien\", \"x' OR '1'='1\", \"\"]:\n    print(repr(owner), orders_for(owner))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "orders_for",
+      "cases": [
+        {
+          "args": [
+            "ada"
+          ],
+          "returns": [
+            "book",
+            "pen"
+          ]
+        },
+        {
+          "args": [
+            "O'Brien"
+          ],
+          "returns": [
+            "lamp"
+          ]
+        },
+        {
+          "args": [
+            "x' OR '1'='1"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "bob"
+          ],
+          "returns": [
+            "laptop"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "'ada' ['book', 'pen']\n\"O'Brien\" ['lamp']\n\"x' OR '1'='1\" []\n'' []"
+    }
+  ]
+}

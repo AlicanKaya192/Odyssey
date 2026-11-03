@@ -1,0 +1,77 @@
+{
+  "id": "highlight",
+  "title": {
+    "tr": "Arama sonucunu vurgula",
+    "en": "Highlight a search result"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce kodla, sonra vurgula: vurgu etiketleri bizim, kodlanmamalı.",
+      "en": "Encode first, then highlight: the highlight tags are ours and must not be encoded."
+    },
+    {
+      "tr": "Kelime de kodlanır; yoksa `<` gibi bir kelime kodlanmış metinde bulunamaz.",
+      "en": "The word is encoded too; otherwise a word like `<` cannot be found in the encoded text."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport html\n\n\ndef highlight(text, word):\n    safe_text = html.escape(text)\n    if not word:\n        return safe_text\n    safe_word = html.escape(word)\n    return safe_text.replace(safe_word, f\"<mark>{safe_word}</mark>\")\n\nprint(highlight(\"x<y\", \"y\"))\nprint(highlight(\"tea & tee\", \"te\"))\nprint(highlight(\"a<b\", \"<\"))\n```",
+      "en": "The full solution:\n\n```python\nimport html\n\n\ndef highlight(text, word):\n    safe_text = html.escape(text)\n    if not word:\n        return safe_text\n    safe_word = html.escape(word)\n    return safe_text.replace(safe_word, f\"<mark>{safe_word}</mark>\")\n\nprint(highlight(\"x<y\", \"y\"))\nprint(highlight(\"tea & tee\", \"te\"))\nprint(highlight(\"a<b\", \"<\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "highlight",
+      "cases": [
+        {
+          "args": [
+            "x<y",
+            "y"
+          ],
+          "returns": "x&lt;<mark>y</mark>"
+        },
+        {
+          "args": [
+            "tea & tee",
+            "te"
+          ],
+          "returns": "<mark>te</mark>a &amp; <mark>te</mark>e"
+        },
+        {
+          "args": [
+            "a<b",
+            "<"
+          ],
+          "returns": "a<mark>&lt;</mark>b"
+        },
+        {
+          "args": [
+            "abc",
+            ""
+          ],
+          "returns": "abc"
+        },
+        {
+          "args": [
+            "<i>hi</i>",
+            "hi"
+          ],
+          "returns": "&lt;i&gt;<mark>hi</mark>&lt;/i&gt;"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "x&lt;<mark>y</mark>\n<mark>te</mark>a &amp; <mark>te</mark>e\na<mark>&lt;</mark>b"
+    }
+  ]
+}
