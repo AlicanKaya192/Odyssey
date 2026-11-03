@@ -373,13 +373,15 @@ class ProfileView(QWidget):
 
     def _apply_density(self, compact: bool) -> None:
         self._compact = compact
-        kenar = 18 if compact else 32
+        # Sıkı değerler 1280×800'e göre (3 Kasım): orada sayfa 40 px taşıyordu.
+        kenar = 10 if compact else 32
         self._page_row.setContentsMargins(32, kenar, 32, kenar)
-        self._column.setSpacing(16 if compact else 26)
-        self._identity_card.body.setContentsMargins(*(4 * [20 if compact else 28]))
+        self._column.setSpacing(12 if compact else 26)
+        self._identity_card.body.setContentsMargins(*(4 * [16 if compact else 28]))
         self._avatar.setFixedSize(*(2 * [AVATAR_SIZE_COMPACT if compact else AVATAR_SIZE]))
-        self._badges_card.body.setContentsMargins(24, 16 if compact else 22, 24, 16 if compact else 22)
-        self._activity_card.body.setContentsMargins(*(4 * [18 if compact else 24]))
+        self._badges_card.body.setContentsMargins(24, 12 if compact else 22, 24, 12 if compact else 22)
+        yatay, dikey = (18, 10) if compact else (24, 24)
+        self._activity_card.body.setContentsMargins(yatay, dikey, yatay, dikey)
         for bosluk, olagan, siki in self._spacers:
             bosluk.changeSize(0, siki if compact else olagan, QSizePolicy.Policy.Minimum,
                               QSizePolicy.Policy.Fixed)
@@ -410,7 +412,7 @@ class ProfileView(QWidget):
         ust.addWidget(self._badge_prev)
         ust.addWidget(self._badge_next)
         govde.addLayout(ust)
-        self._spacer(govde, 14, 8)
+        self._spacer(govde, 14, 4)
 
         self._badge_wall = BadgeWall()
         self._badge_wall.paging_changed.connect(self._refresh_paging)
@@ -419,18 +421,18 @@ class ProfileView(QWidget):
         # Sayfa noktaları rozetlerin altında, ortada; açık sayfanın noktası
         # uzun ve vurgu renginde, sayfa değişince yayla uzayıp kısalıyor.
         self._badge_page_label = PagerDots()
-        self._spacer(govde, 12, 6)
+        self._spacer(govde, 12, 4)
         govde.addWidget(self._badge_page_label, 0, Qt.AlignmentFlag.AlignHCenter)
 
         # Rozet / gün seri / bölüm: rozetlerin altında ince çizgiyle ayrılmış
         # ayrı bir bölüm (Alican: kimlik kartında boşluk bırakıyordu, rozet
         # kartında da altta boşluk kalıyordu).
-        self._spacer(govde, 18, 10)
+        self._spacer(govde, 18, 6)
         cizgi = QFrame()
         cizgi.setProperty("role", "divider")
         cizgi.setFixedHeight(1)
         govde.addWidget(cizgi)
-        self._spacer(govde, 18, 10)
+        self._spacer(govde, 18, 6)
         sag = govde
         # Üç küçük sayı (prototip `.minis`).
         minis = QHBoxLayout()

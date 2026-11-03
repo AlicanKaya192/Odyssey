@@ -721,7 +721,10 @@ a.spot:hover {{ background: {p['accent_soft']}; }}
 .linkcard p {{ margin: 8px 0 0; font-size: 14px; color: {p['text_muted']}; flex: 1; }}
 .linkcard .url {{
     margin-top: 12px; font-family: {FONTS['mono']}; font-size: 12px;
-    color: {p['text_muted']}; word-break: break-all; opacity: .8;
+    color: {p['text_muted']}; opacity: .8;
+    /* Tek satır: bölünen adres her kart sırasını bir satır uzatıyordu (1280×800'de
+       Ekstra İçerikler kayıyordu). Tamamı `title`'da. */
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }}
 
 .who {{

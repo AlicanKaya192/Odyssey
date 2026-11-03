@@ -216,7 +216,7 @@ class AboutView(QWidget):
             f'<div class="row"><b>{html.escape(title)}</b>'
             f'<span class="go">{html.escape(go)} →</span></div>'
             f"<p>{html.escape(description)}</p>"
-            f'<div class="url">{html.escape(shown)}</div></a>'
+            f'<div class="url" title="{html.escape(shown)}">{html.escape(shown)}</div></a>'
         )
 
     def _grid(self, cards: list[str]) -> str:
