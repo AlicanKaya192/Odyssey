@@ -1,0 +1,84 @@
+{
+  "id": "dh-exchange",
+  "title": {
+    "tr": "Değişimi baştan sona",
+    "en": "The exchange end to end"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ada'nın sırrı `pow(can_public, a, p)`, Can'ınki `pow(ada_public, b, p)`.",
+      "en": "Ada's secret is `pow(can_public, a, p)`, Can's is `pow(ada_public, b, p)`."
+    },
+    {
+      "tr": "İki satırda açık değerlerin yerini değiştir.",
+      "en": "Swap the public values in the two lines."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef run_exchange(p, g, a, b):\n    ada_public = pow(g, a, p)\n    can_public = pow(g, b, p)\n    ada_shared = pow(can_public, a, p)\n    can_shared = pow(ada_public, b, p)\n    return [ada_public, can_public, ada_shared, can_shared]\n\nresult = run_exchange(23, 5, 6, 15)\nprint(result)\nprint(result[2] == result[3])\n```",
+      "en": "The full solution:\n\n```python\ndef run_exchange(p, g, a, b):\n    ada_public = pow(g, a, p)\n    can_public = pow(g, b, p)\n    ada_shared = pow(can_public, a, p)\n    can_shared = pow(ada_public, b, p)\n    return [ada_public, can_public, ada_shared, can_shared]\n\nresult = run_exchange(23, 5, 6, 15)\nprint(result)\nprint(result[2] == result[3])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "run_exchange",
+      "cases": [
+        {
+          "args": [
+            23,
+            5,
+            6,
+            15
+          ],
+          "returns": [
+            8,
+            19,
+            2,
+            2
+          ]
+        },
+        {
+          "args": [
+            4294967291,
+            5,
+            1234567,
+            7654321
+          ],
+          "returns": [
+            905455665,
+            2404903262,
+            3182263990,
+            3182263990
+          ]
+        },
+        {
+          "args": [
+            97,
+            5,
+            10,
+            20
+          ],
+          "returns": [
+            53,
+            93,
+            6,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[8, 19, 2, 2]\nTrue"
+    }
+  ]
+}

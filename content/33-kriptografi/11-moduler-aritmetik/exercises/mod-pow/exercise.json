@@ -1,0 +1,90 @@
+{
+  "id": "mod-pow",
+  "title": {
+    "tr": "Kare al ve çarp",
+    "en": "Square and multiply"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Taban hiç büyümediği için başlangıç kodu yalnızca `base` ile çarpıyor; `2 ** 10` yerine `2` çıkıyor.",
+      "en": "Since the base never grows, the starter code only multiplies by `base`; `2 ** 10` comes out as `2`."
+    },
+    {
+      "tr": "`exp >>= 1`'den önce `base = base * base % mod` ekle.",
+      "en": "Add `base = base * base % mod` before `exp >>= 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef mod_pow(base, exp, mod):\n    result = 1\n    base %= mod\n    while exp > 0:\n        if exp & 1:\n            result = result * base % mod\n        base = base * base % mod\n        exp >>= 1\n    return result\n\nprint(mod_pow(7, 128, 13))\nprint(mod_pow(5, 117, 19))\nprint(mod_pow(2, 10, 1000))\n```",
+      "en": "The full solution:\n\n```python\ndef mod_pow(base, exp, mod):\n    result = 1\n    base %= mod\n    while exp > 0:\n        if exp & 1:\n            result = result * base % mod\n        base = base * base % mod\n        exp >>= 1\n    return result\n\nprint(mod_pow(7, 128, 13))\nprint(mod_pow(5, 117, 19))\nprint(mod_pow(2, 10, 1000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mod_pow",
+      "cases": [
+        {
+          "args": [
+            7,
+            128,
+            13
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            5,
+            117,
+            19
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            2,
+            10,
+            1000
+          ],
+          "returns": 24
+        },
+        {
+          "args": [
+            3,
+            0,
+            7
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            123456789,
+            987654321,
+            1000003
+          ],
+          "returns": 943623
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n1\n24"
+    },
+    {
+      "type": "ast_forbid",
+      "call": "pow",
+      "hint": {
+        "tr": "`pow` kullanmadan, kare al ve çarp ile hesapla.",
+        "en": "Compute it with square and multiply, without `pow`."
+      }
+    }
+  ]
+}

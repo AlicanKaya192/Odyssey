@@ -1,0 +1,114 @@
+{
+  "id": "ec-multiply",
+  "title": {
+    "tr": "İkile ve topla",
+    "en": "Double and add"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodunda `pt` hiç değişmiyor; `mul(2, G)` `G` veriyor, `2·G` değil.",
+      "en": "In the starter code `pt` never changes; `mul(2, G)` gives `G`, not `2·G`."
+    },
+    {
+      "tr": "`k >>= 1`'den önce `pt = add(pt, pt)` ekle.",
+      "en": "Add `pt = add(pt, pt)` before `k >>= 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nP, A = 97, 1\n\n\ndef add(p1, p2):\n    if p1 is None:\n        return p2\n    if p2 is None:\n        return p1\n    x1, y1 = p1\n    x2, y2 = p2\n    if x1 == x2 and (y1 + y2) % P == 0:\n        return None\n    if p1 == p2:\n        s = (3 * x1 * x1 + A) * pow(2 * y1, -1, P) % P\n    else:\n        s = (y2 - y1) * pow(x2 - x1, -1, P) % P\n    x3 = (s * s - x1 - x2) % P\n    y3 = (s * (x1 - x3) - y1) % P\n    return [x3, y3]\n\n\ndef mul(k, pt):\n    result = None\n    while k > 0:\n        if k & 1:\n            result = add(result, pt)\n        pt = add(pt, pt)\n        k >>= 1\n    return result\n\nG = [0, 2]\nprint(mul(1, G))\nprint(mul(2, G) == add(G, G))\nprint(mul(13, mul(29, G)) == mul(29, mul(13, G)))\nprint(mul(89, G))\n```",
+      "en": "The full solution:\n\n```python\nP, A = 97, 1\n\n\ndef add(p1, p2):\n    if p1 is None:\n        return p2\n    if p2 is None:\n        return p1\n    x1, y1 = p1\n    x2, y2 = p2\n    if x1 == x2 and (y1 + y2) % P == 0:\n        return None\n    if p1 == p2:\n        s = (3 * x1 * x1 + A) * pow(2 * y1, -1, P) % P\n    else:\n        s = (y2 - y1) * pow(x2 - x1, -1, P) % P\n    x3 = (s * s - x1 - x2) % P\n    y3 = (s * (x1 - x3) - y1) % P\n    return [x3, y3]\n\n\ndef mul(k, pt):\n    result = None\n    while k > 0:\n        if k & 1:\n            result = add(result, pt)\n        pt = add(pt, pt)\n        k >>= 1\n    return result\n\nG = [0, 2]\nprint(mul(1, G))\nprint(mul(2, G) == add(G, G))\nprint(mul(13, mul(29, G)) == mul(29, mul(13, G)))\nprint(mul(89, G))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mul",
+      "cases": [
+        {
+          "args": [
+            1,
+            [
+              0,
+              2
+            ]
+          ],
+          "returns": [
+            0,
+            2
+          ]
+        },
+        {
+          "args": [
+            2,
+            [
+              0,
+              2
+            ]
+          ],
+          "returns": [
+            91,
+            48
+          ]
+        },
+        {
+          "args": [
+            13,
+            [
+              0,
+              2
+            ]
+          ],
+          "returns": [
+            41,
+            75
+          ]
+        },
+        {
+          "args": [
+            89,
+            [
+              0,
+              2
+            ]
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            0,
+            [
+              0,
+              2
+            ]
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            50,
+            [
+              6,
+              41
+            ]
+          ],
+          "returns": [
+            75,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 2]\nTrue\nTrue\nNone"
+    }
+  ]
+}

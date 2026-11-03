@@ -1,0 +1,85 @@
+{
+  "id": "mod-inverse",
+  "title": {
+    "tr": "Mod içinde ters",
+    "en": "The inverse mod n"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `inverse(4, 8)` için bir sayı döndürüyor, ama `4 * x % 8` hiçbir zaman 1 olmaz.",
+      "en": "The starter code returns a number for `inverse(4, 8)`, but `4 * x % 8` is never 1."
+    },
+    {
+      "tr": "`if g != 1: return None` ekle.",
+      "en": "Add `if g != 1: return None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef egcd(a, b):\n    if b == 0:\n        return [a, 1, 0]\n    g, x, y = egcd(b, a % b)\n    return [g, y, x - (a // b) * y]\n\n\ndef inverse(a, n):\n    g, x, y = egcd(a, n)\n    if g != 1:\n        return None\n    return x % n\n\nprint(inverse(3, 11))\nprint(inverse(17, 3120))\nprint(inverse(4, 8))\n```",
+      "en": "The full solution:\n\n```python\ndef egcd(a, b):\n    if b == 0:\n        return [a, 1, 0]\n    g, x, y = egcd(b, a % b)\n    return [g, y, x - (a // b) * y]\n\n\ndef inverse(a, n):\n    g, x, y = egcd(a, n)\n    if g != 1:\n        return None\n    return x % n\n\nprint(inverse(3, 11))\nprint(inverse(17, 3120))\nprint(inverse(4, 8))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "inverse",
+      "cases": [
+        {
+          "args": [
+            3,
+            11
+          ],
+          "returns": 4
+        },
+        {
+          "args": [
+            17,
+            3120
+          ],
+          "returns": 2753
+        },
+        {
+          "args": [
+            4,
+            8
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            10,
+            15
+          ],
+          "returns": null
+        },
+        {
+          "args": [
+            1,
+            7
+          ],
+          "returns": 1
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "4\n2753\nNone"
+    },
+    {
+      "type": "ast_forbid",
+      "call": "pow",
+      "hint": {
+        "tr": "`pow(a, -1, n)` yerine `egcd` ile bul.",
+        "en": "Find it with `egcd` instead of `pow(a, -1, n)`."
+      }
+    }
+  ]
+}
