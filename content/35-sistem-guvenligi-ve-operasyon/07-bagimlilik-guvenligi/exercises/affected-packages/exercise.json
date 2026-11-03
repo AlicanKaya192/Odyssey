@@ -1,0 +1,122 @@
+{
+  "id": "affected-packages",
+  "title": {
+    "tr": "Etkilenen paketler",
+    "en": "Affected packages"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu metin karşılaştırıyor: `\"1.10.0\" < \"1.9.0\"` doğru çıkıyor ve `http` yanlışlıkla etkilenmiş sayılıyor.",
+      "en": "The starter code compares text: `\"1.10.0\" < \"1.9.0\"` comes out true and `http` is wrongly counted as affected."
+    },
+    {
+      "tr": "Bir `version(text)` yardımcısı yaz; üç sürümü de ondan geçir.",
+      "en": "Write a `version(text)` helper; pass all three versions through it."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef version(text):\n    return tuple(int(part) for part in text.split(\".\"))\n\n\ndef affected(installed, advisories):\n    lines = []\n    for name, introduced, fixed, adv in advisories:\n        if name not in installed:\n            continue\n        v = version(installed[name])\n        if version(introduced) <= v < version(fixed):\n            lines.append(f\"{name} {installed[name]}: {adv}\")\n    return sorted(lines)\n\nINSTALLED = {\"web\": \"2.3.1\", \"http\": \"1.10.0\", \"pool\": \"0.4.2\"}\nADVISORIES = [\n    [\"web\", \"2.0.0\", \"2.3.2\", \"ADV-1\"],\n    [\"http\", \"1.0.0\", \"1.9.0\", \"ADV-2\"],\n    [\"pool\", \"0.1.0\", \"0.5.0\", \"ADV-3\"],\n    [\"cache\", \"1.0.0\", \"1.2.0\", \"ADV-4\"],\n]\nfor line in affected(INSTALLED, ADVISORIES):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef version(text):\n    return tuple(int(part) for part in text.split(\".\"))\n\n\ndef affected(installed, advisories):\n    lines = []\n    for name, introduced, fixed, adv in advisories:\n        if name not in installed:\n            continue\n        v = version(installed[name])\n        if version(introduced) <= v < version(fixed):\n            lines.append(f\"{name} {installed[name]}: {adv}\")\n    return sorted(lines)\n\nINSTALLED = {\"web\": \"2.3.1\", \"http\": \"1.10.0\", \"pool\": \"0.4.2\"}\nADVISORIES = [\n    [\"web\", \"2.0.0\", \"2.3.2\", \"ADV-1\"],\n    [\"http\", \"1.0.0\", \"1.9.0\", \"ADV-2\"],\n    [\"pool\", \"0.1.0\", \"0.5.0\", \"ADV-3\"],\n    [\"cache\", \"1.0.0\", \"1.2.0\", \"ADV-4\"],\n]\nfor line in affected(INSTALLED, ADVISORIES):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "affected",
+      "cases": [
+        {
+          "args": [
+            {
+              "web": "2.3.1",
+              "http": "1.10.0",
+              "pool": "0.4.2"
+            },
+            [
+              [
+                "web",
+                "2.0.0",
+                "2.3.2",
+                "ADV-1"
+              ],
+              [
+                "http",
+                "1.0.0",
+                "1.9.0",
+                "ADV-2"
+              ],
+              [
+                "pool",
+                "0.1.0",
+                "0.5.0",
+                "ADV-3"
+              ],
+              [
+                "cache",
+                "1.0.0",
+                "1.2.0",
+                "ADV-4"
+              ]
+            ]
+          ],
+          "returns": [
+            "pool 0.4.2: ADV-3",
+            "web 2.3.1: ADV-1"
+          ]
+        },
+        {
+          "args": [
+            {},
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": "1.0.0"
+            },
+            [
+              [
+                "a",
+                "1.0.0",
+                "1.0.1",
+                "X"
+              ]
+            ]
+          ],
+          "returns": [
+            "a 1.0.0: X"
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": "2.0"
+            },
+            [
+              [
+                "a",
+                "1.0",
+                "2.0",
+                "Y"
+              ]
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "pool 0.4.2: ADV-3\nweb 2.3.1: ADV-1"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "hardcoded-secrets",
+  "title": {
+    "tr": "Koddaki sırlar",
+    "en": "Secrets in code"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sabit metin: `isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)`.",
+      "en": "A fixed string: `isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)`."
+    },
+    {
+      "tr": "Her hedefin adını `getattr(target, \"id\", \"\")` ile al ve `lower()` ile kelimelere bak.",
+      "en": "Take each target's name with `getattr(target, \"id\", \"\")` and check the words with `lower()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ast\n\nWORDS = (\"password\", \"secret\", \"token\")\n\n\ndef hardcoded_secrets(source):\n    names = []\n    for node in ast.walk(ast.parse(source)):\n        if not isinstance(node, ast.Assign):\n            continue\n        if not (isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)):\n            continue\n        for target in node.targets:\n            name = getattr(target, \"id\", \"\")\n            if any(word in name.lower() for word in WORDS):\n                names.append(name)\n    return sorted(names)\n\nCODE = \"\"\"\ndb_password = \"hunter2\"\napi_token = load_from_vault(\"api\")\nretries = 3\nSECRET_KEY = \"dev-key-123\"\nadmin_secret = 42\n\"\"\"\nprint(hardcoded_secrets(CODE))\n```",
+      "en": "The full solution:\n\n```python\nimport ast\n\nWORDS = (\"password\", \"secret\", \"token\")\n\n\ndef hardcoded_secrets(source):\n    names = []\n    for node in ast.walk(ast.parse(source)):\n        if not isinstance(node, ast.Assign):\n            continue\n        if not (isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)):\n            continue\n        for target in node.targets:\n            name = getattr(target, \"id\", \"\")\n            if any(word in name.lower() for word in WORDS):\n                names.append(name)\n    return sorted(names)\n\nCODE = \"\"\"\ndb_password = \"hunter2\"\napi_token = load_from_vault(\"api\")\nretries = 3\nSECRET_KEY = \"dev-key-123\"\nadmin_secret = 42\n\"\"\"\nprint(hardcoded_secrets(CODE))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hardcoded_secrets",
+      "cases": [
+        {
+          "args": [
+            "\ndb_password = \"hunter2\"\napi_token = load_from_vault(\"api\")\nretries = 3\nSECRET_KEY = \"dev-key-123\"\nadmin_secret = 42\n"
+          ],
+          "returns": [
+            "SECRET_KEY",
+            "db_password"
+          ]
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "Password = \"x\"\npassword_len = 8\n"
+          ],
+          "returns": [
+            "Password"
+          ]
+        },
+        {
+          "args": [
+            "token = get()\n"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['SECRET_KEY', 'db_password']"
+    }
+  ]
+}

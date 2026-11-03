@@ -1,0 +1,81 @@
+{
+  "id": "verify-downloads",
+  "title": {
+    "tr": "İndirmeleri doğrula",
+    "en": "Verify downloads"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `lock`'ta olmayan dosyada `KeyError` veriyor ve sıralamıyor.",
+      "en": "The starter code raises `KeyError` for a file missing from `lock` and does not sort."
+    },
+    {
+      "tr": "`sorted(files)` ile gez; önce `if name not in lock`, sonra özet karşılaştırması.",
+      "en": "Walk with `sorted(files)`; first `if name not in lock`, then the hash comparison."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef verify_downloads(files, lock):\n    lines = []\n    for name in sorted(files):\n        digest = hashlib.sha256(files[name].encode()).hexdigest()\n        if name not in lock:\n            lines.append(name + \": not in lock\")\n        elif digest == lock[name]:\n            lines.append(name + \": ok\")\n        else:\n            lines.append(name + \": mismatch\")\n    return lines\n\nimport hashlib\n\nLOCK = {\n    \"alpha-1.0.zip\": hashlib.sha256(b\"alpha 1.0\").hexdigest(),\n    \"beta-2.1.zip\": hashlib.sha256(b\"beta 2.1\").hexdigest(),\n}\nFILES = {\n    \"beta-2.1.zip\": \"beta 2.1 + extra\",\n    \"alpha-1.0.zip\": \"alpha 1.0\",\n    \"gamma-0.3.zip\": \"gamma 0.3\",\n}\nfor line in verify_downloads(FILES, LOCK):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef verify_downloads(files, lock):\n    lines = []\n    for name in sorted(files):\n        digest = hashlib.sha256(files[name].encode()).hexdigest()\n        if name not in lock:\n            lines.append(name + \": not in lock\")\n        elif digest == lock[name]:\n            lines.append(name + \": ok\")\n        else:\n            lines.append(name + \": mismatch\")\n    return lines\n\nimport hashlib\n\nLOCK = {\n    \"alpha-1.0.zip\": hashlib.sha256(b\"alpha 1.0\").hexdigest(),\n    \"beta-2.1.zip\": hashlib.sha256(b\"beta 2.1\").hexdigest(),\n}\nFILES = {\n    \"beta-2.1.zip\": \"beta 2.1 + extra\",\n    \"alpha-1.0.zip\": \"alpha 1.0\",\n    \"gamma-0.3.zip\": \"gamma 0.3\",\n}\nfor line in verify_downloads(FILES, LOCK):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify_downloads",
+      "cases": [
+        {
+          "args": [
+            {
+              "beta-2.1.zip": "beta 2.1 + extra",
+              "alpha-1.0.zip": "alpha 1.0",
+              "gamma-0.3.zip": "gamma 0.3"
+            },
+            {
+              "alpha-1.0.zip": "0434b56d5ec0a24a50323ad0a9524fd44b10d9c57fcecdf2cd7423da9777c0b1",
+              "beta-2.1.zip": "7456da4d831d207cbf5a02f7c3663ab4085e84107ed084152fccf814b743c233"
+            }
+          ],
+          "returns": [
+            "alpha-1.0.zip: ok",
+            "beta-2.1.zip: mismatch",
+            "gamma-0.3.zip: not in lock"
+          ]
+        },
+        {
+          "args": [
+            {},
+            {
+              "alpha-1.0.zip": "0434b56d5ec0a24a50323ad0a9524fd44b10d9c57fcecdf2cd7423da9777c0b1",
+              "beta-2.1.zip": "7456da4d831d207cbf5a02f7c3663ab4085e84107ed084152fccf814b743c233"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "alpha-1.0.zip": "alpha 1.0"
+            },
+            {}
+          ],
+          "returns": [
+            "alpha-1.0.zip: not in lock"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "alpha-1.0.zip: ok\nbeta-2.1.zip: mismatch\ngamma-0.3.zip: not in lock"
+    }
+  ]
+}

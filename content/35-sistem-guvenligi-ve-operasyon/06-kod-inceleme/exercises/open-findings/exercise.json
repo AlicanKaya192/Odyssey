@@ -1,0 +1,92 @@
+{
+  "id": "open-findings",
+  "title": {
+    "tr": "Açık bulgular",
+    "en": "Open findings"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu gerekçesiz `# nosec`'i de kabul ediyor ve sıralamıyor.",
+      "en": "The starter code also accepts `# nosec` without a reason and does not sort."
+    },
+    {
+      "tr": "Gerekçe: `line.split(\"# nosec: \", 1)[1].strip()` boş olmamalı; bulguları `sorted(findings)` ile gez.",
+      "en": "The reason: `line.split(\"# nosec: \", 1)[1].strip()` must not be empty; walk the findings with `sorted(findings)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef has_reason(line):\n    mark = \"# nosec: \"\n    if mark not in line:\n        return False\n    return line.split(mark, 1)[1].strip() != \"\"\n\n\ndef open_findings(findings, lines):\n    result = []\n    for number, message in sorted(findings):\n        if not has_reason(lines[number - 1]):\n            result.append(f\"{number}: {message}\")\n    return result\n\nLINES = [\n    \"x = eval(a)  # nosec: a is a constant\",\n    \"y = eval(b)  # nosec\",\n    \"z = eval(c)\",\n]\nFINDINGS = [[3, \"eval\"], [1, \"eval\"], [2, \"eval\"]]\nfor item in open_findings(FINDINGS, LINES):\n    print(item)\n```",
+      "en": "The full solution:\n\n```python\ndef has_reason(line):\n    mark = \"# nosec: \"\n    if mark not in line:\n        return False\n    return line.split(mark, 1)[1].strip() != \"\"\n\n\ndef open_findings(findings, lines):\n    result = []\n    for number, message in sorted(findings):\n        if not has_reason(lines[number - 1]):\n            result.append(f\"{number}: {message}\")\n    return result\n\nLINES = [\n    \"x = eval(a)  # nosec: a is a constant\",\n    \"y = eval(b)  # nosec\",\n    \"z = eval(c)\",\n]\nFINDINGS = [[3, \"eval\"], [1, \"eval\"], [2, \"eval\"]]\nfor item in open_findings(FINDINGS, LINES):\n    print(item)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "open_findings",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                3,
+                "eval"
+              ],
+              [
+                1,
+                "eval"
+              ],
+              [
+                2,
+                "eval"
+              ]
+            ],
+            [
+              "x = eval(a)  # nosec: a is a constant",
+              "y = eval(b)  # nosec",
+              "z = eval(c)"
+            ]
+          ],
+          "returns": [
+            "2: eval",
+            "3: eval"
+          ]
+        },
+        {
+          "args": [
+            [],
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                "secret"
+              ]
+            ],
+            [
+              "k = 'x'  # nosec:   "
+            ]
+          ],
+          "returns": [
+            "1: secret"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2: eval\n3: eval"
+    }
+  ]
+}

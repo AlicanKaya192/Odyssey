@@ -1,0 +1,91 @@
+{
+  "id": "safe-config",
+  "title": {
+    "tr": "Güvenli yapılandırma",
+    "en": "A safe configuration"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Yalnızca `if key in DEFAULTS` olanları yaz.",
+      "en": "Write only those where `if key in DEFAULTS`."
+    },
+    {
+      "tr": "Sonda `config[\"session_minutes\"] = min(config[\"session_minutes\"], 60)`.",
+      "en": "At the end `config[\"session_minutes\"] = min(config[\"session_minutes\"], 60)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nDEFAULTS = {\"debug\": False, \"tls\": True, \"session_minutes\": 30}\n\n\ndef load_config(user_config):\n    config = dict(DEFAULTS)\n    for key, value in user_config.items():\n        if key in DEFAULTS:\n            config[key] = value\n    config[\"session_minutes\"] = min(config[\"session_minutes\"], 60)\n    return config\n\nconfig = load_config({\"debug\": True, \"session_minutes\": 600, \"theme\": \"dark\"})\nfor key in sorted(config):\n    print(key, config[key])\n```",
+      "en": "The full solution:\n\n```python\nDEFAULTS = {\"debug\": False, \"tls\": True, \"session_minutes\": 30}\n\n\ndef load_config(user_config):\n    config = dict(DEFAULTS)\n    for key, value in user_config.items():\n        if key in DEFAULTS:\n            config[key] = value\n    config[\"session_minutes\"] = min(config[\"session_minutes\"], 60)\n    return config\n\nconfig = load_config({\"debug\": True, \"session_minutes\": 600, \"theme\": \"dark\"})\nfor key in sorted(config):\n    print(key, config[key])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "load_config",
+      "cases": [
+        {
+          "args": [
+            {}
+          ],
+          "returns": {
+            "debug": false,
+            "tls": true,
+            "session_minutes": 30
+          }
+        },
+        {
+          "args": [
+            {
+              "debug": true,
+              "session_minutes": 600,
+              "theme": "dark"
+            }
+          ],
+          "returns": {
+            "debug": true,
+            "tls": true,
+            "session_minutes": 60
+          }
+        },
+        {
+          "args": [
+            {
+              "tls": false,
+              "session_minutes": 45
+            }
+          ],
+          "returns": {
+            "debug": false,
+            "tls": false,
+            "session_minutes": 45
+          }
+        },
+        {
+          "args": [
+            {
+              "x": 1
+            }
+          ],
+          "returns": {
+            "debug": false,
+            "tls": true,
+            "session_minutes": 30
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "debug True\nsession_minutes 60\ntls True"
+    }
+  ]
+}

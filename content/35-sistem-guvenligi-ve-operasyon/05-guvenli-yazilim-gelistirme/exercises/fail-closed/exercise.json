@@ -1,0 +1,75 @@
+{
+  "id": "fail-closed",
+  "title": {
+    "tr": "Kapalı başarısız ol",
+    "en": "Fail closed"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`roles.get(user)` olmayan kullanıcıda `None` verir; `None == \"admin\"` `False`'tur.",
+      "en": "`roles.get(user)` gives `None` for a missing user; `None == \"admin\"` is `False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef is_admin(user, roles):\n    return roles.get(user) == \"admin\"\n\nROLES = {\"ada\": \"admin\", \"bob\": \"user\"}\nprint(is_admin(\"ada\", ROLES))\nprint(is_admin(\"bob\", ROLES))\nprint(is_admin(\"mallory\", ROLES))\n```",
+      "en": "The full solution:\n\n```python\ndef is_admin(user, roles):\n    return roles.get(user) == \"admin\"\n\nROLES = {\"ada\": \"admin\", \"bob\": \"user\"}\nprint(is_admin(\"ada\", ROLES))\nprint(is_admin(\"bob\", ROLES))\nprint(is_admin(\"mallory\", ROLES))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "is_admin",
+      "cases": [
+        {
+          "args": [
+            "ada",
+            {
+              "ada": "admin",
+              "bob": "user"
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "bob",
+            {
+              "ada": "admin",
+              "bob": "user"
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "mallory",
+            {
+              "ada": "admin",
+              "bob": "user"
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "x",
+            {}
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse"
+    }
+  ]
+}

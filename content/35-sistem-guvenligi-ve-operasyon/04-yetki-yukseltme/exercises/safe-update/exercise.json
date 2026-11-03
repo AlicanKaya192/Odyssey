@@ -1,0 +1,90 @@
+{
+  "id": "safe-update",
+  "title": {
+    "tr": "Güvenli güncelleme",
+    "en": "A safe update"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`dict(user)` bir kopya verir; yalnızca `if key in allowed` olanları kopyaya yaz.",
+      "en": "`dict(user)` gives a copy; write only those where `if key in allowed` into the copy."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef safe_update(user, changes, allowed):\n    result = dict(user)\n    for key, value in changes.items():\n        if key in allowed:\n            result[key] = value\n    return result\n\nALLOWED = [\"email\", \"display_name\"]\nuser = {\"name\": \"ada\", \"role\": \"user\", \"email\": \"a@x.io\"}\nrequest = {\"email\": \"ada@x.io\", \"role\": \"admin\"}\nresult = safe_update(user, request, ALLOWED)\nprint(result[\"email\"], result[\"role\"])\nprint(user[\"email\"], user[\"role\"])\n```",
+      "en": "The full solution:\n\n```python\ndef safe_update(user, changes, allowed):\n    result = dict(user)\n    for key, value in changes.items():\n        if key in allowed:\n            result[key] = value\n    return result\n\nALLOWED = [\"email\", \"display_name\"]\nuser = {\"name\": \"ada\", \"role\": \"user\", \"email\": \"a@x.io\"}\nrequest = {\"email\": \"ada@x.io\", \"role\": \"admin\"}\nresult = safe_update(user, request, ALLOWED)\nprint(result[\"email\"], result[\"role\"])\nprint(user[\"email\"], user[\"role\"])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "safe_update",
+      "cases": [
+        {
+          "args": [
+            {
+              "name": "ada",
+              "role": "user",
+              "email": "a@x.io"
+            },
+            {
+              "email": "ada@x.io",
+              "role": "admin"
+            },
+            [
+              "email",
+              "display_name"
+            ]
+          ],
+          "returns": {
+            "name": "ada",
+            "role": "user",
+            "email": "ada@x.io"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "bob"
+            },
+            {},
+            [
+              "email"
+            ]
+          ],
+          "returns": {
+            "name": "bob"
+          }
+        },
+        {
+          "args": [
+            {
+              "name": "c",
+              "role": "user"
+            },
+            {
+              "role": "admin"
+            },
+            []
+          ],
+          "returns": {
+            "name": "c",
+            "role": "user"
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada@x.io user\na@x.io user"
+    }
+  ]
+}

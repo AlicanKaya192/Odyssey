@@ -1,0 +1,88 @@
+{
+  "id": "unexpected-setuid",
+  "title": {
+    "tr": "Beklenmedik setuid",
+    "en": "Unexpected setuid"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki şart birlikte: `f[\"mode\"] & 0o4000 and f[\"path\"] not in allowed`.",
+      "en": "Both conditions together: `f[\"mode\"] & 0o4000 and f[\"path\"] not in allowed`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef unexpected_setuid(files, allowed):\n    found = []\n    for f in files:\n        if f[\"mode\"] & 0o4000 and f[\"path\"] not in allowed:\n            found.append(f[\"path\"])\n    return sorted(found)\n\nFILES = [\n    {\"path\": \"/usr/bin/passwd\", \"mode\": 0o4755},\n    {\"path\": \"/opt/tools/report-tool\", \"mode\": 0o4755},\n    {\"path\": \"/usr/bin/ls\", \"mode\": 0o755},\n    {\"path\": \"/opt/app/helper\", \"mode\": 0o4711},\n]\nfor path in unexpected_setuid(FILES, [\"/usr/bin/passwd\"]):\n    print(path)\n```",
+      "en": "The full solution:\n\n```python\ndef unexpected_setuid(files, allowed):\n    found = []\n    for f in files:\n        if f[\"mode\"] & 0o4000 and f[\"path\"] not in allowed:\n            found.append(f[\"path\"])\n    return sorted(found)\n\nFILES = [\n    {\"path\": \"/usr/bin/passwd\", \"mode\": 0o4755},\n    {\"path\": \"/opt/tools/report-tool\", \"mode\": 0o4755},\n    {\"path\": \"/usr/bin/ls\", \"mode\": 0o755},\n    {\"path\": \"/opt/app/helper\", \"mode\": 0o4711},\n]\nfor path in unexpected_setuid(FILES, [\"/usr/bin/passwd\"]):\n    print(path)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "unexpected_setuid",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "path": "/usr/bin/passwd",
+                "mode": 2541
+              },
+              {
+                "path": "/opt/tools/report-tool",
+                "mode": 2541
+              },
+              {
+                "path": "/usr/bin/ls",
+                "mode": 493
+              },
+              {
+                "path": "/opt/app/helper",
+                "mode": 2505
+              }
+            ],
+            [
+              "/usr/bin/passwd"
+            ]
+          ],
+          "returns": [
+            "/opt/app/helper",
+            "/opt/tools/report-tool"
+          ]
+        },
+        {
+          "args": [
+            [],
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "path": "/a",
+                "mode": 2541
+              }
+            ],
+            [
+              "/a"
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "/opt/app/helper\n/opt/tools/report-tool"
+    }
+  ]
+}

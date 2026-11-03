@@ -1,0 +1,102 @@
+{
+  "id": "risky-tasks",
+  "title": {
+    "tr": "Riskli görevler",
+    "en": "Risky tasks"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu yalnızca diğerlerinin yazma bitine bakıyor: `stats`'ı işaretliyor, `report` ve `audit`'i kaçırıyor.",
+      "en": "The starter code only looks at the others' write bit: it flags `stats` and misses `report` and `audit`."
+    },
+    {
+      "tr": "Önce `runs_as == \"root\"`, sonra `owner != \"root\" or mode & 0o022`; sonda `sorted`.",
+      "en": "First `runs_as == \"root\"`, then `owner != \"root\" or mode & 0o022`; `sorted` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef risky_tasks(tasks):\n    found = []\n    for task in tasks:\n        if task[\"runs_as\"] != \"root\":\n            continue\n        if task[\"owner\"] != \"root\" or task[\"mode\"] & 0o022:\n            found.append(task[\"name\"])\n    return sorted(found)\n\nTASKS = [\n    {\"name\": \"backup\", \"runs_as\": \"root\", \"owner\": \"root\", \"mode\": 0o755},\n    {\"name\": \"cleanup\", \"runs_as\": \"root\", \"owner\": \"root\", \"mode\": 0o777},\n    {\"name\": \"report\", \"runs_as\": \"root\", \"owner\": \"bob\", \"mode\": 0o755},\n    {\"name\": \"stats\", \"runs_as\": \"bob\", \"owner\": \"bob\", \"mode\": 0o777},\n    {\"name\": \"audit\", \"runs_as\": \"root\", \"owner\": \"root\", \"mode\": 0o775},\n]\nprint(risky_tasks(TASKS))\n```",
+      "en": "The full solution:\n\n```python\ndef risky_tasks(tasks):\n    found = []\n    for task in tasks:\n        if task[\"runs_as\"] != \"root\":\n            continue\n        if task[\"owner\"] != \"root\" or task[\"mode\"] & 0o022:\n            found.append(task[\"name\"])\n    return sorted(found)\n\nTASKS = [\n    {\"name\": \"backup\", \"runs_as\": \"root\", \"owner\": \"root\", \"mode\": 0o755},\n    {\"name\": \"cleanup\", \"runs_as\": \"root\", \"owner\": \"root\", \"mode\": 0o777},\n    {\"name\": \"report\", \"runs_as\": \"root\", \"owner\": \"bob\", \"mode\": 0o755},\n    {\"name\": \"stats\", \"runs_as\": \"bob\", \"owner\": \"bob\", \"mode\": 0o777},\n    {\"name\": \"audit\", \"runs_as\": \"root\", \"owner\": \"root\", \"mode\": 0o775},\n]\nprint(risky_tasks(TASKS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "risky_tasks",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "name": "backup",
+                "runs_as": "root",
+                "owner": "root",
+                "mode": 493
+              },
+              {
+                "name": "cleanup",
+                "runs_as": "root",
+                "owner": "root",
+                "mode": 511
+              },
+              {
+                "name": "report",
+                "runs_as": "root",
+                "owner": "bob",
+                "mode": 493
+              },
+              {
+                "name": "stats",
+                "runs_as": "bob",
+                "owner": "bob",
+                "mode": 511
+              },
+              {
+                "name": "audit",
+                "runs_as": "root",
+                "owner": "root",
+                "mode": 509
+              }
+            ]
+          ],
+          "returns": [
+            "audit",
+            "cleanup",
+            "report"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "name": "x",
+                "runs_as": "bob",
+                "owner": "eve",
+                "mode": 511
+              }
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['audit', 'cleanup', 'report']"
+    }
+  ]
+}

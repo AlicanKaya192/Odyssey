@@ -1,0 +1,73 @@
+{
+  "id": "dangerous-calls",
+  "title": {
+    "tr": "Tehlikeli çağrılar",
+    "en": "Dangerous calls"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu metin arıyor: yorumu ve metni de buluyor, aynı satırdaki iki çağrıyı tek sayıyor.",
+      "en": "The starter code searches text: it also finds the comment and the string, and counts two calls on one line as one."
+    },
+    {
+      "tr": "`ast.walk` satır sırasıyla gezmez; `(lineno, col_offset, ad)` demetlerini topla ve `sorted` ile sırala.",
+      "en": "`ast.walk` does not go in line order; collect `(lineno, col_offset, name)` tuples and sort them with `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ast\n\nDANGEROUS = {\"eval\", \"exec\"}\n\n\ndef dangerous_calls(source):\n    found = []\n    for node in ast.walk(ast.parse(source)):\n        if isinstance(node, ast.Call) and getattr(node.func, \"id\", \"\") in DANGEROUS:\n            found.append((node.lineno, node.col_offset, node.func.id))\n    return [f\"{line}: {name}\" for line, col, name in sorted(found)]\n\nSOURCE = \"\"\"# eval( in a comment\nx = \"exec( in a string\"\ny = eval(a) + eval(b)\nexec(code)\n\"\"\"\nfor item in dangerous_calls(SOURCE):\n    print(item)\n```",
+      "en": "The full solution:\n\n```python\nimport ast\n\nDANGEROUS = {\"eval\", \"exec\"}\n\n\ndef dangerous_calls(source):\n    found = []\n    for node in ast.walk(ast.parse(source)):\n        if isinstance(node, ast.Call) and getattr(node.func, \"id\", \"\") in DANGEROUS:\n            found.append((node.lineno, node.col_offset, node.func.id))\n    return [f\"{line}: {name}\" for line, col, name in sorted(found)]\n\nSOURCE = \"\"\"# eval( in a comment\nx = \"exec( in a string\"\ny = eval(a) + eval(b)\nexec(code)\n\"\"\"\nfor item in dangerous_calls(SOURCE):\n    print(item)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "dangerous_calls",
+      "cases": [
+        {
+          "args": [
+            "# eval( in a comment\nx = \"exec( in a string\"\ny = eval(a) + eval(b)\nexec(code)\n"
+          ],
+          "returns": [
+            "3: eval",
+            "3: eval",
+            "4: exec"
+          ]
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "exec(a)\nprint(eval(b))\n"
+          ],
+          "returns": [
+            "1: exec",
+            "2: eval"
+          ]
+        },
+        {
+          "args": [
+            "obj.eval(x)\n"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3: eval\n3: eval\n4: exec"
+    }
+  ]
+}

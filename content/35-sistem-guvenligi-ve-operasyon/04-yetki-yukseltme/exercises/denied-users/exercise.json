@@ -1,0 +1,99 @@
+{
+  "id": "denied-users",
+  "title": {
+    "tr": "Reddedilen kullanıcılar",
+    "en": "Denied users"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`fields[\"result\"] == \"denied\"` ise `counts[user]`'ı artır: `counts.get(user, 0) + 1`.",
+      "en": "If `fields[\"result\"] == \"denied\"`, increase `counts[user]`: `counts.get(user, 0) + 1`."
+    },
+    {
+      "tr": "Sonda `count >= threshold` olanları `sorted` ile döndür.",
+      "en": "At the end return those with `count >= threshold` with `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef denied_users(lines, threshold):\n    counts = {}\n    for line in lines:\n        fields = dict(part.split(\"=\") for part in line.split()[2:])\n        if fields[\"result\"] == \"denied\":\n            counts[fields[\"user\"]] = counts.get(fields[\"user\"], 0) + 1\n    return sorted(user for user, count in counts.items() if count >= threshold)\n\nLOG = [\n    \"09:58 sudo user=ada result=ok cmd=update\",\n    \"10:01 sudo user=bob result=denied cmd=passwd\",\n    \"10:02 sudo user=bob result=denied cmd=restart\",\n    \"10:02 sudo user=bob result=denied cmd=useradd\",\n    \"10:05 sudo user=eve result=denied cmd=update\",\n    \"10:06 sudo user=eve result=denied cmd=update\",\n]\nprint(denied_users(LOG, 3))\nprint(denied_users(LOG, 2))\n```",
+      "en": "The full solution:\n\n```python\ndef denied_users(lines, threshold):\n    counts = {}\n    for line in lines:\n        fields = dict(part.split(\"=\") for part in line.split()[2:])\n        if fields[\"result\"] == \"denied\":\n            counts[fields[\"user\"]] = counts.get(fields[\"user\"], 0) + 1\n    return sorted(user for user, count in counts.items() if count >= threshold)\n\nLOG = [\n    \"09:58 sudo user=ada result=ok cmd=update\",\n    \"10:01 sudo user=bob result=denied cmd=passwd\",\n    \"10:02 sudo user=bob result=denied cmd=restart\",\n    \"10:02 sudo user=bob result=denied cmd=useradd\",\n    \"10:05 sudo user=eve result=denied cmd=update\",\n    \"10:06 sudo user=eve result=denied cmd=update\",\n]\nprint(denied_users(LOG, 3))\nprint(denied_users(LOG, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "denied_users",
+      "cases": [
+        {
+          "args": [
+            [
+              "09:58 sudo user=ada result=ok cmd=update",
+              "10:01 sudo user=bob result=denied cmd=passwd",
+              "10:02 sudo user=bob result=denied cmd=restart",
+              "10:02 sudo user=bob result=denied cmd=useradd",
+              "10:05 sudo user=eve result=denied cmd=update",
+              "10:06 sudo user=eve result=denied cmd=update"
+            ],
+            3
+          ],
+          "returns": [
+            "bob"
+          ]
+        },
+        {
+          "args": [
+            [
+              "09:58 sudo user=ada result=ok cmd=update",
+              "10:01 sudo user=bob result=denied cmd=passwd",
+              "10:02 sudo user=bob result=denied cmd=restart",
+              "10:02 sudo user=bob result=denied cmd=useradd",
+              "10:05 sudo user=eve result=denied cmd=update",
+              "10:06 sudo user=eve result=denied cmd=update"
+            ],
+            2
+          ],
+          "returns": [
+            "bob",
+            "eve"
+          ]
+        },
+        {
+          "args": [
+            [
+              "09:58 sudo user=ada result=ok cmd=update",
+              "10:01 sudo user=bob result=denied cmd=passwd",
+              "10:02 sudo user=bob result=denied cmd=restart",
+              "10:02 sudo user=bob result=denied cmd=useradd",
+              "10:05 sudo user=eve result=denied cmd=update",
+              "10:06 sudo user=eve result=denied cmd=update"
+            ],
+            1
+          ],
+          "returns": [
+            "bob",
+            "eve"
+          ]
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['bob']\n['bob', 'eve']"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "id": "can-view",
+  "title": {
+    "tr": "Görebilir mi?",
+    "en": "Can they view it?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce rolü, sonra sahipliği denetle: `invoice[\"owner\"] == user[\"name\"]`.",
+      "en": "Check the role first, then ownership: `invoice[\"owner\"] == user[\"name\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef can_view(user, invoice):\n    if user[\"role\"] == \"admin\":\n        return True\n    return invoice[\"owner\"] == user[\"name\"]\n\nINVOICE = {\"id\": 102, \"owner\": \"bob\"}\nprint(can_view({\"name\": \"bob\", \"role\": \"user\"}, INVOICE))\nprint(can_view({\"name\": \"ada\", \"role\": \"user\"}, INVOICE))\nprint(can_view({\"name\": \"eve\", \"role\": \"admin\"}, INVOICE))\n```",
+      "en": "The full solution:\n\n```python\ndef can_view(user, invoice):\n    if user[\"role\"] == \"admin\":\n        return True\n    return invoice[\"owner\"] == user[\"name\"]\n\nINVOICE = {\"id\": 102, \"owner\": \"bob\"}\nprint(can_view({\"name\": \"bob\", \"role\": \"user\"}, INVOICE))\nprint(can_view({\"name\": \"ada\", \"role\": \"user\"}, INVOICE))\nprint(can_view({\"name\": \"eve\", \"role\": \"admin\"}, INVOICE))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "can_view",
+      "cases": [
+        {
+          "args": [
+            {
+              "name": "bob",
+              "role": "user"
+            },
+            {
+              "id": 1,
+              "owner": "bob"
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "name": "ada",
+              "role": "user"
+            },
+            {
+              "id": 1,
+              "owner": "bob"
+            }
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            {
+              "name": "eve",
+              "role": "admin"
+            },
+            {
+              "id": 1,
+              "owner": "bob"
+            }
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            {
+              "name": "bob",
+              "role": "guest"
+            },
+            {
+              "id": 2,
+              "owner": "ada"
+            }
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nTrue"
+    }
+  ]
+}

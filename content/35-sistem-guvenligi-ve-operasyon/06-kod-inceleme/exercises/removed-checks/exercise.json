@@ -1,0 +1,76 @@
+{
+  "id": "removed-checks",
+  "title": {
+    "tr": "Silinen denetimler",
+    "en": "Removed checks"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Silinen satır: `line.startswith(\"-\") and not line.startswith(\"---\")`.",
+      "en": "A removed line: `line.startswith(\"-\") and not line.startswith(\"---\")`."
+    },
+    {
+      "tr": "Metni `line[1:].strip()` ile al; `any(word in text for word in keywords)`.",
+      "en": "Take the text with `line[1:].strip()`; `any(word in text for word in keywords)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef removed_checks(diff, keywords):\n    found = []\n    for line in diff.splitlines():\n        if not line.startswith(\"-\") or line.startswith(\"---\"):\n            continue\n        text = line[1:].strip()\n        if any(word in text for word in keywords):\n            found.append(text)\n    return found\n\nDIFF = \"\"\"--- a/app.py\n+++ b/app.py\n@@ -1,6 +1,5 @@\n def save(user, data):\n-    check_owner(user, data)\n-    verify_token(user)\n-    print(\"saving\")\n+    print(\"saving now\")\n     store(data)\n\"\"\"\nfor line in removed_checks(DIFF, [\"check\", \"verify\", \"auth\"]):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef removed_checks(diff, keywords):\n    found = []\n    for line in diff.splitlines():\n        if not line.startswith(\"-\") or line.startswith(\"---\"):\n            continue\n        text = line[1:].strip()\n        if any(word in text for word in keywords):\n            found.append(text)\n    return found\n\nDIFF = \"\"\"--- a/app.py\n+++ b/app.py\n@@ -1,6 +1,5 @@\n def save(user, data):\n-    check_owner(user, data)\n-    verify_token(user)\n-    print(\"saving\")\n+    print(\"saving now\")\n     store(data)\n\"\"\"\nfor line in removed_checks(DIFF, [\"check\", \"verify\", \"auth\"]):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "removed_checks",
+      "cases": [
+        {
+          "args": [
+            "--- a/app.py\n+++ b/app.py\n@@ -1,6 +1,5 @@\n def save(user, data):\n-    check_owner(user, data)\n-    verify_token(user)\n-    print(\"saving\")\n+    print(\"saving now\")\n     store(data)\n",
+            [
+              "check",
+              "verify",
+              "auth"
+            ]
+          ],
+          "returns": [
+            "check_owner(user, data)",
+            "verify_token(user)"
+          ]
+        },
+        {
+          "args": [
+            "",
+            [
+              "check"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "--- a\n+++ b\n-auth(x)\n+auth(y)\n",
+            [
+              "auth"
+            ]
+          ],
+          "returns": [
+            "auth(x)"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "check_owner(user, data)\nverify_token(user)"
+    }
+  ]
+}

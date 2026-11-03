@@ -1,0 +1,158 @@
+{
+  "id": "all-dependencies",
+  "title": {
+    "tr": "Bütün bağımlılıklar",
+    "en": "All dependencies"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir yığın ve bir `seen` kümesi kullan; görülen paketi ve `root`'u atla.",
+      "en": "Use a stack and a `seen` set; skip a package already seen and `root`."
+    },
+    {
+      "tr": "Grafikte olmayan paket için `graph.get(name, [])`; sonda `sorted(seen)`.",
+      "en": "For a package missing from the graph, `graph.get(name, [])`; `sorted(seen)` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef all_dependencies(graph, root):\n    seen = set()\n    stack = list(graph.get(root, []))\n    while stack:\n        name = stack.pop()\n        if name == root or name in seen:\n            continue\n        seen.add(name)\n        stack.extend(graph.get(name, []))\n    return sorted(seen)\n\nGRAPH = {\n    \"app\": [\"web\", \"db\"],\n    \"web\": [\"templates\", \"http\"],\n    \"db\": [\"http\", \"pool\"],\n    \"templates\": [\"escape\", \"web\"],\n    \"http\": [],\n    \"pool\": [],\n    \"escape\": [],\n}\nprint(\", \".join(all_dependencies(GRAPH, \"app\")))\nprint(\", \".join(all_dependencies(GRAPH, \"db\")))\n```",
+      "en": "The full solution:\n\n```python\ndef all_dependencies(graph, root):\n    seen = set()\n    stack = list(graph.get(root, []))\n    while stack:\n        name = stack.pop()\n        if name == root or name in seen:\n            continue\n        seen.add(name)\n        stack.extend(graph.get(name, []))\n    return sorted(seen)\n\nGRAPH = {\n    \"app\": [\"web\", \"db\"],\n    \"web\": [\"templates\", \"http\"],\n    \"db\": [\"http\", \"pool\"],\n    \"templates\": [\"escape\", \"web\"],\n    \"http\": [],\n    \"pool\": [],\n    \"escape\": [],\n}\nprint(\", \".join(all_dependencies(GRAPH, \"app\")))\nprint(\", \".join(all_dependencies(GRAPH, \"db\")))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "all_dependencies",
+      "cases": [
+        {
+          "args": [
+            {
+              "app": [
+                "web",
+                "db"
+              ],
+              "web": [
+                "templates",
+                "http"
+              ],
+              "db": [
+                "http",
+                "pool"
+              ],
+              "templates": [
+                "escape",
+                "web"
+              ],
+              "http": [],
+              "pool": [],
+              "escape": []
+            },
+            "app"
+          ],
+          "returns": [
+            "db",
+            "escape",
+            "http",
+            "pool",
+            "templates",
+            "web"
+          ]
+        },
+        {
+          "args": [
+            {
+              "app": [
+                "web",
+                "db"
+              ],
+              "web": [
+                "templates",
+                "http"
+              ],
+              "db": [
+                "http",
+                "pool"
+              ],
+              "templates": [
+                "escape",
+                "web"
+              ],
+              "http": [],
+              "pool": [],
+              "escape": []
+            },
+            "db"
+          ],
+          "returns": [
+            "http",
+            "pool"
+          ]
+        },
+        {
+          "args": [
+            {
+              "app": [
+                "web",
+                "db"
+              ],
+              "web": [
+                "templates",
+                "http"
+              ],
+              "db": [
+                "http",
+                "pool"
+              ],
+              "templates": [
+                "escape",
+                "web"
+              ],
+              "http": [],
+              "pool": [],
+              "escape": []
+            },
+            "escape"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": [
+                "b"
+              ],
+              "b": [
+                "a",
+                "c"
+              ]
+            },
+            "a"
+          ],
+          "returns": [
+            "b",
+            "c"
+          ]
+        },
+        {
+          "args": [
+            {},
+            "x"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "db, escape, http, pool, templates, web\nhttp, pool"
+    }
+  ]
+}

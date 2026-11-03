@@ -1,0 +1,59 @@
+{
+  "id": "bare-excepts",
+  "title": {
+    "tr": "Türsüz yakalamalar",
+    "en": "Untyped catches"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`for node in ast.walk(ast.parse(source))` ile gez; `isinstance(node, ast.ExceptHandler) and node.type is None`.",
+      "en": "Walk with `for node in ast.walk(ast.parse(source))`; `isinstance(node, ast.ExceptHandler) and node.type is None`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ast\n\n\ndef bare_excepts(source):\n    lines = []\n    for node in ast.walk(ast.parse(source)):\n        if isinstance(node, ast.ExceptHandler) and node.type is None:\n            lines.append(node.lineno)\n    return sorted(lines)\n\nCODE = \"\"\"\ntry:\n    check_permission(user)\nexcept:\n    pass\ntry:\n    load(path)\nexcept FileNotFoundError:\n    pass\ntry:\n    verify(token)\nexcept:\n    allow = True\n\"\"\"\nprint(bare_excepts(CODE))\n```",
+      "en": "The full solution:\n\n```python\nimport ast\n\n\ndef bare_excepts(source):\n    lines = []\n    for node in ast.walk(ast.parse(source)):\n        if isinstance(node, ast.ExceptHandler) and node.type is None:\n            lines.append(node.lineno)\n    return sorted(lines)\n\nCODE = \"\"\"\ntry:\n    check_permission(user)\nexcept:\n    pass\ntry:\n    load(path)\nexcept FileNotFoundError:\n    pass\ntry:\n    verify(token)\nexcept:\n    allow = True\n\"\"\"\nprint(bare_excepts(CODE))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bare_excepts",
+      "cases": [
+        {
+          "args": [
+            "\ntry:\n    check_permission(user)\nexcept:\n    pass\ntry:\n    load(path)\nexcept FileNotFoundError:\n    pass\ntry:\n    verify(token)\nexcept:\n    allow = True\n"
+          ],
+          "returns": [
+            4,
+            12
+          ]
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "try:\n    a()\nexcept ValueError:\n    pass\n"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[4, 12]"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "id": "fix-order",
+  "title": {
+    "tr": "Düzeltme sırası",
+    "en": "Fix order"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir sıra sözlüğü kur: `RANK = {\"critical\": 0, ...}`; tanınmayan için `RANK.get(sev, 4)`.",
+      "en": "Build a rank dict: `RANK = {\"critical\": 0, ...}`; `RANK.get(sev, 4)` for an unknown one."
+    },
+    {
+      "tr": "`sorted(findings, key=lambda f: (RANK.get(f[1], 4), f[0]))`.",
+      "en": "`sorted(findings, key=lambda f: (RANK.get(f[1], 4), f[0]))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nRANK = {\"critical\": 0, \"high\": 1, \"medium\": 2, \"low\": 3}\n\n\ndef fix_order(findings):\n    ordered = sorted(findings, key=lambda f: (RANK.get(f[1], 4), f[0]))\n    return [finding_id for finding_id, severity in ordered]\n\nFINDINGS = [\n    [\"F-7\", \"low\"],\n    [\"F-2\", \"critical\"],\n    [\"F-5\", \"medium\"],\n    [\"F-1\", \"high\"],\n    [\"F-3\", \"critical\"],\n    [\"F-9\", \"unknown\"],\n]\nfor finding_id in fix_order(FINDINGS):\n    print(finding_id)\n```",
+      "en": "The full solution:\n\n```python\nRANK = {\"critical\": 0, \"high\": 1, \"medium\": 2, \"low\": 3}\n\n\ndef fix_order(findings):\n    ordered = sorted(findings, key=lambda f: (RANK.get(f[1], 4), f[0]))\n    return [finding_id for finding_id, severity in ordered]\n\nFINDINGS = [\n    [\"F-7\", \"low\"],\n    [\"F-2\", \"critical\"],\n    [\"F-5\", \"medium\"],\n    [\"F-1\", \"high\"],\n    [\"F-3\", \"critical\"],\n    [\"F-9\", \"unknown\"],\n]\nfor finding_id in fix_order(FINDINGS):\n    print(finding_id)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fix_order",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "F-7",
+                "low"
+              ],
+              [
+                "F-2",
+                "critical"
+              ],
+              [
+                "F-5",
+                "medium"
+              ],
+              [
+                "F-1",
+                "high"
+              ],
+              [
+                "F-3",
+                "critical"
+              ],
+              [
+                "F-9",
+                "unknown"
+              ]
+            ]
+          ],
+          "returns": [
+            "F-2",
+            "F-3",
+            "F-1",
+            "F-5",
+            "F-7",
+            "F-9"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "b",
+                "low"
+              ],
+              [
+                "a",
+                "low"
+              ]
+            ]
+          ],
+          "returns": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "x",
+                "info"
+              ],
+              [
+                "y",
+                "high"
+              ]
+            ]
+          ],
+          "returns": [
+            "y",
+            "x"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "F-2\nF-3\nF-1\nF-5\nF-7\nF-9"
+    }
+  ]
+}

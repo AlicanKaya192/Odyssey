@@ -1,0 +1,88 @@
+{
+  "id": "release-blockers",
+  "title": {
+    "tr": "Yayın kapısı",
+    "en": "The release gate"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`checklist.get(item, False)` olmayan maddeyi de eksik sayar; sonda `sorted`.",
+      "en": "`checklist.get(item, False)` counts a missing item as not done too; `sorted` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef release_blockers(checklist, required):\n    return sorted(item for item in required if not checklist.get(item, False))\n\nCHECKLIST = {\n    \"threat_model_reviewed\": True,\n    \"security_tests_pass\": False,\n    \"secrets_scan_clean\": True,\n}\nREQUIRED = [\n    \"threat_model_reviewed\",\n    \"security_tests_pass\",\n    \"dependencies_scanned\",\n    \"secrets_scan_clean\",\n]\nfor item in release_blockers(CHECKLIST, REQUIRED):\n    print(item)\n```",
+      "en": "The full solution:\n\n```python\ndef release_blockers(checklist, required):\n    return sorted(item for item in required if not checklist.get(item, False))\n\nCHECKLIST = {\n    \"threat_model_reviewed\": True,\n    \"security_tests_pass\": False,\n    \"secrets_scan_clean\": True,\n}\nREQUIRED = [\n    \"threat_model_reviewed\",\n    \"security_tests_pass\",\n    \"dependencies_scanned\",\n    \"secrets_scan_clean\",\n]\nfor item in release_blockers(CHECKLIST, REQUIRED):\n    print(item)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "release_blockers",
+      "cases": [
+        {
+          "args": [
+            {
+              "threat_model_reviewed": true,
+              "security_tests_pass": false,
+              "secrets_scan_clean": true
+            },
+            [
+              "threat_model_reviewed",
+              "security_tests_pass",
+              "dependencies_scanned",
+              "secrets_scan_clean"
+            ]
+          ],
+          "returns": [
+            "dependencies_scanned",
+            "security_tests_pass"
+          ]
+        },
+        {
+          "args": [
+            {},
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": true
+            },
+            [
+              "a"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            [
+              "b",
+              "a"
+            ]
+          ],
+          "returns": [
+            "a",
+            "b"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "dependencies_scanned\nsecurity_tests_pass"
+    }
+  ]
+}

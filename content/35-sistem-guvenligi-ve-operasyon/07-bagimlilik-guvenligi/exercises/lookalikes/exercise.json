@@ -1,0 +1,95 @@
+{
+  "id": "lookalikes",
+  "title": {
+    "tr": "Benzer adlar",
+    "en": "Lookalike names"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu popüler adın kendisini de benzer sayıyor (`pandas -> pandas`). Önce `if name in popular: continue`.",
+      "en": "The starter code counts a popular name itself as similar too (`pandas -> pandas`). First `if name in popular: continue`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport difflib\n\n\ndef lookalikes(names, popular):\n    lines = []\n    for name in names:\n        if name in popular:\n            continue\n        close = difflib.get_close_matches(name, popular, n=1, cutoff=0.8)\n        if close:\n            lines.append(name + \" -> \" + close[0])\n    return lines\n\nPOPULAR = [\"numpy\", \"pandas\", \"django\", \"flask\", \"pytest\"]\nfor line in lookalikes([\"numpi\", \"pandas\", \"flaskk\", \"leftpad\"], POPULAR):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport difflib\n\n\ndef lookalikes(names, popular):\n    lines = []\n    for name in names:\n        if name in popular:\n            continue\n        close = difflib.get_close_matches(name, popular, n=1, cutoff=0.8)\n        if close:\n            lines.append(name + \" -> \" + close[0])\n    return lines\n\nPOPULAR = [\"numpy\", \"pandas\", \"django\", \"flask\", \"pytest\"]\nfor line in lookalikes([\"numpi\", \"pandas\", \"flaskk\", \"leftpad\"], POPULAR):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lookalikes",
+      "cases": [
+        {
+          "args": [
+            [
+              "numpi",
+              "pandas",
+              "flaskk",
+              "leftpad"
+            ],
+            [
+              "numpy",
+              "pandas",
+              "django",
+              "flask",
+              "pytest"
+            ]
+          ],
+          "returns": [
+            "numpi -> numpy",
+            "flaskk -> flask"
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              "numpy"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "numpy"
+            ],
+            [
+              "numpy"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "djang0",
+              "pytesst"
+            ],
+            [
+              "django",
+              "pytest"
+            ]
+          ],
+          "returns": [
+            "djang0 -> django",
+            "pytesst -> pytest"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "numpi -> numpy\nflaskk -> flask"
+    }
+  ]
+}
