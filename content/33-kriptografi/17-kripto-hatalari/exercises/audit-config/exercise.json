@@ -1,0 +1,99 @@
+{
+  "id": "audit-config",
+  "title": {
+    "tr": "Ayar denetçisi",
+    "en": "A configuration auditor"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sabit nonce, doğrulamasız şifreleme ve düşük tekrar sayısı başlangıç kodunda görünmüyor.",
+      "en": "A fixed nonce, encryption without authentication and a low iteration count are invisible in the starter code."
+    },
+    {
+      "tr": "Aradaki üç denetimi sırasıyla ekle: `nonce`, `mac`, `kdf_iterations`.",
+      "en": "Add the three checks in between, in order: `nonce`, `mac`, `kdf_iterations`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef audit(config):\n    findings = []\n    if config[\"mode\"] == \"ECB\":\n        findings.append(\"ecb mode\")\n    if config[\"nonce\"] == \"fixed\":\n        findings.append(\"fixed nonce\")\n    if not config[\"mac\"]:\n        findings.append(\"no integrity\")\n    if config[\"kdf_iterations\"] < 600000:\n        findings.append(\"low iterations\")\n    if not config[\"verify_tls\"]:\n        findings.append(\"tls verification off\")\n    return findings\n\ngood = {\"mode\": \"GCM\", \"nonce\": \"random\", \"mac\": True,\n        \"kdf_iterations\": 600000, \"verify_tls\": True}\nprint(audit(good))\nbad = {\"mode\": \"CTR\", \"nonce\": \"fixed\", \"mac\": False,\n       \"kdf_iterations\": 1000, \"verify_tls\": True}\nfor finding in audit(bad):\n    print(finding)\n```",
+      "en": "The full solution:\n\n```python\ndef audit(config):\n    findings = []\n    if config[\"mode\"] == \"ECB\":\n        findings.append(\"ecb mode\")\n    if config[\"nonce\"] == \"fixed\":\n        findings.append(\"fixed nonce\")\n    if not config[\"mac\"]:\n        findings.append(\"no integrity\")\n    if config[\"kdf_iterations\"] < 600000:\n        findings.append(\"low iterations\")\n    if not config[\"verify_tls\"]:\n        findings.append(\"tls verification off\")\n    return findings\n\ngood = {\"mode\": \"GCM\", \"nonce\": \"random\", \"mac\": True,\n        \"kdf_iterations\": 600000, \"verify_tls\": True}\nprint(audit(good))\nbad = {\"mode\": \"CTR\", \"nonce\": \"fixed\", \"mac\": False,\n       \"kdf_iterations\": 1000, \"verify_tls\": True}\nfor finding in audit(bad):\n    print(finding)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "audit",
+      "cases": [
+        {
+          "args": [
+            {
+              "mode": "GCM",
+              "nonce": "random",
+              "mac": true,
+              "kdf_iterations": 600000,
+              "verify_tls": true
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "mode": "GCM",
+              "nonce": "fixed",
+              "mac": false,
+              "kdf_iterations": 1000,
+              "verify_tls": true
+            }
+          ],
+          "returns": [
+            "fixed nonce",
+            "no integrity",
+            "low iterations"
+          ]
+        },
+        {
+          "args": [
+            {
+              "mode": "ECB",
+              "nonce": "random",
+              "mac": true,
+              "kdf_iterations": 600000,
+              "verify_tls": false
+            }
+          ],
+          "returns": [
+            "ecb mode",
+            "tls verification off"
+          ]
+        },
+        {
+          "args": [
+            {
+              "mode": "GCM",
+              "nonce": "random",
+              "mac": true,
+              "kdf_iterations": 599999,
+              "verify_tls": true
+            }
+          ],
+          "returns": [
+            "low iterations"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]\nfixed nonce\nno integrity\nlow iterations"
+    }
+  ]
+}

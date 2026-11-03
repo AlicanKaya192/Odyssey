@@ -1,0 +1,93 @@
+{
+  "id": "audit-handshake",
+  "title": {
+    "tr": "El sıkışmayı denetle",
+    "en": "Audit the handshake"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "TLS 1.0 ve zayıf bir takımla kurulan bağlantı başlangıç kodunda sorunsuz görünüyor.",
+      "en": "A connection with TLS 1.0 and a weak suite looks fine in the starter code."
+    },
+    {
+      "tr": "Başa iki denetim ekle: `info[\"version\"]` ve `info[\"suite\"] not in STRONG_SUITES`.",
+      "en": "Add two checks at the start: `info[\"version\"]` and `info[\"suite\"] not in STRONG_SUITES`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nSTRONG_SUITES = [\n    \"TLS_AES_128_GCM_SHA256\",\n    \"TLS_AES_256_GCM_SHA384\",\n    \"TLS_CHACHA20_POLY1305_SHA256\",\n]\n\n\ndef audit_handshake(info):\n    problems = []\n    if info[\"version\"] not in [\"TLSv1.3\", \"TLSv1.2\"]:\n        problems.append(\"old version\")\n    if info[\"suite\"] not in STRONG_SUITES:\n        problems.append(\"weak suite\")\n    if not info[\"cert_ok\"]:\n        problems.append(\"bad certificate\")\n    if not info[\"finished_ok\"]:\n        problems.append(\"bad finished\")\n    return problems\n\ngood = {\"version\": \"TLSv1.3\", \"suite\": \"TLS_AES_128_GCM_SHA256\",\n        \"cert_ok\": True, \"finished_ok\": True}\nprint(audit_handshake(good))\nold = dict(good, version=\"TLSv1.0\", suite=\"TLS_RSA_WITH_RC4\")\nfor problem in audit_handshake(old):\n    print(problem)\n```",
+      "en": "The full solution:\n\n```python\nSTRONG_SUITES = [\n    \"TLS_AES_128_GCM_SHA256\",\n    \"TLS_AES_256_GCM_SHA384\",\n    \"TLS_CHACHA20_POLY1305_SHA256\",\n]\n\n\ndef audit_handshake(info):\n    problems = []\n    if info[\"version\"] not in [\"TLSv1.3\", \"TLSv1.2\"]:\n        problems.append(\"old version\")\n    if info[\"suite\"] not in STRONG_SUITES:\n        problems.append(\"weak suite\")\n    if not info[\"cert_ok\"]:\n        problems.append(\"bad certificate\")\n    if not info[\"finished_ok\"]:\n        problems.append(\"bad finished\")\n    return problems\n\ngood = {\"version\": \"TLSv1.3\", \"suite\": \"TLS_AES_128_GCM_SHA256\",\n        \"cert_ok\": True, \"finished_ok\": True}\nprint(audit_handshake(good))\nold = dict(good, version=\"TLSv1.0\", suite=\"TLS_RSA_WITH_RC4\")\nfor problem in audit_handshake(old):\n    print(problem)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "audit_handshake",
+      "cases": [
+        {
+          "args": [
+            {
+              "version": "TLSv1.3",
+              "suite": "TLS_AES_128_GCM_SHA256",
+              "cert_ok": true,
+              "finished_ok": true
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "version": "TLSv1.0",
+              "suite": "TLS_RSA_WITH_RC4",
+              "cert_ok": true,
+              "finished_ok": true
+            }
+          ],
+          "returns": [
+            "old version",
+            "weak suite"
+          ]
+        },
+        {
+          "args": [
+            {
+              "version": "TLSv1.3",
+              "suite": "TLS_AES_128_GCM_SHA256",
+              "cert_ok": false,
+              "finished_ok": true
+            }
+          ],
+          "returns": [
+            "bad certificate"
+          ]
+        },
+        {
+          "args": [
+            {
+              "version": "TLSv1.2",
+              "suite": "TLS_AES_128_GCM_SHA256",
+              "cert_ok": true,
+              "finished_ok": false
+            }
+          ],
+          "returns": [
+            "bad finished"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]\nold version\nweak suite"
+    }
+  ]
+}

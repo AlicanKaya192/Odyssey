@@ -1,0 +1,101 @@
+{
+  "id": "verify-any",
+  "title": {
+    "tr": "Hangi anahtar imzaladı",
+    "en": "Which key signed it"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İkinci anahtarın imzası başlangıç kodunda `-1` çıkıyor.",
+      "en": "The second key's signature comes out as `-1` in the starter code."
+    },
+    {
+      "tr": "`for i, (e, n) in enumerate(keys):` içinde tutan ilk anahtarda `return i`.",
+      "en": "Inside `for i, (e, n) in enumerate(keys):`, `return i` at the first key that matches."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef digest(message, n):\n    h = hashlib.sha256(message.encode()).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef verify_any(message, signature, keys):\n    for i, (e, n) in enumerate(keys):\n        if pow(signature, e, n) == digest(message, n):\n            return i\n    return -1\n\nkeys = [[65537, 10968372731], [65537, 10967535067]]\nprint(verify_any(\"hello\", 8873282102, keys))\nprint(verify_any(\"hello\", 1503027446, keys))\nprint(verify_any(\"hullo\", 8873282102, keys))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef digest(message, n):\n    h = hashlib.sha256(message.encode()).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef verify_any(message, signature, keys):\n    for i, (e, n) in enumerate(keys):\n        if pow(signature, e, n) == digest(message, n):\n            return i\n    return -1\n\nkeys = [[65537, 10968372731], [65537, 10967535067]]\nprint(verify_any(\"hello\", 8873282102, keys))\nprint(verify_any(\"hello\", 1503027446, keys))\nprint(verify_any(\"hullo\", 8873282102, keys))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify_any",
+      "cases": [
+        {
+          "args": [
+            "hello",
+            8873282102,
+            [
+              [
+                65537,
+                10968372731
+              ],
+              [
+                65537,
+                10967535067
+              ]
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            "hello",
+            1503027446,
+            [
+              [
+                65537,
+                10968372731
+              ],
+              [
+                65537,
+                10967535067
+              ]
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "hullo",
+            8873282102,
+            [
+              [
+                65537,
+                10968372731
+              ],
+              [
+                65537,
+                10967535067
+              ]
+            ]
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            "hello",
+            8873282102,
+            []
+          ],
+          "returns": -1
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1\n0\n-1"
+    }
+  ]
+}

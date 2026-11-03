@@ -1,0 +1,78 @@
+{
+  "id": "rsa-verify",
+  "title": {
+    "tr": "İmzayı doğrula",
+    "en": "Verify the signature"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Doğru imza başlangıç kodunda `False`: imza özetin kendisi değil, özetin `d`'inci kuvveti.",
+      "en": "A right signature is `False` in the starter code: the signature is not the hash, it is the hash to the power `d`."
+    },
+    {
+      "tr": "`return pow(signature, e, n) == digest(message, n)`.",
+      "en": "`return pow(signature, e, n) == digest(message, n)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef digest(message, n):\n    h = hashlib.sha256(message.encode()).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef verify(message, signature, e, n):\n    return pow(signature, e, n) == digest(message, n)\n\nn = 104723 * 104729\ns = 1827243129\nprint(verify(\"release 2.4.1\", s, 65537, n))\nprint(verify(\"release 2.4.2\", s, 65537, n))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef digest(message, n):\n    h = hashlib.sha256(message.encode()).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef verify(message, signature, e, n):\n    return pow(signature, e, n) == digest(message, n)\n\nn = 104723 * 104729\ns = 1827243129\nprint(verify(\"release 2.4.1\", s, 65537, n))\nprint(verify(\"release 2.4.2\", s, 65537, n))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify",
+      "cases": [
+        {
+          "args": [
+            "release 2.4.1",
+            1827243129,
+            65537,
+            10967535067
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "release 2.4.2",
+            1827243129,
+            65537,
+            10967535067
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "hello",
+            8873282102,
+            65537,
+            10967535067
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "hello",
+            1503027446,
+            65537,
+            10967535067
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse"
+    }
+  ]
+}

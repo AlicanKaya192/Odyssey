@@ -1,0 +1,82 @@
+{
+  "id": "update-check",
+  "title": {
+    "tr": "Güncellemeyi denetle",
+    "en": "Check the update"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`2.10.0` yeni bir sürüm, ama başlangıç kodu ona `\"downgrade\"` diyor.",
+      "en": "`2.10.0` is a newer version, but the starter code calls it `\"downgrade\"`."
+    },
+    {
+      "tr": "`[int(part) for part in version.split(\".\")]` listeleri sayı gibi karşılaştırılır.",
+      "en": "Lists like `[int(part) for part in version.split(\".\")]` compare like numbers."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef digest(message, n):\n    h = hashlib.sha256(message.encode()).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef parse(version):\n    return [int(part) for part in version.split(\".\")]\n\n\ndef check_update(version, signature, e, n, installed):\n    if pow(signature, e, n) != digest(\"app \" + version, n):\n        return \"bad signature\"\n    if parse(version) <= parse(installed):\n        return \"downgrade\"\n    return \"install\"\n\nn = 104723 * 104729\nprint(check_update(\"2.10.0\", 6739506677, 65537, n, \"2.9.0\"))\nprint(check_update(\"2.8.0\", 9900516037, 65537, n, \"2.9.0\"))\nprint(check_update(\"2.11.0\", 6739506677, 65537, n, \"2.9.0\"))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef digest(message, n):\n    h = hashlib.sha256(message.encode()).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef parse(version):\n    return [int(part) for part in version.split(\".\")]\n\n\ndef check_update(version, signature, e, n, installed):\n    if pow(signature, e, n) != digest(\"app \" + version, n):\n        return \"bad signature\"\n    if parse(version) <= parse(installed):\n        return \"downgrade\"\n    return \"install\"\n\nn = 104723 * 104729\nprint(check_update(\"2.10.0\", 6739506677, 65537, n, \"2.9.0\"))\nprint(check_update(\"2.8.0\", 9900516037, 65537, n, \"2.9.0\"))\nprint(check_update(\"2.11.0\", 6739506677, 65537, n, \"2.9.0\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_update",
+      "cases": [
+        {
+          "args": [
+            "2.10.0",
+            6739506677,
+            65537,
+            10967535067,
+            "2.9.0"
+          ],
+          "returns": "install"
+        },
+        {
+          "args": [
+            "2.8.0",
+            9900516037,
+            65537,
+            10967535067,
+            "2.9.0"
+          ],
+          "returns": "downgrade"
+        },
+        {
+          "args": [
+            "2.11.0",
+            6739506677,
+            65537,
+            10967535067,
+            "2.9.0"
+          ],
+          "returns": "bad signature"
+        },
+        {
+          "args": [
+            "2.10.0",
+            6739506677,
+            65537,
+            10967535067,
+            "2.10.0"
+          ],
+          "returns": "downgrade"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "install\ndowngrade\nbad signature"
+    }
+  ]
+}

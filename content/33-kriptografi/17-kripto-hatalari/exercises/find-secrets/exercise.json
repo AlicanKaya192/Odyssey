@@ -1,0 +1,73 @@
+{
+  "id": "find-secrets",
+  "title": {
+    "tr": "Gömülü sırları bul",
+    "en": "Find built-in secrets"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`SECRET_KEY = \"...\"` ve `api_token = '...'` başlangıç kodundan kaçıyor.",
+      "en": "`SECRET_KEY = \"...\"` and `api_token = '...'` slip past the starter code."
+    },
+    {
+      "tr": "Deseni genişlet: `(key|secret|password|token)\\w*` ve ardından `\\s*=\\s*` ile tırnak.",
+      "en": "Widen the pattern: `(key|secret|password|token)\\w*`, then `\\s*=\\s*` and a quote."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef find_secrets(source):\n    pattern = re.compile(r\"(key|secret|password|token)\\w*\\s*=\\s*['\\\"]\", re.IGNORECASE)\n    found = []\n    for number, line in enumerate(source.splitlines(), 1):\n        if pattern.search(line):\n            found.append(number)\n    return found\n\nsource = \"\"\"API_URL = \"https://api.example.test\"\nSECRET_KEY = \"s3cr3t-value\"\npassword = os.environ[\"DB_PASSWORD\"]\ntimeout = 30\napi_token = 'abc123'\"\"\"\nprint(find_secrets(source))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef find_secrets(source):\n    pattern = re.compile(r\"(key|secret|password|token)\\w*\\s*=\\s*['\\\"]\", re.IGNORECASE)\n    found = []\n    for number, line in enumerate(source.splitlines(), 1):\n        if pattern.search(line):\n            found.append(number)\n    return found\n\nsource = \"\"\"API_URL = \"https://api.example.test\"\nSECRET_KEY = \"s3cr3t-value\"\npassword = os.environ[\"DB_PASSWORD\"]\ntimeout = 30\napi_token = 'abc123'\"\"\"\nprint(find_secrets(source))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_secrets",
+      "cases": [
+        {
+          "args": [
+            "API_URL = \"https://api.example.test\"\nSECRET_KEY = \"s3cr3t-value\"\npassword = os.environ[\"DB_PASSWORD\"]\ntimeout = 30\napi_token = 'abc123'"
+          ],
+          "returns": [
+            2,
+            5
+          ]
+        },
+        {
+          "args": [
+            "token = \"x\"\nTOKEN_TTL = 30\nkey = 5"
+          ],
+          "returns": [
+            1
+          ]
+        },
+        {
+          "args": [
+            "password = \"hunter2\""
+          ],
+          "returns": [
+            1
+          ]
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 5]"
+    }
+  ]
+}

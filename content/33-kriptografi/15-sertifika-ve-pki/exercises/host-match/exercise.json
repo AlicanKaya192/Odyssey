@@ -1,0 +1,77 @@
+{
+  "id": "host-match",
+  "title": {
+    "tr": "Joker ad",
+    "en": "The wildcard name"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`a.b.example.test` sonu tutuyor ama jokerin yerinde iki etiket var.",
+      "en": "`a.b.example.test` matches the ending, but there are two labels where the wildcard is."
+    },
+    {
+      "tr": "Sonu çıkar, kalan `rest` boş olmamalı ve içinde `.` olmamalı.",
+      "en": "Remove the ending; the remaining `rest` must not be empty and must not contain `.`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef host_matches(pattern, host):\n    if pattern.startswith(\"*.\"):\n        suffix = pattern[1:]\n        rest = host[: -len(suffix)]\n        return host.endswith(suffix) and rest != \"\" and \".\" not in rest\n    return pattern == host\n\nprint(host_matches(\"*.example.test\", \"shop.example.test\"))\nprint(host_matches(\"*.example.test\", \"a.b.example.test\"))\nprint(host_matches(\"shop.example.test\", \"shop.example.test\"))\nprint(host_matches(\"*.example.test\", \"example.test\"))\n```",
+      "en": "The full solution:\n\n```python\ndef host_matches(pattern, host):\n    if pattern.startswith(\"*.\"):\n        suffix = pattern[1:]\n        rest = host[: -len(suffix)]\n        return host.endswith(suffix) and rest != \"\" and \".\" not in rest\n    return pattern == host\n\nprint(host_matches(\"*.example.test\", \"shop.example.test\"))\nprint(host_matches(\"*.example.test\", \"a.b.example.test\"))\nprint(host_matches(\"shop.example.test\", \"shop.example.test\"))\nprint(host_matches(\"*.example.test\", \"example.test\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "host_matches",
+      "cases": [
+        {
+          "args": [
+            "*.example.test",
+            "shop.example.test"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "*.example.test",
+            "a.b.example.test"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "*.example.test",
+            "example.test"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "shop.example.test",
+            "shop.example.test"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "shop.example.test",
+            "shop.example.test.evil.test"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nTrue\nFalse"
+    }
+  ]
+}

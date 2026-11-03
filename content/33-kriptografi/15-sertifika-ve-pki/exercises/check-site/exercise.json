@@ -1,0 +1,189 @@
+{
+  "id": "check-site",
+  "title": {
+    "tr": "Siteyi tam denetle",
+    "en": "Check the site fully"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İmza yetmez: süresi dolmuş ya da başka ada verilmiş bir sertifika başlangıç kodunda `\"ok\"`.",
+      "en": "A signature is not enough: an expired certificate or one for another name is `\"ok\"` in the starter code."
+    },
+    {
+      "tr": "`leaf = chain[0]`; önce `date_status(leaf, today)`, sonra `host_matches(leaf[\"subject\"], host)`.",
+      "en": "`leaf = chain[0]`; first `date_status(leaf, today)`, then `host_matches(leaf[\"subject\"], host)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport json\n\n\ndef digest(data, n):\n    h = hashlib.sha256(data).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef tbs(cert):\n    body = {k: v for k, v in cert.items() if k != \"signature\"}\n    return json.dumps(body, sort_keys=True).encode()\n\n\ndef check_signature(cert, e, n):\n    return pow(cert[\"signature\"], e, n) == digest(tbs(cert), n)\n\n\ndef verify_chain(chain, trusted):\n    for cert, parent in zip(chain, chain[1:]):\n        if cert[\"issuer\"] != parent[\"subject\"]:\n            return \"issuer mismatch\"\n        if not check_signature(cert, parent[\"e\"], parent[\"n\"]):\n            return \"bad signature\"\n    top = chain[-1]\n    if trusted.get(top[\"subject\"]) != [top[\"e\"], top[\"n\"]]:\n        return \"untrusted root\"\n    return \"ok\"\n\n\ndef date_status(cert, today):\n    if today < cert[\"not_before\"]:\n        return \"not yet valid\"\n    if today > cert[\"not_after\"]:\n        return \"expired\"\n    return \"ok\"\n\n\ndef host_matches(pattern, host):\n    if pattern.startswith(\"*.\"):\n        suffix = pattern[1:]\n        rest = host[: -len(suffix)]\n        return host.endswith(suffix) and rest != \"\" and \".\" not in rest\n    return pattern == host\n\n\ndef check_site(chain, trusted, host, today):\n    result = verify_chain(chain, trusted)\n    if result != \"ok\":\n        return result\n    leaf = chain[0]\n    dates = date_status(leaf, today)\n    if dates != \"ok\":\n        return dates\n    if not host_matches(leaf[\"subject\"], host):\n        return \"name mismatch\"\n    return \"ok\"\n\nchain = [{'subject': '*.example.test', 'e': 65537, 'n': 10968372731, 'not_before': '2026-01-01', 'not_after': '2026-12-31', 'issuer': 'Toy Issuing CA', 'signature': 5942274013}, {'subject': 'Toy Issuing CA', 'e': 65537, 'n': 10962927607, 'issuer': 'Toy Root CA', 'signature': 1071094906}, {'subject': 'Toy Root CA', 'e': 65537, 'n': 10967535067, 'issuer': 'Toy Root CA', 'signature': 9043170529}]\ntrusted = {\"Toy Root CA\": [65537, 10967535067]}\nprint(check_site(chain, trusted, \"shop.example.test\", \"2026-11-03\"))\nprint(check_site(chain, trusted, \"shop.example.test\", \"2027-02-01\"))\nprint(check_site(chain, trusted, \"bank.other.test\", \"2026-11-03\"))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport json\n\n\ndef digest(data, n):\n    h = hashlib.sha256(data).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef tbs(cert):\n    body = {k: v for k, v in cert.items() if k != \"signature\"}\n    return json.dumps(body, sort_keys=True).encode()\n\n\ndef check_signature(cert, e, n):\n    return pow(cert[\"signature\"], e, n) == digest(tbs(cert), n)\n\n\ndef verify_chain(chain, trusted):\n    for cert, parent in zip(chain, chain[1:]):\n        if cert[\"issuer\"] != parent[\"subject\"]:\n            return \"issuer mismatch\"\n        if not check_signature(cert, parent[\"e\"], parent[\"n\"]):\n            return \"bad signature\"\n    top = chain[-1]\n    if trusted.get(top[\"subject\"]) != [top[\"e\"], top[\"n\"]]:\n        return \"untrusted root\"\n    return \"ok\"\n\n\ndef date_status(cert, today):\n    if today < cert[\"not_before\"]:\n        return \"not yet valid\"\n    if today > cert[\"not_after\"]:\n        return \"expired\"\n    return \"ok\"\n\n\ndef host_matches(pattern, host):\n    if pattern.startswith(\"*.\"):\n        suffix = pattern[1:]\n        rest = host[: -len(suffix)]\n        return host.endswith(suffix) and rest != \"\" and \".\" not in rest\n    return pattern == host\n\n\ndef check_site(chain, trusted, host, today):\n    result = verify_chain(chain, trusted)\n    if result != \"ok\":\n        return result\n    leaf = chain[0]\n    dates = date_status(leaf, today)\n    if dates != \"ok\":\n        return dates\n    if not host_matches(leaf[\"subject\"], host):\n        return \"name mismatch\"\n    return \"ok\"\n\nchain = [{'subject': '*.example.test', 'e': 65537, 'n': 10968372731, 'not_before': '2026-01-01', 'not_after': '2026-12-31', 'issuer': 'Toy Issuing CA', 'signature': 5942274013}, {'subject': 'Toy Issuing CA', 'e': 65537, 'n': 10962927607, 'issuer': 'Toy Root CA', 'signature': 1071094906}, {'subject': 'Toy Root CA', 'e': 65537, 'n': 10967535067, 'issuer': 'Toy Root CA', 'signature': 9043170529}]\ntrusted = {\"Toy Root CA\": [65537, 10967535067]}\nprint(check_site(chain, trusted, \"shop.example.test\", \"2026-11-03\"))\nprint(check_site(chain, trusted, \"shop.example.test\", \"2027-02-01\"))\nprint(check_site(chain, trusted, \"bank.other.test\", \"2026-11-03\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_site",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "subject": "*.example.test",
+                "e": 65537,
+                "n": 10968372731,
+                "not_before": "2026-01-01",
+                "not_after": "2026-12-31",
+                "issuer": "Toy Issuing CA",
+                "signature": 5942274013
+              },
+              {
+                "subject": "Toy Issuing CA",
+                "e": 65537,
+                "n": 10962927607,
+                "issuer": "Toy Root CA",
+                "signature": 1071094906
+              },
+              {
+                "subject": "Toy Root CA",
+                "e": 65537,
+                "n": 10967535067,
+                "issuer": "Toy Root CA",
+                "signature": 9043170529
+              }
+            ],
+            {
+              "Toy Root CA": [
+                65537,
+                10967535067
+              ]
+            },
+            "shop.example.test",
+            "2026-11-03"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            [
+              {
+                "subject": "*.example.test",
+                "e": 65537,
+                "n": 10968372731,
+                "not_before": "2026-01-01",
+                "not_after": "2026-12-31",
+                "issuer": "Toy Issuing CA",
+                "signature": 5942274013
+              },
+              {
+                "subject": "Toy Issuing CA",
+                "e": 65537,
+                "n": 10962927607,
+                "issuer": "Toy Root CA",
+                "signature": 1071094906
+              },
+              {
+                "subject": "Toy Root CA",
+                "e": 65537,
+                "n": 10967535067,
+                "issuer": "Toy Root CA",
+                "signature": 9043170529
+              }
+            ],
+            {
+              "Toy Root CA": [
+                65537,
+                10967535067
+              ]
+            },
+            "shop.example.test",
+            "2027-02-01"
+          ],
+          "returns": "expired"
+        },
+        {
+          "args": [
+            [
+              {
+                "subject": "*.example.test",
+                "e": 65537,
+                "n": 10968372731,
+                "not_before": "2026-01-01",
+                "not_after": "2026-12-31",
+                "issuer": "Toy Issuing CA",
+                "signature": 5942274013
+              },
+              {
+                "subject": "Toy Issuing CA",
+                "e": 65537,
+                "n": 10962927607,
+                "issuer": "Toy Root CA",
+                "signature": 1071094906
+              },
+              {
+                "subject": "Toy Root CA",
+                "e": 65537,
+                "n": 10967535067,
+                "issuer": "Toy Root CA",
+                "signature": 9043170529
+              }
+            ],
+            {
+              "Toy Root CA": [
+                65537,
+                10967535067
+              ]
+            },
+            "a.b.example.test",
+            "2026-11-03"
+          ],
+          "returns": "name mismatch"
+        },
+        {
+          "args": [
+            [
+              {
+                "subject": "*.example.test",
+                "e": 65537,
+                "n": 10968372731,
+                "not_before": "2026-01-01",
+                "not_after": "2026-12-31",
+                "issuer": "Toy Issuing CA",
+                "signature": 5942274013
+              },
+              {
+                "subject": "Toy Issuing CA",
+                "e": 65537,
+                "n": 10962927607,
+                "issuer": "Toy Root CA",
+                "signature": 1071094906
+              },
+              {
+                "subject": "Toy Root CA",
+                "e": 65537,
+                "n": 10967535067,
+                "issuer": "Toy Root CA",
+                "signature": 9043170529
+              }
+            ],
+            {},
+            "shop.example.test",
+            "2026-11-03"
+          ],
+          "returns": "untrusted root"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\nexpired\nname mismatch"
+    }
+  ]
+}

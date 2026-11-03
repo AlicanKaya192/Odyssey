@@ -1,0 +1,82 @@
+{
+  "id": "cert-dates",
+  "title": {
+    "tr": "Geçerlilik tarihi",
+    "en": "The validity dates"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Henüz başlamamış bir sertifika da geçersizdir.",
+      "en": "A certificate that has not started yet is not valid either."
+    },
+    {
+      "tr": "Önce `if today < cert[\"not_before\"]: return \"not yet valid\"`.",
+      "en": "First `if today < cert[\"not_before\"]: return \"not yet valid\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef date_status(cert, today):\n    if today < cert[\"not_before\"]:\n        return \"not yet valid\"\n    if today > cert[\"not_after\"]:\n        return \"expired\"\n    return \"ok\"\n\ncert = {\"not_before\": \"2026-01-01\", \"not_after\": \"2026-12-31\"}\nprint(date_status(cert, \"2026-11-03\"))\nprint(date_status(cert, \"2025-12-31\"))\nprint(date_status(cert, \"2027-01-01\"))\n```",
+      "en": "The full solution:\n\n```python\ndef date_status(cert, today):\n    if today < cert[\"not_before\"]:\n        return \"not yet valid\"\n    if today > cert[\"not_after\"]:\n        return \"expired\"\n    return \"ok\"\n\ncert = {\"not_before\": \"2026-01-01\", \"not_after\": \"2026-12-31\"}\nprint(date_status(cert, \"2026-11-03\"))\nprint(date_status(cert, \"2025-12-31\"))\nprint(date_status(cert, \"2027-01-01\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "date_status",
+      "cases": [
+        {
+          "args": [
+            {
+              "not_before": "2026-01-01",
+              "not_after": "2026-12-31"
+            },
+            "2026-11-03"
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            {
+              "not_before": "2026-01-01",
+              "not_after": "2026-12-31"
+            },
+            "2025-12-31"
+          ],
+          "returns": "not yet valid"
+        },
+        {
+          "args": [
+            {
+              "not_before": "2026-01-01",
+              "not_after": "2026-12-31"
+            },
+            "2027-01-01"
+          ],
+          "returns": "expired"
+        },
+        {
+          "args": [
+            {
+              "not_before": "2026-01-01",
+              "not_after": "2026-12-31"
+            },
+            "2026-01-01"
+          ],
+          "returns": "ok"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\nnot yet valid\nexpired"
+    }
+  ]
+}

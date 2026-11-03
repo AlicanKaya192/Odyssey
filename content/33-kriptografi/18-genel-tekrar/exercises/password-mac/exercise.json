@@ -1,0 +1,82 @@
+{
+  "id": "password-mac",
+  "title": {
+    "tr": "Paroladan MAC anahtarı",
+    "en": "A MAC key from a password"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Doğru parola ve doğru mesaj başlangıç kodunda `False`: etiket türetilmiş anahtarla atılmıştı.",
+      "en": "The right password and message give `False` in the starter code: the tag was made with the derived key."
+    },
+    {
+      "tr": "`key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)`.",
+      "en": "`key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef verify_with_password(password, salt_hex, iterations, message, tag_hex):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)\n    expected = hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n    return hmac.compare_digest(expected, tag_hex)\n\nsalt = \"a1b2c3d4e5f60718293a4b5c6d7e8f90\"\ntag = \"6be60b72f83dfc119388419552a3151fc14fe3555588686489f9103683657f64\"\nprint(verify_with_password(\"sunflower\", salt, 1000, \"pay 100\", tag))\nprint(verify_with_password(\"sunflower\", salt, 1000, \"pay 900\", tag))\nprint(verify_with_password(\"tulip\", salt, 1000, \"pay 100\", tag))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef verify_with_password(password, salt_hex, iterations, message, tag_hex):\n    salt = bytes.fromhex(salt_hex)\n    key = hashlib.pbkdf2_hmac(\"sha256\", password.encode(), salt, iterations, dklen=32)\n    expected = hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n    return hmac.compare_digest(expected, tag_hex)\n\nsalt = \"a1b2c3d4e5f60718293a4b5c6d7e8f90\"\ntag = \"6be60b72f83dfc119388419552a3151fc14fe3555588686489f9103683657f64\"\nprint(verify_with_password(\"sunflower\", salt, 1000, \"pay 100\", tag))\nprint(verify_with_password(\"sunflower\", salt, 1000, \"pay 900\", tag))\nprint(verify_with_password(\"tulip\", salt, 1000, \"pay 100\", tag))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify_with_password",
+      "cases": [
+        {
+          "args": [
+            "sunflower",
+            "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            1000,
+            "pay 100",
+            "6be60b72f83dfc119388419552a3151fc14fe3555588686489f9103683657f64"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "sunflower",
+            "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            1000,
+            "pay 900",
+            "6be60b72f83dfc119388419552a3151fc14fe3555588686489f9103683657f64"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "tulip",
+            "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            1000,
+            "pay 100",
+            "6be60b72f83dfc119388419552a3151fc14fe3555588686489f9103683657f64"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "sunflower",
+            "a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            2000,
+            "pay 100",
+            "6be60b72f83dfc119388419552a3151fc14fe3555588686489f9103683657f64"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse"
+    }
+  ]
+}

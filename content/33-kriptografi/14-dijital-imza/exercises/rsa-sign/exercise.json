@@ -1,0 +1,66 @@
+{
+  "id": "rsa-sign",
+  "title": {
+    "tr": "Özel anahtarla imzala",
+    "en": "Sign with the private key"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İmza `d` ile atılır, `e` ile doğrulanır.",
+      "en": "A signature is made with `d` and verified with `e`."
+    },
+    {
+      "tr": "`return pow(h, d, n)`.",
+      "en": "`return pow(h, d, n)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef digest(message, n):\n    h = hashlib.sha256(message.encode()).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef sign(message, d, n):\n    h = digest(message, n)\n    return pow(h, d, n)\n\nn = 104723 * 104729\nd = 10195862609\ns = sign(\"release 2.4.1\", d, n)\nprint(pow(s, 65537, n) == digest(\"release 2.4.1\", n))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef digest(message, n):\n    h = hashlib.sha256(message.encode()).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef sign(message, d, n):\n    h = digest(message, n)\n    return pow(h, d, n)\n\nn = 104723 * 104729\nd = 10195862609\ns = sign(\"release 2.4.1\", d, n)\nprint(pow(s, 65537, n) == digest(\"release 2.4.1\", n))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sign",
+      "cases": [
+        {
+          "args": [
+            "release 2.4.1",
+            10195862609,
+            10967535067
+          ],
+          "returns": 1827243129
+        },
+        {
+          "args": [
+            "hello",
+            10195862609,
+            10967535067
+          ],
+          "returns": 8873282102
+        },
+        {
+          "args": [
+            "hello",
+            3608747801,
+            10968372731
+          ],
+          "returns": 1503027446
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True"
+    }
+  ]
+}

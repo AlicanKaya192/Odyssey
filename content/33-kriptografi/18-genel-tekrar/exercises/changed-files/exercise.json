@@ -1,0 +1,100 @@
+{
+  "id": "changed-files",
+  "title": {
+    "tr": "Değişen dosyalar",
+    "en": "Changed files"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`config.json` değişti ama başlangıç kodu yalnızca `readme.md`'yi buluyor.",
+      "en": "`config.json` changed, but the starter code only finds `readme.md`."
+    },
+    {
+      "tr": "Var olan dosyanın özetini hesapla ve manifestteki değerle karşılaştır.",
+      "en": "Compute the hash of a file that exists and compare it with the manifest value."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef changed_files(files, manifest):\n    changed = []\n    for name, expected in manifest.items():\n        if name not in files:\n            changed.append(name)\n            continue\n        actual = hashlib.sha256(files[name].encode()).hexdigest()\n        if actual != expected:\n            changed.append(name)\n    return sorted(changed)\n\nmanifest = {'app.py': 'c2d0a5e0790d97a015387a995c0d0b5eb3e88138466586fc980787c9b1731eb8', 'config.json': '91b415068e9e02958c86464025e0c061ed4e6df05b175751c9fa627e9983e989', 'readme.md': '29215b5404a64a82b1f244847bd104de4be5d0f0b04f14e95f1355a013344b50'}\nfiles = {'app.py': \"print('hi')\", 'config.json': '{\"debug\": true}'}\nprint(changed_files(files, manifest))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef changed_files(files, manifest):\n    changed = []\n    for name, expected in manifest.items():\n        if name not in files:\n            changed.append(name)\n            continue\n        actual = hashlib.sha256(files[name].encode()).hexdigest()\n        if actual != expected:\n            changed.append(name)\n    return sorted(changed)\n\nmanifest = {'app.py': 'c2d0a5e0790d97a015387a995c0d0b5eb3e88138466586fc980787c9b1731eb8', 'config.json': '91b415068e9e02958c86464025e0c061ed4e6df05b175751c9fa627e9983e989', 'readme.md': '29215b5404a64a82b1f244847bd104de4be5d0f0b04f14e95f1355a013344b50'}\nfiles = {'app.py': \"print('hi')\", 'config.json': '{\"debug\": true}'}\nprint(changed_files(files, manifest))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "changed_files",
+      "cases": [
+        {
+          "args": [
+            {
+              "app.py": "print('hi')",
+              "config.json": "{\"debug\": false}",
+              "readme.md": "Odyssey"
+            },
+            {
+              "app.py": "c2d0a5e0790d97a015387a995c0d0b5eb3e88138466586fc980787c9b1731eb8",
+              "config.json": "91b415068e9e02958c86464025e0c061ed4e6df05b175751c9fa627e9983e989",
+              "readme.md": "29215b5404a64a82b1f244847bd104de4be5d0f0b04f14e95f1355a013344b50"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "app.py": "print('hi')",
+              "config.json": "{\"debug\": true}"
+            },
+            {
+              "app.py": "c2d0a5e0790d97a015387a995c0d0b5eb3e88138466586fc980787c9b1731eb8",
+              "config.json": "91b415068e9e02958c86464025e0c061ed4e6df05b175751c9fa627e9983e989",
+              "readme.md": "29215b5404a64a82b1f244847bd104de4be5d0f0b04f14e95f1355a013344b50"
+            }
+          ],
+          "returns": [
+            "config.json",
+            "readme.md"
+          ]
+        },
+        {
+          "args": [
+            {},
+            {
+              "app.py": "c2d0a5e0790d97a015387a995c0d0b5eb3e88138466586fc980787c9b1731eb8",
+              "config.json": "91b415068e9e02958c86464025e0c061ed4e6df05b175751c9fa627e9983e989",
+              "readme.md": "29215b5404a64a82b1f244847bd104de4be5d0f0b04f14e95f1355a013344b50"
+            }
+          ],
+          "returns": [
+            "app.py",
+            "config.json",
+            "readme.md"
+          ]
+        },
+        {
+          "args": [
+            {
+              "app.py": "print('hi')",
+              "config.json": "{\"debug\": false}",
+              "readme.md": "Odyssey"
+            },
+            {}
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['config.json', 'readme.md']"
+    }
+  ]
+}

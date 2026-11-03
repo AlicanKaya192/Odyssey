@@ -1,0 +1,89 @@
+{
+  "id": "pick-suite",
+  "title": {
+    "tr": "Şifre takımı seç",
+    "en": "Choose the cipher suite"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ortak takım yokken başlangıç kodu yine bir takım döndürüyor.",
+      "en": "With no common suite, the starter code still returns a suite."
+    },
+    {
+      "tr": "Sunucunun listesini gez: `if suite in client_suites: return suite`.",
+      "en": "Go through the server's list: `if suite in client_suites: return suite`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef pick_suite(client_suites, server_suites):\n    for suite in server_suites:\n        if suite in client_suites:\n            return suite\n    return \"handshake_failure\"\n\nserver = [\"TLS_AES_256_GCM_SHA384\", \"TLS_AES_128_GCM_SHA256\"]\nprint(pick_suite([\"TLS_CHACHA20_POLY1305_SHA256\", \"TLS_AES_128_GCM_SHA256\"], server))\nprint(pick_suite([\"TLS_CHACHA20_POLY1305_SHA256\"], server))\n```",
+      "en": "The full solution:\n\n```python\ndef pick_suite(client_suites, server_suites):\n    for suite in server_suites:\n        if suite in client_suites:\n            return suite\n    return \"handshake_failure\"\n\nserver = [\"TLS_AES_256_GCM_SHA384\", \"TLS_AES_128_GCM_SHA256\"]\nprint(pick_suite([\"TLS_CHACHA20_POLY1305_SHA256\", \"TLS_AES_128_GCM_SHA256\"], server))\nprint(pick_suite([\"TLS_CHACHA20_POLY1305_SHA256\"], server))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pick_suite",
+      "cases": [
+        {
+          "args": [
+            [
+              "TLS_CHACHA20_POLY1305_SHA256",
+              "TLS_AES_128_GCM_SHA256"
+            ],
+            [
+              "TLS_AES_256_GCM_SHA384",
+              "TLS_AES_128_GCM_SHA256"
+            ]
+          ],
+          "returns": "TLS_AES_128_GCM_SHA256"
+        },
+        {
+          "args": [
+            [
+              "TLS_CHACHA20_POLY1305_SHA256"
+            ],
+            [
+              "TLS_AES_256_GCM_SHA384",
+              "TLS_AES_128_GCM_SHA256"
+            ]
+          ],
+          "returns": "handshake_failure"
+        },
+        {
+          "args": [
+            [
+              "TLS_AES_128_GCM_SHA256",
+              "TLS_AES_256_GCM_SHA384"
+            ],
+            [
+              "TLS_AES_256_GCM_SHA384",
+              "TLS_AES_128_GCM_SHA256"
+            ]
+          ],
+          "returns": "TLS_AES_256_GCM_SHA384"
+        },
+        {
+          "args": [
+            [],
+            [
+              "TLS_AES_128_GCM_SHA256"
+            ]
+          ],
+          "returns": "handshake_failure"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "TLS_AES_128_GCM_SHA256\nhandshake_failure"
+    }
+  ]
+}

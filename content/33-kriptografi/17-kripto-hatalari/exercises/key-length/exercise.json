@@ -1,0 +1,84 @@
+{
+  "id": "key-length",
+  "title": {
+    "tr": "Anahtar boyu",
+    "en": "Key length"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "64 bitlik AES ve 56 bitlik DES başlangıç kodunda `\"ok\"`.",
+      "en": "64-bit AES and 56-bit DES are `\"ok\"` in the starter code."
+    },
+    {
+      "tr": "Her algoritma için ayrı `if`; sonda `return \"unknown\"`.",
+      "en": "A separate `if` for each algorithm; `return \"unknown\"` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef check_key(algorithm, bits):\n    if algorithm == \"rsa\":\n        return \"ok\" if bits >= 2048 else \"too short\"\n    if algorithm == \"aes\":\n        return \"ok\" if bits in [128, 192, 256] else \"too short\"\n    if algorithm == \"ec\":\n        return \"ok\" if bits >= 256 else \"too short\"\n    return \"unknown\"\n\nprint(check_key(\"rsa\", 1024))\nprint(check_key(\"aes\", 64))\nprint(check_key(\"ec\", 256))\nprint(check_key(\"des\", 56))\n```",
+      "en": "The full solution:\n\n```python\ndef check_key(algorithm, bits):\n    if algorithm == \"rsa\":\n        return \"ok\" if bits >= 2048 else \"too short\"\n    if algorithm == \"aes\":\n        return \"ok\" if bits in [128, 192, 256] else \"too short\"\n    if algorithm == \"ec\":\n        return \"ok\" if bits >= 256 else \"too short\"\n    return \"unknown\"\n\nprint(check_key(\"rsa\", 1024))\nprint(check_key(\"aes\", 64))\nprint(check_key(\"ec\", 256))\nprint(check_key(\"des\", 56))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "check_key",
+      "cases": [
+        {
+          "args": [
+            "rsa",
+            1024
+          ],
+          "returns": "too short"
+        },
+        {
+          "args": [
+            "rsa",
+            3072
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "aes",
+            64
+          ],
+          "returns": "too short"
+        },
+        {
+          "args": [
+            "aes",
+            256
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            "ec",
+            192
+          ],
+          "returns": "too short"
+        },
+        {
+          "args": [
+            "des",
+            56
+          ],
+          "returns": "unknown"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "too short\ntoo short\nok\nunknown"
+    }
+  ]
+}

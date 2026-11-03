@@ -1,0 +1,93 @@
+{
+  "id": "verify-finished",
+  "title": {
+    "tr": "Finished'ı doğrula",
+    "en": "Verify Finished"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Değiştirilmiş ClientHello başlangıç kodunda `True` veriyor.",
+      "en": "A changed ClientHello gives `True` in the starter code."
+    },
+    {
+      "tr": "`th = transcript_hash(messages)`; listenin tamamı.",
+      "en": "`th = transcript_hash(messages)`; the whole list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef transcript_hash(messages):\n    h = hashlib.sha256()\n    for m in messages:\n        h.update(m.encode())\n    return h.digest()\n\n\ndef verify_finished(key_hex, messages, tag_hex):\n    key = bytes.fromhex(key_hex)\n    th = transcript_hash(messages)\n    expected = hmac.new(key, th, hashlib.sha256).hexdigest()\n    return hmac.compare_digest(expected, tag_hex)\n\nkey = \"4242424242424242424242424242424242424242424242424242424242424242\"\nmessages = ['client_hello', 'server_hello', 'certificate', 'certificate_verify']\ntag = \"3083046c807b0f2cb6932d5784d219b2c2ced5461f66c056f7a2fcd2572df718\"\nprint(verify_finished(key, messages, tag))\nmessages[0] = \"client_hello_weak\"\nprint(verify_finished(key, messages, tag))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef transcript_hash(messages):\n    h = hashlib.sha256()\n    for m in messages:\n        h.update(m.encode())\n    return h.digest()\n\n\ndef verify_finished(key_hex, messages, tag_hex):\n    key = bytes.fromhex(key_hex)\n    th = transcript_hash(messages)\n    expected = hmac.new(key, th, hashlib.sha256).hexdigest()\n    return hmac.compare_digest(expected, tag_hex)\n\nkey = \"4242424242424242424242424242424242424242424242424242424242424242\"\nmessages = ['client_hello', 'server_hello', 'certificate', 'certificate_verify']\ntag = \"3083046c807b0f2cb6932d5784d219b2c2ced5461f66c056f7a2fcd2572df718\"\nprint(verify_finished(key, messages, tag))\nmessages[0] = \"client_hello_weak\"\nprint(verify_finished(key, messages, tag))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify_finished",
+      "cases": [
+        {
+          "args": [
+            "4242424242424242424242424242424242424242424242424242424242424242",
+            [
+              "client_hello",
+              "server_hello",
+              "certificate",
+              "certificate_verify"
+            ],
+            "3083046c807b0f2cb6932d5784d219b2c2ced5461f66c056f7a2fcd2572df718"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "4242424242424242424242424242424242424242424242424242424242424242",
+            [
+              "client_hello_weak",
+              "server_hello",
+              "certificate",
+              "certificate_verify"
+            ],
+            "3083046c807b0f2cb6932d5784d219b2c2ced5461f66c056f7a2fcd2572df718"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "4242424242424242424242424242424242424242424242424242424242424242",
+            [
+              "client_hello",
+              "server_hello",
+              "certificate"
+            ],
+            "3083046c807b0f2cb6932d5784d219b2c2ced5461f66c056f7a2fcd2572df718"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "0000000000000000000000000000000000000000000000000000000000000000",
+            [
+              "client_hello",
+              "server_hello",
+              "certificate",
+              "certificate_verify"
+            ],
+            "3083046c807b0f2cb6932d5784d219b2c2ced5461f66c056f7a2fcd2572df718"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse"
+    }
+  ]
+}

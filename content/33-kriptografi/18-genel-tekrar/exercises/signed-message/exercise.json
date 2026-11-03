@@ -1,0 +1,106 @@
+{
+  "id": "signed-message",
+  "title": {
+    "tr": "Sertifikalı imza",
+    "en": "A certified signature"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Mesaj imzası doğru olsa bile sertifika sahte olabilir; anahtarın kime ait olduğunu sertifika söyler.",
+      "en": "Even if the message signature is right, the certificate may be fake; the certificate says whom the key belongs to."
+    },
+    {
+      "tr": "Başa `if pow(cert[\"signature\"], ca_e, ca_n) != digest(tbs(cert), ca_n): return \"bad certificate\"`.",
+      "en": "At the start, `if pow(cert[\"signature\"], ca_e, ca_n) != digest(tbs(cert), ca_n): return \"bad certificate\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport json\n\n\ndef digest(data, n):\n    h = hashlib.sha256(data).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef tbs(cert):\n    body = {k: v for k, v in cert.items() if k != \"signature\"}\n    return json.dumps(body, sort_keys=True).encode()\n\n\ndef verify_message(cert, ca_e, ca_n, message, signature):\n    if pow(cert[\"signature\"], ca_e, ca_n) != digest(tbs(cert), ca_n):\n        return \"bad certificate\"\n    if pow(signature, cert[\"e\"], cert[\"n\"]) != digest(message.encode(), cert[\"n\"]):\n        return \"bad signature\"\n    return \"ok\"\n\ncert = {'subject': 'shop.example.test', 'e': 65537, 'n': 10968372731, 'issuer': 'Toy Root CA', 'signature': 5025653789}\nca_n = 10967535067\nprint(verify_message(cert, 65537, ca_n, \"order 42 shipped\", 492434088))\nprint(verify_message(cert, 65537, ca_n, \"order 43 shipped\", 492434088))\nprint(verify_message(dict(cert, subject=\"bank.example.test\"), 65537, ca_n, \"order 42 shipped\", 492434088))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport json\n\n\ndef digest(data, n):\n    h = hashlib.sha256(data).digest()\n    return int.from_bytes(h, \"big\") % n\n\n\ndef tbs(cert):\n    body = {k: v for k, v in cert.items() if k != \"signature\"}\n    return json.dumps(body, sort_keys=True).encode()\n\n\ndef verify_message(cert, ca_e, ca_n, message, signature):\n    if pow(cert[\"signature\"], ca_e, ca_n) != digest(tbs(cert), ca_n):\n        return \"bad certificate\"\n    if pow(signature, cert[\"e\"], cert[\"n\"]) != digest(message.encode(), cert[\"n\"]):\n        return \"bad signature\"\n    return \"ok\"\n\ncert = {'subject': 'shop.example.test', 'e': 65537, 'n': 10968372731, 'issuer': 'Toy Root CA', 'signature': 5025653789}\nca_n = 10967535067\nprint(verify_message(cert, 65537, ca_n, \"order 42 shipped\", 492434088))\nprint(verify_message(cert, 65537, ca_n, \"order 43 shipped\", 492434088))\nprint(verify_message(dict(cert, subject=\"bank.example.test\"), 65537, ca_n, \"order 42 shipped\", 492434088))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "verify_message",
+      "cases": [
+        {
+          "args": [
+            {
+              "subject": "shop.example.test",
+              "e": 65537,
+              "n": 10968372731,
+              "issuer": "Toy Root CA",
+              "signature": 5025653789
+            },
+            65537,
+            10967535067,
+            "order 42 shipped",
+            492434088
+          ],
+          "returns": "ok"
+        },
+        {
+          "args": [
+            {
+              "subject": "shop.example.test",
+              "e": 65537,
+              "n": 10968372731,
+              "issuer": "Toy Root CA",
+              "signature": 5025653789
+            },
+            65537,
+            10967535067,
+            "order 43 shipped",
+            492434088
+          ],
+          "returns": "bad signature"
+        },
+        {
+          "args": [
+            {
+              "subject": "bank.example.test",
+              "e": 65537,
+              "n": 10968372731,
+              "issuer": "Toy Root CA",
+              "signature": 5025653789
+            },
+            65537,
+            10967535067,
+            "order 42 shipped",
+            492434088
+          ],
+          "returns": "bad certificate"
+        },
+        {
+          "args": [
+            {
+              "subject": "shop.example.test",
+              "e": 65537,
+              "n": 10968372731,
+              "issuer": "Toy Root CA",
+              "signature": 5025653789
+            },
+            65537,
+            10968372731,
+            "order 42 shipped",
+            492434088
+          ],
+          "returns": "bad certificate"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok\nbad signature\nbad certificate"
+    }
+  ]
+}

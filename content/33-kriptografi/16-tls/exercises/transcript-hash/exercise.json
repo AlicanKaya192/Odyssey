@@ -1,0 +1,77 @@
+{
+  "id": "transcript-hash",
+  "title": {
+    "tr": "Döküm özeti",
+    "en": "The transcript hash"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra da el sıkışmanın parçası; sıralamak onu siliyor.",
+      "en": "The order is part of the handshake; sorting erases it."
+    },
+    {
+      "tr": "`for m in messages:` yaz, `sorted` olmadan.",
+      "en": "Write `for m in messages:`, without `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef transcript_hash(messages):\n    h = hashlib.sha256()\n    for m in messages:\n        h.update(m.encode())\n    return h.hexdigest()\n\na = transcript_hash([\"client_hello\", \"server_hello\"])\nb = transcript_hash([\"server_hello\", \"client_hello\"])\nprint(a == b)\nprint(len(a))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef transcript_hash(messages):\n    h = hashlib.sha256()\n    for m in messages:\n        h.update(m.encode())\n    return h.hexdigest()\n\na = transcript_hash([\"client_hello\", \"server_hello\"])\nb = transcript_hash([\"server_hello\", \"client_hello\"])\nprint(a == b)\nprint(len(a))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "transcript_hash",
+      "cases": [
+        {
+          "args": [
+            [
+              "client_hello",
+              "server_hello"
+            ]
+          ],
+          "returns": "703235850ad0005cb08feba52c38d728b6783a27c8797997f5ab3411f14c512b"
+        },
+        {
+          "args": [
+            [
+              "server_hello",
+              "client_hello"
+            ]
+          ],
+          "returns": "4f3e1b2e68af8fa2f07ee4fd3e209516909a870084c53fd68e73ca91fb8e13fa"
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "args": [
+            [
+              "client_hello",
+              "server_hello",
+              "certificate",
+              "certificate_verify"
+            ]
+          ],
+          "returns": "c0902d24ddb9c2bb52ae677fc95f836128f6283d892ba25fc6b4bcc0244ec7e5"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\n64"
+    }
+  ]
+}
