@@ -1,0 +1,46 @@
+{
+  "id": "panel-corrections",
+  "title": {
+    "tr": "Panoda düzeltme",
+    "en": "Correcting a dashboard"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`stats.ttest_ind(values[is_b], values[~is_b], equal_var=False).pvalue` 20 p verir.",
+      "en": "`stats.ttest_ind(values[is_b], values[~is_b], equal_var=False).pvalue` gives 20 ps."
+    },
+    {
+      "tr": "`multipletests(p, alpha=0.05, method=method)[0].sum()`.",
+      "en": "`multipletests(p, alpha=0.05, method=method)[0].sum()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.multitest import multipletests\nfrom ab_data import make_metric_panel\n\npanel = make_metric_panel(n=6000, seed=12)\nmetrics = [c for c in panel.columns if c.startswith(\"metric_\")]\nvalues = panel[metrics].to_numpy()\nis_b = (panel[\"group\"] == \"B\").to_numpy()\np = stats.ttest_ind(values[is_b], values[~is_b], equal_var=False).pvalue\nprint(int((p < 0.05).sum()))\nfor method in [\"holm\", \"fdr_bh\"]:\n    reject = multipletests(p, alpha=0.05, method=method)[0]\n    print(method, int(reject.sum()))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.multitest import multipletests\nfrom ab_data import make_metric_panel\n\npanel = make_metric_panel(n=6000, seed=12)\nmetrics = [c for c in panel.columns if c.startswith(\"metric_\")]\nvalues = panel[metrics].to_numpy()\nis_b = (panel[\"group\"] == \"B\").to_numpy()\np = stats.ttest_ind(values[is_b], values[~is_b], equal_var=False).pvalue\nprint(int((p < 0.05).sum()))\nfor method in [\"holm\", \"fdr_bh\"]:\n    reject = multipletests(p, alpha=0.05, method=method)[0]\n    print(method, int(reject.sum()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2\nholm 1\nfdr_bh 1"
+    }
+  ]
+}

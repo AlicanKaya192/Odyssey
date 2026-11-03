@@ -1,0 +1,46 @@
+{
+  "id": "wrong-covariate",
+  "title": {
+    "tr": "Yanlış ortak değişken",
+    "en": "The wrong covariate"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 90,
+  "hints": [
+    {
+      "tr": "Fark `adjusted[b].mean() - adjusted[~b].mean()`; her deneyde üç fark bir satır.",
+      "en": "The difference is `adjusted[b].mean() - adjusted[~b].mean()`; three differences per experiment as a row."
+    },
+    {
+      "tr": "`np.mean(diffs, axis=0)` üç ortalamayı verir.",
+      "en": "`np.mean(diffs, axis=0)` gives the three averages."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_engagement_test\n\n\ndef cuped(y, x):\n    theta = np.cov(x, y)[0, 1] / x.var(ddof=1)\n    return y - theta * (x - x.mean())\n\n\ndiffs = []\nfor s in range(300, 350):\n    t = make_engagement_test(n=8000, seed=s)\n    b = (t[\"group\"] == \"B\").to_numpy()\n    y = t[\"minutes\"].to_numpy()\n    row = []\n    for adjusted in [y, cuped(y, t[\"pre_minutes\"].to_numpy()),\n                     cuped(y, t[\"sessions\"].to_numpy())]:\n        row.append(adjusted[b].mean() - adjusted[~b].mean())\n    diffs.append(row)\nfor value in np.mean(diffs, axis=0):\n    print(round(float(value), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom ab_data import make_engagement_test\n\n\ndef cuped(y, x):\n    theta = np.cov(x, y)[0, 1] / x.var(ddof=1)\n    return y - theta * (x - x.mean())\n\n\ndiffs = []\nfor s in range(300, 350):\n    t = make_engagement_test(n=8000, seed=s)\n    b = (t[\"group\"] == \"B\").to_numpy()\n    y = t[\"minutes\"].to_numpy()\n    row = []\n    for adjusted in [y, cuped(y, t[\"pre_minutes\"].to_numpy()),\n                     cuped(y, t[\"sessions\"].to_numpy())]:\n        row.append(adjusted[b].mean() - adjusted[~b].mean())\n    diffs.append(row)\nfor value in np.mean(diffs, axis=0):\n    print(round(float(value), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.884\n0.765\n0.258"
+    }
+  ]
+}

@@ -204,3 +204,62 @@ def make_experiment(n=30_000, seed=73, lift=0.12, days=14):
                          "platform": platform[order], "sessions": sessions[order],
                          "bought": bought[order], "revenue": revenue[order],
                          "refunded": refunded[order]})
+
+
+def make_metric_panel(n=8000, seed=75, effect=True):
+    """One experiment watched through 20 metrics, one row per user.
+
+    Columns: user_id, group, metric_01 .. metric_20. Every metric has
+    mean about 10. With effect=True, B truly raises metric_01 by 3%,
+    metric_02 by 2% and metric_03 by 1.5%; the other 17 do not change.
+    With effect=False no metric changes (an A/A test).
+    """
+    rng = np.random.default_rng(seed)
+    group = np.where(rng.random(n) < 0.5, "A", "B")
+    lifts = np.zeros(20)
+    if effect:
+        lifts[:3] = [0.03, 0.02, 0.015]
+    data = {"user_id": [f"M{i:05d}" for i in range(1, n + 1)], "group": group}
+    for j in range(20):
+        values = rng.normal(10.0, 3.0, n)
+        values = np.where(group == "B", values * (1 + lifts[j]), values)
+        data[f"metric_{j + 1:02d}"] = np.round(values, 3)
+    return pd.DataFrame(data)
+
+
+def make_engagement_test(n=20_000, seed=76, lift=0.03):
+    """A test on minutes spent, one row per user.
+
+    Columns: user_id, group, pre_minutes (the two weeks before the test),
+    minutes (the two weeks of the test), sessions (visits during the
+    test). Each user has a lasting activity level, so pre_minutes and
+    minutes move together. B truly raises minutes by `lift` (relative);
+    sessions follow minutes, so B raises them too.
+    """
+    rng = np.random.default_rng(seed)
+    group = np.where(rng.random(n) < 0.5, "A", "B")
+    activity = rng.lognormal(3.0, 0.7, n)
+    pre = activity * rng.lognormal(0.0, 0.35, n)
+    during = activity * rng.lognormal(0.0, 0.35, n)
+    during = np.where(group == "B", during * (1 + lift), during)
+    sessions = 1 + rng.poisson(during / 8)
+    return pd.DataFrame({"user_id": [f"U{i:05d}" for i in range(1, n + 1)], "group": group,
+                         "pre_minutes": np.round(pre, 1), "minutes": np.round(during, 1),
+                         "sessions": sessions})
+
+
+def make_pageviews(n=6000, seed=77, lift=0.0):
+    """Page views and clicks, one row per user (users were randomized).
+
+    Columns: user_id, group, pageviews, clicks. Each user has their own
+    click rate, so the views of one user are not independent of each
+    other. B truly raises every user's click rate by `lift` (relative).
+    """
+    rng = np.random.default_rng(seed)
+    group = np.where(rng.random(n) < 0.5, "A", "B")
+    rate = rng.beta(2.0, 28.0, n)
+    rate = np.where(group == "B", np.clip(rate * (1 + lift), 0, 1), rate)
+    pageviews = 1 + rng.poisson(rng.lognormal(1.6, 0.9, n))
+    clicks = rng.binomial(pageviews, rate)
+    return pd.DataFrame({"user_id": [f"P{i:05d}" for i in range(1, n + 1)], "group": group,
+                         "pageviews": pageviews, "clicks": clicks})

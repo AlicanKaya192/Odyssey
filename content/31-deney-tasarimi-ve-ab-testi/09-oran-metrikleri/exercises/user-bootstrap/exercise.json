@@ -1,0 +1,86 @@
+{
+  "id": "user-bootstrap",
+  "title": {
+    "tr": "Kullanıcıyı birlikte örnekle",
+    "en": "Resample the user whole"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra numaraları: `i = rng.integers(0, len(x), len(x))`.",
+      "en": "Indices: `i = rng.integers(0, len(x), len(x))`."
+    },
+    {
+      "tr": "Oran `y[i].sum() / x[i].sum()`.",
+      "en": "The ratio is `y[i].sum() / x[i].sum()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef boot_ratio_se(x, y, reps=1000, seed=0):\n    rng = np.random.default_rng(seed)\n    x, y = np.asarray(x), np.asarray(y)\n    ratios = []\n    for _ in range(reps):\n        i = rng.integers(0, len(x), len(x))\n        ratios.append(y[i].sum() / x[i].sum())\n    return round(float(np.std(ratios)), 4)\n\n\nprint(boot_ratio_se([3, 5, 2, 8, 6, 4, 9, 1], [1, 2, 0, 3, 2, 1, 4, 0]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef boot_ratio_se(x, y, reps=1000, seed=0):\n    rng = np.random.default_rng(seed)\n    x, y = np.asarray(x), np.asarray(y)\n    ratios = []\n    for _ in range(reps):\n        i = rng.integers(0, len(x), len(x))\n        ratios.append(y[i].sum() / x[i].sum())\n    return round(float(np.std(ratios)), 4)\n\n\nprint(boot_ratio_se([3, 5, 2, 8, 6, 4, 9, 1], [1, 2, 0, 3, 2, 1, 4, 0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "boot_ratio_se",
+      "cases": [
+        {
+          "args": [
+            [
+              3,
+              5,
+              2,
+              8,
+              6,
+              4,
+              9,
+              1
+            ],
+            [
+              1,
+              2,
+              0,
+              3,
+              2,
+              1,
+              4,
+              0
+            ]
+          ],
+          "returns": 0.0372
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              10,
+              40,
+              3
+            ],
+            [
+              1,
+              1,
+              2,
+              4,
+              0
+            ]
+          ],
+          "returns": 0.0947
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.0372"
+    }
+  ]
+}

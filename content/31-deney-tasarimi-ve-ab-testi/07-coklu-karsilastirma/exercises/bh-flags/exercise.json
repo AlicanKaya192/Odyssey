@@ -1,0 +1,84 @@
+{
+  "id": "bh-flags",
+  "title": {
+    "tr": "BH yukarı adım",
+    "en": "BH steps up"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Durmadan bütün sırayı gez; tutan her k'de `last = k`.",
+      "en": "Go through the whole order without stopping; set `last = k` at every k that passes."
+    },
+    {
+      "tr": "Koşul `p_values[i] <= k * q / m`.",
+      "en": "The condition is `p_values[i] <= k * q / m`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef bh_flags(p_values, q=0.05):\n    m = len(p_values)\n    order = sorted(range(m), key=lambda i: p_values[i])\n    last = 0\n    for k, i in enumerate(order, start=1):\n        if p_values[i] <= k * q / m:\n            last = k\n    flags = [False] * m\n    for i in order[:last]:\n        flags[i] = True\n    return flags\n\n\nprint(bh_flags([0.02, 0.035, 0.036, 0.9]))\n```",
+      "en": "The full solution:\n\n```python\ndef bh_flags(p_values, q=0.05):\n    m = len(p_values)\n    order = sorted(range(m), key=lambda i: p_values[i])\n    last = 0\n    for k, i in enumerate(order, start=1):\n        if p_values[i] <= k * q / m:\n            last = k\n    flags = [False] * m\n    for i in order[:last]:\n        flags[i] = True\n    return flags\n\n\nprint(bh_flags([0.02, 0.035, 0.036, 0.9]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bh_flags",
+      "cases": [
+        {
+          "args": [
+            [
+              0.02,
+              0.035,
+              0.036,
+              0.9
+            ]
+          ],
+          "returns": [
+            true,
+            true,
+            true,
+            false
+          ]
+        },
+        {
+          "args": [
+            [
+              0.001,
+              0.2,
+              0.012
+            ]
+          ],
+          "returns": [
+            true,
+            false,
+            true
+          ]
+        },
+        {
+          "args": [
+            [
+              0.3,
+              0.6
+            ]
+          ],
+          "returns": [
+            false,
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[True, True, True, False]"
+    }
+  ]
+}

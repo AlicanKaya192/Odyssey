@@ -1,0 +1,83 @@
+{
+  "id": "cuped-adjust",
+  "title": {
+    "tr": "Ortalamadan sapma",
+    "en": "Deviation from the mean"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Düzeltme `y - theta * (x - x.mean())`.",
+      "en": "The adjustment is `y - theta * (x - x.mean())`."
+    },
+    {
+      "tr": "Yalnızca son satır değişiyor.",
+      "en": "Only the last line changes."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef cuped_adjust(y, x):\n    y, x = np.asarray(y, float), np.asarray(x, float)\n    theta = np.cov(x, y)[0, 1] / x.var(ddof=1)\n    return [round(float(v), 3) for v in y - theta * (x - x.mean())]\n\n\nprint(cuped_adjust([5, 7, 9, 12], [1, 2, 3, 4]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef cuped_adjust(y, x):\n    y, x = np.asarray(y, float), np.asarray(x, float)\n    theta = np.cov(x, y)[0, 1] / x.var(ddof=1)\n    return [round(float(v), 3) for v in y - theta * (x - x.mean())]\n\n\nprint(cuped_adjust([5, 7, 9, 12], [1, 2, 3, 4]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cuped_adjust",
+      "cases": [
+        {
+          "args": [
+            [
+              5,
+              7,
+              9,
+              12
+            ],
+            [
+              1,
+              2,
+              3,
+              4
+            ]
+          ],
+          "returns": [
+            8.45,
+            8.15,
+            7.85,
+            8.55
+          ]
+        },
+        {
+          "args": [
+            [
+              3,
+              1,
+              2
+            ],
+            [
+              10,
+              20,
+              30
+            ]
+          ],
+          "returns": [
+            2.5,
+            1.0,
+            2.5
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[8.45, 8.15, 7.85, 8.55]"
+    }
+  ]
+}
