@@ -5,6 +5,9 @@ mi. Bu araç ise kodu **çalıştırıyor** ve iki soruyu cevaplıyor:
 
 1. `solution` alıştırmanın kontrollerinden geçiyor mu?
 2. **Son ipucu** alıştırmayı gerçekten çözüyor mu?
+3. **Başlangıç kodu** (kişi hiçbir şey yazmadan) alıştırmayı geçmiyor mu?
+   Her dilin başlangıcı ayrı çalıştırılıyor; bilerek geçenler
+   `BASLANGIC_GECEBILIR` listesinde, gerekçesiyle.
 
 İkincisi gözden kaçmaya çok müsait. Arayüz son kademeyi "Çözümün tamamı"
 diye etiketliyor; oraya kadar gelen kişi tıkanmış demektir ve elinde
@@ -73,6 +76,18 @@ ISCI_SAYISI = 6
 # Başlangıç kodunda yorum satırının nasıl başladığı.
 YORUM_ONEKI = {"python": "#", "tsql": "--", "docker": "#", "workflow": "#", "rust": "//"}
 
+# Başlangıç koduyla bilerek geçen alıştırmalar: (modül, bölüm, alıştırma id)
+# → neden. İçerik şemasına alan eklenmedi; istisna burada, gerekçesiyle
+# duruyor. Listede olmayan her alıştırmanın başlangıcı düşmeli.
+BASLANGIC_GECEBILIR: dict[tuple[str, str, str], str] = {
+    ("03-sql", "00-kurulum", "merhaba-sql"):
+        "Kurulum denemesi: yönerge 'hiçbir şey değiştirmeden Çalıştır'a bas' diyor.",
+}
+
+
+def _baslangic_izinli(where: str) -> bool:
+    return tuple(where.split("/")) in BASLANGIC_GECEBILIR
+
 
 def hint_kodu(exercise: Exercise, language: str) -> str | None:
     """Son ipucundaki kod bloğu."""
@@ -117,7 +132,7 @@ def _terminal(exercise: Exercise, where: str) -> list[str]:
     problems: list[str] = []
     for language in LANGUAGES:
         world = build_world(exercise, language)
-        if all(r["passed"] for r in evaluate(world, exercise.checks)):
+        if not _baslangic_izinli(where) and all(r["passed"] for r in evaluate(world, exercise.checks)):
             problems.append(f"{where}: başlangıç durumu ({language}) zaten geçiyor")
         # `allow_fail`: çözümün bilerek hata gösteren adımları (sıra numarası).
         izinli = set(exercise.raw.get("allow_fail", []))
@@ -192,6 +207,32 @@ def bir_alistirma(path: Path) -> list[str]:
                 f"(tek başına {alone.status}, birleşik {hint_result.status})"
             )
 
+    return problems + baslangic_sorunlari(exercise, where, calistir)
+
+
+def baslangic_sorunlari(exercise: Exercise, where: str, calistir) -> list[str]:
+    """Kişi hiçbir şey yazmadan çalıştırınca alıştırma geçmemeli.
+
+    Başlangıç kodu olduğu gibi (yorumlarıyla) her dilde çalıştırılıyor; iki
+    dilde aynıysa bir kez. Hatası çıktıya yansımayan "düzelt" alıştırması
+    burada yakalanıyor.
+    """
+    if _baslangic_izinli(where):
+        return []
+    problems: list[str] = []
+    denenen: list = []
+    for language in LANGUAGES:
+        if exercise.is_multi_file:
+            kod: str | dict = exercise.starter_files(language)
+            ne = "başlangıç dosyaları"
+        else:
+            kod = exercise.starter_code_for(language)
+            ne = "başlangıç kodu"
+        if kod in denenen:
+            continue
+        denenen.append(kod)
+        if calistir(kod).passed:
+            problems.append(f"{where}: {ne} ({language}) alıştırmayı zaten geçiyor")
     return problems
 
 
@@ -209,9 +250,7 @@ def _cok_dosya(exercise: Exercise, where: str, calistir) -> list[str]:
         hint_result = calistir(dosyalar)
         if not hint_result.passed:
             problems.append(f"{where}: son ipucu ({language}) alıştırmayı çözmüyor ({hint_result.status})")
-    if calistir(exercise.starter_files("tr")).passed:
-        problems.append(f"{where}: başlangıç dosyaları alıştırmayı zaten geçiyor")
-    return problems
+    return problems + baslangic_sorunlari(exercise, where, calistir)
 
 
 def denetle(directories: list[Path]) -> list[str]:

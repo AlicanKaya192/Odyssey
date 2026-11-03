@@ -30,9 +30,14 @@ prep = ColumnTransformer([
      numeric),
     ("cat", OneHotEncoder(handle_unknown="ignore"), ["plan"]),
 ])
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.inspection import permutation_importance
+from sklearn.preprocessing import OrdinalEncoder
 
-model = make_pipeline(prep, LogisticRegression(C=0.1)).fit(X_train, y_train)
+encode = ColumnTransformer([("cat", OrdinalEncoder(), ["plan"])],
+                           remainder="passthrough")
+model = make_pipeline(encode, HistGradientBoostingClassifier(random_state=0))
+model.fit(X_train, y_train)
 
 
 def top_columns(k):

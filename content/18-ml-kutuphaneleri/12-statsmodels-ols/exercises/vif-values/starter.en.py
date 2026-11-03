@@ -13,7 +13,7 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
 def vif_values(columns):
-    data = X[columns].values
+    data = sm.add_constant(X[columns]).values
     return [round(float(variance_inflation_factor(data, i)), 1) for i in range(len(columns))]
 
 print(vif_values(["area", "twin", "age"]))
