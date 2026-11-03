@@ -1,0 +1,149 @@
+{
+  "id": "zone-of",
+  "title": {
+    "tr": "En özel bölge",
+    "en": "The most specific zone"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İlk tutanda durma: hepsine bak, en büyük `prefixlen`'i aklında tut.",
+      "en": "Do not stop at the first match: look at all of them and remember the largest `prefixlen`."
+    },
+    {
+      "tr": "`best, best_len = \"unknown\", -1` ile başla; daha uzun önek bulunca ikisini güncelle.",
+      "en": "Start with `best, best_len = \"unknown\", -1`; update both when you find a longer prefix."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef zone_of(ip_text, zones):\n    ip = ipaddress.ip_address(ip_text)\n    best, best_len = \"unknown\", -1\n    for name, cidr in zones:\n        net = ipaddress.ip_network(cidr)\n        if ip in net and net.prefixlen > best_len:\n            best, best_len = name, net.prefixlen\n    return best\n\nZONES = [[\"corp\", \"10.0.0.0/8\"], [\"servers\", \"10.20.0.0/16\"],\n         [\"db\", \"10.20.5.0/24\"]]\nfor text in [\"10.20.5.9\", \"10.20.9.9\", \"10.1.1.1\", \"192.168.1.1\"]:\n    print(text, zone_of(text, ZONES))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef zone_of(ip_text, zones):\n    ip = ipaddress.ip_address(ip_text)\n    best, best_len = \"unknown\", -1\n    for name, cidr in zones:\n        net = ipaddress.ip_network(cidr)\n        if ip in net and net.prefixlen > best_len:\n            best, best_len = name, net.prefixlen\n    return best\n\nZONES = [[\"corp\", \"10.0.0.0/8\"], [\"servers\", \"10.20.0.0/16\"],\n         [\"db\", \"10.20.5.0/24\"]]\nfor text in [\"10.20.5.9\", \"10.20.9.9\", \"10.1.1.1\", \"192.168.1.1\"]:\n    print(text, zone_of(text, ZONES))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "zone_of",
+      "cases": [
+        {
+          "args": [
+            "10.20.5.9",
+            [
+              [
+                "corp",
+                "10.0.0.0/8"
+              ],
+              [
+                "servers",
+                "10.20.0.0/16"
+              ],
+              [
+                "db",
+                "10.20.5.0/24"
+              ]
+            ]
+          ],
+          "returns": "db"
+        },
+        {
+          "args": [
+            "10.20.9.9",
+            [
+              [
+                "corp",
+                "10.0.0.0/8"
+              ],
+              [
+                "servers",
+                "10.20.0.0/16"
+              ],
+              [
+                "db",
+                "10.20.5.0/24"
+              ]
+            ]
+          ],
+          "returns": "servers"
+        },
+        {
+          "args": [
+            "10.1.1.1",
+            [
+              [
+                "corp",
+                "10.0.0.0/8"
+              ],
+              [
+                "servers",
+                "10.20.0.0/16"
+              ],
+              [
+                "db",
+                "10.20.5.0/24"
+              ]
+            ]
+          ],
+          "returns": "corp"
+        },
+        {
+          "args": [
+            "192.168.1.1",
+            [
+              [
+                "corp",
+                "10.0.0.0/8"
+              ],
+              [
+                "servers",
+                "10.20.0.0/16"
+              ],
+              [
+                "db",
+                "10.20.5.0/24"
+              ]
+            ]
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            "10.20.5.9",
+            [
+              [
+                "db",
+                "10.20.5.0/24"
+              ],
+              [
+                "servers",
+                "10.20.0.0/16"
+              ],
+              [
+                "corp",
+                "10.0.0.0/8"
+              ]
+            ]
+          ],
+          "returns": "db"
+        },
+        {
+          "args": [
+            "10.0.0.1",
+            []
+          ],
+          "returns": "unknown"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "10.20.5.9 db\n10.20.9.9 servers\n10.1.1.1 corp\n192.168.1.1 unknown"
+    }
+  ]
+}

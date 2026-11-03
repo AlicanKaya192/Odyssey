@@ -1,0 +1,84 @@
+{
+  "id": "ingress-filter",
+  "title": {
+    "tr": "Giriş süzmesi",
+    "en": "Ingress filtering"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`127.0.0.1` iç ağda değil ama yine de dışarıdan gelemez.",
+      "en": "`127.0.0.1` is not in the internal network, but it still cannot come from outside."
+    },
+    {
+      "tr": "Önce `if ip.is_loopback: return False`.",
+      "en": "First `if ip.is_loopback: return False`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef ingress_ok(src, internal):\n    ip = ipaddress.ip_address(src)\n    if ip.is_loopback:\n        return False\n    return ip not in ipaddress.ip_network(internal)\n\nfor src in [\"203.0.113.7\", \"192.168.1.20\", \"127.0.0.1\"]:\n    print(src, ingress_ok(src, \"192.168.1.0/24\"))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef ingress_ok(src, internal):\n    ip = ipaddress.ip_address(src)\n    if ip.is_loopback:\n        return False\n    return ip not in ipaddress.ip_network(internal)\n\nfor src in [\"203.0.113.7\", \"192.168.1.20\", \"127.0.0.1\"]:\n    print(src, ingress_ok(src, \"192.168.1.0/24\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "ingress_ok",
+      "cases": [
+        {
+          "args": [
+            "203.0.113.7",
+            "192.168.1.0/24"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            "192.168.1.20",
+            "192.168.1.0/24"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "127.0.0.1",
+            "192.168.1.0/24"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "10.9.9.9",
+            "10.0.0.0/8"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "127.5.5.5",
+            "10.0.0.0/8"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            "192.168.2.1",
+            "192.168.1.0/24"
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "203.0.113.7 True\n192.168.1.20 False\n127.0.0.1 False"
+    }
+  ]
+}

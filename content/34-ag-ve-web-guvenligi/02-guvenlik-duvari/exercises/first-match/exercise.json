@@ -1,0 +1,126 @@
+{
+  "id": "first-match",
+  "title": {
+    "tr": "İlk tutan kural",
+    "en": "First matching rule"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir kural, `rule[\"proto\"] in (\"any\", packet[\"proto\"])` ve aynısı port için doğruysa tutar.",
+      "en": "A rule matches if `rule[\"proto\"] in (\"any\", packet[\"proto\"])` and the same for the port are true."
+    },
+    {
+      "tr": "Döngü bitince (hiçbiri tutmadıysa) `return \"deny\"`.",
+      "en": "After the loop (if none matched), `return \"deny\"`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef decide(rules, packet):\n    for rule in rules:\n        if (rule[\"proto\"] in (\"any\", packet[\"proto\"])\n                and rule[\"port\"] in (\"any\", packet[\"port\"])):\n            return rule[\"action\"]\n    return \"deny\"\n\nRULES = [{\"action\": \"allow\", \"proto\": \"tcp\", \"port\": 443},\n         {\"action\": \"deny\", \"proto\": \"tcp\", \"port\": \"any\"},\n         {\"action\": \"allow\", \"proto\": \"udp\", \"port\": 53}]\nfor proto, port in [[\"tcp\", 443], [\"tcp\", 22], [\"udp\", 53], [\"udp\", 123]]:\n    print(proto, port, decide(RULES, {\"proto\": proto, \"port\": port}))\n```",
+      "en": "The full solution:\n\n```python\ndef decide(rules, packet):\n    for rule in rules:\n        if (rule[\"proto\"] in (\"any\", packet[\"proto\"])\n                and rule[\"port\"] in (\"any\", packet[\"port\"])):\n            return rule[\"action\"]\n    return \"deny\"\n\nRULES = [{\"action\": \"allow\", \"proto\": \"tcp\", \"port\": 443},\n         {\"action\": \"deny\", \"proto\": \"tcp\", \"port\": \"any\"},\n         {\"action\": \"allow\", \"proto\": \"udp\", \"port\": 53}]\nfor proto, port in [[\"tcp\", 443], [\"tcp\", 22], [\"udp\", 53], [\"udp\", 123]]:\n    print(proto, port, decide(RULES, {\"proto\": proto, \"port\": port}))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decide",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "action": "allow",
+                "proto": "tcp",
+                "port": 443
+              },
+              {
+                "action": "deny",
+                "proto": "tcp",
+                "port": "any"
+              }
+            ],
+            {
+              "proto": "tcp",
+              "port": 443
+            }
+          ],
+          "returns": "allow"
+        },
+        {
+          "args": [
+            [
+              {
+                "action": "allow",
+                "proto": "tcp",
+                "port": 443
+              },
+              {
+                "action": "deny",
+                "proto": "tcp",
+                "port": "any"
+              }
+            ],
+            {
+              "proto": "tcp",
+              "port": 22
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            [
+              {
+                "action": "allow",
+                "proto": "tcp",
+                "port": 443
+              }
+            ],
+            {
+              "proto": "udp",
+              "port": 123
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            [],
+            {
+              "proto": "tcp",
+              "port": 80
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            [
+              {
+                "action": "allow",
+                "proto": "any",
+                "port": 53
+              }
+            ],
+            {
+              "proto": "udp",
+              "port": 53
+            }
+          ],
+          "returns": "allow"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "tcp 443 allow\ntcp 22 deny\nudp 53 allow\nudp 123 deny"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "id": "stateful-reply",
+  "title": {
+    "tr": "Durumlu cevap denetimi",
+    "en": "Stateful reply check"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`started = {tuple(c) for c in outgoing}`.",
+      "en": "`started = {tuple(c) for c in outgoing}`."
+    },
+    {
+      "tr": "Gelen paketi açıp tersini kur: `(dst, dport, src, sport) in started`.",
+      "en": "Unpack the incoming packet and build its reverse: `(dst, dport, src, sport) in started`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef replies_ok(outgoing, incoming):\n    started = {tuple(c) for c in outgoing}\n    result = []\n    for src, sport, dst, dport in incoming:\n        result.append((dst, dport, src, sport) in started)\n    return result\n\noutgoing = [[\"192.168.1.10\", 51514, \"203.0.113.7\", 443]]\nincoming = [[\"203.0.113.7\", 443, \"192.168.1.10\", 51514],\n            [\"203.0.113.7\", 443, \"192.168.1.10\", 51999],\n            [\"198.51.100.9\", 443, \"192.168.1.10\", 51514]]\nprint(replies_ok(outgoing, incoming))\n```",
+      "en": "The full solution:\n\n```python\ndef replies_ok(outgoing, incoming):\n    started = {tuple(c) for c in outgoing}\n    result = []\n    for src, sport, dst, dport in incoming:\n        result.append((dst, dport, src, sport) in started)\n    return result\n\noutgoing = [[\"192.168.1.10\", 51514, \"203.0.113.7\", 443]]\nincoming = [[\"203.0.113.7\", 443, \"192.168.1.10\", 51514],\n            [\"203.0.113.7\", 443, \"192.168.1.10\", 51999],\n            [\"198.51.100.9\", 443, \"192.168.1.10\", 51514]]\nprint(replies_ok(outgoing, incoming))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "replies_ok",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "192.168.1.10",
+                51514,
+                "203.0.113.7",
+                443
+              ]
+            ],
+            [
+              [
+                "203.0.113.7",
+                443,
+                "192.168.1.10",
+                51514
+              ],
+              [
+                "203.0.113.7",
+                443,
+                "192.168.1.10",
+                51999
+              ],
+              [
+                "198.51.100.9",
+                443,
+                "192.168.1.10",
+                51514
+              ]
+            ]
+          ],
+          "returns": [
+            true,
+            false,
+            false
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              [
+                "203.0.113.7",
+                443,
+                "192.168.1.10",
+                51514
+              ]
+            ]
+          ],
+          "returns": [
+            false
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "10.0.0.2",
+                40000,
+                "10.0.0.9",
+                53
+              ]
+            ],
+            [
+              [
+                "10.0.0.9",
+                53,
+                "10.0.0.2",
+                40000
+              ],
+              [
+                "10.0.0.2",
+                40000,
+                "10.0.0.9",
+                53
+              ]
+            ]
+          ],
+          "returns": [
+            true,
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[True, False, False]"
+    }
+  ]
+}

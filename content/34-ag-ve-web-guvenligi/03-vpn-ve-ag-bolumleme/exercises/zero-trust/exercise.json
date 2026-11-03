@@ -1,0 +1,168 @@
+{
+  "id": "zero-trust",
+  "title": {
+    "tr": "Sıfır güven kararı",
+    "en": "A zero trust decision"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bilinmeyen kullanıcı için `grants.get(request[\"user\"], [])` boş liste verir.",
+      "en": "For an unknown user, `grants.get(request[\"user\"], [])` gives an empty list."
+    },
+    {
+      "tr": "Üç şart birlikte: `mfa`, `device_ok` ve kaynak listede.",
+      "en": "Three conditions together: `mfa`, `device_ok` and the resource in the list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef access(request, grants):\n    allowed = grants.get(request[\"user\"], [])\n    if request[\"mfa\"] and request[\"device_ok\"] and request[\"resource\"] in allowed:\n        return \"allow\"\n    return \"deny\"\n\nGRANTS = {\"ada\": [\"wiki\", \"hr-db\"], \"bob\": [\"wiki\"]}\nattempts = [\n    {\"user\": \"ada\", \"inside\": False, \"mfa\": True, \"device_ok\": True, \"resource\": \"hr-db\"},\n    {\"user\": \"bob\", \"inside\": True, \"mfa\": True, \"device_ok\": True, \"resource\": \"hr-db\"},\n    {\"user\": \"ada\", \"inside\": True, \"mfa\": False, \"device_ok\": True, \"resource\": \"wiki\"},\n    {\"user\": \"eve\", \"inside\": True, \"mfa\": True, \"device_ok\": True, \"resource\": \"wiki\"},\n]\nfor r in attempts:\n    print(r[\"user\"], r[\"resource\"], access(r, GRANTS))\n```",
+      "en": "The full solution:\n\n```python\ndef access(request, grants):\n    allowed = grants.get(request[\"user\"], [])\n    if request[\"mfa\"] and request[\"device_ok\"] and request[\"resource\"] in allowed:\n        return \"allow\"\n    return \"deny\"\n\nGRANTS = {\"ada\": [\"wiki\", \"hr-db\"], \"bob\": [\"wiki\"]}\nattempts = [\n    {\"user\": \"ada\", \"inside\": False, \"mfa\": True, \"device_ok\": True, \"resource\": \"hr-db\"},\n    {\"user\": \"bob\", \"inside\": True, \"mfa\": True, \"device_ok\": True, \"resource\": \"hr-db\"},\n    {\"user\": \"ada\", \"inside\": True, \"mfa\": False, \"device_ok\": True, \"resource\": \"wiki\"},\n    {\"user\": \"eve\", \"inside\": True, \"mfa\": True, \"device_ok\": True, \"resource\": \"wiki\"},\n]\nfor r in attempts:\n    print(r[\"user\"], r[\"resource\"], access(r, GRANTS))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "access",
+      "cases": [
+        {
+          "args": [
+            {
+              "user": "ada",
+              "inside": false,
+              "mfa": true,
+              "device_ok": true,
+              "resource": "hr-db"
+            },
+            {
+              "ada": [
+                "wiki",
+                "hr-db"
+              ],
+              "bob": [
+                "wiki"
+              ]
+            }
+          ],
+          "returns": "allow"
+        },
+        {
+          "args": [
+            {
+              "user": "bob",
+              "inside": true,
+              "mfa": true,
+              "device_ok": true,
+              "resource": "hr-db"
+            },
+            {
+              "ada": [
+                "wiki",
+                "hr-db"
+              ],
+              "bob": [
+                "wiki"
+              ]
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            {
+              "user": "ada",
+              "inside": true,
+              "mfa": false,
+              "device_ok": true,
+              "resource": "wiki"
+            },
+            {
+              "ada": [
+                "wiki",
+                "hr-db"
+              ],
+              "bob": [
+                "wiki"
+              ]
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            {
+              "user": "eve",
+              "inside": true,
+              "mfa": true,
+              "device_ok": true,
+              "resource": "wiki"
+            },
+            {
+              "ada": [
+                "wiki",
+                "hr-db"
+              ],
+              "bob": [
+                "wiki"
+              ]
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            {
+              "user": "bob",
+              "inside": false,
+              "mfa": true,
+              "device_ok": false,
+              "resource": "wiki"
+            },
+            {
+              "ada": [
+                "wiki",
+                "hr-db"
+              ],
+              "bob": [
+                "wiki"
+              ]
+            }
+          ],
+          "returns": "deny"
+        },
+        {
+          "args": [
+            {
+              "user": "bob",
+              "inside": false,
+              "mfa": true,
+              "device_ok": true,
+              "resource": "wiki"
+            },
+            {
+              "ada": [
+                "wiki",
+                "hr-db"
+              ],
+              "bob": [
+                "wiki"
+              ]
+            }
+          ],
+          "returns": "allow"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ada hr-db allow\nbob hr-db deny\nada wiki deny\neve wiki deny"
+    }
+  ]
+}

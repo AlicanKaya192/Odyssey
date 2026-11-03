@@ -1,0 +1,111 @@
+{
+  "id": "half-open",
+  "title": {
+    "tr": "Yarım bağlantılar",
+    "en": "Half-open connections"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir küme tut: `SYN`'de `add`, `ACK`'de `discard`.",
+      "en": "Keep a set: `add` on `SYN`, `discard` on `ACK`."
+    },
+    {
+      "tr": "`sorted(waiting, key=ipaddress.ip_address)` adresleri sayı gibi sıralar.",
+      "en": "`sorted(waiting, key=ipaddress.ip_address)` sorts addresses like numbers."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef half_open(events):\n    waiting = set()\n    for kind, src in events:\n        if kind == \"SYN\":\n            waiting.add(src)\n        elif kind == \"ACK\":\n            waiting.discard(src)\n    return sorted(waiting, key=ipaddress.ip_address)\n\nevents = [[\"SYN\", \"192.168.1.10\"], [\"SYN\", \"198.51.100.9\"],\n          [\"SYN\", \"198.51.100.10\"], [\"ACK\", \"192.168.1.10\"],\n          [\"SYN\", \"198.51.100.11\"]]\nfor src in half_open(events):\n    print(src)\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef half_open(events):\n    waiting = set()\n    for kind, src in events:\n        if kind == \"SYN\":\n            waiting.add(src)\n        elif kind == \"ACK\":\n            waiting.discard(src)\n    return sorted(waiting, key=ipaddress.ip_address)\n\nevents = [[\"SYN\", \"192.168.1.10\"], [\"SYN\", \"198.51.100.9\"],\n          [\"SYN\", \"198.51.100.10\"], [\"ACK\", \"192.168.1.10\"],\n          [\"SYN\", \"198.51.100.11\"]]\nfor src in half_open(events):\n    print(src)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "half_open",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "SYN",
+                "192.168.1.10"
+              ],
+              [
+                "SYN",
+                "198.51.100.9"
+              ],
+              [
+                "SYN",
+                "198.51.100.10"
+              ],
+              [
+                "ACK",
+                "192.168.1.10"
+              ],
+              [
+                "SYN",
+                "198.51.100.11"
+              ]
+            ]
+          ],
+          "returns": [
+            "198.51.100.9",
+            "198.51.100.10",
+            "198.51.100.11"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "SYN",
+                "10.0.0.1"
+              ],
+              [
+                "ACK",
+                "10.0.0.1"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "ACK",
+                "10.0.0.2"
+              ],
+              [
+                "SYN",
+                "10.0.0.2"
+              ]
+            ]
+          ],
+          "returns": [
+            "10.0.0.2"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "198.51.100.9\n198.51.100.10\n198.51.100.11"
+    }
+  ]
+}

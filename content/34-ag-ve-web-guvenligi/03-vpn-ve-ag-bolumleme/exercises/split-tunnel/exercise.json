@@ -1,0 +1,84 @@
+{
+  "id": "split-tunnel",
+  "title": {
+    "tr": "Tünelden mi, doğrudan mı?",
+    "en": "Through the tunnel or direct?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`ipaddress.ip_address(dst) in ipaddress.ip_network(cidr)` her ağ için.",
+      "en": "`ipaddress.ip_address(dst) in ipaddress.ip_network(cidr)` for each network."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef route(dst, tunnel_networks):\n    ip = ipaddress.ip_address(dst)\n    for cidr in tunnel_networks:\n        if ip in ipaddress.ip_network(cidr):\n            return \"vpn\"\n    return \"direct\"\n\nTUNNEL = [\"10.0.0.0/8\", \"172.16.0.0/12\"]\nfor dst in [\"10.20.0.15\", \"172.20.1.1\", \"203.0.113.7\"]:\n    print(dst, route(dst, TUNNEL))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef route(dst, tunnel_networks):\n    ip = ipaddress.ip_address(dst)\n    for cidr in tunnel_networks:\n        if ip in ipaddress.ip_network(cidr):\n            return \"vpn\"\n    return \"direct\"\n\nTUNNEL = [\"10.0.0.0/8\", \"172.16.0.0/12\"]\nfor dst in [\"10.20.0.15\", \"172.20.1.1\", \"203.0.113.7\"]:\n    print(dst, route(dst, TUNNEL))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "route",
+      "cases": [
+        {
+          "args": [
+            "10.20.0.15",
+            [
+              "10.0.0.0/8",
+              "172.16.0.0/12"
+            ]
+          ],
+          "returns": "vpn"
+        },
+        {
+          "args": [
+            "172.20.1.1",
+            [
+              "10.0.0.0/8",
+              "172.16.0.0/12"
+            ]
+          ],
+          "returns": "vpn"
+        },
+        {
+          "args": [
+            "172.32.1.1",
+            [
+              "10.0.0.0/8",
+              "172.16.0.0/12"
+            ]
+          ],
+          "returns": "direct"
+        },
+        {
+          "args": [
+            "203.0.113.7",
+            [
+              "10.0.0.0/8"
+            ]
+          ],
+          "returns": "direct"
+        },
+        {
+          "args": [
+            "10.0.0.1",
+            []
+          ],
+          "returns": "direct"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "10.20.0.15 vpn\n172.20.1.1 vpn\n203.0.113.7 direct"
+    }
+  ]
+}

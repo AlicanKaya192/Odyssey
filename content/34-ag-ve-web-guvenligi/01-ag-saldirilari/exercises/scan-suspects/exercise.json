@@ -1,0 +1,230 @@
+{
+  "id": "scan-suspects",
+  "title": {
+    "tr": "Tarama şüphelileri",
+    "en": "Scan suspects"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`ports.setdefault(src, set()).add(port)` tekrarları kendiliğinden atar.",
+      "en": "`ports.setdefault(src, set()).add(port)` drops repeats by itself."
+    },
+    {
+      "tr": "Sonra `len(seen) >= limit` olanları adres sırasıyla döndür.",
+      "en": "Then return those with `len(seen) >= limit` in address order."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef suspects(log, limit):\n    ports = {}\n    for src, port in log:\n        ports.setdefault(src, set()).add(port)\n    found = [src for src, seen in ports.items() if len(seen) >= limit]\n    return sorted(found, key=ipaddress.ip_address)\n\nlog = [[\"198.51.100.10\", p] for p in range(20, 30)]\nlog += [[\"198.51.100.9\", p] for p in [22, 80, 443]]\nlog += [[\"192.168.1.10\", 443], [\"192.168.1.10\", 443]]\nprint(suspects(log, 10))\nprint(suspects(log, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef suspects(log, limit):\n    ports = {}\n    for src, port in log:\n        ports.setdefault(src, set()).add(port)\n    found = [src for src, seen in ports.items() if len(seen) >= limit]\n    return sorted(found, key=ipaddress.ip_address)\n\nlog = [[\"198.51.100.10\", p] for p in range(20, 30)]\nlog += [[\"198.51.100.9\", p] for p in [22, 80, 443]]\nlog += [[\"192.168.1.10\", 443], [\"192.168.1.10\", 443]]\nprint(suspects(log, 10))\nprint(suspects(log, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "suspects",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "198.51.100.10",
+                20
+              ],
+              [
+                "198.51.100.10",
+                21
+              ],
+              [
+                "198.51.100.10",
+                22
+              ],
+              [
+                "198.51.100.10",
+                23
+              ],
+              [
+                "198.51.100.10",
+                24
+              ],
+              [
+                "198.51.100.10",
+                25
+              ],
+              [
+                "198.51.100.10",
+                26
+              ],
+              [
+                "198.51.100.10",
+                27
+              ],
+              [
+                "198.51.100.10",
+                28
+              ],
+              [
+                "198.51.100.10",
+                29
+              ],
+              [
+                "198.51.100.9",
+                22
+              ],
+              [
+                "198.51.100.9",
+                80
+              ],
+              [
+                "198.51.100.9",
+                443
+              ]
+            ],
+            10
+          ],
+          "returns": [
+            "198.51.100.10"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "198.51.100.10",
+                20
+              ],
+              [
+                "198.51.100.10",
+                21
+              ],
+              [
+                "198.51.100.10",
+                22
+              ],
+              [
+                "198.51.100.10",
+                23
+              ],
+              [
+                "198.51.100.10",
+                24
+              ],
+              [
+                "198.51.100.10",
+                25
+              ],
+              [
+                "198.51.100.10",
+                26
+              ],
+              [
+                "198.51.100.10",
+                27
+              ],
+              [
+                "198.51.100.10",
+                28
+              ],
+              [
+                "198.51.100.10",
+                29
+              ],
+              [
+                "198.51.100.9",
+                22
+              ],
+              [
+                "198.51.100.9",
+                80
+              ],
+              [
+                "198.51.100.9",
+                443
+              ]
+            ],
+            3
+          ],
+          "returns": [
+            "198.51.100.9",
+            "198.51.100.10"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ],
+              [
+                "10.0.0.5",
+                22
+              ]
+            ],
+            2
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['198.51.100.10']\n['198.51.100.9', '198.51.100.10']"
+    }
+  ]
+}

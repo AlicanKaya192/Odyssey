@@ -1,0 +1,138 @@
+{
+  "id": "rule-hits",
+  "title": {
+    "tr": "Kural sayaçları",
+    "en": "Rule counters"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir paket yalnızca **ilk** tutan kurala sayılır: sayınca `break`.",
+      "en": "A packet counts only for the **first** matching rule: `break` after counting."
+    },
+    {
+      "tr": "Hiçbiri tutmadıysa son sayaç: `for ... else:` ya da bir bayrak.",
+      "en": "If none matched, the last counter: `for ... else:` or a flag."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef matches(rule, packet):\n    return (rule[\"proto\"] in (\"any\", packet[\"proto\"])\n            and rule[\"port\"] in (\"any\", packet[\"port\"]))\n\n\ndef rule_hits(rules, packets):\n    counts = [0] * (len(rules) + 1)\n    for packet in packets:\n        for i, rule in enumerate(rules):\n            if matches(rule, packet):\n                counts[i] += 1\n                break\n        else:\n            counts[-1] += 1\n    return counts\n\nRULES = [{\"action\": \"allow\", \"proto\": \"tcp\", \"port\": 443},\n         {\"action\": \"allow\", \"proto\": \"tcp\", \"port\": 22},\n         {\"action\": \"allow\", \"proto\": \"udp\", \"port\": 53}]\npackets = [{\"proto\": \"tcp\", \"port\": 443}, {\"proto\": \"tcp\", \"port\": 443},\n           {\"proto\": \"udp\", \"port\": 53}, {\"proto\": \"tcp\", \"port\": 8080}]\nprint(rule_hits(RULES, packets))\n```",
+      "en": "The full solution:\n\n```python\ndef matches(rule, packet):\n    return (rule[\"proto\"] in (\"any\", packet[\"proto\"])\n            and rule[\"port\"] in (\"any\", packet[\"port\"]))\n\n\ndef rule_hits(rules, packets):\n    counts = [0] * (len(rules) + 1)\n    for packet in packets:\n        for i, rule in enumerate(rules):\n            if matches(rule, packet):\n                counts[i] += 1\n                break\n        else:\n            counts[-1] += 1\n    return counts\n\nRULES = [{\"action\": \"allow\", \"proto\": \"tcp\", \"port\": 443},\n         {\"action\": \"allow\", \"proto\": \"tcp\", \"port\": 22},\n         {\"action\": \"allow\", \"proto\": \"udp\", \"port\": 53}]\npackets = [{\"proto\": \"tcp\", \"port\": 443}, {\"proto\": \"tcp\", \"port\": 443},\n           {\"proto\": \"udp\", \"port\": 53}, {\"proto\": \"tcp\", \"port\": 8080}]\nprint(rule_hits(RULES, packets))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rule_hits",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "action": "allow",
+                "proto": "tcp",
+                "port": 443
+              },
+              {
+                "action": "allow",
+                "proto": "tcp",
+                "port": 22
+              }
+            ],
+            [
+              {
+                "proto": "tcp",
+                "port": 443
+              },
+              {
+                "proto": "tcp",
+                "port": 443
+              },
+              {
+                "proto": "tcp",
+                "port": 8080
+              }
+            ]
+          ],
+          "returns": [
+            2,
+            0,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "action": "allow",
+                "proto": "any",
+                "port": "any"
+              },
+              {
+                "action": "deny",
+                "proto": "tcp",
+                "port": 23
+              }
+            ],
+            [
+              {
+                "proto": "tcp",
+                "port": 23
+              },
+              {
+                "proto": "udp",
+                "port": 53
+              }
+            ]
+          ],
+          "returns": [
+            2,
+            0,
+            0
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              {
+                "proto": "tcp",
+                "port": 80
+              }
+            ]
+          ],
+          "returns": [
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              {
+                "action": "allow",
+                "proto": "tcp",
+                "port": 80
+              }
+            ],
+            []
+          ],
+          "returns": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 0, 1, 1]"
+    }
+  ]
+}

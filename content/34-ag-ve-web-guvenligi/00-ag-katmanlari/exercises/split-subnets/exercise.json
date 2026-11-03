@@ -1,0 +1,83 @@
+{
+  "id": "split-subnets",
+  "title": {
+    "tr": "Ağı böl",
+    "en": "Split a network"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir bit önek ağı ikiye, iki bit dörde böler.",
+      "en": "One prefix bit splits the network in two, two bits in four."
+    },
+    {
+      "tr": "`[str(part) for part in net.subnets(new_prefix=new_prefix)]`.",
+      "en": "`[str(part) for part in net.subnets(new_prefix=new_prefix)]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef split(cidr, new_prefix):\n    net = ipaddress.ip_network(cidr)\n    return [str(part) for part in net.subnets(new_prefix=new_prefix)]\n\nfor part in split(\"192.168.1.0/24\", 26):\n    print(part)\nprint(len(split(\"10.0.0.0/16\", 24)))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef split(cidr, new_prefix):\n    net = ipaddress.ip_network(cidr)\n    return [str(part) for part in net.subnets(new_prefix=new_prefix)]\n\nfor part in split(\"192.168.1.0/24\", 26):\n    print(part)\nprint(len(split(\"10.0.0.0/16\", 24)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split",
+      "cases": [
+        {
+          "args": [
+            "192.168.1.0/24",
+            26
+          ],
+          "returns": [
+            "192.168.1.0/26",
+            "192.168.1.64/26",
+            "192.168.1.128/26",
+            "192.168.1.192/26"
+          ]
+        },
+        {
+          "args": [
+            "192.168.1.0/24",
+            25
+          ],
+          "returns": [
+            "192.168.1.0/25",
+            "192.168.1.128/25"
+          ]
+        },
+        {
+          "args": [
+            "10.0.0.0/30",
+            31
+          ],
+          "returns": [
+            "10.0.0.0/31",
+            "10.0.0.2/31"
+          ]
+        },
+        {
+          "args": [
+            "10.0.0.0/24",
+            24
+          ],
+          "returns": [
+            "10.0.0.0/24"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "192.168.1.0/26\n192.168.1.64/26\n192.168.1.128/26\n192.168.1.192/26\n256"
+    }
+  ]
+}

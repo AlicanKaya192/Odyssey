@@ -1,0 +1,90 @@
+{
+  "id": "port-service",
+  "title": {
+    "tr": "Port hangi servis?",
+    "en": "Which service is the port?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Port 16 bitlik bir sayı: 0–65535.",
+      "en": "A port is a 16-bit number: 0–65535."
+    },
+    {
+      "tr": "`WELL_KNOWN.get(port, \"unknown\")` sözlükte olmayanı da karşılar.",
+      "en": "`WELL_KNOWN.get(port, \"unknown\")` also handles what is not in the dictionary."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nWELL_KNOWN = {22: \"ssh\", 25: \"smtp\", 53: \"dns\", 80: \"http\",\n              443: \"https\", 3306: \"mysql\"}\n\n\ndef service_for(port):\n    if port < 0 or port > 65535:\n        return \"invalid\"\n    return WELL_KNOWN.get(port, \"unknown\")\n\nfor port in [443, 22, 8081, 70000, -1]:\n    print(port, service_for(port))\n```",
+      "en": "The full solution:\n\n```python\nWELL_KNOWN = {22: \"ssh\", 25: \"smtp\", 53: \"dns\", 80: \"http\",\n              443: \"https\", 3306: \"mysql\"}\n\n\ndef service_for(port):\n    if port < 0 or port > 65535:\n        return \"invalid\"\n    return WELL_KNOWN.get(port, \"unknown\")\n\nfor port in [443, 22, 8081, 70000, -1]:\n    print(port, service_for(port))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "service_for",
+      "cases": [
+        {
+          "args": [
+            443
+          ],
+          "returns": "https"
+        },
+        {
+          "args": [
+            22
+          ],
+          "returns": "ssh"
+        },
+        {
+          "args": [
+            8081
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            70000
+          ],
+          "returns": "invalid"
+        },
+        {
+          "args": [
+            -1
+          ],
+          "returns": "invalid"
+        },
+        {
+          "args": [
+            0
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            65535
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            65536
+          ],
+          "returns": "invalid"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "443 https\n22 ssh\n8081 unknown\n70000 invalid\n-1 invalid"
+    }
+  ]
+}

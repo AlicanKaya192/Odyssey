@@ -1,0 +1,78 @@
+{
+  "id": "classify-address",
+  "title": {
+    "tr": "Adresi sınıflandır",
+    "en": "Classify an address"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`127.0.0.1` için `is_private` de `True`; o yüzden ilk `if`'e takılıyor.",
+      "en": "`is_private` is also `True` for `127.0.0.1`, so it is caught by the first `if`."
+    },
+    {
+      "tr": "İki `if`'in yerini değiştir: önce `is_loopback`.",
+      "en": "Swap the two `if`s: `is_loopback` first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport ipaddress\n\n\ndef classify(text):\n    ip = ipaddress.ip_address(text)\n    if ip.is_loopback:\n        return \"loopback\"\n    if ip.is_private:\n        return \"private\"\n    return \"public\"\n\nfor text in [\"127.0.0.1\", \"10.1.2.3\", \"172.31.0.9\",\n             \"172.32.0.9\", \"100.20.30.40\"]:\n    print(text, classify(text))\n```",
+      "en": "The full solution:\n\n```python\nimport ipaddress\n\n\ndef classify(text):\n    ip = ipaddress.ip_address(text)\n    if ip.is_loopback:\n        return \"loopback\"\n    if ip.is_private:\n        return \"private\"\n    return \"public\"\n\nfor text in [\"127.0.0.1\", \"10.1.2.3\", \"172.31.0.9\",\n             \"172.32.0.9\", \"100.20.30.40\"]:\n    print(text, classify(text))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "classify",
+      "cases": [
+        {
+          "args": [
+            "127.0.0.1"
+          ],
+          "returns": "loopback"
+        },
+        {
+          "args": [
+            "10.1.2.3"
+          ],
+          "returns": "private"
+        },
+        {
+          "args": [
+            "172.31.0.9"
+          ],
+          "returns": "private"
+        },
+        {
+          "args": [
+            "172.32.0.9"
+          ],
+          "returns": "public"
+        },
+        {
+          "args": [
+            "192.168.0.1"
+          ],
+          "returns": "private"
+        },
+        {
+          "args": [
+            "100.20.30.40"
+          ],
+          "returns": "public"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "127.0.0.1 loopback\n10.1.2.3 private\n172.31.0.9 private\n172.32.0.9 public\n100.20.30.40 public"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "id": "egress-report",
+  "title": {
+    "tr": "Çıkış raporu",
+    "en": "Egress report"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`f\"{host}:{port}\"` metni oluşturur.",
+      "en": "`f\"{host}:{port}\"` builds the text."
+    },
+    {
+      "tr": "Eklemeden önce `item not in result` ile tekrara bak.",
+      "en": "Check for repeats with `item not in result` before adding."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef blocked(connections, allowed):\n    result = []\n    for host, port in connections:\n        item = f\"{host}:{port}\"\n        if port not in allowed and item not in result:\n            result.append(item)\n    return result\n\nconnections = [[\"192.168.1.10\", 443], [\"192.168.1.10\", 8888],\n               [\"192.168.1.30\", 2525], [\"192.168.1.10\", 8888],\n               [\"192.168.1.30\", 53]]\nfor item in blocked(connections, [53, 80, 443]):\n    print(item)\n```",
+      "en": "The full solution:\n\n```python\ndef blocked(connections, allowed):\n    result = []\n    for host, port in connections:\n        item = f\"{host}:{port}\"\n        if port not in allowed and item not in result:\n            result.append(item)\n    return result\n\nconnections = [[\"192.168.1.10\", 443], [\"192.168.1.10\", 8888],\n               [\"192.168.1.30\", 2525], [\"192.168.1.10\", 8888],\n               [\"192.168.1.30\", 53]]\nfor item in blocked(connections, [53, 80, 443]):\n    print(item)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "blocked",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "192.168.1.10",
+                443
+              ],
+              [
+                "192.168.1.10",
+                8888
+              ],
+              [
+                "192.168.1.30",
+                2525
+              ],
+              [
+                "192.168.1.10",
+                8888
+              ]
+            ],
+            [
+              53,
+              80,
+              443
+            ]
+          ],
+          "returns": [
+            "192.168.1.10:8888",
+            "192.168.1.30:2525"
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              443
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "10.0.0.5",
+                22
+              ]
+            ],
+            []
+          ],
+          "returns": [
+            "10.0.0.5:22"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "10.0.0.5",
+                443
+              ]
+            ],
+            [
+              443
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "192.168.1.10:8888\n192.168.1.30:2525"
+    }
+  ]
+}

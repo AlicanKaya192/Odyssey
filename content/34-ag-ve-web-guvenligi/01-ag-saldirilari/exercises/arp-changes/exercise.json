@@ -1,0 +1,118 @@
+{
+  "id": "arp-changes",
+  "title": {
+    "tr": "ARP değişikliklerini yakala",
+    "en": "Catch ARP changes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`old = table.get(ip)`; `old` varsa ve `mac`'ten farklıysa değişiklik.",
+      "en": "`old = table.get(ip)`; it is a change if `old` exists and differs from `mac`."
+    },
+    {
+      "tr": "Her cevaptan sonra `table[ip] = mac` ile tabloyu güncelle.",
+      "en": "After each answer, update the table with `table[ip] = mac`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef arp_changes(replies):\n    table = {}\n    changes = []\n    for ip, mac in replies:\n        old = table.get(ip)\n        if old is not None and old != mac:\n            changes.append([ip, old, mac])\n        table[ip] = mac\n    return changes\n\nreplies = [[\"192.168.1.1\", \"02:00:00:00:00:fe\"],\n           [\"192.168.1.20\", \"02:00:00:00:00:14\"],\n           [\"192.168.1.1\", \"02:00:00:00:00:fe\"],\n           [\"192.168.1.1\", \"02:00:00:00:00:66\"]]\nfor ip, old, new in arp_changes(replies):\n    print(ip)\n    print(\"  old\", old)\n    print(\"  new\", new)\n```",
+      "en": "The full solution:\n\n```python\ndef arp_changes(replies):\n    table = {}\n    changes = []\n    for ip, mac in replies:\n        old = table.get(ip)\n        if old is not None and old != mac:\n            changes.append([ip, old, mac])\n        table[ip] = mac\n    return changes\n\nreplies = [[\"192.168.1.1\", \"02:00:00:00:00:fe\"],\n           [\"192.168.1.20\", \"02:00:00:00:00:14\"],\n           [\"192.168.1.1\", \"02:00:00:00:00:fe\"],\n           [\"192.168.1.1\", \"02:00:00:00:00:66\"]]\nfor ip, old, new in arp_changes(replies):\n    print(ip)\n    print(\"  old\", old)\n    print(\"  new\", new)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "arp_changes",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "192.168.1.1",
+                "02:00:00:00:00:fe"
+              ],
+              [
+                "192.168.1.20",
+                "02:00:00:00:00:14"
+              ],
+              [
+                "192.168.1.1",
+                "02:00:00:00:00:66"
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "192.168.1.1",
+              "02:00:00:00:00:fe",
+              "02:00:00:00:00:66"
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "192.168.1.1",
+                "02:00:00:00:00:fe"
+              ],
+              [
+                "192.168.1.1",
+                "02:00:00:00:00:fe"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "10.0.0.1",
+                "02:00:00:00:00:01"
+              ],
+              [
+                "10.0.0.1",
+                "02:00:00:00:00:02"
+              ],
+              [
+                "10.0.0.1",
+                "02:00:00:00:00:01"
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              "10.0.0.1",
+              "02:00:00:00:00:01",
+              "02:00:00:00:00:02"
+            ],
+            [
+              "10.0.0.1",
+              "02:00:00:00:00:02",
+              "02:00:00:00:00:01"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "192.168.1.1\n  old 02:00:00:00:00:fe\n  new 02:00:00:00:00:66"
+    }
+  ]
+}

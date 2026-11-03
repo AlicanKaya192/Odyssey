@@ -1,0 +1,125 @@
+{
+  "id": "reachable",
+  "title": {
+    "tr": "Nereye ulaşılır?",
+    "en": "What can be reached?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Ziyaret edilecekleri bir kuyrukta, görülenleri bir kümede tut (dersteki `reachable`).",
+      "en": "Keep the ones to visit in a queue and the seen ones in a set (the lesson's `reachable`)."
+    },
+    {
+      "tr": "Döngü olan ağda (`a → b → c → a`) küme olmadan sonsuza kadar dönersin.",
+      "en": "On a network with a loop (`a → b → c → a`) you go round forever without the set."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import deque\n\n\ndef reachable(links, start):\n    seen = {start}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for nxt in links.get(node, []):\n            if nxt not in seen:\n                seen.add(nxt)\n                queue.append(nxt)\n    return sorted(seen - {start})\n\nlinks = {\"laptop\": [\"web\"], \"web\": [\"hr-db\"], \"backup\": [\"hr-db\"],\n         \"hr-db\": []}\nprint(reachable(links, \"laptop\"))\nprint(reachable(links, \"backup\"))\nprint(reachable(links, \"hr-db\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import deque\n\n\ndef reachable(links, start):\n    seen = {start}\n    queue = deque([start])\n    while queue:\n        node = queue.popleft()\n        for nxt in links.get(node, []):\n            if nxt not in seen:\n                seen.add(nxt)\n                queue.append(nxt)\n    return sorted(seen - {start})\n\nlinks = {\"laptop\": [\"web\"], \"web\": [\"hr-db\"], \"backup\": [\"hr-db\"],\n         \"hr-db\": []}\nprint(reachable(links, \"laptop\"))\nprint(reachable(links, \"backup\"))\nprint(reachable(links, \"hr-db\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "reachable",
+      "cases": [
+        {
+          "args": [
+            {
+              "laptop": [
+                "web"
+              ],
+              "web": [
+                "hr-db"
+              ],
+              "backup": [
+                "hr-db"
+              ],
+              "hr-db": []
+            },
+            "laptop"
+          ],
+          "returns": [
+            "hr-db",
+            "web"
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": [
+                "b"
+              ],
+              "b": [
+                "c"
+              ],
+              "c": [
+                "a"
+              ]
+            },
+            "a"
+          ],
+          "returns": [
+            "b",
+            "c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "a": []
+            },
+            "a"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            "x"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": [
+                "b",
+                "c"
+              ],
+              "b": [
+                "d"
+              ],
+              "c": [
+                "d"
+              ],
+              "d": [
+                "e"
+              ]
+            },
+            "a"
+          ],
+          "returns": [
+            "b",
+            "c",
+            "d",
+            "e"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['hr-db', 'web']\n['hr-db']\n[]"
+    }
+  ]
+}

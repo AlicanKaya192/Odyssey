@@ -1,0 +1,121 @@
+{
+  "id": "shadowed-rules",
+  "title": {
+    "tr": "Gölgelenen kurallar",
+    "en": "Shadowed rules"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`rules[:i]` kuralın üstündekilerdir.",
+      "en": "`rules[:i]` are the rules above it."
+    },
+    {
+      "tr": "Bir kural birden çok kez gölgelenebilir; numarasını bir kez ekleyip `break`.",
+      "en": "A rule can be shadowed more than once; add its number once and `break`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef shadowed(rules):\n    found = []\n    for i, (port, _action) in enumerate(rules):\n        for earlier_port, _earlier in rules[:i]:\n            if earlier_port == \"any\" or earlier_port == port:\n                found.append(i + 1)\n                break\n    return found\n\nprint(shadowed([[\"any\", \"allow\"], [23, \"deny\"]]))\nprint(shadowed([[23, \"deny\"], [80, \"allow\"], [443, \"allow\"]]))\nprint(shadowed([[80, \"allow\"], [80, \"deny\"], [\"any\", \"deny\"], [22, \"allow\"]]))\n```",
+      "en": "The full solution:\n\n```python\ndef shadowed(rules):\n    found = []\n    for i, (port, _action) in enumerate(rules):\n        for earlier_port, _earlier in rules[:i]:\n            if earlier_port == \"any\" or earlier_port == port:\n                found.append(i + 1)\n                break\n    return found\n\nprint(shadowed([[\"any\", \"allow\"], [23, \"deny\"]]))\nprint(shadowed([[23, \"deny\"], [80, \"allow\"], [443, \"allow\"]]))\nprint(shadowed([[80, \"allow\"], [80, \"deny\"], [\"any\", \"deny\"], [22, \"allow\"]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "shadowed",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "any",
+                "allow"
+              ],
+              [
+                23,
+                "deny"
+              ]
+            ]
+          ],
+          "returns": [
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                23,
+                "deny"
+              ],
+              [
+                80,
+                "allow"
+              ],
+              [
+                443,
+                "allow"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                80,
+                "allow"
+              ],
+              [
+                80,
+                "deny"
+              ],
+              [
+                "any",
+                "deny"
+              ],
+              [
+                22,
+                "allow"
+              ]
+            ]
+          ],
+          "returns": [
+            2,
+            4
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "any",
+                "deny"
+              ]
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2]\n[]\n[2, 4]"
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "id": "flow-allowed",
+  "title": {
+    "tr": "Bölgeler arası akış",
+    "en": "Flows between zones"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bölgeler birebir eşit olmalı; port için `p_port in (\"any\", port)`.",
+      "en": "The zones must be exactly equal; for the port, `p_port in (\"any\", port)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef allowed(flow, policy):\n    src, dst, port = flow\n    for p_src, p_dst, p_port in policy:\n        if p_src == src and p_dst == dst and p_port in (\"any\", port):\n            return True\n    return False\n\nPOLICY = [[\"internet\", \"dmz\", 443], [\"dmz\", \"servers\", 5432],\n          [\"admin\", \"servers\", \"any\"]]\nfor flow in [[\"internet\", \"dmz\", 443], [\"internet\", \"servers\", 5432],\n             [\"admin\", \"servers\", 22], [\"dmz\", \"servers\", 22]]:\n    print(*flow, allowed(flow, POLICY))\n```",
+      "en": "The full solution:\n\n```python\ndef allowed(flow, policy):\n    src, dst, port = flow\n    for p_src, p_dst, p_port in policy:\n        if p_src == src and p_dst == dst and p_port in (\"any\", port):\n            return True\n    return False\n\nPOLICY = [[\"internet\", \"dmz\", 443], [\"dmz\", \"servers\", 5432],\n          [\"admin\", \"servers\", \"any\"]]\nfor flow in [[\"internet\", \"dmz\", 443], [\"internet\", \"servers\", 5432],\n             [\"admin\", \"servers\", 22], [\"dmz\", \"servers\", 22]]:\n    print(*flow, allowed(flow, POLICY))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "allowed",
+      "cases": [
+        {
+          "args": [
+            [
+              "internet",
+              "dmz",
+              443
+            ],
+            [
+              [
+                "internet",
+                "dmz",
+                443
+              ],
+              [
+                "dmz",
+                "servers",
+                5432
+              ],
+              [
+                "admin",
+                "servers",
+                "any"
+              ]
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            [
+              "internet",
+              "servers",
+              5432
+            ],
+            [
+              [
+                "internet",
+                "dmz",
+                443
+              ],
+              [
+                "dmz",
+                "servers",
+                5432
+              ],
+              [
+                "admin",
+                "servers",
+                "any"
+              ]
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [
+              "admin",
+              "servers",
+              22
+            ],
+            [
+              [
+                "internet",
+                "dmz",
+                443
+              ],
+              [
+                "dmz",
+                "servers",
+                5432
+              ],
+              [
+                "admin",
+                "servers",
+                "any"
+              ]
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            [
+              "dmz",
+              "servers",
+              22
+            ],
+            [
+              [
+                "internet",
+                "dmz",
+                443
+              ],
+              [
+                "dmz",
+                "servers",
+                5432
+              ],
+              [
+                "admin",
+                "servers",
+                "any"
+              ]
+            ]
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [
+              "dmz",
+              "servers",
+              5432
+            ],
+            []
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "internet dmz 443 True\ninternet servers 5432 False\nadmin servers 22 True\ndmz servers 22 False"
+    }
+  ]
+}
