@@ -1,0 +1,65 @@
+{
+  "id": "review-sample-size",
+  "title": {
+    "tr": "Formülle örneklem",
+    "en": "Sample size by formula"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki yönlü test: `stats.norm.ppf(1 - alpha / 2)`.",
+      "en": "Two-sided test: `stats.norm.ppf(1 - alpha / 2)`."
+    },
+    {
+      "tr": "Geri kalanı aynı.",
+      "en": "The rest stays the same."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\nfrom scipy import stats\n\n\ndef n_per_group(p, mde, alpha=0.05, power=0.8):\n    z = stats.norm.ppf(1 - alpha / 2) + stats.norm.ppf(power)\n    return math.ceil(2 * z ** 2 * p * (1 - p) / mde ** 2)\n\n\nprint(n_per_group(0.10, 0.01))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\nfrom scipy import stats\n\n\ndef n_per_group(p, mde, alpha=0.05, power=0.8):\n    z = stats.norm.ppf(1 - alpha / 2) + stats.norm.ppf(power)\n    return math.ceil(2 * z ** 2 * p * (1 - p) / mde ** 2)\n\n\nprint(n_per_group(0.10, 0.01))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "n_per_group",
+      "cases": [
+        {
+          "args": [
+            0.1,
+            0.01
+          ],
+          "returns": 14128
+        },
+        {
+          "args": [
+            0.05,
+            0.005
+          ],
+          "returns": 29826
+        },
+        {
+          "args": [
+            0.2,
+            0.02,
+            0.01,
+            0.9
+          ],
+          "returns": 11904
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "14128"
+    }
+  ]
+}

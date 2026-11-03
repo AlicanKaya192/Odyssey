@@ -1,0 +1,46 @@
+{
+  "id": "capstone-guardrail",
+  "title": {
+    "tr": "Koruma metriği",
+    "en": "The guardrail"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Alıcılar `test[test[\"bought\"] == 1]`.",
+      "en": "Buyers are `test[test[\"bought\"] == 1]`."
+    },
+    {
+      "tr": "`refunds.loc[\"B\", \"sum\"]` ve `refunds.loc[\"B\", \"count\"]`.",
+      "en": "`refunds.loc[\"B\", \"sum\"]` and `refunds.loc[\"B\", \"count\"]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_capstone\n\ntest = make_capstone(seed=83, lift=0.0)\nn = test.groupby(\"group\").size()\nbuyers = test[test[\"bought\"] == 1]\nrefunds = buyers.groupby(\"group\")[\"refunded\"].agg([\"sum\", \"count\"])\nlow_r, high_r = confint_proportions_2indep(\n    refunds.loc[\"B\", \"sum\"], refunds.loc[\"B\", \"count\"],\n    refunds.loc[\"A\", \"sum\"], refunds.loc[\"A\", \"count\"])\nprint(round(high_r * 100, 2))\nprint(high_r < 0.02)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_capstone\n\ntest = make_capstone(seed=83, lift=0.0)\nn = test.groupby(\"group\").size()\nbuyers = test[test[\"bought\"] == 1]\nrefunds = buyers.groupby(\"group\")[\"refunded\"].agg([\"sum\", \"count\"])\nlow_r, high_r = confint_proportions_2indep(\n    refunds.loc[\"B\", \"sum\"], refunds.loc[\"B\", \"count\"],\n    refunds.loc[\"A\", \"sum\"], refunds.loc[\"A\", \"count\"])\nprint(round(high_r * 100, 2))\nprint(high_r < 0.02)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.6\nTrue"
+    }
+  ]
+}

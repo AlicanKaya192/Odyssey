@@ -1,0 +1,77 @@
+{
+  "id": "prob-best",
+  "title": {
+    "tr": "En iyi olma olasılığı",
+    "en": "The probability of being best"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başarı + 1 ve başarısızlık + 1.",
+      "en": "Successes + 1 and failures + 1."
+    },
+    {
+      "tr": "`rng.beta(1 + k, 1 + n - k, (draws, len(k)))`.",
+      "en": "`rng.beta(1 + k, 1 + n - k, (draws, len(k)))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef prob_best(k, n, draws=20000, seed=0):\n    rng = np.random.default_rng(seed)\n    k, n = np.asarray(k), np.asarray(n)\n    samples = rng.beta(1 + k, 1 + n - k, (draws, len(k)))\n    best = samples.argmax(axis=1)\n    return [round(float((best == j).mean()), 3) for j in range(len(k))]\n\n\nprint(prob_best([12, 30, 25], [300, 500, 400]))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef prob_best(k, n, draws=20000, seed=0):\n    rng = np.random.default_rng(seed)\n    k, n = np.asarray(k), np.asarray(n)\n    samples = rng.beta(1 + k, 1 + n - k, (draws, len(k)))\n    best = samples.argmax(axis=1)\n    return [round(float((best == j).mean()), 3) for j in range(len(k))]\n\n\nprint(prob_best([12, 30, 25], [300, 500, 400]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "prob_best",
+      "cases": [
+        {
+          "args": [
+            [
+              12,
+              30,
+              25
+            ],
+            [
+              300,
+              500,
+              400
+            ]
+          ],
+          "returns": [
+            0.044,
+            0.413,
+            0.543
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              5
+            ],
+            [
+              100,
+              100
+            ]
+          ],
+          "returns": [
+            0.492,
+            0.508
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.044, 0.413, 0.543]"
+    }
+  ]
+}

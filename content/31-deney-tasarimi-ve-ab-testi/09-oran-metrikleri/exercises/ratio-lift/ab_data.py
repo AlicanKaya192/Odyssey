@@ -358,3 +358,30 @@ def make_market(n_cities=100, users=300, seed=81, design="user", share_b=0.5, bo
     user = [f"{c}-{u + 1:03d}" for c, u in zip(city, np.tile(np.arange(users), n_cities))]
     return pd.DataFrame({"user_id": user, "city": city, "group": np.where(is_b.ravel(), "B", "A"),
                          "requested": requested.ravel(), "completed": completed.ravel()})
+
+
+def make_capstone(n=40_000, seed=82, lift=0.12):
+    """The capstone experiment: a lower free-shipping limit, one row per user.
+
+    Columns: user_id, day (1..14), group, platform, pre_spend (spending in
+    the four weeks before the test), bought (0/1), revenue, refunded (0/1).
+    Each user has a lasting activity level that drives both pre_spend and
+    buying. B truly raises buying by `lift` (relative); order sizes and
+    refunds do not change.
+    """
+    rng = np.random.default_rng(seed)
+    group = np.where(rng.random(n) < 0.5, "A", "B")
+    day = rng.integers(1, 15, n)
+    platform = np.where(rng.random(n) < 0.55, "mobile", "desktop")
+    activity = rng.lognormal(0.0, 0.6, n)
+    pre_orders = rng.poisson(activity * 1.5)
+    pre_spend = np.round(pre_orders * rng.lognormal(4.0, 0.4, n) * np.sqrt(activity), 2)
+    p_buy = np.clip(0.09 * activity, 0, 0.6)
+    p_buy = np.where(platform == "mobile", p_buy * 0.85, p_buy)
+    p_buy = np.where(group == "B", p_buy * (1 + lift), p_buy)
+    bought = (rng.random(n) < p_buy).astype(int)
+    revenue = np.where(bought == 1, np.round(rng.lognormal(4.0, 0.6, n) * np.sqrt(activity), 2), 0.0)
+    refunded = bought * (rng.random(n) < 0.08).astype(int)
+    return pd.DataFrame({"user_id": [f"K{i:05d}" for i in range(1, n + 1)], "day": day, "group": group,
+                         "platform": platform, "pre_spend": pre_spend, "bought": bought,
+                         "revenue": revenue, "refunded": refunded})

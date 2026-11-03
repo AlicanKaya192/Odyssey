@@ -1,0 +1,46 @@
+{
+  "id": "capstone-cuped",
+  "title": {
+    "tr": "Projede CUPED",
+    "en": "CUPED in the project"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "θ = `np.cov(x, y)[0, 1] / x.var(ddof=1)`.",
+      "en": "θ = `np.cov(x, y)[0, 1] / x.var(ddof=1)`."
+    },
+    {
+      "tr": "Oran `adjusted.var() / y.var()`.",
+      "en": "The ratio is `adjusted.var() / y.var()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_capstone\n\ntest = make_capstone(seed=83, lift=0.0)\nn = test.groupby(\"group\").size()\ny = test[\"revenue\"].to_numpy()\nx = test[\"pre_spend\"].to_numpy()\ntheta = np.cov(x, y)[0, 1] / x.var(ddof=1)\nadjusted = y - theta * (x - x.mean())\nprint(round(float(np.corrcoef(x, y)[0, 1]), 2))\nprint(round(float(adjusted.var() / y.var()), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_capstone\n\ntest = make_capstone(seed=83, lift=0.0)\nn = test.groupby(\"group\").size()\ny = test[\"revenue\"].to_numpy()\nx = test[\"pre_spend\"].to_numpy()\ntheta = np.cov(x, y)[0, 1] / x.var(ddof=1)\nadjusted = y - theta * (x - x.mean())\nprint(round(float(np.corrcoef(x, y)[0, 1]), 2))\nprint(round(float(adjusted.var() / y.var()), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.2\n0.962"
+    }
+  ]
+}

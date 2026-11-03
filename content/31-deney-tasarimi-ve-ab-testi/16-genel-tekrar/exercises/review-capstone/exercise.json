@@ -1,0 +1,46 @@
+{
+  "id": "review-capstone",
+  "title": {
+    "tr": "Baştan sona",
+    "en": "Start to finish"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "SRM: `stats.chisquare(n).pvalue`; aralık: `confint_proportions_2indep`.",
+      "en": "SRM: `stats.chisquare(n).pvalue`; interval: `confint_proportions_2indep`."
+    },
+    {
+      "tr": "`1 - np.corrcoef(x, y)[0, 1] ** 2`.",
+      "en": "`1 - np.corrcoef(x, y)[0, 1] ** 2`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_capstone\n\ntest = make_capstone(seed=84, lift=0.06)\nn = test.groupby(\"group\").size()\nk = test.groupby(\"group\")[\"bought\"].sum()\nprint(round(float(stats.chisquare(n).pvalue), 3))\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nprint(round(low * 100, 2), round(high * 100, 2))\ny = test[\"revenue\"].to_numpy()\nx = test[\"pre_spend\"].to_numpy()\nprint(round(float(1 - np.corrcoef(x, y)[0, 1] ** 2), 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_capstone\n\ntest = make_capstone(seed=84, lift=0.06)\nn = test.groupby(\"group\").size()\nk = test.groupby(\"group\")[\"bought\"].sum()\nprint(round(float(stats.chisquare(n).pvalue), 3))\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nprint(round(low * 100, 2), round(high * 100, 2))\ny = test[\"revenue\"].to_numpy()\nx = test[\"pre_spend\"].to_numpy()\nprint(round(float(1 - np.corrcoef(x, y)[0, 1] ** 2), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.308\n0.26 1.45\n0.956"
+    }
+  ]
+}

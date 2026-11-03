@@ -1,0 +1,78 @@
+{
+  "id": "decide-rules",
+  "title": {
+    "tr": "Bütün kurallar",
+    "en": "All the rules"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sıra: SRM, koruma, zarar, uygula, değmez, belirsiz.",
+      "en": "Order: SRM, guardrail, harm, launch, not worth it, inconclusive."
+    },
+    {
+      "tr": "`if low >= threshold` satırını zarar denetiminin altına taşı.",
+      "en": "Move the `if low >= threshold` line below the harm check."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef decide(srm_p, guard_high, low, high, threshold=0.003, guard_limit=2.0):\n    if srm_p < 0.001:\n        return \"stop: SRM\"\n    if guard_high >= guard_limit:\n        return \"stop: guardrail\"\n    if high < 0:\n        return \"harm\"\n    if low >= threshold:\n        return \"ship\"\n    if high < threshold:\n        return \"not worth it\"\n    return \"inconclusive\"\n\n\nprint(decide(0.33, 0.99, 0.0086, 0.0207))\nprint(decide(0.0001, 0.5, 0.0086, 0.0207))\n```",
+      "en": "The full solution:\n\n```python\ndef decide(srm_p, guard_high, low, high, threshold=0.003, guard_limit=2.0):\n    if srm_p < 0.001:\n        return \"stop: SRM\"\n    if guard_high >= guard_limit:\n        return \"stop: guardrail\"\n    if high < 0:\n        return \"harm\"\n    if low >= threshold:\n        return \"ship\"\n    if high < threshold:\n        return \"not worth it\"\n    return \"inconclusive\"\n\n\nprint(decide(0.33, 0.99, 0.0086, 0.0207))\nprint(decide(0.0001, 0.5, 0.0086, 0.0207))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decide",
+      "cases": [
+        {
+          "args": [
+            0.33,
+            0.99,
+            0.0086,
+            0.0207
+          ],
+          "returns": "ship"
+        },
+        {
+          "args": [
+            0.0001,
+            0.5,
+            0.0086,
+            0.0207
+          ],
+          "returns": "stop: SRM"
+        },
+        {
+          "args": [
+            0.4,
+            2.5,
+            0.01,
+            0.02
+          ],
+          "returns": "stop: guardrail"
+        },
+        {
+          "args": [
+            0.5,
+            1.0,
+            -0.002,
+            0.004
+          ],
+          "returns": "inconclusive"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ship\nstop: SRM"
+    }
+  ]
+}

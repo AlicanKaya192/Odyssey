@@ -1,0 +1,46 @@
+{
+  "id": "report-line",
+  "title": {
+    "tr": "Rapor satırı",
+    "en": "The report line"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Yüzde biçimi `{rate_a:.2%}`, işaretli sayı `{diff:+.2f}`.",
+      "en": "Percent format `{rate_a:.2%}`, signed number `{diff:+.2f}`."
+    },
+    {
+      "tr": "Göreli fark `{rate_b / rate_a - 1:+.1%}`.",
+      "en": "The relative difference is `{rate_b / rate_a - 1:+.1%}`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=12000, seed=46, lift=0.1)\nk = test.groupby(\"group\")[\"bought\"].sum()\nn = test.groupby(\"group\").size()\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nrate_a, rate_b = k[\"A\"] / n[\"A\"], k[\"B\"] / n[\"B\"]\ndiff = (rate_b - rate_a) * 100\nprint(f\"A {rate_a:.2%} -> B {rate_b:.2%}: {diff:+.2f} pts\")\nprint(f\"95% CI {low * 100:.2f} to {high * 100:.2f}\")\nprint(f\"relative {rate_b / rate_a - 1:+.1%}\")\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=12000, seed=46, lift=0.1)\nk = test.groupby(\"group\")[\"bought\"].sum()\nn = test.groupby(\"group\").size()\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nrate_a, rate_b = k[\"A\"] / n[\"A\"], k[\"B\"] / n[\"B\"]\ndiff = (rate_b - rate_a) * 100\nprint(f\"A {rate_a:.2%} -> B {rate_b:.2%}: {diff:+.2f} pts\")\nprint(f\"95% CI {low * 100:.2f} to {high * 100:.2f}\")\nprint(f\"relative {rate_b / rate_a - 1:+.1%}\")\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "A 10.70% -> B 12.25%: +1.55 pts\n95% CI 0.41 to 2.69\nrelative +14.5%"
+    }
+  ]
+}

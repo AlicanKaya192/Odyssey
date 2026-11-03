@@ -1,0 +1,36 @@
+{
+  "id": "bandit-vs-split",
+  "title": {
+    "tr": "Haydut ile sabit bölme",
+    "en": "Bandit versus fixed split"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Pişmanlık `best - k.sum()`, pay `n[1] / n.sum()`.",
+      "en": "Regret is `best - k.sum()`, share is `n[1] / n.sum()`."
+    },
+    {
+      "tr": "`for method in [fixed_split, thompson]:` ve içte 100 koşu.",
+      "en": "`for method in [fixed_split, thompson]:` with 100 runs inside."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\nRATES = np.array([0.04, 0.05])\nVISITORS, BATCH = 10000, 250\n\n\ndef fixed_split(seed):\n    rng = np.random.default_rng(seed)\n    arm = rng.integers(0, 2, VISITORS)\n    bought = rng.random(VISITORS) < RATES[arm]\n    return np.bincount(arm, minlength=2), np.bincount(arm, bought, 2)\n\n\ndef thompson(seed):\n    rng = np.random.default_rng(seed)\n    n = np.zeros(2)\n    k = np.zeros(2)\n    for _ in range(VISITORS // BATCH):\n        draws = rng.beta(1 + k, 1 + n - k, (BATCH, 2))\n        arm = draws.argmax(axis=1)\n        bought = rng.random(BATCH) < RATES[arm]\n        n += np.bincount(arm, minlength=2)\n        k += np.bincount(arm, bought, 2)\n    return n, k\n\n\nbest = RATES.max() * VISITORS\nfor method in [fixed_split, thompson]:\n    lost, share = [], []\n    for s in range(100):\n        n, k = method(s)\n        lost.append(best - k.sum())\n        share.append(n[1] / n.sum())\n    print(round(float(np.mean(lost)), 1), round(float(np.mean(share)), 3))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\nRATES = np.array([0.04, 0.05])\nVISITORS, BATCH = 10000, 250\n\n\ndef fixed_split(seed):\n    rng = np.random.default_rng(seed)\n    arm = rng.integers(0, 2, VISITORS)\n    bought = rng.random(VISITORS) < RATES[arm]\n    return np.bincount(arm, minlength=2), np.bincount(arm, bought, 2)\n\n\ndef thompson(seed):\n    rng = np.random.default_rng(seed)\n    n = np.zeros(2)\n    k = np.zeros(2)\n    for _ in range(VISITORS // BATCH):\n        draws = rng.beta(1 + k, 1 + n - k, (BATCH, 2))\n        arm = draws.argmax(axis=1)\n        bought = rng.random(BATCH) < RATES[arm]\n        n += np.bincount(arm, minlength=2)\n        k += np.bincount(arm, bought, 2)\n    return n, k\n\n\nbest = RATES.max() * VISITORS\nfor method in [fixed_split, thompson]:\n    lost, share = [], []\n    for s in range(100):\n        n, k = method(s)\n        lost.append(best - k.sum())\n        share.append(n[1] / n.sum())\n    print(round(float(np.mean(lost)), 1), round(float(np.mean(share)), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "51.0 0.501\n18.5 0.823"
+    }
+  ]
+}

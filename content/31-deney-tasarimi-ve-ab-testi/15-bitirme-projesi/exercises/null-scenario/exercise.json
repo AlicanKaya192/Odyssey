@@ -1,0 +1,46 @@
+{
+  "id": "null-scenario",
+  "title": {
+    "tr": "Etkisiz senaryo",
+    "en": "A null scenario"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`stats.chisquare(n).pvalue`.",
+      "en": "`stats.chisquare(n).pvalue`."
+    },
+    {
+      "tr": "`confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])`.",
+      "en": "`confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_capstone\n\ntest = make_capstone(seed=83, lift=0.0)\nn = test.groupby(\"group\").size()\nprint(round(float(stats.chisquare(n).pvalue), 3))\nk = test.groupby(\"group\")[\"bought\"].sum()\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nprint(round(low * 100, 2), round(high * 100, 2))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom scipy import stats\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_capstone\n\ntest = make_capstone(seed=83, lift=0.0)\nn = test.groupby(\"group\").size()\nprint(round(float(stats.chisquare(n).pvalue), 3))\nk = test.groupby(\"group\")[\"bought\"].sum()\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nprint(round(low * 100, 2), round(high * 100, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.126\n-0.86 0.31"
+    }
+  ]
+}

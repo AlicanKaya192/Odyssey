@@ -1,0 +1,60 @@
+{
+  "id": "expected-loss",
+  "title": {
+    "tr": "Beklenen kayıp",
+    "en": "The expected loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Negatifleri sıfırla: `np.maximum(pa - pb, 0)`.",
+      "en": "Set negatives to zero: `np.maximum(pa - pb, 0)`."
+    },
+    {
+      "tr": "Sonra `.mean()`.",
+      "en": "Then `.mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef expected_loss(k_a, n_a, k_b, n_b, draws=100000, seed=0):\n    rng = np.random.default_rng(seed)\n    pa = rng.beta(1 + k_a, 1 + n_a - k_a, draws)\n    pb = rng.beta(1 + k_b, 1 + n_b - k_b, draws)\n    return round(float(np.maximum(pa - pb, 0).mean()), 5)\n\n\nprint(expected_loss(240, 2000, 270, 2000))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef expected_loss(k_a, n_a, k_b, n_b, draws=100000, seed=0):\n    rng = np.random.default_rng(seed)\n    pa = rng.beta(1 + k_a, 1 + n_a - k_a, draws)\n    pb = rng.beta(1 + k_b, 1 + n_b - k_b, draws)\n    return round(float(np.maximum(pa - pb, 0).mean()), 5)\n\n\nprint(expected_loss(240, 2000, 270, 2000))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "expected_loss",
+      "cases": [
+        {
+          "args": [
+            240,
+            2000,
+            270,
+            2000
+          ],
+          "returns": 0.00038
+        },
+        {
+          "args": [
+            100,
+            1000,
+            90,
+            1000
+          ],
+          "returns": 0.01169
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.00038"
+    }
+  ]
+}

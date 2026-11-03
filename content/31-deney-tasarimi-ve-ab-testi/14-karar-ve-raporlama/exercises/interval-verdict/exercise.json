@@ -1,0 +1,46 @@
+{
+  "id": "interval-verdict",
+  "title": {
+    "tr": "Aralık ve karar",
+    "en": "Interval and decision"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "ab_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`low, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])`.",
+      "en": "`low, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])`."
+    },
+    {
+      "tr": "Puan için `* 100`.",
+      "en": "For points, `* 100`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=12000, seed=46, lift=0.1)\n\n\ndef verdict(low, high, threshold=0.003):\n    if high < 0:\n        return \"harm\"\n    if low >= threshold:\n        return \"ship\"\n    if high < threshold:\n        return \"not worth it\"\n    return \"inconclusive\"\n\n\nk = test.groupby(\"group\")[\"bought\"].sum()\nn = test.groupby(\"group\").size()\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nprint(round(low * 100, 2), round(high * 100, 2))\nprint(verdict(low, high))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom statsmodels.stats.proportion import confint_proportions_2indep\nfrom ab_data import make_experiment\n\ntest = make_experiment(n=12000, seed=46, lift=0.1)\n\n\ndef verdict(low, high, threshold=0.003):\n    if high < 0:\n        return \"harm\"\n    if low >= threshold:\n        return \"ship\"\n    if high < threshold:\n        return \"not worth it\"\n    return \"inconclusive\"\n\n\nk = test.groupby(\"group\")[\"bought\"].sum()\nn = test.groupby(\"group\").size()\nlow, high = confint_proportions_2indep(k[\"B\"], n[\"B\"], k[\"A\"], n[\"A\"])\nprint(round(low * 100, 2), round(high * 100, 2))\nprint(verdict(low, high))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.41 2.69\nship"
+    }
+  ]
+}
