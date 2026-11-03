@@ -68,6 +68,9 @@ CS50_CHAPTER = "25-cs50-python"
 RUST1_CHAPTER = "26-rust-temelleri"
 RUST2_CHAPTER = "27-rust-derinlesmek"
 RUST3_CHAPTER = "28-ileri-rust"
+SHELL_CHAPTER = "29-komut-satiri"
+STATS1_CHAPTER = "30-istatistiksel-cikarim"
+STATS2_CHAPTER = "31-deney-tasarimi-ve-ab-testi"
 
 # Şaka rozeti (Alican 23 Ekim): CS50'de bir bölümü açmak yetiyor. Açmak
 # ilerleme kaydı bırakmadığı için ilk açılış bu ayara yazılıyor.
@@ -155,6 +158,12 @@ RUST_THREADS_SECTION = (RUST2_CHAPTER, "11-arc-mutex")
 RUST_OWN_VEC_SECTION = (RUST3_CHAPTER, "04-kendi-vec")
 RUST_EXECUTOR_SECTION = (RUST3_CHAPTER, "10-calistirici")
 RUST_PROC_MACRO_SECTION = (RUST3_CHAPTER, "14-procedural-makro")
+SHELL_PIPE_SECTION = (SHELL_CHAPTER, "08-borular")
+SHELL_PERMISSION_SECTION = (SHELL_CHAPTER, "12-izinler")
+SHELL_SCRIPT_SECTION = (SHELL_CHAPTER, "14-betik-yazmak")
+STATS_INTERVAL_SECTION = (STATS1_CHAPTER, "05-guven-araligi")
+STATS_AB_SECTION = (STATS2_CHAPTER, "04-ilk-ab-testi")
+STATS_CUPED_SECTION = (STATS2_CHAPTER, "08-varyans-azaltma")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -184,6 +193,9 @@ CS50_SECTION_COUNT = 11
 RUST1_SECTION_COUNT = 19
 RUST2_SECTION_COUNT = 17
 RUST3_SECTION_COUNT = 20
+SHELL_SECTION_COUNT = 17
+STATS1_SECTION_COUNT = 17
+STATS2_SECTION_COUNT = 17
 
 
 def note_section_opened(store, chapter_id: str) -> bool:
@@ -377,6 +389,15 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "rust-own-executor": RUST_EXECUTOR_SECTION in bitenler,
         "rust-token-smith": RUST_PROC_MACRO_SECTION in bitenler,
         "rust3-complete": modul_basina.get(RUST3_CHAPTER, 0) >= RUST3_SECTION_COUNT,
+        "first-pipe": SHELL_PIPE_SECTION in bitenler,
+        "permission-granted": SHELL_PERMISSION_SECTION in bitenler,
+        "first-shell-script": SHELL_SCRIPT_SECTION in bitenler,
+        "shell-complete": modul_basina.get(SHELL_CHAPTER, 0) >= SHELL_SECTION_COUNT,
+        "first-interval": STATS_INTERVAL_SECTION in bitenler,
+        "stats1-complete": modul_basina.get(STATS1_CHAPTER, 0) >= STATS1_SECTION_COUNT,
+        "first-ab-test": STATS_AB_SECTION in bitenler,
+        "noise-hunter": STATS_CUPED_SECTION in bitenler,
+        "abtest-complete": modul_basina.get(STATS2_CHAPTER, 0) >= STATS2_SECTION_COUNT,
     }
 
 

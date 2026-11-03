@@ -525,6 +525,50 @@ GLYPHS: dict[str, str] = {
                   '<path d="M12 1.8v2.8M12 19.4v2.8M1.8 12h2.8M19.4 12h2.8M4.8 4.8l2 2M17.2 17.2l2 2'
                   'M4.8 19.2l2-2M17.2 6.8l2-2" stroke-width="1.7"/>'
                   '<path d="M9.8 16V8.2h3.2a2.2 2.2 0 0 1 0 4.4H9.8M12.6 12.6l2.2 3.4" stroke-width="1.6"/>'),
+    # Komut satırında ilk boru: üç komut, aralarında `|`.
+    "pipe-chain": ('<path d="M8 4.6v14.8M16 4.6v14.8" stroke-width="2"/>'
+                   '<g fill="#fff" stroke="none"><circle cx="3.6" cy="12" r="2.4"/>'
+                   '<circle cx="12" cy="12" r="2.4"/><circle cx="20.4" cy="12" r="2.4"/></g>'),
+    # İzinler: sahip / grup / diğerleri için rwx bitleri (755).
+    "rwx-bits": ('<g fill="#fff" stroke="none"><circle cx="5" cy="5" r="2.2"/><circle cx="12" cy="5" r="2.2"/>'
+                 '<circle cx="19" cy="5" r="2.2"/><circle cx="5" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/>'
+                 '<circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/></g>'
+                 '<circle cx="12" cy="12" r="1.7" stroke-width="1.3"/><circle cx="12" cy="19" r="1.7" stroke-width="1.3"/>'),
+    # İlk betik: başında #! olan sayfa.
+    "shebang-page": ('<rect x="4" y="2.5" width="16" height="19" rx="2" stroke-width="1.5"/>'
+                     '<path d="M8 5.6v5.2M10.4 5.6v5.2M6.9 7.2h4.6M6.9 9.2h4.6" stroke-width="1.2"/>'
+                     '<path d="M14.2 5.6v3.2" stroke-width="1.6"/><circle cx="14.2" cy="10.6" r=".9" fill="#fff" stroke="none"/>'
+                     '<path d="M7.6 14.4h8.8M7.6 17.8h5.6" stroke-width="1.5"/>'),
+    # Komut Satırı'nın tamamı: kabuğun istemi ($) ve yanıp sönen imleç.
+    "dollar-prompt": ('<path d="M12.6 7.4c-.7-1.2-2-1.9-3.5-1.9-2 0-3.4 1.1-3.4 2.7 0 3.7 7.2 2.1 7.2 6.1 0 1.7-1.6 2.9-3.7 2.9'
+                      '-1.7 0-3.1-.7-3.8-2M9.1 3v18" stroke-width="1.9"/>'
+                      '<rect x="15.4" y="16.2" width="5.6" height="3" rx=".6" fill="#fff" stroke="none"/>'),
+    # İlk güven aralığı: üç aralık, ikisi gerçek değeri (kesik çizgi) kapsıyor.
+    "ci-whiskers": ('<path d="M12 1.8v20.4" stroke-width="1.1" stroke-dasharray="1.6 1.8" stroke-opacity=".75"/>'
+                    '<path d="M3.5 5h12M3.5 3.3v3.4M15.5 3.3v3.4M7.5 12h13M7.5 10.3v3.4M20.5 10.3v3.4'
+                    'M14 19h7.5M14 17.3v3.4M21.5 17.3v3.4" stroke-width="1.5"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="9.5" cy="5" r="1.7"/><circle cx="14" cy="12" r="1.7"/>'
+                    '<circle cx="17.75" cy="19" r="1.7"/></g>'),
+    # İlk A/B testi: ikiye bölünmüş kart, A ve B.
+    "ab-split": ('<rect x="2.4" y="4.6" width="19.2" height="14.8" rx="2.2" stroke-width="1.5"/>'
+                 '<path d="M12 4.6v14.8" stroke-width="1.5"/>'
+                 '<path d="M13.6 6.2h5.8a.6.6 0 0 1 .6.6v10.4a.6.6 0 0 1-.6.6h-5.8z" fill="#fff" fill-opacity=".3" stroke="none"/>'
+                 '<path d="M4.6 16.2l2.6-7.4 2.6 7.4M5.6 13.6h3.2" stroke-width="1.5"/>'
+                 '<path d="M14.6 16.2V8.8h2.4a1.8 1.8 0 0 1 0 3.6h-2.4 2.8a1.9 1.9 0 0 1 0 3.8z" stroke-width="1.5"/>'),
+    # Varyans azaltma: gürültü daralan bir hunide sakinleşiyor.
+    "noise-funnel": ('<path d="M2 3.4 22 10.6M2 20.6l20-7.2" stroke-width="1.1" stroke-dasharray="1.6 1.8" stroke-opacity=".75"/>'
+                     '<path d="M2 12l2-7.4 2 14.6 2-12.6 2 10.6 2-8.4 2 6.4 2-4.2 2 2.2 2-1.2 2 .6" stroke-width="1.6"/>'),
+    # İstatistiksel Çıkarım'ın tamamı: küçük örneklemden büyük evrene.
+    "sample-to-population": ('<circle cx="15" cy="9" r="7.4" stroke-width="1.4" stroke-dasharray="2 1.8"/>'
+                             '<circle cx="6.2" cy="17.6" r="4" stroke-width="1.6"/>'
+                             '<g fill="#fff" stroke="none"><circle cx="5" cy="16.4" r="1"/><circle cx="7.6" cy="17" r="1"/>'
+                             '<circle cx="5.8" cy="19.4" r="1"/></g>'
+                             '<path d="M9.4 14.4l3-3M9.6 11.6h2.8v2.8" stroke-width="1.5"/>'),
+    # Deney Tasarımı'nın tamamı: iki kefeli terazi (adil karşılaştırma).
+    "balance-scale": ('<path d="M12 4.6v15M7.4 20.6h9.2M3.8 7.2h16.4" stroke-width="1.6"/>'
+                      '<circle cx="12" cy="4" r="1.5" fill="#fff" stroke="none"/>'
+                      '<path d="M3.8 7.2 1.6 13M3.8 7.2 6 13M20.2 7.2 18 13M20.2 7.2l2.2 5.8" stroke-width="1.1"/>'
+                      '<path d="M1.2 13h5.2a2.6 2.6 0 0 1-5.2 0zM17.6 13h5.2a2.6 2.6 0 0 1-5.2 0z" fill="#fff" fill-opacity=".45" stroke-width="1.3"/>'),
 }
 
 
