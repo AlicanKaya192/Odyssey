@@ -1,0 +1,131 @@
+{
+  "id": "retention-delete",
+  "title": {
+    "tr": "Silinecek kayıtlar",
+    "en": "Records to delete"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu tanınmayan amaçta (`survey`) `KeyError` veriyor. Önce `purpose not in retention`.",
+      "en": "The starter code raises `KeyError` for an unknown purpose (`survey`). Check `purpose not in retention` first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import date\n\n\ndef to_delete(records, retention, today):\n    now = date.fromisoformat(today)\n    found = []\n    for rid, purpose, created in records:\n        age = (now - date.fromisoformat(created)).days\n        if purpose not in retention or age > retention[purpose]:\n            found.append(rid)\n    return sorted(found)\n\nRECORDS = [\n    [\"r1\", \"marketing\", \"2025-06-01\"],\n    [\"r2\", \"invoice\", \"2019-02-01\"],\n    [\"r3\", \"support\", \"2025-01-10\"],\n    [\"r4\", \"marketing\", \"2026-03-03\"],\n    [\"r5\", \"survey\", \"2026-10-01\"],\n]\nRETENTION = {\"marketing\": 365, \"invoice\": 3650, \"support\": 730}\nprint(to_delete(RECORDS, RETENTION, \"2026-11-01\"))\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import date\n\n\ndef to_delete(records, retention, today):\n    now = date.fromisoformat(today)\n    found = []\n    for rid, purpose, created in records:\n        age = (now - date.fromisoformat(created)).days\n        if purpose not in retention or age > retention[purpose]:\n            found.append(rid)\n    return sorted(found)\n\nRECORDS = [\n    [\"r1\", \"marketing\", \"2025-06-01\"],\n    [\"r2\", \"invoice\", \"2019-02-01\"],\n    [\"r3\", \"support\", \"2025-01-10\"],\n    [\"r4\", \"marketing\", \"2026-03-03\"],\n    [\"r5\", \"survey\", \"2026-10-01\"],\n]\nRETENTION = {\"marketing\": 365, \"invoice\": 3650, \"support\": 730}\nprint(to_delete(RECORDS, RETENTION, \"2026-11-01\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "to_delete",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "r1",
+                "marketing",
+                "2025-06-01"
+              ],
+              [
+                "r2",
+                "invoice",
+                "2019-02-01"
+              ],
+              [
+                "r3",
+                "support",
+                "2025-01-10"
+              ],
+              [
+                "r4",
+                "marketing",
+                "2026-03-03"
+              ],
+              [
+                "r5",
+                "survey",
+                "2026-10-01"
+              ]
+            ],
+            {
+              "marketing": 365,
+              "invoice": 3650,
+              "support": 730
+            },
+            "2026-11-01"
+          ],
+          "returns": [
+            "r1",
+            "r5"
+          ]
+        },
+        {
+          "args": [
+            [],
+            {
+              "marketing": 365,
+              "invoice": 3650,
+              "support": 730
+            },
+            "2026-11-01"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "r1",
+                "marketing",
+                "2025-06-01"
+              ],
+              [
+                "r2",
+                "invoice",
+                "2019-02-01"
+              ],
+              [
+                "r3",
+                "support",
+                "2025-01-10"
+              ],
+              [
+                "r4",
+                "marketing",
+                "2026-03-03"
+              ],
+              [
+                "r5",
+                "survey",
+                "2026-10-01"
+              ]
+            ],
+            {
+              "marketing": 365,
+              "invoice": 3650,
+              "support": 730
+            },
+            "2019-02-02"
+          ],
+          "returns": [
+            "r5"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['r1', 'r5']"
+    }
+  ]
+}

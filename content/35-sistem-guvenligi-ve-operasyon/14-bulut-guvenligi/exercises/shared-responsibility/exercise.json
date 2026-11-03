@@ -1,0 +1,87 @@
+{
+  "id": "shared-responsibility",
+  "title": {
+    "tr": "Paylaşılan sorumluluk",
+    "en": "Shared responsibility"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce bilinmeyeni ele: `model not in PROVIDER_FROM or layer not in LAYERS`.",
+      "en": "Rule out the unknown first: `model not in PROVIDER_FROM or layer not in LAYERS`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nLAYERS = [\"data\", \"identities\", \"application\", \"operating system\", \"network\", \"physical\"]\nPROVIDER_FROM = {\"IaaS\": 4, \"PaaS\": 3, \"SaaS\": 2}\n\n\ndef responsibility(model, layer):\n    if model not in PROVIDER_FROM or layer not in LAYERS:\n        return \"unknown\"\n    if LAYERS.index(layer) < PROVIDER_FROM[model]:\n        return \"customer\"\n    return \"provider\"\n\nfor model, layer in [(\"IaaS\", \"operating system\"), (\"PaaS\", \"operating system\"), (\"SaaS\", \"data\"), (\"SaaS\", \"kitchen\")]:\n    print(model, layer, \"->\", responsibility(model, layer))\n```",
+      "en": "The full solution:\n\n```python\nLAYERS = [\"data\", \"identities\", \"application\", \"operating system\", \"network\", \"physical\"]\nPROVIDER_FROM = {\"IaaS\": 4, \"PaaS\": 3, \"SaaS\": 2}\n\n\ndef responsibility(model, layer):\n    if model not in PROVIDER_FROM or layer not in LAYERS:\n        return \"unknown\"\n    if LAYERS.index(layer) < PROVIDER_FROM[model]:\n        return \"customer\"\n    return \"provider\"\n\nfor model, layer in [(\"IaaS\", \"operating system\"), (\"PaaS\", \"operating system\"), (\"SaaS\", \"data\"), (\"SaaS\", \"kitchen\")]:\n    print(model, layer, \"->\", responsibility(model, layer))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "responsibility",
+      "cases": [
+        {
+          "args": [
+            "IaaS",
+            "operating system"
+          ],
+          "returns": "customer"
+        },
+        {
+          "args": [
+            "PaaS",
+            "operating system"
+          ],
+          "returns": "provider"
+        },
+        {
+          "args": [
+            "SaaS",
+            "data"
+          ],
+          "returns": "customer"
+        },
+        {
+          "args": [
+            "SaaS",
+            "application"
+          ],
+          "returns": "provider"
+        },
+        {
+          "args": [
+            "SaaS",
+            "kitchen"
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            "FaaS",
+            "data"
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            "IaaS",
+            "network"
+          ],
+          "returns": "provider"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "IaaS operating system -> customer\nPaaS operating system -> provider\nSaaS data -> customer\nSaaS kitchen -> unknown"
+    }
+  ]
+}

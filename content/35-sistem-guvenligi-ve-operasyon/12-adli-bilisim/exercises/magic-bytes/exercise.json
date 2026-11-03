@@ -1,0 +1,102 @@
+{
+  "id": "magic-bytes",
+  "title": {
+    "tr": "Dosya imzası",
+    "en": "Magic bytes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`header_hex.lower().startswith(imza)` her imza için denenir.",
+      "en": "`header_hex.lower().startswith(signature)` is tried for each signature."
+    },
+    {
+      "tr": "Uzantı `name.rsplit(\".\", 1)[1]`; `unknown` uyuşmazlık sayılmaz.",
+      "en": "The extension is `name.rsplit(\".\", 1)[1]`; `unknown` does not count as a mismatch."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nSIGNATURES = {\"25504446\": \"pdf\", \"89504e47\": \"png\", \"504b0304\": \"zip\"}\n\n\ndef file_kind(header_hex):\n    header = header_hex.lower()\n    for signature, kind in SIGNATURES.items():\n        if header.startswith(signature):\n            return kind\n    return \"unknown\"\n\n\ndef mismatches(files):\n    found = []\n    for name, header_hex in files.items():\n        kind = file_kind(header_hex)\n        extension = name.rsplit(\".\", 1)[1]\n        if kind != \"unknown\" and kind != extension:\n            found.append(name)\n    return sorted(found)\n\nprint(file_kind(\"25504446312e37\"))\nprint(file_kind(\"504b0304\"))\nprint(file_kind(\"6d656574\"))\nFILES = {\n    \"report.pdf\": \"255044462d31\",\n    \"photo.png\": \"504b03040a00\",\n    \"notes.txt\": \"6d656574696e\",\n    \"logo.png\": \"89504e470d0a\",\n}\nprint(mismatches(FILES))\n```",
+      "en": "The full solution:\n\n```python\nSIGNATURES = {\"25504446\": \"pdf\", \"89504e47\": \"png\", \"504b0304\": \"zip\"}\n\n\ndef file_kind(header_hex):\n    header = header_hex.lower()\n    for signature, kind in SIGNATURES.items():\n        if header.startswith(signature):\n            return kind\n    return \"unknown\"\n\n\ndef mismatches(files):\n    found = []\n    for name, header_hex in files.items():\n        kind = file_kind(header_hex)\n        extension = name.rsplit(\".\", 1)[1]\n        if kind != \"unknown\" and kind != extension:\n            found.append(name)\n    return sorted(found)\n\nprint(file_kind(\"25504446312e37\"))\nprint(file_kind(\"504b0304\"))\nprint(file_kind(\"6d656574\"))\nFILES = {\n    \"report.pdf\": \"255044462d31\",\n    \"photo.png\": \"504b03040a00\",\n    \"notes.txt\": \"6d656574696e\",\n    \"logo.png\": \"89504e470d0a\",\n}\nprint(mismatches(FILES))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "file_kind",
+      "cases": [
+        {
+          "args": [
+            "25504446312e37"
+          ],
+          "returns": "pdf"
+        },
+        {
+          "args": [
+            "504B0304"
+          ],
+          "returns": "zip"
+        },
+        {
+          "args": [
+            "6d656574"
+          ],
+          "returns": "unknown"
+        },
+        {
+          "args": [
+            ""
+          ],
+          "returns": "unknown"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "mismatches",
+      "cases": [
+        {
+          "args": [
+            {
+              "report.pdf": "255044462d31",
+              "photo.png": "504b03040a00",
+              "notes.txt": "6d656574696e",
+              "logo.png": "89504e470d0a"
+            }
+          ],
+          "returns": [
+            "photo.png"
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a.zip": "504b0304",
+              "b.pdf": "89504e47"
+            }
+          ],
+          "returns": [
+            "b.pdf"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "pdf\nzip\nunknown\n['photo.png']"
+    }
+  ]
+}

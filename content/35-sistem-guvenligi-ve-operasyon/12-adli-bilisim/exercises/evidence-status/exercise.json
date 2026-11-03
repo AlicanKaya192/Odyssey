@@ -1,0 +1,77 @@
+{
+  "id": "evidence-status",
+  "title": {
+    "tr": "Kanıt durumu",
+    "en": "Evidence status"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`sorted(evidence)` ile gez; önce `if name not in recorded`, sonra özet karşılaştırması.",
+      "en": "Walk with `sorted(evidence)`; first `if name not in recorded`, then the hash comparison."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef evidence_status(evidence, recorded):\n    lines = []\n    for name in sorted(evidence):\n        digest = hashlib.sha256(evidence[name].encode()).hexdigest()\n        if name not in recorded:\n            lines.append(name + \": unrecorded\")\n        elif digest == recorded[name]:\n            lines.append(name + \": intact\")\n        else:\n            lines.append(name + \": altered\")\n    return lines\n\nimport hashlib\n\nRECORDED = {\n    \"image-1\": hashlib.sha256(\"disk image one\".encode()).hexdigest(),\n    \"image-2\": hashlib.sha256(\"disk image two\".encode()).hexdigest(),\n}\nEVIDENCE = {\n    \"image-2\": \"disk image 2\",\n    \"image-1\": \"disk image one\",\n    \"image-3\": \"memory dump\",\n}\nfor line in evidence_status(EVIDENCE, RECORDED):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef evidence_status(evidence, recorded):\n    lines = []\n    for name in sorted(evidence):\n        digest = hashlib.sha256(evidence[name].encode()).hexdigest()\n        if name not in recorded:\n            lines.append(name + \": unrecorded\")\n        elif digest == recorded[name]:\n            lines.append(name + \": intact\")\n        else:\n            lines.append(name + \": altered\")\n    return lines\n\nimport hashlib\n\nRECORDED = {\n    \"image-1\": hashlib.sha256(\"disk image one\".encode()).hexdigest(),\n    \"image-2\": hashlib.sha256(\"disk image two\".encode()).hexdigest(),\n}\nEVIDENCE = {\n    \"image-2\": \"disk image 2\",\n    \"image-1\": \"disk image one\",\n    \"image-3\": \"memory dump\",\n}\nfor line in evidence_status(EVIDENCE, RECORDED):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "evidence_status",
+      "cases": [
+        {
+          "args": [
+            {
+              "image-2": "disk image 2",
+              "image-1": "disk image one",
+              "image-3": "memory dump"
+            },
+            {
+              "image-1": "236933dbdb193b01eea8eaebcf282171f39002a43661e15596ff5ef5bc10be5f",
+              "image-2": "c90ee7c8653af92bb048fbc8a6c8250c10d3b164908ef762cb6f43dae851adef"
+            }
+          ],
+          "returns": [
+            "image-1: intact",
+            "image-2: altered",
+            "image-3: unrecorded"
+          ]
+        },
+        {
+          "args": [
+            {},
+            {
+              "image-1": "236933dbdb193b01eea8eaebcf282171f39002a43661e15596ff5ef5bc10be5f",
+              "image-2": "c90ee7c8653af92bb048fbc8a6c8250c10d3b164908ef762cb6f43dae851adef"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "image-1": "disk image one"
+            },
+            {}
+          ],
+          "returns": [
+            "image-1: unrecorded"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "image-1: intact\nimage-2: altered\nimage-3: unrecorded"
+    }
+  ]
+}

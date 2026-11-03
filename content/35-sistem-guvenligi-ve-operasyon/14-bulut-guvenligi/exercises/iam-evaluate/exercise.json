@@ -1,0 +1,121 @@
+{
+  "id": "iam-evaluate",
+  "title": {
+    "tr": "IAM değerlendirme",
+    "en": "IAM evaluation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce uyan bütün ifadelerin etkilerini topla, sonra karar ver: `deny` varsa `False`.",
+      "en": "Collect the effects of all matching statements first, then decide: `False` if there is a `deny`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom fnmatch import fnmatchcase\n\n\ndef is_allowed(policy, action):\n    effects = [s[\"effect\"] for s in policy if fnmatchcase(action, s[\"action\"])]\n    if \"deny\" in effects:\n        return False\n    return \"allow\" in effects\n\nPOLICY = [\n    {\"effect\": \"allow\", \"action\": \"storage:Get*\"},\n    {\"effect\": \"allow\", \"action\": \"storage:List*\"},\n    {\"effect\": \"deny\", \"action\": \"storage:GetSecret*\"},\n]\nfor action in [\"storage:GetObject\", \"storage:GetSecretValue\", \"storage:DeleteObject\"]:\n    print(is_allowed(POLICY, action))\n```",
+      "en": "The full solution:\n\n```python\nfrom fnmatch import fnmatchcase\n\n\ndef is_allowed(policy, action):\n    effects = [s[\"effect\"] for s in policy if fnmatchcase(action, s[\"action\"])]\n    if \"deny\" in effects:\n        return False\n    return \"allow\" in effects\n\nPOLICY = [\n    {\"effect\": \"allow\", \"action\": \"storage:Get*\"},\n    {\"effect\": \"allow\", \"action\": \"storage:List*\"},\n    {\"effect\": \"deny\", \"action\": \"storage:GetSecret*\"},\n]\nfor action in [\"storage:GetObject\", \"storage:GetSecretValue\", \"storage:DeleteObject\"]:\n    print(is_allowed(POLICY, action))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "is_allowed",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "effect": "allow",
+                "action": "storage:Get*"
+              },
+              {
+                "effect": "allow",
+                "action": "storage:List*"
+              },
+              {
+                "effect": "deny",
+                "action": "storage:GetSecret*"
+              }
+            ],
+            "storage:GetObject"
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            [
+              {
+                "effect": "allow",
+                "action": "storage:Get*"
+              },
+              {
+                "effect": "allow",
+                "action": "storage:List*"
+              },
+              {
+                "effect": "deny",
+                "action": "storage:GetSecret*"
+              }
+            ],
+            "storage:GetSecretValue"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [
+              {
+                "effect": "allow",
+                "action": "storage:Get*"
+              },
+              {
+                "effect": "allow",
+                "action": "storage:List*"
+              },
+              {
+                "effect": "deny",
+                "action": "storage:GetSecret*"
+              }
+            ],
+            "storage:DeleteObject"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [],
+            "x"
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            [
+              {
+                "effect": "allow",
+                "action": "*"
+              },
+              {
+                "effect": "deny",
+                "action": "db:*"
+              }
+            ],
+            "db:Drop"
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse\nFalse"
+    }
+  ]
+}

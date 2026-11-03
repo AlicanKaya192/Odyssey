@@ -1,0 +1,70 @@
+{
+  "id": "keyed-pseudonym",
+  "title": {
+    "tr": "Anahtarlı takma ad",
+    "en": "A keyed pseudonym"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu düz özet kullanıyor ve anahtarı yok sayıyor: olası e-postalar denenerek geri bulunabilir.",
+      "en": "The starter code uses a plain hash and ignores the key: it can be reversed by trying possible emails."
+    },
+    {
+      "tr": "Önce `value.strip().lower()`, sonra `hmac.new(...).hexdigest()[:12]`.",
+      "en": "First `value.strip().lower()`, then `hmac.new(...).hexdigest()[:12]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef pseudonym(value, key):\n    clean = value.strip().lower()\n    return hmac.new(key.encode(), clean.encode(), hashlib.sha256).hexdigest()[:12]\n\nprint(pseudonym(\"ada@example.org\", \"vault-key\"))\nprint(pseudonym(\"  Ada@Example.org \", \"vault-key\"))\nprint(pseudonym(\"ada@example.org\", \"other-key\"))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef pseudonym(value, key):\n    clean = value.strip().lower()\n    return hmac.new(key.encode(), clean.encode(), hashlib.sha256).hexdigest()[:12]\n\nprint(pseudonym(\"ada@example.org\", \"vault-key\"))\nprint(pseudonym(\"  Ada@Example.org \", \"vault-key\"))\nprint(pseudonym(\"ada@example.org\", \"other-key\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pseudonym",
+      "cases": [
+        {
+          "args": [
+            "ada@example.org",
+            "vault-key"
+          ],
+          "returns": "5e979343af4e"
+        },
+        {
+          "args": [
+            "  Ada@Example.org ",
+            "vault-key"
+          ],
+          "returns": "5e979343af4e"
+        },
+        {
+          "args": [
+            "ada@example.org",
+            "other-key"
+          ],
+          "returns": "cfa192be9cd7"
+        },
+        {
+          "args": [
+            "",
+            "k"
+          ],
+          "returns": "8bb990c40a7d"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "5e979343af4e\n5e979343af4e\ncfa192be9cd7"
+    }
+  ]
+}

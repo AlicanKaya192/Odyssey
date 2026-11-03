@@ -1,0 +1,106 @@
+{
+  "id": "access-report",
+  "title": {
+    "tr": "Erişim talebi",
+    "en": "An access request"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "İki yanı da `lower()` ile karşılaştır; `sorted(tables)` ile gez; `count` sıfırsa yazma.",
+      "en": "Compare both sides with `lower()`; walk with `sorted(tables)`; do not write it if `count` is zero."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef access_report(tables, email):\n    person = email.lower()\n    lines = []\n    for table in sorted(tables):\n        count = sum(1 for row in tables[table] if row[\"email\"].lower() == person)\n        if count:\n            lines.append(f\"{table}: {count}\")\n    return lines\n\nTABLES = {\n    \"orders\": [{\"email\": \"ada@example.org\"}, {\"email\": \"ADA@example.org\"}],\n    \"customers\": [{\"email\": \"ada@example.org\"}, {\"email\": \"bob@example.org\"}],\n    \"newsletter\": [{\"email\": \"bob@example.org\"}],\n}\nfor line in access_report(TABLES, \"Ada@example.org\"):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef access_report(tables, email):\n    person = email.lower()\n    lines = []\n    for table in sorted(tables):\n        count = sum(1 for row in tables[table] if row[\"email\"].lower() == person)\n        if count:\n            lines.append(f\"{table}: {count}\")\n    return lines\n\nTABLES = {\n    \"orders\": [{\"email\": \"ada@example.org\"}, {\"email\": \"ADA@example.org\"}],\n    \"customers\": [{\"email\": \"ada@example.org\"}, {\"email\": \"bob@example.org\"}],\n    \"newsletter\": [{\"email\": \"bob@example.org\"}],\n}\nfor line in access_report(TABLES, \"Ada@example.org\"):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "access_report",
+      "cases": [
+        {
+          "args": [
+            {
+              "orders": [
+                {
+                  "email": "ada@example.org"
+                },
+                {
+                  "email": "ADA@example.org"
+                }
+              ],
+              "customers": [
+                {
+                  "email": "ada@example.org"
+                },
+                {
+                  "email": "bob@example.org"
+                }
+              ],
+              "newsletter": [
+                {
+                  "email": "bob@example.org"
+                }
+              ]
+            },
+            "Ada@example.org"
+          ],
+          "returns": [
+            "customers: 1",
+            "orders: 2"
+          ]
+        },
+        {
+          "args": [
+            {
+              "orders": [
+                {
+                  "email": "ada@example.org"
+                },
+                {
+                  "email": "ADA@example.org"
+                }
+              ],
+              "customers": [
+                {
+                  "email": "ada@example.org"
+                },
+                {
+                  "email": "bob@example.org"
+                }
+              ],
+              "newsletter": [
+                {
+                  "email": "bob@example.org"
+                }
+              ]
+            },
+            "eve@example.org"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            "a@b.c"
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "customers: 1\norders: 2"
+    }
+  ]
+}

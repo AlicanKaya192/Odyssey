@@ -1,0 +1,121 @@
+{
+  "id": "custody-gaps",
+  "title": {
+    "tr": "Zincirdeki boşluklar",
+    "en": "Gaps in the chain"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bir önceki alanı bir değişkende tut (`holder`); her teslimden sonra `holder = taker`.",
+      "en": "Keep the previous taker in a variable (`holder`); after every handover `holder = taker`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef custody_gaps(entries):\n    gaps = []\n    holder = None\n    for time, giver, taker in entries:\n        if holder is not None and giver != holder:\n            gaps.append(time)\n        holder = taker\n    return gaps\n\nCUSTODY = [\n    [\"02:40\", \"ada\", \"locker\"],\n    [\"09:15\", \"locker\", \"eve\"],\n    [\"17:00\", \"joe\", \"locker\"],\n    [\"18:30\", \"locker\", \"eve\"],\n    [\"19:00\", \"bob\", \"locker\"],\n]\nprint(custody_gaps(CUSTODY))\n```",
+      "en": "The full solution:\n\n```python\ndef custody_gaps(entries):\n    gaps = []\n    holder = None\n    for time, giver, taker in entries:\n        if holder is not None and giver != holder:\n            gaps.append(time)\n        holder = taker\n    return gaps\n\nCUSTODY = [\n    [\"02:40\", \"ada\", \"locker\"],\n    [\"09:15\", \"locker\", \"eve\"],\n    [\"17:00\", \"joe\", \"locker\"],\n    [\"18:30\", \"locker\", \"eve\"],\n    [\"19:00\", \"bob\", \"locker\"],\n]\nprint(custody_gaps(CUSTODY))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "custody_gaps",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "02:40",
+                "ada",
+                "locker"
+              ],
+              [
+                "09:15",
+                "locker",
+                "eve"
+              ],
+              [
+                "17:00",
+                "joe",
+                "locker"
+              ],
+              [
+                "18:30",
+                "locker",
+                "eve"
+              ],
+              [
+                "19:00",
+                "bob",
+                "locker"
+              ]
+            ]
+          ],
+          "returns": [
+            "17:00",
+            "19:00"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "1",
+                "a",
+                "b"
+              ],
+              [
+                "2",
+                "b",
+                "c"
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "1",
+                "a",
+                "b"
+              ],
+              [
+                "2",
+                "x",
+                "c"
+              ],
+              [
+                "3",
+                "y",
+                "d"
+              ]
+            ]
+          ],
+          "returns": [
+            "2",
+            "3"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['17:00', '19:00']"
+    }
+  ]
+}

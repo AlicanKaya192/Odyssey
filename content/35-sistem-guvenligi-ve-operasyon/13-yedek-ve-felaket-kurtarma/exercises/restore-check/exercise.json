@@ -1,0 +1,82 @@
+{
+  "id": "restore-check",
+  "title": {
+    "tr": "Geri yükleme denetimi",
+    "en": "A restore check"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bütün adlar: `sorted(set(original) | set(restored))`.",
+      "en": "All names: `sorted(set(original) | set(restored))`."
+    },
+    {
+      "tr": "Sıra: yalnızca geri yüklenende → extra, yalnızca aslında → missing, sonra özet karşılaştırması.",
+      "en": "Order: only in restored → extra, only in original → missing, then the hash comparison."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef digest(text):\n    return hashlib.sha256(text.encode()).hexdigest()\n\n\ndef restore_check(original, restored):\n    lines = []\n    for name in sorted(set(original) | set(restored)):\n        if name not in original:\n            lines.append(name + \": extra\")\n        elif name not in restored:\n            lines.append(name + \": missing\")\n        elif digest(original[name]) == digest(restored[name]):\n            lines.append(name + \": ok\")\n        else:\n            lines.append(name + \": different\")\n    return lines\n\nORIGINAL = {\"orders.csv\": \"1,ada\", \"users.csv\": \"ada\", \"keys.txt\": \"k1\"}\nRESTORED = {\"orders.csv\": \"1,ada\", \"users.csv\": \"ad\", \"tmp.log\": \"x\"}\nfor line in restore_check(ORIGINAL, RESTORED):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef digest(text):\n    return hashlib.sha256(text.encode()).hexdigest()\n\n\ndef restore_check(original, restored):\n    lines = []\n    for name in sorted(set(original) | set(restored)):\n        if name not in original:\n            lines.append(name + \": extra\")\n        elif name not in restored:\n            lines.append(name + \": missing\")\n        elif digest(original[name]) == digest(restored[name]):\n            lines.append(name + \": ok\")\n        else:\n            lines.append(name + \": different\")\n    return lines\n\nORIGINAL = {\"orders.csv\": \"1,ada\", \"users.csv\": \"ada\", \"keys.txt\": \"k1\"}\nRESTORED = {\"orders.csv\": \"1,ada\", \"users.csv\": \"ad\", \"tmp.log\": \"x\"}\nfor line in restore_check(ORIGINAL, RESTORED):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "restore_check",
+      "cases": [
+        {
+          "args": [
+            {
+              "orders.csv": "1,ada",
+              "users.csv": "ada",
+              "keys.txt": "k1"
+            },
+            {
+              "orders.csv": "1,ada",
+              "users.csv": "ad",
+              "tmp.log": "x"
+            }
+          ],
+          "returns": [
+            "keys.txt: missing",
+            "orders.csv: ok",
+            "tmp.log: extra",
+            "users.csv: different"
+          ]
+        },
+        {
+          "args": [
+            {},
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": "x"
+            },
+            {
+              "a": "x"
+            }
+          ],
+          "returns": [
+            "a: ok"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "keys.txt: missing\norders.csv: ok\ntmp.log: extra\nusers.csv: different"
+    }
+  ]
+}

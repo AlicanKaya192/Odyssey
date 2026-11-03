@@ -1,0 +1,149 @@
+{
+  "id": "timeline-between",
+  "title": {
+    "tr": "Aralıktaki olaylar",
+    "en": "Events in a window"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Süzgeç: `start <= time <= end`.",
+      "en": "The filter: `start <= time <= end`."
+    },
+    {
+      "tr": "`(saat, yol, tur)` demetlerini sırala, sonra satırı kur.",
+      "en": "Sort `(time, path, kind)` tuples, then build the line."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef timeline_between(records, start, end):\n    chosen = sorted((time, path, kind) for path, kind, time in records if start <= time <= end)\n    return [f\"{time} {kind} {path}\" for time, path, kind in chosen]\n\nRECORDS = [\n    [\"/tmp/x.zip\", \"created\", \"02:17:40\"],\n    [\"/srv/data/customers.csv\", \"accessed\", \"02:19:58\"],\n    [\"/tmp/x.zip\", \"modified\", \"02:20:03\"],\n    [\"/var/log/auth.log\", \"modified\", \"01:05:00\"],\n    [\"/home/bob/.bash_history\", \"modified\", \"02:21:10\"],\n]\nfor line in timeline_between(RECORDS, \"02:18:00\", \"02:21:00\"):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef timeline_between(records, start, end):\n    chosen = sorted((time, path, kind) for path, kind, time in records if start <= time <= end)\n    return [f\"{time} {kind} {path}\" for time, path, kind in chosen]\n\nRECORDS = [\n    [\"/tmp/x.zip\", \"created\", \"02:17:40\"],\n    [\"/srv/data/customers.csv\", \"accessed\", \"02:19:58\"],\n    [\"/tmp/x.zip\", \"modified\", \"02:20:03\"],\n    [\"/var/log/auth.log\", \"modified\", \"01:05:00\"],\n    [\"/home/bob/.bash_history\", \"modified\", \"02:21:10\"],\n]\nfor line in timeline_between(RECORDS, \"02:18:00\", \"02:21:00\"):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "timeline_between",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "/tmp/x.zip",
+                "created",
+                "02:17:40"
+              ],
+              [
+                "/srv/data/customers.csv",
+                "accessed",
+                "02:19:58"
+              ],
+              [
+                "/tmp/x.zip",
+                "modified",
+                "02:20:03"
+              ],
+              [
+                "/var/log/auth.log",
+                "modified",
+                "01:05:00"
+              ],
+              [
+                "/home/bob/.bash_history",
+                "modified",
+                "02:21:10"
+              ]
+            ],
+            "02:18:00",
+            "02:21:00"
+          ],
+          "returns": [
+            "02:19:58 accessed /srv/data/customers.csv",
+            "02:20:03 modified /tmp/x.zip"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "/tmp/x.zip",
+                "created",
+                "02:17:40"
+              ],
+              [
+                "/srv/data/customers.csv",
+                "accessed",
+                "02:19:58"
+              ],
+              [
+                "/tmp/x.zip",
+                "modified",
+                "02:20:03"
+              ],
+              [
+                "/var/log/auth.log",
+                "modified",
+                "01:05:00"
+              ],
+              [
+                "/home/bob/.bash_history",
+                "modified",
+                "02:21:10"
+              ]
+            ],
+            "00:00:00",
+            "23:59:59"
+          ],
+          "returns": [
+            "01:05:00 modified /var/log/auth.log",
+            "02:17:40 created /tmp/x.zip",
+            "02:19:58 accessed /srv/data/customers.csv",
+            "02:20:03 modified /tmp/x.zip",
+            "02:21:10 modified /home/bob/.bash_history"
+          ]
+        },
+        {
+          "args": [
+            [],
+            "00:00:00",
+            "01:00:00"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "b",
+                "x",
+                "01:00:00"
+              ],
+              [
+                "a",
+                "y",
+                "01:00:00"
+              ]
+            ],
+            "01:00:00",
+            "01:00:00"
+          ],
+          "returns": [
+            "01:00:00 y a",
+            "01:00:00 x b"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "02:19:58 accessed /srv/data/customers.csv\n02:20:03 modified /tmp/x.zip"
+    }
+  ]
+}

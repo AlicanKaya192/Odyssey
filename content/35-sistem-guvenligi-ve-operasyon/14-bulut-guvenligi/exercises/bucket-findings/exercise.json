@@ -1,0 +1,90 @@
+{
+  "id": "bucket-findings",
+  "title": {
+    "tr": "Depolama bulguları",
+    "en": "Bucket findings"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu herkese açık veriyi de işaretliyor ve şifrelemeye bakmıyor.",
+      "en": "The starter code also flags public data and does not look at encryption."
+    },
+    {
+      "tr": "`sorted(buckets, key=lambda item: item[\"name\"])` ile gez; iki ayrı `if`.",
+      "en": "Walk with `sorted(buckets, key=lambda item: item[\"name\"])`; two separate `if`s."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef bucket_findings(buckets):\n    lines = []\n    for b in sorted(buckets, key=lambda item: item[\"name\"]):\n        if b[\"public\"] and b[\"data\"] != \"public\":\n            lines.append(b[\"name\"] + \": public with \" + b[\"data\"] + \" data\")\n        if not b[\"encrypted\"]:\n            lines.append(b[\"name\"] + \": not encrypted\")\n    return lines\n\nBUCKETS = [\n    {\"name\": \"web\", \"public\": True, \"encrypted\": True, \"data\": \"public\"},\n    {\"name\": \"exports\", \"public\": True, \"encrypted\": False, \"data\": \"personal\"},\n    {\"name\": \"logs\", \"public\": False, \"encrypted\": False, \"data\": \"internal\"},\n]\nfor line in bucket_findings(BUCKETS):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef bucket_findings(buckets):\n    lines = []\n    for b in sorted(buckets, key=lambda item: item[\"name\"]):\n        if b[\"public\"] and b[\"data\"] != \"public\":\n            lines.append(b[\"name\"] + \": public with \" + b[\"data\"] + \" data\")\n        if not b[\"encrypted\"]:\n            lines.append(b[\"name\"] + \": not encrypted\")\n    return lines\n\nBUCKETS = [\n    {\"name\": \"web\", \"public\": True, \"encrypted\": True, \"data\": \"public\"},\n    {\"name\": \"exports\", \"public\": True, \"encrypted\": False, \"data\": \"personal\"},\n    {\"name\": \"logs\", \"public\": False, \"encrypted\": False, \"data\": \"internal\"},\n]\nfor line in bucket_findings(BUCKETS):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bucket_findings",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "name": "web",
+                "public": true,
+                "encrypted": true,
+                "data": "public"
+              },
+              {
+                "name": "exports",
+                "public": true,
+                "encrypted": false,
+                "data": "personal"
+              },
+              {
+                "name": "logs",
+                "public": false,
+                "encrypted": false,
+                "data": "internal"
+              }
+            ]
+          ],
+          "returns": [
+            "exports: public with personal data",
+            "exports: not encrypted",
+            "logs: not encrypted"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "name": "a",
+                "public": false,
+                "encrypted": true,
+                "data": "x"
+              }
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "exports: public with personal data\nexports: not encrypted\nlogs: not encrypted"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "id": "broad-permissions",
+  "title": {
+    "tr": "Geniş izinler",
+    "en": "Broad permissions"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `deny` ifadelerini de, tekrarları da sayıyor.",
+      "en": "The starter code counts `deny` statements and repeats too."
+    },
+    {
+      "tr": "Şart: `effect == \"allow\" and (action == \"*\" or action.endswith(\":*\"))`; küme ve `sorted`.",
+      "en": "Condition: `effect == \"allow\" and (action == \"*\" or action.endswith(\":*\"))`; a set and `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef broad_permissions(policy):\n    found = set()\n    for s in policy:\n        action = s[\"action\"]\n        if s[\"effect\"] == \"allow\" and (action == \"*\" or action.endswith(\":*\")):\n            found.add(action)\n    return sorted(found)\n\nPOLICY = [\n    {\"effect\": \"allow\", \"action\": \"storage:GetObject\"},\n    {\"effect\": \"allow\", \"action\": \"compute:*\"},\n    {\"effect\": \"deny\", \"action\": \"*\"},\n    {\"effect\": \"allow\", \"action\": \"*\"},\n    {\"effect\": \"allow\", \"action\": \"compute:*\"},\n]\nprint(broad_permissions(POLICY))\n```",
+      "en": "The full solution:\n\n```python\ndef broad_permissions(policy):\n    found = set()\n    for s in policy:\n        action = s[\"action\"]\n        if s[\"effect\"] == \"allow\" and (action == \"*\" or action.endswith(\":*\")):\n            found.add(action)\n    return sorted(found)\n\nPOLICY = [\n    {\"effect\": \"allow\", \"action\": \"storage:GetObject\"},\n    {\"effect\": \"allow\", \"action\": \"compute:*\"},\n    {\"effect\": \"deny\", \"action\": \"*\"},\n    {\"effect\": \"allow\", \"action\": \"*\"},\n    {\"effect\": \"allow\", \"action\": \"compute:*\"},\n]\nprint(broad_permissions(POLICY))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "broad_permissions",
+      "cases": [
+        {
+          "args": [
+            [
+              {
+                "effect": "allow",
+                "action": "storage:GetObject"
+              },
+              {
+                "effect": "allow",
+                "action": "compute:*"
+              },
+              {
+                "effect": "deny",
+                "action": "*"
+              },
+              {
+                "effect": "allow",
+                "action": "*"
+              },
+              {
+                "effect": "allow",
+                "action": "compute:*"
+              }
+            ]
+          ],
+          "returns": [
+            "*",
+            "compute:*"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              {
+                "effect": "allow",
+                "action": "storage:Get*"
+              }
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['*', 'compute:*']"
+    }
+  ]
+}
