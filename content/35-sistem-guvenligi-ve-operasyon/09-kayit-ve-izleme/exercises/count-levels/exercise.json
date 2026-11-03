@@ -1,0 +1,82 @@
+{
+  "id": "count-levels",
+  "title": {
+    "tr": "Düzeyleri say",
+    "en": "Count the levels"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her satırı `try` içinde oku; `except json.JSONDecodeError` olursa `counts[\"INVALID\"] += 1`.",
+      "en": "Read each line inside `try`; on `except json.JSONDecodeError`, `counts[\"INVALID\"] += 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport json\nfrom collections import Counter\n\n\ndef count_levels(lines):\n    counts = Counter()\n    for line in lines:\n        try:\n            counts[json.loads(line)[\"level\"]] += 1\n        except json.JSONDecodeError:\n            counts[\"INVALID\"] += 1\n    return [f\"{level}: {n}\" for level, n in sorted(counts.items())]\n\nLINES = [\n    '{\"level\": \"INFO\", \"event\": \"login\"}',\n    '{\"level\": \"WARNING\", \"event\": \"login\"}',\n    'this is not json',\n    '{\"level\": \"WARNING\", \"event\": \"login\"}',\n    '{\"level\": \"ERROR\", \"event\": \"db\"}',\n]\nfor line in count_levels(LINES):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport json\nfrom collections import Counter\n\n\ndef count_levels(lines):\n    counts = Counter()\n    for line in lines:\n        try:\n            counts[json.loads(line)[\"level\"]] += 1\n        except json.JSONDecodeError:\n            counts[\"INVALID\"] += 1\n    return [f\"{level}: {n}\" for level, n in sorted(counts.items())]\n\nLINES = [\n    '{\"level\": \"INFO\", \"event\": \"login\"}',\n    '{\"level\": \"WARNING\", \"event\": \"login\"}',\n    'this is not json',\n    '{\"level\": \"WARNING\", \"event\": \"login\"}',\n    '{\"level\": \"ERROR\", \"event\": \"db\"}',\n]\nfor line in count_levels(LINES):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_levels",
+      "cases": [
+        {
+          "args": [
+            [
+              "{\"level\": \"INFO\", \"event\": \"login\"}",
+              "{\"level\": \"WARNING\", \"event\": \"login\"}",
+              "this is not json",
+              "{\"level\": \"WARNING\", \"event\": \"login\"}",
+              "{\"level\": \"ERROR\", \"event\": \"db\"}"
+            ]
+          ],
+          "returns": [
+            "ERROR: 1",
+            "INFO: 1",
+            "INVALID: 1",
+            "WARNING: 2"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "{"
+            ]
+          ],
+          "returns": [
+            "INVALID: 1"
+          ]
+        },
+        {
+          "args": [
+            [
+              "{\"level\": \"INFO\"}",
+              "{\"level\": \"INFO\"}"
+            ]
+          ],
+          "returns": [
+            "INFO: 2"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ERROR: 1\nINFO: 1\nINVALID: 1\nWARNING: 2"
+    }
+  ]
+}

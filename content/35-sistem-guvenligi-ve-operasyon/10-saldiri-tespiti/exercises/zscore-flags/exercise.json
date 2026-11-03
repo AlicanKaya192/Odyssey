@@ -1,0 +1,109 @@
+{
+  "id": "zscore-flags",
+  "title": {
+    "tr": "z skoru işaretleri",
+    "en": "z-score flags"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu sapma 0 iken sıfıra bölüyor. Önce `if stdev == 0` durumunu ele al.",
+      "en": "The starter code divides by zero when the deviation is 0. Handle `if stdev == 0` first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport statistics\n\n\ndef zscore_flags(baseline, values, limit):\n    mean = statistics.mean(baseline)\n    stdev = statistics.stdev(baseline)\n    if stdev == 0:\n        return [v for v in values if v != mean]\n    return [v for v in values if abs((v - mean) / stdev) > limit]\n\nBASELINE = [120, 130, 125, 118, 122, 127, 131, 124]\nprint(zscore_flags(BASELINE, [126, 410, 100, 140], 3))\nprint(zscore_flags([5, 5, 5], [5, 6], 3))\n```",
+      "en": "The full solution:\n\n```python\nimport statistics\n\n\ndef zscore_flags(baseline, values, limit):\n    mean = statistics.mean(baseline)\n    stdev = statistics.stdev(baseline)\n    if stdev == 0:\n        return [v for v in values if v != mean]\n    return [v for v in values if abs((v - mean) / stdev) > limit]\n\nBASELINE = [120, 130, 125, 118, 122, 127, 131, 124]\nprint(zscore_flags(BASELINE, [126, 410, 100, 140], 3))\nprint(zscore_flags([5, 5, 5], [5, 6], 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "zscore_flags",
+      "cases": [
+        {
+          "args": [
+            [
+              120,
+              130,
+              125,
+              118,
+              122,
+              127,
+              131,
+              124
+            ],
+            [
+              126,
+              410,
+              100,
+              140
+            ],
+            3
+          ],
+          "returns": [
+            410,
+            100,
+            140
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              5,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            3
+          ],
+          "returns": [
+            6
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              2,
+              3
+            ],
+            [],
+            2
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              10,
+              20
+            ],
+            [
+              15,
+              100
+            ],
+            1
+          ],
+          "returns": [
+            100
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[410, 100, 140]\n[6]"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "id": "first-tampered",
+  "title": {
+    "tr": "Değişen ilk satır",
+    "en": "The first changed line"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`zip(chain(entries), saved)` iki listeyi yan yana gezer; `enumerate` sırayı verir.",
+      "en": "`zip(chain(entries), saved)` walks the two lists side by side; `enumerate` gives the index."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef chain(entries):\n    prev = \"0\" * 64\n    hashes = []\n    for entry in entries:\n        prev = hashlib.sha256((prev + entry).encode()).hexdigest()\n        hashes.append(prev)\n    return hashes\n\n\ndef first_tampered(entries, saved):\n    for i, (a, b) in enumerate(zip(chain(entries), saved)):\n        if a != b:\n            return i\n    return -1\n\nSAVED = chain([\"login ada ok\", \"delete report-7\", \"logout ada\"])\nprint(first_tampered([\"login ada ok\", \"delete report-7\", \"logout ada\"], SAVED))\nprint(first_tampered([\"login ada ok\", \"delete report-8\", \"logout ada\"], SAVED))\nprint(first_tampered([\"login eve ok\", \"delete report-7\", \"logout ada\"], SAVED))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef chain(entries):\n    prev = \"0\" * 64\n    hashes = []\n    for entry in entries:\n        prev = hashlib.sha256((prev + entry).encode()).hexdigest()\n        hashes.append(prev)\n    return hashes\n\n\ndef first_tampered(entries, saved):\n    for i, (a, b) in enumerate(zip(chain(entries), saved)):\n        if a != b:\n            return i\n    return -1\n\nSAVED = chain([\"login ada ok\", \"delete report-7\", \"logout ada\"])\nprint(first_tampered([\"login ada ok\", \"delete report-7\", \"logout ada\"], SAVED))\nprint(first_tampered([\"login ada ok\", \"delete report-8\", \"logout ada\"], SAVED))\nprint(first_tampered([\"login eve ok\", \"delete report-7\", \"logout ada\"], SAVED))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "first_tampered",
+      "cases": [
+        {
+          "args": [
+            [
+              "login ada ok",
+              "delete report-7",
+              "logout ada"
+            ],
+            [
+              "9c6b6550adade30459257cbac56c2b6a68b7fa4305f034e4ce35c53fdd219d51",
+              "26ae100189f850d5c5c9135512ea8bfd9382a03f405296e0d9e4274d4b74ed67",
+              "e11acb71ecb34758200ef740860cd49b047323647be74f9819076bd576f9f0a5"
+            ]
+          ],
+          "returns": -1
+        },
+        {
+          "args": [
+            [
+              "login ada ok",
+              "delete report-8",
+              "logout ada"
+            ],
+            [
+              "9c6b6550adade30459257cbac56c2b6a68b7fa4305f034e4ce35c53fdd219d51",
+              "26ae100189f850d5c5c9135512ea8bfd9382a03f405296e0d9e4274d4b74ed67",
+              "e11acb71ecb34758200ef740860cd49b047323647be74f9819076bd576f9f0a5"
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              "login eve ok",
+              "delete report-7",
+              "logout ada"
+            ],
+            [
+              "9c6b6550adade30459257cbac56c2b6a68b7fa4305f034e4ce35c53fdd219d51",
+              "26ae100189f850d5c5c9135512ea8bfd9382a03f405296e0d9e4274d4b74ed67",
+              "e11acb71ecb34758200ef740860cd49b047323647be74f9819076bd576f9f0a5"
+            ]
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            [
+              "login ada ok",
+              "delete report-7",
+              "logout bob"
+            ],
+            [
+              "9c6b6550adade30459257cbac56c2b6a68b7fa4305f034e4ce35c53fdd219d51",
+              "26ae100189f850d5c5c9135512ea8bfd9382a03f405296e0d9e4274d4b74ed67",
+              "e11acb71ecb34758200ef740860cd49b047323647be74f9819076bd576f9f0a5"
+            ]
+          ],
+          "returns": 2
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "-1\n1\n0"
+    }
+  ]
+}

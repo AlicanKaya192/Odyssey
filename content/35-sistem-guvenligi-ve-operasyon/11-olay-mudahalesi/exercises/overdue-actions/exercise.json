@@ -1,0 +1,152 @@
+{
+  "id": "overdue-actions",
+  "title": {
+    "tr": "Geciken eylemler",
+    "en": "Overdue actions"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu son tarihe bakmıyor ve sıralamıyor.",
+      "en": "The starter code does not look at the due date and does not sort."
+    },
+    {
+      "tr": "`(son_tarih, kimlik, sahip)` demetlerini topla ve `sorted` ile sırala.",
+      "en": "Collect `(due_date, id, owner)` tuples and sort them with `sorted`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import date\n\n\ndef overdue_actions(actions, today):\n    now = date.fromisoformat(today)\n    late = []\n    for action_id, owner, due, done in actions:\n        if not done and date.fromisoformat(due) < now:\n            late.append((due, action_id, owner))\n    return [f\"{action_id} {owner} {due}\" for due, action_id, owner in sorted(late)]\n\nACTIONS = [\n    [\"A-3\", \"ada\", \"2026-11-10\", False],\n    [\"A-1\", \"bob\", \"2026-10-20\", False],\n    [\"A-2\", \"eve\", \"2026-10-15\", True],\n    [\"A-4\", \"bob\", \"2026-10-20\", False],\n    [\"A-5\", \"ada\", \"2026-10-01\", False],\n]\nfor line in overdue_actions(ACTIONS, \"2026-11-01\"):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import date\n\n\ndef overdue_actions(actions, today):\n    now = date.fromisoformat(today)\n    late = []\n    for action_id, owner, due, done in actions:\n        if not done and date.fromisoformat(due) < now:\n            late.append((due, action_id, owner))\n    return [f\"{action_id} {owner} {due}\" for due, action_id, owner in sorted(late)]\n\nACTIONS = [\n    [\"A-3\", \"ada\", \"2026-11-10\", False],\n    [\"A-1\", \"bob\", \"2026-10-20\", False],\n    [\"A-2\", \"eve\", \"2026-10-15\", True],\n    [\"A-4\", \"bob\", \"2026-10-20\", False],\n    [\"A-5\", \"ada\", \"2026-10-01\", False],\n]\nfor line in overdue_actions(ACTIONS, \"2026-11-01\"):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "overdue_actions",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "A-3",
+                "ada",
+                "2026-11-10",
+                false
+              ],
+              [
+                "A-1",
+                "bob",
+                "2026-10-20",
+                false
+              ],
+              [
+                "A-2",
+                "eve",
+                "2026-10-15",
+                true
+              ],
+              [
+                "A-4",
+                "bob",
+                "2026-10-20",
+                false
+              ],
+              [
+                "A-5",
+                "ada",
+                "2026-10-01",
+                false
+              ]
+            ],
+            "2026-11-01"
+          ],
+          "returns": [
+            "A-5 ada 2026-10-01",
+            "A-1 bob 2026-10-20",
+            "A-4 bob 2026-10-20"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "A-3",
+                "ada",
+                "2026-11-10",
+                false
+              ],
+              [
+                "A-1",
+                "bob",
+                "2026-10-20",
+                false
+              ],
+              [
+                "A-2",
+                "eve",
+                "2026-10-15",
+                true
+              ],
+              [
+                "A-4",
+                "bob",
+                "2026-10-20",
+                false
+              ],
+              [
+                "A-5",
+                "ada",
+                "2026-10-01",
+                false
+              ]
+            ],
+            "2026-01-01"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [],
+            "2026-01-01"
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "B",
+                "x",
+                "2026-01-01",
+                false
+              ],
+              [
+                "A",
+                "y",
+                "2026-01-01",
+                false
+              ]
+            ],
+            "2026-01-02"
+          ],
+          "returns": [
+            "A y 2026-01-01",
+            "B x 2026-01-01"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "A-5 ada 2026-10-01\nA-1 bob 2026-10-20\nA-4 bob 2026-10-20"
+    }
+  ]
+}

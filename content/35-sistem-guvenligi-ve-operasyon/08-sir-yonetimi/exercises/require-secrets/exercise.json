@@ -1,0 +1,87 @@
+{
+  "id": "require-secrets",
+  "title": {
+    "tr": "Gerekli sırlar",
+    "en": "Required secrets"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu boş değeri (`API_TOKEN`) var sayıyor. `not env.get(name)` hem yoku hem boşu yakalar.",
+      "en": "The starter code counts an empty value (`API_TOKEN`) as present. `not env.get(name)` catches both missing and empty."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef require_secrets(env, names):\n    return sorted(name for name in names if not env.get(name))\n\nENV = {\"DB_HOST\": \"db.internal\", \"DB_PASSWORD\": \"x9!\", \"API_TOKEN\": \"\"}\nprint(require_secrets(ENV, [\"DB_PASSWORD\", \"API_TOKEN\", \"SIGNING_KEY\"]))\nprint(require_secrets(ENV, [\"DB_PASSWORD\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef require_secrets(env, names):\n    return sorted(name for name in names if not env.get(name))\n\nENV = {\"DB_HOST\": \"db.internal\", \"DB_PASSWORD\": \"x9!\", \"API_TOKEN\": \"\"}\nprint(require_secrets(ENV, [\"DB_PASSWORD\", \"API_TOKEN\", \"SIGNING_KEY\"]))\nprint(require_secrets(ENV, [\"DB_PASSWORD\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "require_secrets",
+      "cases": [
+        {
+          "args": [
+            {
+              "DB_HOST": "db.internal",
+              "DB_PASSWORD": "x9!",
+              "API_TOKEN": ""
+            },
+            [
+              "DB_PASSWORD",
+              "API_TOKEN",
+              "SIGNING_KEY"
+            ]
+          ],
+          "returns": [
+            "API_TOKEN",
+            "SIGNING_KEY"
+          ]
+        },
+        {
+          "args": [
+            {},
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "A": "1"
+            },
+            [
+              "A"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            [
+              "Z",
+              "B"
+            ]
+          ],
+          "returns": [
+            "B",
+            "Z"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['API_TOKEN', 'SIGNING_KEY']\n[]"
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "id": "hosts-to-isolate",
+  "title": {
+    "tr": "Ayrılacak makineler",
+    "en": "Hosts to isolate"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kesişim: `set(indicators) & set(seen)` boş değilse temas var; sonda `sorted`.",
+      "en": "Intersection: contact if `set(indicators) & set(seen)` is not empty; `sorted` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef hosts_to_isolate(hosts, indicators):\n    bad = set(indicators)\n    return sorted(host for host, seen in hosts.items() if bad & set(seen))\n\nHOSTS = {\n    \"pc-ada\": [\"mail.example.org\", \"intranet.local\"],\n    \"pc-bob\": [\"update-check.example\", \"intranet.local\"],\n    \"srv-db\": [\"203.0.113.66\"],\n    \"srv-web\": [\"cdn.example.net\"],\n}\nprint(hosts_to_isolate(HOSTS, [\"update-check.example\", \"203.0.113.66\"]))\nprint(hosts_to_isolate(HOSTS, []))\n```",
+      "en": "The full solution:\n\n```python\ndef hosts_to_isolate(hosts, indicators):\n    bad = set(indicators)\n    return sorted(host for host, seen in hosts.items() if bad & set(seen))\n\nHOSTS = {\n    \"pc-ada\": [\"mail.example.org\", \"intranet.local\"],\n    \"pc-bob\": [\"update-check.example\", \"intranet.local\"],\n    \"srv-db\": [\"203.0.113.66\"],\n    \"srv-web\": [\"cdn.example.net\"],\n}\nprint(hosts_to_isolate(HOSTS, [\"update-check.example\", \"203.0.113.66\"]))\nprint(hosts_to_isolate(HOSTS, []))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hosts_to_isolate",
+      "cases": [
+        {
+          "args": [
+            {
+              "pc-ada": [
+                "mail.example.org",
+                "intranet.local"
+              ],
+              "pc-bob": [
+                "update-check.example",
+                "intranet.local"
+              ],
+              "srv-db": [
+                "203.0.113.66"
+              ],
+              "srv-web": [
+                "cdn.example.net"
+              ]
+            },
+            [
+              "update-check.example",
+              "203.0.113.66"
+            ]
+          ],
+          "returns": [
+            "pc-bob",
+            "srv-db"
+          ]
+        },
+        {
+          "args": [
+            {
+              "pc-ada": [
+                "mail.example.org",
+                "intranet.local"
+              ],
+              "pc-bob": [
+                "update-check.example",
+                "intranet.local"
+              ],
+              "srv-db": [
+                "203.0.113.66"
+              ],
+              "srv-web": [
+                "cdn.example.net"
+              ]
+            },
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {},
+            [
+              "x"
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "b": [
+                "x"
+              ],
+              "a": [
+                "x",
+                "y"
+              ]
+            },
+            [
+              "x"
+            ]
+          ],
+          "returns": [
+            "a",
+            "b"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['pc-bob', 'srv-db']\n[]"
+    }
+  ]
+}

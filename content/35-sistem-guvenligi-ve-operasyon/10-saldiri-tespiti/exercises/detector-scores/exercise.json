@@ -1,0 +1,101 @@
+{
+  "id": "detector-scores",
+  "title": {
+    "tr": "Tespit puanları",
+    "en": "Detector scores"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`fp = len(alerts - attacks)`, `fn = len(attacks - alerts)`.",
+      "en": "`fp = len(alerts - attacks)`, `fn = len(attacks - alerts)`."
+    },
+    {
+      "tr": "Bölmeden önce paydaya bak: `tp / (tp + fp) if tp + fp else 0.0`.",
+      "en": "Check the denominator before dividing: `tp / (tp + fp) if tp + fp else 0.0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef detector_scores(alerts, attacks):\n    alerts, attacks = set(alerts), set(attacks)\n    tp = len(alerts & attacks)\n    fp = len(alerts - attacks)\n    fn = len(attacks - alerts)\n    precision = tp / (tp + fp) if tp + fp else 0.0\n    recall = tp / (tp + fn) if tp + fn else 0.0\n    return [round(precision, 2), round(recall, 2)]\n\nprint(detector_scores([\"e1\", \"e2\", \"e5\", \"e7\"], [\"e2\", \"e5\", \"e6\"]))\nprint(detector_scores([], [\"e1\"]))\n```",
+      "en": "The full solution:\n\n```python\ndef detector_scores(alerts, attacks):\n    alerts, attacks = set(alerts), set(attacks)\n    tp = len(alerts & attacks)\n    fp = len(alerts - attacks)\n    fn = len(attacks - alerts)\n    precision = tp / (tp + fp) if tp + fp else 0.0\n    recall = tp / (tp + fn) if tp + fn else 0.0\n    return [round(precision, 2), round(recall, 2)]\n\nprint(detector_scores([\"e1\", \"e2\", \"e5\", \"e7\"], [\"e2\", \"e5\", \"e6\"]))\nprint(detector_scores([], [\"e1\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "detector_scores",
+      "cases": [
+        {
+          "args": [
+            [
+              "e1",
+              "e2",
+              "e5",
+              "e7"
+            ],
+            [
+              "e2",
+              "e5",
+              "e6"
+            ]
+          ],
+          "returns": [
+            0.5,
+            0.67
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              "e1"
+            ]
+          ],
+          "returns": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "a"
+            ],
+            []
+          ],
+          "returns": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              "a",
+              "b"
+            ],
+            [
+              "a",
+              "b"
+            ]
+          ],
+          "returns": [
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.5, 0.67]\n[0.0, 0.0]"
+    }
+  ]
+}

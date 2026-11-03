@@ -1,0 +1,93 @@
+{
+  "id": "match-rules",
+  "title": {
+    "tr": "İmza kuralları",
+    "en": "Signature rules"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`re.search(rules[name], line)` kalıbı düzenli ifade olarak dener.",
+      "en": "`re.search(rules[name], line)` tries the pattern as a regular expression."
+    },
+    {
+      "tr": "Aynı satırda sıra için kural adlarını `sorted(rules)` ile gez.",
+      "en": "For the order within a line, walk the rule names with `sorted(rules)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\n\ndef match_rules(lines, rules):\n    found = []\n    for number, line in enumerate(lines, 1):\n        for name in sorted(rules):\n            if re.search(rules[name], line):\n                found.append(f\"{number}: {name}\")\n    return found\n\nRULES = {\n    \"path traversal\": r\"\\.\\./\",\n    \"script tag\": r\"(?i)<script\",\n}\nLINES = [\n    \"GET /index.html\",\n    \"GET /files?name=../x\",\n    \"POST /c body=<SCRIPT>../\",\n]\nfor item in match_rules(LINES, RULES):\n    print(item)\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\n\ndef match_rules(lines, rules):\n    found = []\n    for number, line in enumerate(lines, 1):\n        for name in sorted(rules):\n            if re.search(rules[name], line):\n                found.append(f\"{number}: {name}\")\n    return found\n\nRULES = {\n    \"path traversal\": r\"\\.\\./\",\n    \"script tag\": r\"(?i)<script\",\n}\nLINES = [\n    \"GET /index.html\",\n    \"GET /files?name=../x\",\n    \"POST /c body=<SCRIPT>../\",\n]\nfor item in match_rules(LINES, RULES):\n    print(item)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "match_rules",
+      "cases": [
+        {
+          "args": [
+            [
+              "GET /index.html",
+              "GET /files?name=../x",
+              "POST /c body=<SCRIPT>../"
+            ],
+            {
+              "path traversal": "\\.\\./",
+              "script tag": "(?i)<script"
+            }
+          ],
+          "returns": [
+            "2: path traversal",
+            "3: path traversal",
+            "3: script tag"
+          ]
+        },
+        {
+          "args": [
+            [],
+            {
+              "path traversal": "\\.\\./",
+              "script tag": "(?i)<script"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "abc"
+            ],
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              "x1",
+              "y"
+            ],
+            {
+              "digit": "\\d"
+            }
+          ],
+          "returns": [
+            "1: digit"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2: path traversal\n3: path traversal\n3: script tag"
+    }
+  ]
+}

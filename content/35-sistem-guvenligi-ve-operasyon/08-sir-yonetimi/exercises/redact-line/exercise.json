@@ -1,0 +1,66 @@
+{
+  "id": "redact-line",
+  "title": {
+    "tr": "Kayıtta gizle",
+    "en": "Redact a log line"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Desen: `re.compile(r\"(password|token|secret|api_key)=\\S+\", re.IGNORECASE)`.",
+      "en": "Pattern: `re.compile(r\"(password|token|secret|api_key)=\\S+\", re.IGNORECASE)`."
+    },
+    {
+      "tr": "`PATTERN.sub(r\"\\1=***\", line)`: `\\1` yakalanan anahtar adını geri koyar.",
+      "en": "`PATTERN.sub(r\"\\1=***\", line)`: `\\1` puts the captured key name back."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport re\n\nPATTERN = re.compile(r\"(password|token|secret|api_key)=\\S+\", re.IGNORECASE)\n\n\ndef redact(line):\n    return PATTERN.sub(r\"\\1=***\", line)\n\nprint(redact(\"login user=ada password=hunter2 ok\"))\nprint(redact(\"api_key=K1 Token=T2 status=200\"))\nprint(redact(\"nothing to hide here\"))\n```",
+      "en": "The full solution:\n\n```python\nimport re\n\nPATTERN = re.compile(r\"(password|token|secret|api_key)=\\S+\", re.IGNORECASE)\n\n\ndef redact(line):\n    return PATTERN.sub(r\"\\1=***\", line)\n\nprint(redact(\"login user=ada password=hunter2 ok\"))\nprint(redact(\"api_key=K1 Token=T2 status=200\"))\nprint(redact(\"nothing to hide here\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "redact",
+      "cases": [
+        {
+          "args": [
+            "login user=ada password=hunter2 ok"
+          ],
+          "returns": "login user=ada password=*** ok"
+        },
+        {
+          "args": [
+            "api_key=K1 Token=T2 status=200"
+          ],
+          "returns": "api_key=*** Token=*** status=200"
+        },
+        {
+          "args": [
+            "nothing to hide here"
+          ],
+          "returns": "nothing to hide here"
+        },
+        {
+          "args": [
+            "SECRET=a b=c"
+          ],
+          "returns": "SECRET=*** b=c"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "login user=ada password=*** ok\napi_key=*** Token=*** status=200\nnothing to hide here"
+    }
+  ]
+}

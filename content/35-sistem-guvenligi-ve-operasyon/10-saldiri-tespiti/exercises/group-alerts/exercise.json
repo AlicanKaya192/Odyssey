@@ -1,0 +1,136 @@
+{
+  "id": "group-alerts",
+  "title": {
+    "tr": "Uyarıları grupla",
+    "en": "Group alerts"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `sorted(alerts, key=lambda a: (a[1], a[0]))`: kaynak, sonra saniye.",
+      "en": "First `sorted(alerts, key=lambda a: (a[1], a[0]))`: source, then second."
+    },
+    {
+      "tr": "Her grubu `[kaynak, ilk, son, adet]` olarak tut; aynı kaynak ve `saniye - son <= gap` ise son grubu büyüt.",
+      "en": "Keep each group as `[source, first, last, count]`; if same source and `second - last <= gap`, extend the last group."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef group_alerts(alerts, gap):\n    groups = []\n    for second, source in sorted(alerts, key=lambda a: (a[1], a[0])):\n        last = groups[-1] if groups else None\n        if last and last[0] == source and second - last[2] <= gap:\n            last[2] = second\n            last[3] += 1\n        else:\n            groups.append([source, second, second, 1])\n    return [f\"{s} {first}-{end} ({n})\" for s, first, end, n in groups]\n\nALERTS = [\n    [10, \"203.0.113.9\"],\n    [12, \"203.0.113.9\"],\n    [30, \"198.51.100.4\"],\n    [15, \"203.0.113.9\"],\n    [90, \"203.0.113.9\"],\n]\nfor line in group_alerts(ALERTS, 10):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef group_alerts(alerts, gap):\n    groups = []\n    for second, source in sorted(alerts, key=lambda a: (a[1], a[0])):\n        last = groups[-1] if groups else None\n        if last and last[0] == source and second - last[2] <= gap:\n            last[2] = second\n            last[3] += 1\n        else:\n            groups.append([source, second, second, 1])\n    return [f\"{s} {first}-{end} ({n})\" for s, first, end, n in groups]\n\nALERTS = [\n    [10, \"203.0.113.9\"],\n    [12, \"203.0.113.9\"],\n    [30, \"198.51.100.4\"],\n    [15, \"203.0.113.9\"],\n    [90, \"203.0.113.9\"],\n]\nfor line in group_alerts(ALERTS, 10):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "group_alerts",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                10,
+                "203.0.113.9"
+              ],
+              [
+                12,
+                "203.0.113.9"
+              ],
+              [
+                30,
+                "198.51.100.4"
+              ],
+              [
+                15,
+                "203.0.113.9"
+              ],
+              [
+                90,
+                "203.0.113.9"
+              ]
+            ],
+            10
+          ],
+          "returns": [
+            "198.51.100.4 30-30 (1)",
+            "203.0.113.9 10-15 (3)",
+            "203.0.113.9 90-90 (1)"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                10,
+                "203.0.113.9"
+              ],
+              [
+                12,
+                "203.0.113.9"
+              ],
+              [
+                30,
+                "198.51.100.4"
+              ],
+              [
+                15,
+                "203.0.113.9"
+              ],
+              [
+                90,
+                "203.0.113.9"
+              ]
+            ],
+            100
+          ],
+          "returns": [
+            "198.51.100.4 30-30 (1)",
+            "203.0.113.9 10-90 (4)"
+          ]
+        },
+        {
+          "args": [
+            [],
+            5
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                "a"
+              ],
+              [
+                1,
+                "b"
+              ],
+              [
+                3,
+                "a"
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            "a 1-1 (1)",
+            "a 3-3 (1)",
+            "b 1-1 (1)"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "198.51.100.4 30-30 (1)\n203.0.113.9 10-15 (3)\n203.0.113.9 90-90 (1)"
+    }
+  ]
+}

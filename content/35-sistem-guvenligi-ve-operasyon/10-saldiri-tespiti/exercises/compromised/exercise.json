@@ -1,0 +1,174 @@
+{
+  "id": "compromised",
+  "title": {
+    "tr": "Ele geçirilmiş olabilir",
+    "en": "Possibly compromised"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sayacı `(ip, user)` demetiyle tut: `fails[key] = fails.get(key, 0) + 1`.",
+      "en": "Keep the counter by the `(ip, user)` tuple: `fails[key] = fails.get(key, 0) + 1`."
+    },
+    {
+      "tr": "Başarıda önce eşiğe bak, sonra `fails[key] = 0`.",
+      "en": "On success, check the threshold first, then `fails[key] = 0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef compromised(events, threshold):\n    lines = []\n    fails = {}\n    for time, ip, user, result in events:\n        key = (ip, user)\n        if result == \"fail\":\n            fails[key] = fails.get(key, 0) + 1\n        else:\n            if fails.get(key, 0) >= threshold:\n                lines.append(f\"{time} {user} {ip}\")\n            fails[key] = 0\n    return lines\n\nEVENTS = [\n    [\"10:00\", \"203.0.113.9\", \"bob\", \"fail\"],\n    [\"10:01\", \"203.0.113.9\", \"bob\", \"fail\"],\n    [\"10:02\", \"203.0.113.9\", \"bob\", \"fail\"],\n    [\"10:02\", \"198.51.100.4\", \"ada\", \"fail\"],\n    [\"10:03\", \"198.51.100.4\", \"ada\", \"ok\"],\n    [\"10:04\", \"203.0.113.9\", \"bob\", \"ok\"],\n    [\"10:05\", \"203.0.113.9\", \"bob\", \"ok\"],\n]\nfor line in compromised(EVENTS, 3):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\ndef compromised(events, threshold):\n    lines = []\n    fails = {}\n    for time, ip, user, result in events:\n        key = (ip, user)\n        if result == \"fail\":\n            fails[key] = fails.get(key, 0) + 1\n        else:\n            if fails.get(key, 0) >= threshold:\n                lines.append(f\"{time} {user} {ip}\")\n            fails[key] = 0\n    return lines\n\nEVENTS = [\n    [\"10:00\", \"203.0.113.9\", \"bob\", \"fail\"],\n    [\"10:01\", \"203.0.113.9\", \"bob\", \"fail\"],\n    [\"10:02\", \"203.0.113.9\", \"bob\", \"fail\"],\n    [\"10:02\", \"198.51.100.4\", \"ada\", \"fail\"],\n    [\"10:03\", \"198.51.100.4\", \"ada\", \"ok\"],\n    [\"10:04\", \"203.0.113.9\", \"bob\", \"ok\"],\n    [\"10:05\", \"203.0.113.9\", \"bob\", \"ok\"],\n]\nfor line in compromised(EVENTS, 3):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "compromised",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "10:00",
+                "203.0.113.9",
+                "bob",
+                "fail"
+              ],
+              [
+                "10:01",
+                "203.0.113.9",
+                "bob",
+                "fail"
+              ],
+              [
+                "10:02",
+                "203.0.113.9",
+                "bob",
+                "fail"
+              ],
+              [
+                "10:02",
+                "198.51.100.4",
+                "ada",
+                "fail"
+              ],
+              [
+                "10:03",
+                "198.51.100.4",
+                "ada",
+                "ok"
+              ],
+              [
+                "10:04",
+                "203.0.113.9",
+                "bob",
+                "ok"
+              ],
+              [
+                "10:05",
+                "203.0.113.9",
+                "bob",
+                "ok"
+              ]
+            ],
+            3
+          ],
+          "returns": [
+            "10:04 bob 203.0.113.9"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "10:00",
+                "203.0.113.9",
+                "bob",
+                "fail"
+              ],
+              [
+                "10:01",
+                "203.0.113.9",
+                "bob",
+                "fail"
+              ],
+              [
+                "10:02",
+                "203.0.113.9",
+                "bob",
+                "fail"
+              ],
+              [
+                "10:02",
+                "198.51.100.4",
+                "ada",
+                "fail"
+              ],
+              [
+                "10:03",
+                "198.51.100.4",
+                "ada",
+                "ok"
+              ],
+              [
+                "10:04",
+                "203.0.113.9",
+                "bob",
+                "ok"
+              ],
+              [
+                "10:05",
+                "203.0.113.9",
+                "bob",
+                "ok"
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            "10:03 ada 198.51.100.4",
+            "10:04 bob 203.0.113.9"
+          ]
+        },
+        {
+          "args": [
+            [],
+            1
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "1",
+                "a",
+                "u",
+                "fail"
+              ],
+              [
+                "2",
+                "b",
+                "u",
+                "ok"
+              ]
+            ],
+            1
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "10:04 bob 203.0.113.9"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "id": "due-for-rotation",
+  "title": {
+    "tr": "Yenileme zamanı",
+    "en": "Due for rotation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`now = date.fromisoformat(today)`; her sırda `(now - date.fromisoformat(created)).days`.",
+      "en": "`now = date.fromisoformat(today)`; for each secret `(now - date.fromisoformat(created)).days`."
+    },
+    {
+      "tr": "`age > max_days` olanları topla; sonda `sorted`.",
+      "en": "Collect those with `age > max_days`; `sorted` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import date\n\n\ndef due_for_rotation(secrets, today, max_days):\n    now = date.fromisoformat(today)\n    due = []\n    for name, created in secrets:\n        age = (now - date.fromisoformat(created)).days\n        if age > max_days:\n            due.append(name)\n    return sorted(due)\n\nSECRETS = [\n    [\"db-password\", \"2026-09-20\"],\n    [\"api-token\", \"2026-06-01\"],\n    [\"signing-key\", \"2025-12-15\"],\n    [\"cache-key\", \"2026-08-03\"],\n]\nprint(due_for_rotation(SECRETS, \"2026-11-01\", 90))\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import date\n\n\ndef due_for_rotation(secrets, today, max_days):\n    now = date.fromisoformat(today)\n    due = []\n    for name, created in secrets:\n        age = (now - date.fromisoformat(created)).days\n        if age > max_days:\n            due.append(name)\n    return sorted(due)\n\nSECRETS = [\n    [\"db-password\", \"2026-09-20\"],\n    [\"api-token\", \"2026-06-01\"],\n    [\"signing-key\", \"2025-12-15\"],\n    [\"cache-key\", \"2026-08-03\"],\n]\nprint(due_for_rotation(SECRETS, \"2026-11-01\", 90))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "due_for_rotation",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "db-password",
+                "2026-09-20"
+              ],
+              [
+                "api-token",
+                "2026-06-01"
+              ],
+              [
+                "signing-key",
+                "2025-12-15"
+              ],
+              [
+                "cache-key",
+                "2026-08-03"
+              ]
+            ],
+            "2026-11-01",
+            90
+          ],
+          "returns": [
+            "api-token",
+            "signing-key"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "db-password",
+                "2026-09-20"
+              ],
+              [
+                "api-token",
+                "2026-06-01"
+              ],
+              [
+                "signing-key",
+                "2025-12-15"
+              ],
+              [
+                "cache-key",
+                "2026-08-03"
+              ]
+            ],
+            "2026-11-01",
+            400
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [],
+            "2026-01-01",
+            1
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "a",
+                "2026-01-01"
+              ]
+            ],
+            "2026-01-31",
+            30
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['api-token', 'signing-key']"
+    }
+  ]
+}

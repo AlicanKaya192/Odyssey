@@ -1,0 +1,80 @@
+{
+  "id": "utc-order",
+  "title": {
+    "tr": "UTC sırası",
+    "en": "UTC order"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Saat dilimli `datetime` nesneleri doğrudan karşılaştırılabilir: `key=lambda e: datetime.fromisoformat(e[0])`.",
+      "en": "Time-zone-aware `datetime` objects can be compared directly: `key=lambda e: datetime.fromisoformat(e[0])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom datetime import datetime\n\n\ndef utc_order(events):\n    ordered = sorted(events, key=lambda e: datetime.fromisoformat(e[0]))\n    return [text for stamp, text in ordered]\n\nEVENTS = [\n    [\"2026-11-01T09:59:59+03:00\", \"file deleted\"],\n    [\"2026-11-01T07:00:02+00:00\", \"login from new place\"],\n    [\"2026-11-01T08:00:04+01:00\", \"admin group changed\"],\n]\nfor text in utc_order(EVENTS):\n    print(text)\n```",
+      "en": "The full solution:\n\n```python\nfrom datetime import datetime\n\n\ndef utc_order(events):\n    ordered = sorted(events, key=lambda e: datetime.fromisoformat(e[0]))\n    return [text for stamp, text in ordered]\n\nEVENTS = [\n    [\"2026-11-01T09:59:59+03:00\", \"file deleted\"],\n    [\"2026-11-01T07:00:02+00:00\", \"login from new place\"],\n    [\"2026-11-01T08:00:04+01:00\", \"admin group changed\"],\n]\nfor text in utc_order(EVENTS):\n    print(text)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "utc_order",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "2026-11-01T09:59:59+03:00",
+                "file deleted"
+              ],
+              [
+                "2026-11-01T07:00:02+00:00",
+                "login from new place"
+              ],
+              [
+                "2026-11-01T08:00:04+01:00",
+                "admin group changed"
+              ]
+            ]
+          ],
+          "returns": [
+            "file deleted",
+            "login from new place",
+            "admin group changed"
+          ]
+        },
+        {
+          "args": [
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                "2026-01-01T00:00:00+00:00",
+                "a"
+              ]
+            ]
+          ],
+          "returns": [
+            "a"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "file deleted\nlogin from new place\nadmin group changed"
+    }
+  ]
+}
