@@ -14,12 +14,12 @@
   "timeout_sec": 30,
   "hints": [
     {
-      "tr": "Başlangıç kodu `len(data_hex)` kadar bayt üretiyor; onaltılık metin baytın iki katı uzundur.",
-      "en": "The starter code makes `len(data_hex)` bytes; hex text is twice as long as the bytes."
+      "tr": "`keystream(key_hex, nonce_hex, len(data))` ile veriyle aynı uzunlukta dizi al; `len(data_hex)` değil, onaltılık metin baytın iki katı uzundur.",
+      "en": "Get a stream as long as the data with `keystream(key_hex, nonce_hex, len(data))`; not `len(data_hex)`, hex text is twice as long as the bytes."
     },
     {
-      "tr": "Dizi uzunluğu `len(data)` olmalı (baytın uzunluğu), `len(data_hex)` değil.",
-      "en": "The stream length must be `len(data)` (the byte length), not `len(data_hex)`."
+      "tr": "Bayt bayt XOR: `bytes(d ^ s for d, s in zip(data, stream)).hex()`.",
+      "en": "XOR byte by byte: `bytes(d ^ s for d, s in zip(data, stream)).hex()`."
     },
     {
       "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef keystream(key_hex, nonce_hex, length):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef stream_encrypt(key_hex, nonce_hex, data_hex):\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key_hex, nonce_hex, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\nkey = \"6b6579313233343536373839306b6579\"\nnonce = \"6e6f6e636531\"\ncipher = stream_encrypt(key, nonce, \"68656c6c6f\")\nprint(cipher != \"68656c6c6f\")\nprint(stream_encrypt(key, nonce, cipher))\n```",

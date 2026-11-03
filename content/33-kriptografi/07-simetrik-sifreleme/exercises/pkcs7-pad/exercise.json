@@ -18,8 +18,8 @@
       "en": "The starter code adds no padding on a block multiple; then data and padding cannot be told apart when decrypting."
     },
     {
-      "tr": "`need == 0` durumunu çıkar: `len(data) % block == 0` ise `need` zaten `block` olur.",
-      "en": "Remove the `need == 0` case: when `len(data) % block == 0`, `need` is already `block`."
+      "tr": "`need == block` durumunu çıkar: tam blok katında da `need` tane (yani `block` tane) dolgu baytı eklenmeli.",
+      "en": "Remove the `need == block` case: on a block multiple, `need` (that is, `block`) padding bytes must still be added."
     },
     {
       "tr": "Çözümün tamamı:\n\n```python\ndef pad(data_hex, block):\n    data = bytes.fromhex(data_hex)\n    need = block - (len(data) % block)\n    return (data + bytes([need]) * need).hex()\n\nfor text in [\"73686f7274\", \"30313233343536373839616263646566\"]:\n    padded = pad(text, 16)\n    raw = bytes.fromhex(text)\n    out = bytes.fromhex(padded)\n    print(len(raw), \"->\", len(out), \"last:\", out[-1])\n```",

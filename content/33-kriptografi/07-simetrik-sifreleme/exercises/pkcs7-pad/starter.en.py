@@ -1,7 +1,7 @@
 def pad(data_hex, block):
     data = bytes.fromhex(data_hex)
     need = block - (len(data) % block)
-    if need == 0:
+    if need == block:
         return data_hex
     return (data + bytes([need]) * need).hex()
 

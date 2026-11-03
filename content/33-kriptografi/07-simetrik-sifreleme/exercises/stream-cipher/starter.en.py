@@ -13,8 +13,8 @@ def keystream(key_hex, nonce_hex, length):
 
 def stream_encrypt(key_hex, nonce_hex, data_hex):
     data = bytes.fromhex(data_hex)
-    stream = keystream(key_hex, nonce_hex, len(data_hex))
-    return bytes(d ^ s for d, s in zip(data, stream)).hex()
+    # make a keystream as long as the data, XOR byte by byte
+    return data.hex()
 
 key = "6b6579313233343536373839306b6579"
 nonce = "6e6f6e636531"
