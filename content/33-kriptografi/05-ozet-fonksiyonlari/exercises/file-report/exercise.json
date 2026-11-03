@@ -1,0 +1,81 @@
+{
+  "id": "file-report",
+  "title": {
+    "tr": "Dosya bütünlük raporu",
+    "en": "A file integrity report"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `known`'da olmayan dosyada `KeyError` veriyor ve sıralamıyor.",
+      "en": "The starter code raises `KeyError` on a file missing from `known` and does not sort."
+    },
+    {
+      "tr": "Önce `if name not in known`, sonra uyuyor mu; `sorted(files)` ile gez.",
+      "en": "First `if name not in known`, then whether it matches; walk with `sorted(files)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef file_report(files, known):\n    lines = []\n    for name in sorted(files):\n        digest = hashlib.sha256(files[name].encode()).hexdigest()\n        if name not in known:\n            lines.append(name + \" unknown\")\n        elif digest == known[name]:\n            lines.append(name + \" ok\")\n        else:\n            lines.append(name + \" changed\")\n    return lines\n\nknown = {\n    \"a.txt\": \"ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb\",\n    \"b.txt\": \"3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d\",\n}\nfiles = {\"a.txt\": \"a\", \"b.txt\": \"X\", \"c.txt\": \"c\"}\nfor line in file_report(files, known):\n    print(line)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef file_report(files, known):\n    lines = []\n    for name in sorted(files):\n        digest = hashlib.sha256(files[name].encode()).hexdigest()\n        if name not in known:\n            lines.append(name + \" unknown\")\n        elif digest == known[name]:\n            lines.append(name + \" ok\")\n        else:\n            lines.append(name + \" changed\")\n    return lines\n\nknown = {\n    \"a.txt\": \"ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb\",\n    \"b.txt\": \"3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d\",\n}\nfiles = {\"a.txt\": \"a\", \"b.txt\": \"X\", \"c.txt\": \"c\"}\nfor line in file_report(files, known):\n    print(line)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "file_report",
+      "cases": [
+        {
+          "args": [
+            {
+              "a.txt": "a",
+              "b.txt": "X",
+              "c.txt": "c"
+            },
+            {
+              "a.txt": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+              "b.txt": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+            }
+          ],
+          "returns": [
+            "a.txt ok",
+            "b.txt changed",
+            "c.txt unknown"
+          ]
+        },
+        {
+          "args": [
+            {},
+            {
+              "a.txt": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+              "b.txt": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a.txt": "a"
+            },
+            {}
+          ],
+          "returns": [
+            "a.txt unknown"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "a.txt ok\nb.txt changed\nc.txt unknown"
+    }
+  ]
+}

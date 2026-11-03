@@ -1,0 +1,70 @@
+{
+  "id": "bit-difference",
+  "title": {
+    "tr": "Bit farkı",
+    "en": "Bit difference"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce `bytes.fromhex(a_hex)`, sonra iki baytı bir sayıya çevir: `int.from_bytes(a, \"big\")`.",
+      "en": "First `bytes.fromhex(a_hex)`, then turn the two into one number: `int.from_bytes(a, \"big\")`."
+    },
+    {
+      "tr": "XOR'un ikilik yazımında 1'ler farklı bitlerdir: `bin(x).count(\"1\")`.",
+      "en": "The ones in the XOR's binary form are the differing bits: `bin(x).count(\"1\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef bit_difference(a_hex, b_hex):\n    a = bytes.fromhex(a_hex)\n    b = bytes.fromhex(b_hex)\n    x = int.from_bytes(a, \"big\") ^ int.from_bytes(b, \"big\")\n    return bin(x).count(\"1\")\n\nimport hashlib\n\nh1 = hashlib.sha256(b\"message 1\").hexdigest()\nh2 = hashlib.sha256(b\"message 2\").hexdigest()\nprint(bit_difference(h1, h1))\nprint(0 < bit_difference(h1, h2) <= 256)\n```",
+      "en": "The full solution:\n\n```python\ndef bit_difference(a_hex, b_hex):\n    a = bytes.fromhex(a_hex)\n    b = bytes.fromhex(b_hex)\n    x = int.from_bytes(a, \"big\") ^ int.from_bytes(b, \"big\")\n    return bin(x).count(\"1\")\n\nimport hashlib\n\nh1 = hashlib.sha256(b\"message 1\").hexdigest()\nh2 = hashlib.sha256(b\"message 2\").hexdigest()\nprint(bit_difference(h1, h1))\nprint(0 < bit_difference(h1, h2) <= 256)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "bit_difference",
+      "cases": [
+        {
+          "args": [
+            "00",
+            "ff"
+          ],
+          "returns": 8
+        },
+        {
+          "args": [
+            "0000",
+            "0000"
+          ],
+          "returns": 0
+        },
+        {
+          "args": [
+            "0f",
+            "f0"
+          ],
+          "returns": 8
+        },
+        {
+          "args": [
+            "616263",
+            "616264"
+          ],
+          "returns": 3
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0\nTrue"
+    }
+  ]
+}

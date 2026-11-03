@@ -1,0 +1,74 @@
+{
+  "id": "stream-cipher",
+  "title": {
+    "tr": "Akış şifresi",
+    "en": "The stream cipher"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu `len(data_hex)` kadar bayt üretiyor; onaltılık metin baytın iki katı uzundur.",
+      "en": "The starter code makes `len(data_hex)` bytes; hex text is twice as long as the bytes."
+    },
+    {
+      "tr": "Dizi uzunluğu `len(data)` olmalı (baytın uzunluğu), `len(data_hex)` değil.",
+      "en": "The stream length must be `len(data)` (the byte length), not `len(data_hex)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef keystream(key_hex, nonce_hex, length):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef stream_encrypt(key_hex, nonce_hex, data_hex):\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key_hex, nonce_hex, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\nkey = \"6b6579313233343536373839306b6579\"\nnonce = \"6e6f6e636531\"\ncipher = stream_encrypt(key, nonce, \"68656c6c6f\")\nprint(cipher != \"68656c6c6f\")\nprint(stream_encrypt(key, nonce, cipher))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef keystream(key_hex, nonce_hex, length):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef stream_encrypt(key_hex, nonce_hex, data_hex):\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key_hex, nonce_hex, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\nkey = \"6b6579313233343536373839306b6579\"\nnonce = \"6e6f6e636531\"\ncipher = stream_encrypt(key, nonce, \"68656c6c6f\")\nprint(cipher != \"68656c6c6f\")\nprint(stream_encrypt(key, nonce, cipher))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "stream_encrypt",
+      "cases": [
+        {
+          "args": [
+            "6b6579313233343536373839306b6579",
+            "6e6f6e636531",
+            "68656c6c6f"
+          ],
+          "returns": "874b4a492c"
+        },
+        {
+          "args": [
+            "6b6579313233343536373839306b6579",
+            "6e6f6e636531",
+            "874b4a492c"
+          ],
+          "returns": "68656c6c6f"
+        },
+        {
+          "args": [
+            "6b6579313233343536373839306b6579",
+            "6e32",
+            "68656c6c6f"
+          ],
+          "returns": "c7e47b7f66"
+        },
+        {
+          "args": [
+            "6b6579313233343536373839306b6579",
+            "6e6f6e636531",
+            ""
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\n68656c6c6f"
+    }
+  ]
+}

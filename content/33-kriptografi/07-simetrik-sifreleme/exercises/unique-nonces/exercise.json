@@ -1,0 +1,92 @@
+{
+  "id": "unique-nonces",
+  "title": {
+    "tr": "Nonce tekrarını önle",
+    "en": "Prevent nonce reuse"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu her nonce'u kabul ediyor; tekrarlanan nonce tek kullanımlık şifrenin hatasına yol açar.",
+      "en": "The starter code accepts every nonce; a repeated nonce leads to the one-time pad's mistake."
+    },
+    {
+      "tr": "Kullanılmış nonce'ları bir kümede tut: `if nonce_hex in used: ... continue`, yoksa `used.add(nonce_hex)`.",
+      "en": "Keep used nonces in a set: `if nonce_hex in used: ... continue`, otherwise `used.add(nonce_hex)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef keystream(key_hex, nonce_hex, length):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef stream_encrypt(key_hex, nonce_hex, data_hex):\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key_hex, nonce_hex, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef encrypt_all(key_hex, items):\n    results = []\n    used = set()\n    for nonce_hex, data_hex in items:\n        if nonce_hex in used:\n            results.append(\"nonce reused\")\n            continue\n        used.add(nonce_hex)\n        results.append(stream_encrypt(key_hex, nonce_hex, data_hex))\n    return results\n\nkey = \"6b6579313233343536373839306b6579\"\nitems = [\n    [\"6e31\", \"aa\"],\n    [\"6e32\", \"bb\"],\n    [\"6e31\", \"cc\"],\n]\nfor result in encrypt_all(key, items):\n    print(result)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef keystream(key_hex, nonce_hex, length):\n    key = bytes.fromhex(key_hex)\n    nonce = bytes.fromhex(nonce_hex)\n    out, counter = b\"\", 0\n    while len(out) < length:\n        out += hashlib.sha256(key + nonce + counter.to_bytes(4, \"big\")).digest()\n        counter += 1\n    return out[:length]\n\n\ndef stream_encrypt(key_hex, nonce_hex, data_hex):\n    data = bytes.fromhex(data_hex)\n    stream = keystream(key_hex, nonce_hex, len(data))\n    return bytes(d ^ s for d, s in zip(data, stream)).hex()\n\n\ndef encrypt_all(key_hex, items):\n    results = []\n    used = set()\n    for nonce_hex, data_hex in items:\n        if nonce_hex in used:\n            results.append(\"nonce reused\")\n            continue\n        used.add(nonce_hex)\n        results.append(stream_encrypt(key_hex, nonce_hex, data_hex))\n    return results\n\nkey = \"6b6579313233343536373839306b6579\"\nitems = [\n    [\"6e31\", \"aa\"],\n    [\"6e32\", \"bb\"],\n    [\"6e31\", \"cc\"],\n]\nfor result in encrypt_all(key, items):\n    print(result)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "encrypt_all",
+      "cases": [
+        {
+          "args": [
+            "6b6579313233343536373839306b6579",
+            [
+              [
+                "6e31",
+                "aa"
+              ],
+              [
+                "6e32",
+                "bb"
+              ],
+              [
+                "6e31",
+                "cc"
+              ]
+            ]
+          ],
+          "returns": [
+            "65",
+            "14",
+            "nonce reused"
+          ]
+        },
+        {
+          "args": [
+            "6b6579313233343536373839306b6579",
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "6b6579313233343536373839306b6579",
+            [
+              [
+                "6e31",
+                "aa"
+              ],
+              [
+                "6e31",
+                "aa"
+              ]
+            ]
+          ],
+          "returns": [
+            "65",
+            "nonce reused"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "65\n14\nnonce reused"
+    }
+  ]
+}

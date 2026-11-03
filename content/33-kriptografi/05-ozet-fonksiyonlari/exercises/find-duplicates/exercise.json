@@ -1,0 +1,94 @@
+{
+  "id": "find-duplicates",
+  "title": {
+    "tr": "Kopyaları bul",
+    "en": "Find duplicates"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Özete göre grupla: `groups.setdefault(digest, []).append(name)`.",
+      "en": "Group by digest: `groups.setdefault(digest, []).append(name)`."
+    },
+    {
+      "tr": "Yalnızca birden çok adlı grupları al, her grubu `sorted`, sonra grupları `sorted`.",
+      "en": "Keep only groups with more than one name, `sorted` each group, then `sorted` the groups."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\n\n\ndef find_duplicates(items):\n    groups = {}\n    for name, content in items.items():\n        digest = hashlib.sha256(content.encode()).hexdigest()\n        groups.setdefault(digest, []).append(name)\n    result = [sorted(names) for names in groups.values() if len(names) > 1]\n    return sorted(result)\n\nitems = {\"x\": \"hello\", \"y\": \"world\", \"z\": \"hello\", \"w\": \"world\", \"v\": \"unique\"}\nfor group in find_duplicates(items):\n    print(group)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\n\n\ndef find_duplicates(items):\n    groups = {}\n    for name, content in items.items():\n        digest = hashlib.sha256(content.encode()).hexdigest()\n        groups.setdefault(digest, []).append(name)\n    result = [sorted(names) for names in groups.values() if len(names) > 1]\n    return sorted(result)\n\nitems = {\"x\": \"hello\", \"y\": \"world\", \"z\": \"hello\", \"w\": \"world\", \"v\": \"unique\"}\nfor group in find_duplicates(items):\n    print(group)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_duplicates",
+      "cases": [
+        {
+          "args": [
+            {
+              "x": "hello",
+              "y": "world",
+              "z": "hello",
+              "w": "world",
+              "v": "unique"
+            }
+          ],
+          "returns": [
+            [
+              "w",
+              "y"
+            ],
+            [
+              "x",
+              "z"
+            ]
+          ]
+        },
+        {
+          "args": [
+            {}
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": "x",
+              "b": "y"
+            }
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            {
+              "a": "x",
+              "b": "x",
+              "c": "x"
+            }
+          ],
+          "returns": [
+            [
+              "a",
+              "b",
+              "c"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['w', 'y']\n['x', 'z']"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "id": "valid-events",
+  "title": {
+    "tr": "Geçerli olaylar",
+    "en": "Valid events"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`order 1` etiketi `order 2`'ninkiyle gelirse geçersizdir (etiket gövdeye bağlı).",
+      "en": "`order 1` with `order 2`'s tag is invalid (the tag depends on the body)."
+    },
+    {
+      "tr": "Geçerli gövdeleri bir kümeye ekle, sonda `sorted`.",
+      "en": "Add the valid bodies to a set, `sorted` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_tag(key_hex, message):\n    key = bytes.fromhex(key_hex)\n    return hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n\n\ndef valid_events(key_hex, events):\n    bodies = set()\n    for body, tag in events:\n        if hmac.compare_digest(make_tag(key_hex, body), tag):\n            bodies.add(body)\n    return sorted(bodies)\n\nkey = \"5f0e2b9ac4d17733e1a6082cb94d1122\"\ngood1 = make_tag(key, \"order 1\")\ngood2 = make_tag(key, \"order 2\")\nevents = [\n    [\"order 2\", good2],\n    [\"order 1\", good1],\n    [\"order 3\", \"deadbeef\"],\n    [\"order 1\", good2],\n]\nfor body in valid_events(key, events):\n    print(body)\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_tag(key_hex, message):\n    key = bytes.fromhex(key_hex)\n    return hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n\n\ndef valid_events(key_hex, events):\n    bodies = set()\n    for body, tag in events:\n        if hmac.compare_digest(make_tag(key_hex, body), tag):\n            bodies.add(body)\n    return sorted(bodies)\n\nkey = \"5f0e2b9ac4d17733e1a6082cb94d1122\"\ngood1 = make_tag(key, \"order 1\")\ngood2 = make_tag(key, \"order 2\")\nevents = [\n    [\"order 2\", good2],\n    [\"order 1\", good1],\n    [\"order 3\", \"deadbeef\"],\n    [\"order 1\", good2],\n]\nfor body in valid_events(key, events):\n    print(body)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "valid_events",
+      "cases": [
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            [
+              [
+                "order 2",
+                "7c4b45f05b08737f03d0779d41dc3e7b83dd695360bb1092e49b37781ca4f2e2"
+              ],
+              [
+                "order 1",
+                "e2922cc66ae7c666c012e6651525978cb8246cf27f0463ba2ec0c709d1fe6a84"
+              ],
+              [
+                "order 3",
+                "deadbeef"
+              ],
+              [
+                "order 1",
+                "7c4b45f05b08737f03d0779d41dc3e7b83dd695360bb1092e49b37781ca4f2e2"
+              ]
+            ]
+          ],
+          "returns": [
+            "order 1",
+            "order 2"
+          ]
+        },
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            []
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            [
+              [
+                "x",
+                "00"
+              ]
+            ]
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "order 1\norder 2"
+    }
+  ]
+}

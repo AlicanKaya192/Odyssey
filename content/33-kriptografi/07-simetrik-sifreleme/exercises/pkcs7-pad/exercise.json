@@ -1,0 +1,70 @@
+{
+  "id": "pkcs7-pad",
+  "title": {
+    "tr": "PKCS#7 dolgu",
+    "en": "PKCS#7 padding"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Başlangıç kodu tam blok katında hiç dolgu eklemiyor; o zaman çözerken veriyle dolgu ayırt edilemez.",
+      "en": "The starter code adds no padding on a block multiple; then data and padding cannot be told apart when decrypting."
+    },
+    {
+      "tr": "`need == 0` durumunu çıkar: `len(data) % block == 0` ise `need` zaten `block` olur.",
+      "en": "Remove the `need == 0` case: when `len(data) % block == 0`, `need` is already `block`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef pad(data_hex, block):\n    data = bytes.fromhex(data_hex)\n    need = block - (len(data) % block)\n    return (data + bytes([need]) * need).hex()\n\nfor text in [\"73686f7274\", \"30313233343536373839616263646566\"]:\n    padded = pad(text, 16)\n    raw = bytes.fromhex(text)\n    out = bytes.fromhex(padded)\n    print(len(raw), \"->\", len(out), \"last:\", out[-1])\n```",
+      "en": "The full solution:\n\n```python\ndef pad(data_hex, block):\n    data = bytes.fromhex(data_hex)\n    need = block - (len(data) % block)\n    return (data + bytes([need]) * need).hex()\n\nfor text in [\"73686f7274\", \"30313233343536373839616263646566\"]:\n    padded = pad(text, 16)\n    raw = bytes.fromhex(text)\n    out = bytes.fromhex(padded)\n    print(len(raw), \"->\", len(out), \"last:\", out[-1])\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pad",
+      "cases": [
+        {
+          "args": [
+            "73686f7274",
+            16
+          ],
+          "returns": "73686f72740b0b0b0b0b0b0b0b0b0b0b"
+        },
+        {
+          "args": [
+            "30313233343536373839616263646566",
+            16
+          ],
+          "returns": "3031323334353637383961626364656610101010101010101010101010101010"
+        },
+        {
+          "args": [
+            "",
+            16
+          ],
+          "returns": "10101010101010101010101010101010"
+        },
+        {
+          "args": [
+            "6162",
+            4
+          ],
+          "returns": "61620202"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "5 -> 16 last: 11\n16 -> 32 last: 16"
+    }
+  ]
+}

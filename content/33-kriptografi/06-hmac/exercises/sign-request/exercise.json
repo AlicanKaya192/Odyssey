@@ -1,0 +1,78 @@
+{
+  "id": "sign-request",
+  "title": {
+    "tr": "İsteği imzala",
+    "en": "Sign a request"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Parçaları düz birleştirmek (`method + path + body`) sınırları karıştırır: `/p` + `ay...` ile `/pay` + `...` aynı olur.",
+      "en": "Joining the parts plainly (`method + path + body`) blurs the boundaries: `/p` + `ay...` equals `/pay` + `...`."
+    },
+    {
+      "tr": "`\"\\n\".join([method, path, body])` ile araya ayraç koy, sonra `make_tag`.",
+      "en": "Put a separator between them with `\"\\n\".join([method, path, body])`, then `make_tag`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_tag(key_hex, message):\n    key = bytes.fromhex(key_hex)\n    return hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n\n\ndef sign_request(key_hex, method, path, body):\n    canonical = \"\\n\".join([method, path, body])\n    return make_tag(key_hex, canonical)\n\nkey = \"5f0e2b9ac4d17733e1a6082cb94d1122\"\nprint(sign_request(key, \"POST\", \"/pay\", \"amount=100\")[:16])\nprint(sign_request(key, \"POST\", \"/pay\", \"amount=100\") ==\n      sign_request(key, \"POST\", \"/pay\", \"amount=100\"))\nprint(sign_request(key, \"GET\", \"/pay\", \"amount=100\") ==\n      sign_request(key, \"POST\", \"/pay\", \"amount=100\"))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_tag(key_hex, message):\n    key = bytes.fromhex(key_hex)\n    return hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n\n\ndef sign_request(key_hex, method, path, body):\n    canonical = \"\\n\".join([method, path, body])\n    return make_tag(key_hex, canonical)\n\nkey = \"5f0e2b9ac4d17733e1a6082cb94d1122\"\nprint(sign_request(key, \"POST\", \"/pay\", \"amount=100\")[:16])\nprint(sign_request(key, \"POST\", \"/pay\", \"amount=100\") ==\n      sign_request(key, \"POST\", \"/pay\", \"amount=100\"))\nprint(sign_request(key, \"GET\", \"/pay\", \"amount=100\") ==\n      sign_request(key, \"POST\", \"/pay\", \"amount=100\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "sign_request",
+      "cases": [
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            "POST",
+            "/pay",
+            "amount=100"
+          ],
+          "returns": "5f917ac08d569fddda6ff1606aa9f2b8b4e7dc549398e874409f0ecba300ae89"
+        },
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            "GET",
+            "/pay",
+            "amount=100"
+          ],
+          "returns": "dc9c2c8ba382510fa44035643c9884b2e919dd80a71d3bdd65f281bc8b91427b"
+        },
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            "POST",
+            "/pay",
+            "amount=900"
+          ],
+          "returns": "ac43d1e87554853f7564272107f26917f78fee1e7e2030383744ace8c046cfae"
+        },
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            "POST",
+            "/p",
+            "ay/amount=100"
+          ],
+          "returns": "22cee64242fbdad5a14968f058a95e55898d2190fe082acb799d3d49b022c8b6"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "5f917ac08d569fdd\nTrue\nFalse"
+    }
+  ]
+}

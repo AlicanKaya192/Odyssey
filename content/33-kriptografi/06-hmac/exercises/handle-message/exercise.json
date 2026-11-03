@@ -1,0 +1,74 @@
+{
+  "id": "handle-message",
+  "title": {
+    "tr": "Önce doğrula",
+    "en": "Verify first"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sonuç aynı görünse de doğrulama **önce** gelmeli: tutmazsa mesaj hiç işlenmez.",
+      "en": "Even if the result looks the same, verification must come **first**: if it fails, the message is never processed."
+    },
+    {
+      "tr": "`if not compare_digest(...): return \"rejected\"`, sonra kabul satırı.",
+      "en": "`if not compare_digest(...): return \"rejected\"`, then the accept line."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_tag(key_hex, message):\n    key = bytes.fromhex(key_hex)\n    return hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n\n\ndef handle(key_hex, message, tag):\n    if not hmac.compare_digest(make_tag(key_hex, message), tag):\n        return \"rejected\"\n    return \"accepted: \" + message\n\nkey = \"5f0e2b9ac4d17733e1a6082cb94d1122\"\ntag = make_tag(key, \"ok\")\nprint(handle(key, \"ok\", tag))\nprint(handle(key, \"tampered\", tag))\nprint(handle(key, \"ok\", \"00\"))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_tag(key_hex, message):\n    key = bytes.fromhex(key_hex)\n    return hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n\n\ndef handle(key_hex, message, tag):\n    if not hmac.compare_digest(make_tag(key_hex, message), tag):\n        return \"rejected\"\n    return \"accepted: \" + message\n\nkey = \"5f0e2b9ac4d17733e1a6082cb94d1122\"\ntag = make_tag(key, \"ok\")\nprint(handle(key, \"ok\", tag))\nprint(handle(key, \"tampered\", tag))\nprint(handle(key, \"ok\", \"00\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "handle",
+      "cases": [
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            "ok",
+            "f5cc774ac7fd3c036106c499b0f5ca528749025f1ed870a958fc644524796e20"
+          ],
+          "returns": "accepted: ok"
+        },
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            "tampered",
+            "f5cc774ac7fd3c036106c499b0f5ca528749025f1ed870a958fc644524796e20"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            "ok",
+            "00"
+          ],
+          "returns": "rejected"
+        },
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            "transfer 100 to bob",
+            "dd4da5ef5798f927f805966406d5dd517296bad5d3b58a9759f6b17009d1087f"
+          ],
+          "returns": "accepted: transfer 100 to bob"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "accepted: ok\nrejected\nrejected"
+    }
+  ]
+}

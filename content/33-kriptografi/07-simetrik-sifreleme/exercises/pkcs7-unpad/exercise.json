@@ -1,0 +1,56 @@
+{
+  "id": "pkcs7-unpad",
+  "title": {
+    "tr": "Dolguyu çıkar",
+    "en": "Remove the padding"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Son bayt `data[-1]` dolgu sayısıdır; `data[:-data[-1]]` o kadarını atar.",
+      "en": "The last byte `data[-1]` is the padding count; `data[:-data[-1]]` drops that many."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef pad(data_hex, block):\n    data = bytes.fromhex(data_hex)\n    need = block - (len(data) % block)\n    return (data + bytes([need]) * need).hex()\n\n\ndef unpad(data_hex):\n    data = bytes.fromhex(data_hex)\n    return data[:-data[-1]].hex()\n\nprint(unpad(pad(\"73686f7274\", 16)) == \"73686f7274\")\nprint(unpad(pad(\"30313233343536373839616263646566\", 16)) == \"30313233343536373839616263646566\")\nprint(unpad(\"030303\"))\n```",
+      "en": "The full solution:\n\n```python\ndef pad(data_hex, block):\n    data = bytes.fromhex(data_hex)\n    need = block - (len(data) % block)\n    return (data + bytes([need]) * need).hex()\n\n\ndef unpad(data_hex):\n    data = bytes.fromhex(data_hex)\n    return data[:-data[-1]].hex()\n\nprint(unpad(pad(\"73686f7274\", 16)) == \"73686f7274\")\nprint(unpad(pad(\"30313233343536373839616263646566\", 16)) == \"30313233343536373839616263646566\")\nprint(unpad(\"030303\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "unpad",
+      "cases": [
+        {
+          "args": [
+            "030303"
+          ],
+          "returns": ""
+        },
+        {
+          "args": [
+            "73686f72740b0b0b0b0b0b0b0b0b0b0b"
+          ],
+          "returns": "73686f7274"
+        },
+        {
+          "args": [
+            "10101010101010101010101010101010"
+          ],
+          "returns": ""
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nTrue"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "make-tag",
+  "title": {
+    "tr": "Etiket üret",
+    "en": "Make a tag"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`bytes.fromhex(key_hex)` ve `message.encode()`; sonra `hmac.new(...).hexdigest()`.",
+      "en": "`bytes.fromhex(key_hex)` and `message.encode()`; then `hmac.new(...).hexdigest()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_tag(key_hex, message):\n    key = bytes.fromhex(key_hex)\n    return hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n\nprint(make_tag(\"5f0e2b9ac4d17733e1a6082cb94d1122\", \"transfer 100 to bob\")[:16])\nprint(len(make_tag(\"5f0e2b9ac4d17733e1a6082cb94d1122\", \"x\")))\nprint(make_tag(\"0011\", \"a\") == make_tag(\"0011\", \"a\"))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport hmac\n\n\ndef make_tag(key_hex, message):\n    key = bytes.fromhex(key_hex)\n    return hmac.new(key, message.encode(), hashlib.sha256).hexdigest()\n\nprint(make_tag(\"5f0e2b9ac4d17733e1a6082cb94d1122\", \"transfer 100 to bob\")[:16])\nprint(len(make_tag(\"5f0e2b9ac4d17733e1a6082cb94d1122\", \"x\")))\nprint(make_tag(\"0011\", \"a\") == make_tag(\"0011\", \"a\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "make_tag",
+      "cases": [
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            "transfer 100 to bob"
+          ],
+          "returns": "dd4da5ef5798f927f805966406d5dd517296bad5d3b58a9759f6b17009d1087f"
+        },
+        {
+          "args": [
+            "5f0e2b9ac4d17733e1a6082cb94d1122",
+            ""
+          ],
+          "returns": "c50dab97d6e32b31779e86fe0acaa78d000ac3fe03872242106b77bea651c8fe"
+        },
+        {
+          "args": [
+            "0011",
+            "a"
+          ],
+          "returns": "daf99804b54038265e9b4ac9afa6ce1e7bc5d64ef3ae440f7b29a79a60d92ccc"
+        },
+        {
+          "args": [
+            "00000000000000000000000000000000",
+            "hello"
+          ],
+          "returns": "4352b26e33fe0d769a8922a6ba29004109f01688e26acc9e6cb347e5a5afc4da"
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "dd4da5ef5798f927\n64\nTrue"
+    }
+  ]
+}
