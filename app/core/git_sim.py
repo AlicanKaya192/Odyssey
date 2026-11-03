@@ -35,6 +35,8 @@ GIT_COMMANDS = ["add", "am", "archive", "bisect", "blame", "branch", "bundle", "
                 "maintenance", "merge", "mv", "notes", "pull", "push", "range-diff", "rebase", "reflog", "remote",
                 "reset", "restore", "revert", "rm", "shortlog", "show", "sparse-checkout", "stash", "status",
                 "submodule", "switch", "tag", "worktree"]
+# Tab tamamlamada argümanı dal adı olan alt komutlar.
+BRANCH_COMMANDS = {"checkout", "switch", "merge", "rebase", "branch"}
 EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
 # Benzeticiye özgü (gerçek git'te olmayan) mesajlar: kişinin dilinde.
@@ -315,6 +317,15 @@ class World(Shell):
             path = posixpath.join(self.cwd, path)
         norm = posixpath.normpath(path)
         return "/" if norm in ("", ".") else norm
+
+    def _complete_args(self, before: list[str], word: str) -> list[str] | None:
+        """Tab: `git ` sonrası alt komutlar, dal alan komutlarda dal adları (Git Bash gibi)."""
+        if before == ["git"]:
+            return GIT_COMMANDS
+        if len(before) >= 2 and before[0] == "git" and before[1] in BRANCH_COMMANDS and not word.startswith("-"):
+            repo = self.repo_at()
+            return repo.branches() if repo is not None else []
+        return None
 
     def display(self, path: str) -> str:
         return "~" + path[len(HOME):] if path == HOME or path.startswith(HOME + "/") else path

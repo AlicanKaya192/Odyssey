@@ -65,6 +65,8 @@ BUILTINS = {"cd", "pwd", "echo", "printf", "export", "unset", "exit", "return", 
 EXTERNAL = {"ls", "cat", "head", "tail", "wc", "grep", "sort", "uniq", "cut", "tr", "find", "cp", "mv", "rm",
             "rmdir", "mkdir", "touch", "chmod", "whoami", "id", "groups", "env", "printenv", "seq",
             "basename", "dirname", "clear", "sleep", "date", "which", "bash", "sh", "git"}
+# Tab tamamlamada kelimeyi bitiren karakterler (boşluk ve kabuk işleçleri).
+COMPLETE_BREAKS = " \t;|&()<>"
 EDITORS = {"nano", "vim", "vi", "code", "notepad", "emacs", "gedit", "pico"}
 PAGERS = {"less", "more", "most"}
 PROCESS_TOOLS = {"ps", "top", "htop", "pkill", "killall", "nohup", "pgrep"}
@@ -1107,6 +1109,65 @@ class Shell:
         self.last_status = code
         self.outputs.append((line, sink.stdout_text()))
         return out, code
+
+    # --- Tab ile tamamlama ----------------------------------------------------
+
+    def complete(self, text: str) -> tuple[str, list[str]]:
+        """Tab: son kelimeyi bash gibi tamamlar; dünyaya dokunmaz.
+
+        Tek aday → tamamı (klasörse `/`, değilse boşluk); birden çok aday →
+        ortak öneke kadar; ilerleyemiyorsa metin aynı kalır ve adaylar döner
+        (bash bunları ikinci Tab'da gösteriyor). Komut yerinde komut adları,
+        `/` içeren kelimede ve argümanlarda dosya yolu.
+        """
+        start = len(text)
+        while start > 0 and text[start - 1] not in COMPLETE_BREAKS:
+            start -= 1
+        word = text[start:]
+        before = re.split(r"[;|&()]", text[:start])[-1].split()
+        head = ""
+        args = self._complete_args(before, word)
+        if args is not None:
+            matches = [(name, False) for name in args if name.startswith(word)]
+        elif not before and "/" not in word:
+            if not word:
+                return text, []
+            matches = [(name, False) for name in self._command_names() if name.startswith(word)]
+        else:
+            head, _, base = word.rpartition("/")
+            head = head + "/" if head or word.startswith("/") else ""
+            word = base
+            folder = self.abspath(head or ".")
+            if not self._isdir(folder):
+                return text, []
+            matches = [(name, self._isdir(posixpath.join(folder, name))) for name in self._entries(folder)
+                       if name.startswith(word) and (word.startswith(".") or not name.startswith("."))]
+        matches = sorted(set(matches))
+        if not matches:
+            return text, []
+        if len(matches) == 1:
+            name, is_dir = matches[0]
+            return text[:start] + head + name + ("/" if is_dir else " "), []
+        common = posixpath.commonprefix([name for name, _ in matches])
+        if len(common) > len(word):
+            return text[:start] + head + common, []
+        return text, [name + ("/" if is_dir else "") for name, is_dir in matches]
+
+    def _command_names(self) -> set[str]:
+        """Komut yerinde tamamlanan adlar: kabuk komutları, programlar, fonksiyon, takma ad, PATH'teki betikler."""
+        names = {n for n in BUILTINS | EXTERNAL if n[0].isalpha()}
+        names |= set(self.functions) | set(self.aliases)
+        for d in self._path_dirs():
+            folder = self.abspath(d)
+            for name in self._children(folder):
+                p = posixpath.join(folder, name)
+                if p in self.files and self._can(p, "x"):
+                    names.add(name)
+        return names
+
+    def _complete_args(self, before: list[str], word: str) -> list[str] | None:
+        """Komuta özel adaylar (git alt komutları, dallar); yoksa dosya yolu tamamlanır."""
+        return None
 
     def _syntax_text(self, exc: ShellSyntax, where: str = "bash") -> tuple[str, str]:
         if exc.kind == "quote":

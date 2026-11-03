@@ -44,6 +44,8 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   find, izinler, ortam değişkenleri, betik yazmak ve çıkış kodları.
   Alıştırmalar programın içindeki bir Linux terminalinde yapılıyor;
   bilgisayarınıza hiçbir şey kurulmuyor, hiçbir dosyanıza dokunulmuyor.
+  Terminalde Tab tuşu dosya, klasör ve komut adlarını tamamlıyor; Git
+  alıştırmalarında alt komutları ve dal adlarını da.
 - **Yazı boyu.** Ayarlar › Görünüm'den dersleri, notları, kod editörünü ve
   terminali %90, %100, %115 ya da %130 boyunda okuyabilirsiniz; değişiklik
   açık ekranlara hemen uygulanır.

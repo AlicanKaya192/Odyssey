@@ -46,6 +46,8 @@ lecture note does not mean downloading the whole application again.
   find, permissions, environment variables, writing scripts and exit codes.
   The exercises run in a Linux terminal inside the program; nothing is
   installed on your computer and none of your files are touched.
+  In the terminal the Tab key completes file, folder and command names, and
+  in Git exercises subcommands and branch names too.
 - **Text size.** In Settings › Appearance you can show lessons, notes, the
   code editor and the terminal at 90%, 100%, 115% or 130%; open screens
   change right away.

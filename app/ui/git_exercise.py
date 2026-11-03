@@ -66,6 +66,7 @@ class GitWork(QWidget):
         layout.setContentsMargins(16, 16, 16, 16)
         self.terminal = GitTerminal()
         self.terminal.command_entered.connect(self._on_command)
+        self.terminal.complete_requested.connect(self._on_complete)
         self.terminal.reset_button.clicked.connect(self.reset)
         layout.addWidget(self.terminal)
 
@@ -152,6 +153,19 @@ class GitWork(QWidget):
         if out.lines:
             self.terminal.write_lines(out.lines)
         return code
+
+    def _on_complete(self, before: str) -> None:
+        """Tab: benzetici tamamlıyor; ilerleyemezse adaylar bash gibi ekrana yazılıyor.
+
+        Komut çalışmadığı için kayda ve deneme sayısına girmiyor.
+        """
+        if self._world is None:
+            return
+        text, candidates = self._world.complete(before)
+        if candidates:
+            self.terminal.write_command(self._world.prompt(), before)
+            self.terminal.write_candidates(candidates)
+        self.terminal.apply_completion(text)
 
     def _on_command(self, line: str) -> None:
         if self._world is None or self._exercise is None:

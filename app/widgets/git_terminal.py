@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import html
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtGui import QKeyEvent, QTextCursor
 from PySide6.QtWidgets import (
     QFrame,
@@ -47,10 +47,19 @@ MAX_LINES = 1500
 
 
 class _Input(QLineEdit):
-    """Komut satırı: Enter çalıştırır, yukarı/aşağı geçmiş, Ctrl+L temizler."""
+    """Komut satırı: Enter çalıştırır, yukarı/aşağı geçmiş, Ctrl+L temizler, Tab tamamlar."""
 
     submitted = Signal(str)
     clear_requested = Signal()
+    tab_pressed = Signal()
+
+    def event(self, event) -> bool:  # noqa: D401 (Qt adlandırması)
+        # Tab odağı bir sonraki parçaya taşıyor; keyPressEvent'e hiç ulaşmıyor.
+        if (event.type() == QEvent.Type.KeyPress and event.key() == Qt.Key.Key_Tab
+                and not event.modifiers() & ~Qt.KeyboardModifier.KeypadModifier):
+            self.tab_pressed.emit()
+            return True
+        return super().event(event)
 
     def __init__(self) -> None:
         super().__init__()
@@ -89,6 +98,8 @@ class GitTerminal(QFrame):
     """Hedefler + terminal ekranı + komut satırı."""
 
     command_entered = Signal(str)
+    # Tab: imlece kadarki metin; dinleyen `apply_completion` ile cevap veriyor.
+    complete_requested = Signal(str)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -143,6 +154,7 @@ class GitTerminal(QFrame):
         self._input = _Input()
         self._input.submitted.connect(self.command_entered)
         self._input.clear_requested.connect(self.clear_screen)
+        self._input.tab_pressed.connect(self._on_tab)
         satir.addWidget(self._input, 1)
         layout.addLayout(satir)
         self._lines = 0
@@ -205,6 +217,29 @@ class GitTerminal(QFrame):
     def clear_screen(self) -> None:
         self._screen.clear()
         self._lines = 0
+
+    def _on_tab(self) -> None:
+        self.complete_requested.emit(self._input.text()[:self._input.cursorPosition()])
+
+    def apply_completion(self, before: str, after: str | None = None) -> None:
+        """İmlece kadarki kısmı `before` yapar; imleçten sonrası (`after`) korunur."""
+        if after is None:
+            after = self._input.text()[self._input.cursorPosition():]
+        self._input.setText(before + after)
+        self._input.setCursorPosition(len(before))
+
+    def write_candidates(self, names: list[str], width: int = 80) -> None:
+        """Tab'ın birden çok adayı: bash gibi yan yana, satır `width`'i geçmeden."""
+        satirlar, satir = [], ""
+        for name in names:
+            parca = name if not satir else satir + "  " + name
+            if satir and len(parca) > width:
+                satirlar.append(satir)
+                parca = name
+            satir = parca
+        if satir:
+            satirlar.append(satir)
+        self.write_lines([(s, "") for s in satirlar])
 
     def write_command(self, prompt: str, command: str) -> None:
         self._append_html(
