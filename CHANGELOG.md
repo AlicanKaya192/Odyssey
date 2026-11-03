@@ -21,7 +21,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.6.0] — Yayınlanmadı
+## [1.6.0] — 3 Kasım 2026
 
 ### Eklendi
 - **Python ile Siber Güvenlik patikası.** Bir bilgisayar mühendisliği

@@ -23,7 +23,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.6.0] — Unreleased
+## [1.6.0] — 3 November 2026
 
 ### Added
 - **Cyber Security with Python path.** The security topics a computer
