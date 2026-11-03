@@ -14,6 +14,7 @@ açılmıyor. Tamamlanmış bölümlere istendiği zaman geri dönülebiliyor.
 
 from __future__ import annotations
 
+import re
 from dataclasses import replace
 from datetime import date
 
@@ -62,6 +63,18 @@ from ..resources.theme.tokens import CONTENT_WIDTH, FONTS, PALETTES, RADIUS, SPA
 from ..widgets.common import StatBlock, horizontal_rule, section_label
 from ..widgets.streak_flame import FlickerFlame, hero_flame_pixmap, next_tier, tier_for
 from ..widgets.effects import apply_shadow, refresh_shadow
+
+# Qt iki harf arasındaki eğik çizgiden sonra satırı kırabiliyor ("(CI/" + "CD).",
+# "A/" + "B"); arkasına konan görünmez birleştirici (word joiner) bunu önlüyor.
+# Yalnızca ekrandaki metne konur: içerik dosyasında olsa aramada "CI/CD" bulunmazdı.
+WORD_JOINER = chr(0x2060)
+_SLASH_BETWEEN_LETTERS = re.compile(r"(?<=\w)/(?=\w)")
+
+
+def keep_slash_words(text: str) -> str:
+    """"CI/CD", "A/B" gibi kelimeleri satır sonunda bölünmez yapar."""
+    return _SLASH_BETWEEN_LETTERS.sub("/" + WORD_JOINER, text)
+
 
 # Düğümlerin soldan uzaklıkları — yol bu değerlerle zigzag çiziyor. Dizi
 # başa dönünce de kaydırma değişiyor (…120 → 30 → 120…); sonunda bir 30
@@ -1039,7 +1052,22 @@ class TrackCard(GlowCard):
         self.ensurePolished()
         for label in (self._title, self._description, self._chip, self._pre, self._meta_left, self._meta_right, self._caption):
             label.ensurePolished()
+        self._fit_title(width)
         return self.layout().totalHeightForWidth(width)
+
+    def _fit_title(self, width: int) -> None:
+        """Başlık yer varken tek satırda kalır.
+
+        Sarılan etiketin önerdiği genişlik dar bir tahmin; yanındaki esneyen
+        boşluk geri kalanı alıyor ve "Sistem Tasarımı (CI/CD)" yer olduğu
+        hâlde "(CI/" diye bölünüyordu (Alican 3 Kasım). En küçük genişlik
+        başlığın tek satırlık boyu; kartta o kadar yer yoksa kalan yer.
+        """
+        yer = width - 2 * self.PAD - self.LOGO - self.layout().spacing()
+        if self._chip.isVisibleTo(self):
+            yer -= self._chip.sizeHint().width() + 10
+        gereken = self._title.fontMetrics().horizontalAdvance(self._title.text()) + 1
+        self._title.setMinimumWidth(max(0, min(gereken, yer)))
 
     def showEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
         super().showEvent(event)
@@ -1075,6 +1103,7 @@ class TrackCard(GlowCard):
         self._meta_right.setVisible(acik and not on_kosul)
         self._pre.setVisible(on_kosul)
         self._meta_space.setVisible(acik)
+        self._fit_title(self.width())
 
     def _render_meta(self) -> None:
         t = self._language.t
@@ -1127,6 +1156,7 @@ class TrackCard(GlowCard):
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
+        self._fit_title(self.width())
         self._place_lock()
 
     def _place_lock(self) -> None:
@@ -1141,13 +1171,14 @@ class TrackCard(GlowCard):
 
     def retranslate(self) -> None:
         t = self._language.t
-        self._title.setText(self._language.pick(self._track.title))
-        self._description.setText(self._language.pick(self._track.description))
+        self._title.setText(keep_slash_words(self._language.pick(self._track.title)))
+        self._description.setText(keep_slash_words(self._language.pick(self._track.description)))
         self._chip.setText(t("track.in_progress"))
         if self._track.locked:
             self._caption.setText(
                 t("track.prerequisite") if self._track.prerequisite else t("track.locked"))
         self._render_meta()
+        self._fit_title(self.width())
 
 
 class TrackGroupSection(QWidget):
