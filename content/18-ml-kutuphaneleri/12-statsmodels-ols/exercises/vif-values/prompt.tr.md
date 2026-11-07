@@ -1,8 +1,9 @@
 `vif_values(columns)` verilen sütunların VIF değerlerini (1 basamak) sırayla
-döndürsün. statsmodels'in VIF'i **sabit sütunlu** veriyle hesaplanır: önce
-`sm.add_constant`, sonra sıra 1'den başlar (0 `const`). Başlangıç kodu sabiti
-ekliyor ama sırayı 0'dan başlatıyor; ilk değer `const`'unki çıkıyor, son
-sütun hiç gelmiyor.
+döndürsün. Kodlarda veriye çoğu zaman önce `sm.add_constant` ile sabit sütun
+eklenir (eski statsmodels sürümlerinde VIF ancak böyle doğru çıkıyordu; 0.15
+sonucu kendisi düzeltiyor). Sabit eklenince sıra kayar: 0. sütun `const`,
+verilen sütunlar 1'den başlar. Başlangıç kodu sabiti ekliyor ama sırayı 0'dan
+başlatıyor; ilk değer `const`'unki çıkıyor, son sütun hiç gelmiyor.
 
 **Beklenen çıktı:**
 
