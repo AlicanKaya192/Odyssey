@@ -39,7 +39,7 @@ def unlock_all(store) -> bool:
 
 
 def _completed(store, chapter_id: str, section) -> bool:
-    state = store.section_state(chapter_id, section.id, section.exercises)
+    state = store.section_state(chapter_id, section.id, section.exercise_ids)
     return (
         state.status(section.requires_quiz, section.requires_exercises) == "completed"
     )
@@ -65,7 +65,7 @@ def blocking_section(catalog, store, chapter_id: str, section_id: str):
             return None
         # Başlanmış bölüm kilitlenmez. Modülün başına sonradan bölüm
         # eklenince, eski ilk bölümü bitirmiş biri onu kilitli görüyordu.
-        if store.section_state(chapter_id, section.id, section.exercises).has_activity:
+        if store.section_state(chapter_id, section.id, section.exercise_ids).has_activity:
             return None
         # Seviye tespitinde bilinen bölümler ve arkasındaki açık.
         from .placement import reach_index

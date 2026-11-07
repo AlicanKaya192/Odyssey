@@ -674,7 +674,7 @@ class ProfileView(QWidget):
                 if (chapter.id, section.id) not in active:
                     continue
                 state = self._store.section_state(
-                    chapter.id, section.id, section.exercises
+                    chapter.id, section.id, section.exercise_ids
                 )
                 if state.status(section.requires_quiz, section.requires_exercises) == "completed":
                     completed += 1

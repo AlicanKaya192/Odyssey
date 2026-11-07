@@ -14,8 +14,9 @@ kendiliğinden alıyor; geriye dönük bir göç yazmak gerekmiyor.
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
+
+from . import content_cache
 
 
 @dataclass(frozen=True)
@@ -33,11 +34,8 @@ class Badge:
 
 
 def load_definitions(path) -> list[dict]:
-    """`content/badges.json` dosyasını okur."""
-    if not path.exists():
-        return []
-    with path.open(encoding="utf-8") as handle:
-        return json.load(handle).get("badges", [])
+    """`content/badges.json` dosyasını okur (bir kez, `content_cache`)."""
+    return content_cache.read_list(path, "badges")
 
 
 # Modül kimlikleri (`content/` altındaki klasör adları).
@@ -247,7 +245,7 @@ def _completed_sections(
                 hepsi = False
                 continue
             state = store.section_state(
-                chapter.id, section.id, section.exercises
+                chapter.id, section.id, section.exercise_ids
             )
             if state.status(section.requires_quiz, section.requires_exercises) == "completed":
                 bolum += 1

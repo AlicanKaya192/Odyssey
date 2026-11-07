@@ -608,6 +608,10 @@ def _check_terminal(where: str, exercise) -> list[str]:
 
 
 def _check_exercise(where: str, exercise) -> list[str]:
+    # Program açılışta kimliği klasör adından alıyor (`Section.exercise_ids`).
+    if exercise.id != exercise.directory.name:
+        return [f"{where}/{exercise.id}: kimlik klasör adından farklı "
+                f"({exercise.directory.name!r})"]
     if exercise.is_problem:
         return _check_difficulty(where, exercise) + _check_problem(where, exercise)
     if exercise.is_terminal:

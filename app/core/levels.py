@@ -18,10 +18,9 @@ kimlikleri `tags_earned` ayarında duruyor (seri bozulsa da unvan kalıyor).
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
 
-from . import badges
+from . import badges, content_cache
 
 # Tamamlanan her bölümün verdiği puan.
 SECTION_XP = 60
@@ -136,11 +135,8 @@ def badge_xp(tanim: dict) -> int:
 
 
 def load_tags(path) -> list[dict]:
-    """`content/tags.json` dosyasını okur."""
-    if not path.exists():
-        return []
-    with path.open(encoding="utf-8") as handle:
-        return json.load(handle).get("tags", [])
+    """`content/tags.json` dosyasını okur (bir kez, `content_cache`)."""
+    return content_cache.read_list(path, "tags")
 
 
 def _tag_conditions(catalog, store, level: int, rozetler: set[str],

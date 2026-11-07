@@ -2381,7 +2381,7 @@ class PathView(QWidget):
         return holder
 
     def _state_of(self, chapter_id: str, section) -> str:
-        state = self._store.section_state(chapter_id, section.id, section.exercises)
+        state = self._store.section_state(chapter_id, section.id, section.exercise_ids)
         return state.status(section.requires_quiz, section.requires_exercises)
 
     def _placement_banner(self, chapter, outline: list):
@@ -2502,7 +2502,7 @@ class PathView(QWidget):
 
     def _caption_for(self, section, state: str, blocker=None) -> str:
         progress = self._store.section_state(
-            self._chapter_id, section.id, section.exercises
+            self._chapter_id, section.id, section.exercise_ids
         )
         minutes = section.estimated_minutes
 

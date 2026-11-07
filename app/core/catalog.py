@@ -456,8 +456,8 @@ class Section:
     blocks: list[Block] = field(default_factory=list)
     # `exercises` ilk erişimde bir kez okunuyor; bkz. oradaki not.
     _exercises: list | None = field(default=None, init=False, repr=False, compare=False)
-    # `exercise_count` de bir kez sayılıyor; bkz. oradaki not.
-    _exercise_count: int | None = field(default=None, init=False, repr=False, compare=False)
+    # `exercise_ids` de bir kez bulunuyor (pakette derlemede yazılı); bkz. oradaki not.
+    _exercise_ids: list[str] | None = field(default=None, init=False, repr=False, compare=False)
 
     @property
     def title(self) -> dict[str, str]:
@@ -509,32 +509,37 @@ class Section:
         return list(self._exercises)
 
     @property
-    def exercise_count(self) -> int:
-        """Alıştırma sayısı, dosyaları okumadan.
+    def exercise_ids(self) -> list[str]:
+        """Alıştırmaların kimlikleri, `exercise.json` açmadan.
 
-        Karşılama kartındaki toplam için bütün bölümlerin `exercises`'ı
-        okunuyordu: açılışta 1980 `exercise.json` yalnızca saymak için
-        (~0,5 sn, 14 Ekim ölçüldü). Sayı da bir kez hesaplanıyor: her
-        çağrıda klasörleri diske sormak, Öğrenme Yolu her yenilendiğinde
-        ~2000 `exists()` demekti; bölümden geri dönüşün ve bölüm açılışının
-        donmasının büyük kısmı buydu (20 Ekim ölçüldü). İçerik program
-        çalışırken değişmiyor.
+        Bölüm durumu, kilit, tamamlanma ve profil alıştırmadan yalnızca
+        kimliği istiyor; açılışta bunun için 194 `exercise.json` açılıyordu
+        (soğuk açılışta profil tek başına 1,25 sn, 7 Kasım ölçüldü). Kimlik
+        klasörün adı (`validate_content` bunu şart koşuyor); kurulu programda
+        liste derlemede katalog paketine yazılıyor, kaynakta klasörler bir
+        kez diske soruluyor. İçerik program çalışırken değişmiyor.
         """
         if self._exercises is not None:
-            return len(self._exercises)
-        if self._exercise_count is None:
-            self._exercise_count = sum(
-                1 for block in self.blocks_of("exercise")
+            return [exercise.id for exercise in self._exercises]
+        if self._exercise_ids is None:
+            self._exercise_ids = [
+                block.exercise_dir.name for block in self.blocks_of("exercise")
                 if block.exercise_dir and block.exercise_dir.exists()
-            )
-        return self._exercise_count
+            ]
+        return list(self._exercise_ids)
+
+    @property
+    def exercise_count(self) -> int:
+        """Alıştırma sayısı, dosyaları okumadan (karşılama kartındaki toplam)."""
+        return len(self.exercise_ids)
 
     @classmethod
     def load(cls, directory: Path, chapter_id: str) -> "Section":
         return cls.from_raw(directory, chapter_id, _read_json(directory / "section.json"))
 
     @classmethod
-    def from_raw(cls, directory: Path, chapter_id: str, raw: dict) -> "Section":
+    def from_raw(cls, directory: Path, chapter_id: str, raw: dict,
+                 exercise_ids: list[str] | None = None) -> "Section":
         section_id = raw.get("id") or directory.name
 
         blocks = []
@@ -544,13 +549,16 @@ class Section:
                 raise ContentError(f"Türü olmayan blok: {directory / 'section.json'}")
             blocks.append(Block(type=block_type, raw=entry, directory=directory))
 
-        return cls(
+        section = cls(
             id=section_id,
             chapter_id=chapter_id,
             directory=directory,
             raw=raw,
             blocks=blocks,
         )
+        if exercise_ids is not None:
+            section._exercise_ids = list(exercise_ids)
+        return section
 
 
 @dataclass
@@ -764,7 +772,8 @@ class Catalog:
             directory = content_dir / entry["dir"]
             chapter_id = entry["raw"].get("id") or directory.name
             sections = [
-                Section.from_raw(directory / item["dir"], chapter_id, item["raw"])
+                Section.from_raw(directory / item["dir"], chapter_id, item["raw"],
+                                 item.get("exercises"))
                 for item in entry["sections"]
             ]
             chapters.append(
@@ -865,7 +874,8 @@ def write_bundle(content_dir: Path, target: Path) -> None:
                 "dir": chapter.directory.name,
                 "raw": chapter.raw,
                 "sections": [
-                    {"dir": section.directory.name, "raw": section.raw}
+                    {"dir": section.directory.name, "raw": section.raw,
+                     "exercises": section.exercise_ids}
                     for section in chapter.sections
                 ],
             }

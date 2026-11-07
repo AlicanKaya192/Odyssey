@@ -49,7 +49,7 @@ def is_completed(store, section, active: dict[tuple[str, str], str | None]) -> b
         return False
     if active[key]:
         return True
-    state = store.section_state(section.chapter_id, section.id, section.exercises)
+    state = store.section_state(section.chapter_id, section.id, section.exercise_ids)
     return state.status(section.requires_quiz, section.requires_exercises) == "completed"
 
 
@@ -69,7 +69,7 @@ def stamp(catalog, store) -> int:
             key = (chapter.id, section.id)
             if key not in active or active[key]:
                 continue
-            state = store.section_state(chapter.id, section.id, section.exercises)
+            state = store.section_state(chapter.id, section.id, section.exercise_ids)
             if state.completed_at or not state.has_activity:
                 continue
             tamam = state.status(section.requires_quiz, section.requires_exercises) == "completed"
