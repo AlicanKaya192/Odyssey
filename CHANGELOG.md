@@ -23,6 +23,15 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ## [1.7.0] — Yayınlanmadı
 
+### Eklendi
+- **Alıştırma tekrarı.** Bir modülde en az üç bölüm bitirince yolun
+  başındaki tekrar kartında ikinci bir düğme çıkıyor: bitirdiğin
+  bölümlerden karışık beş alıştırma, ipuçları kapalı. Python kod
+  alıştırmaları ve matematik problemleri geliyor; editör başlangıç koduyla
+  açılıyor, kayıtlı çözümlerin ve deneme geçmişin değişmiyor. Sonda
+  hangilerini çözdüğün, hangisinde çözümü gösteren bir yardım kullandığın
+  ve çözemediklerinin bölümüne giden bağlantılar.
+
 ### Düzeltildi
 - **Çalışırken başka alıştırmaya geçmek sonucu karıştırıyordu.** Kod
   çalışırken bölümdeki sonraki alıştırmaya geçilirse eski alıştırmanın

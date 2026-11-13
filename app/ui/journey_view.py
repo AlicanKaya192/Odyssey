@@ -1985,9 +1985,11 @@ class PlacementBanner(QFrame):
     """
 
     requested = Signal()
+    # İkinci düğme (tekrar kartında "Alıştırma tekrarı").
+    secondary_requested = Signal()
 
     def __init__(self, title: str, text: str, button: str, mode: str,
-                 icon_name: str = "target") -> None:
+                 icon_name: str = "target", secondary: str | None = None) -> None:
         super().__init__()
         p = PALETTES.get(mode, PALETTES["light"])
         self.setObjectName("placementBanner")
@@ -2015,7 +2017,14 @@ class PlacementBanner(QFrame):
         self.button = QPushButton(button)
         self.button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.button.clicked.connect(self.requested)
+        self.button.setVisible(bool(button))
         satir.addWidget(self.button, 0, Qt.AlignmentFlag.AlignVCenter)
+        self.secondary_button = None
+        if secondary:
+            self.secondary_button = QPushButton(secondary)
+            self.secondary_button.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.secondary_button.clicked.connect(self.secondary_requested)
+            satir.addWidget(self.secondary_button, 0, Qt.AlignmentFlag.AlignVCenter)
 
 
 # Oturum boyunca: hangi modülün yolu görüldü, görüldüğünde hangi bölümler
@@ -2388,7 +2397,7 @@ class PathView(QWidget):
         """Seviye tespit kartı; modülde yeterli bölüm yoksa ya da bütün
         bölümler bittiyse yok. Kilit kaldırılmışken de görünüyor (Alican):
         kişi nereden başlayacağını, neyi tekrar etmesi gerektiğini görsün."""
-        from ..core import placement, practice_exam
+        from ..core import exercise_practice, placement, practice_exam
 
         kartlar = []
         t = self._language.t
@@ -2410,16 +2419,31 @@ class PathView(QWidget):
             kartlar.append(kart)
         # Tekrar sınavı: en az üç bölüm bitince (Alican 27 Ekim). Seviye
         # tespit kartı onaylı davranışıyla yerinde kalıyor; ikisi alt alta.
+        # Alıştırma tekrarı aynı kartta ikinci düğme (Alican 7 Kasım).
         biten = len(practice_exam.done_sections(chapter, self._store, self._language.language))
-        if biten >= practice_exam.MIN_DONE:
-            son = practice_exam.load(self._store, chapter.id)
-            metin = t("practice.banner_text", count=biten, questions=practice_exam.TOTAL)
-            if son:
-                metin = t("practice.banner_last", correct=son.get("correct", 0),
-                          total=son.get("total", 0)) + " " + metin
-            kart = PlacementBanner(t("practice.title"), metin, t("practice.start"), self._mode,
-                                   icon_name="repeat")
+        sinav = biten >= practice_exam.MIN_DONE
+        alistirma = exercise_practice.available(chapter, self._store)
+        if sinav or alistirma:
+            parcalar = []
+            if sinav:
+                son = practice_exam.load(self._store, chapter.id)
+                if son:
+                    parcalar.append(t("practice.banner_last", correct=son.get("correct", 0),
+                                      total=son.get("total", 0)))
+                parcalar.append(t("practice.banner_text", count=biten,
+                                  questions=practice_exam.TOTAL))
+            if alistirma:
+                parcalar.append(t("xpractice.banner_text", count=exercise_practice.TOTAL))
+                son = exercise_practice.load(self._store, chapter.id)
+                if son:
+                    parcalar.append(t("xpractice.banner_last", solved=son.get("solved", 0),
+                                      total=son.get("total", 0)))
+            kart = PlacementBanner(
+                t("practice.title") if sinav else t("xpractice.title"), " ".join(parcalar),
+                t("practice.start") if sinav else "", self._mode, icon_name="repeat",
+                secondary=t("xpractice.button") if alistirma else None)
             kart.requested.connect(lambda: self.open_practice(chapter.id))
+            kart.secondary_requested.connect(lambda: self.open_exercise_practice(chapter.id))
             self._practice = kart
             kartlar.append(kart)
         if not kartlar:
@@ -2459,6 +2483,37 @@ class PathView(QWidget):
 
         dialog.finished.connect(kapandi)
         dialog.spot_requested.connect(self.spot_requested)
+        dialog.open()
+        return dialog
+
+    def open_exercise_practice(self, chapter_id: str, rng=None, today=None):
+        """Alıştırma tekrarı penceresi; bir şey çözüldüyse kart ve seri tazeleniyor."""
+        from .exercise_practice_dialog import ExercisePracticeDialog
+        from .modal import Backdrop
+
+        chapter = self._catalog.chapter(chapter_id)
+        if chapter is None:
+            return None
+        kok = self.window()
+        perde = Backdrop(kok)
+        perde.show()
+        dialog = ExercisePracticeDialog(self._language, self._store, chapter, self._mode, kok,
+                                        today=today, rng=rng)
+        self.exercise_practice_dialog = dialog
+        hedef: list[tuple[str, str]] = []
+
+        def kapandi(_sonuc) -> None:
+            perde.deleteLater()
+            if dialog.solved_count:
+                self._rebuild()
+                self.placement_finished.emit()
+            dialog.deleteLater()
+            self.exercise_practice_dialog = None
+            if hedef:
+                self.section_opened.emit(*hedef[0])
+
+        dialog.section_requested.connect(lambda c, s: hedef.append((c, s)))
+        dialog.finished.connect(kapandi)
         dialog.open()
         return dialog
 

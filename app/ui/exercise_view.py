@@ -302,6 +302,10 @@ class ExerciseView(QWidget):
         self._tab_current = "prompt"
         self._attempt_count = 0
         self._git_study_marked = False
+        # Alıştırma tekrarı (`set_practice`): "Takıldın mı?" kartı ve Paylaş
+        # yok; çözümü gösteren yardımın kullanılıp kullanılmadığı sayılıyor.
+        self._practice = False
+        self._help_used = False
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -455,6 +459,9 @@ class ExerciseView(QWidget):
                 self._revealed.discard(level)
             else:
                 self._revealed.add(level)
+                ex = self._exercise
+                if ex is not None and not ex.is_problem and level >= len(ex.hints):
+                    self._help_used = True
             self._prompt.update_extra(self._extra_html())
             return
         if action == "lesson-spot":
@@ -574,7 +581,7 @@ class ExerciseView(QWidget):
         oturumda düşen çalıştırmaların büyüğü: aynı kodu üç kez çalıştıran
         da sayılsın.
         """
-        if self._exercise is None:
+        if self._exercise is None or self._practice:
             return 0
         kayit = failures_since_pass(
             self._store.exercise_attempts(self._chapter_id, self._section_id, self._exercise.id)
@@ -766,7 +773,7 @@ class ExerciseView(QWidget):
         self._problem = ProblemPanel(self._language)
         self._problem.checked.connect(self._on_problem_checked)
         self._problem.work_changed.connect(self._save_problem_state)
-        self._problem.reveal_requested.connect(lambda: self._reveal_solutions(True))
+        self._problem.reveal_requested.connect(self._on_reveal_requested)
 
         # Çözüm açık mı; kayıtta da tutuluyor, bölüme dönünce açık kalsın.
         self._revealed_solution = False
@@ -987,6 +994,7 @@ class ExerciseView(QWidget):
 
         # Yeni alıştırmada ipuçları kapalı başlar.
         self._revealed = set()
+        self._help_used = False
         self._session_fails = 0
         self._stuck_announced = False
         self._refresh_prompt()
@@ -1419,7 +1427,9 @@ class ExerciseView(QWidget):
 
     @property
     def is_running(self) -> bool:
-        return self._worker is not None and self._worker.isRunning()
+        # İş parçacığına sorulmuyor: sonucu bildiren sinyal geldiğinde
+        # `isRunning()` bir an daha True dönüyor.
+        return self._run_context is not None
 
     def _on_completed(self, result: RunResult) -> None:
         self._run_spinner.stop()
@@ -1532,11 +1542,50 @@ class ExerciseView(QWidget):
             kod = self._code_now()
         self._trace_source = source
         self._trace_code = kod
+        if source == "solution":
+            self._help_used = True
         self._trace_spinner.start()
         self._trace_started = time.monotonic()
         self._trace_worker = TraceWorker(kod, self._exercise, self)
         self._trace_worker.completed.connect(self._on_traced)
         self._trace_worker.start()
+
+    def release_workers(self, owner) -> None:
+        """Ekran kapanırken süren çalıştırmaları `owner`'a devreder.
+
+        İş parçacığı çalışırken ebeveyniyle silinirse program çöküyor
+        ("QThread: Destroyed while thread is still running"); sonucu da artık
+        kimse beklemiyor. Bitince kendini siliyor; ana pencere kapanırken
+        `findChildren` ile bekleniyor.
+        """
+        for worker in (self._worker, self._trace_worker):
+            if worker is None or not worker.isRunning():
+                continue
+            worker.completed.disconnect()
+            worker.setParent(owner)
+            worker.finished.connect(worker.deleteLater)
+        self._worker = self._trace_worker = None
+        self._run_context = None
+        self.stop_server()
+
+    def _on_reveal_requested(self) -> None:
+        """Problemde "Çözümü göster"."""
+        self._help_used = True
+        self._reveal_solutions(True)
+
+    def set_practice(self, on: bool) -> None:
+        """Alıştırma tekrarı kipi: kayıt dışarıdan verilen salt okunur
+        depoda (`core.exercise_practice.PracticeStore`); burada yalnızca
+        arayüz: "Takıldın mı?" kartı ve çözüm kartını paylaşma yok."""
+        self._practice = on
+        self._share_button.setVisible(not on)
+        self._fit_runbar()
+
+    @property
+    def helped(self) -> bool:
+        """Bu alıştırmada çözümü gösteren bir yardım kullanıldı mı: son ipucu
+        (çözümün tamamı), örnek çözümü izlemek ya da problemin çözüm yolları."""
+        return self._help_used
 
     def _on_trace_source(self, source: str) -> None:
         if source == "solution":
@@ -1640,6 +1689,9 @@ class ExerciseView(QWidget):
         """
         if self._exercise is None:
             return
+        if self._revealed_solution:
+            # İki yanlıştan sonra kendiliğinden ya da "Çözümü göster" ile açılmıştı.
+            self._help_used = True
         self._save_problem_state(solved=passed, count_attempt=True)
         self._store.add_exercise_attempt(
             self._chapter_id, self._section_id, self._exercise.id,

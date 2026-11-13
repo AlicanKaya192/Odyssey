@@ -25,6 +25,16 @@ lecture note does not mean downloading the whole application again.
 
 ## [1.7.0] — Unreleased
 
+### Added
+- **Exercise practice.** Once you finish at least three sections of a
+  module, the review card at the top of the path gets a second button:
+  five mixed exercises from the sections you finished, with hints closed.
+  It uses Python code exercises and maths problems; the editor opens with
+  the starter code, and your saved solutions and attempt history stay as
+  they are. At the end you see which ones you solved, where you used help
+  that shows the answer, and links back to the sections of the ones you
+  did not solve.
+
 ### Fixed
 - **Switching exercises while code ran mixed up the result.** If you moved
   to the next exercise in a section while your code was still running, the
