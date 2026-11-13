@@ -178,7 +178,7 @@ Odyssey is not signed by Apple (that needs a paid Apple developer account), so t
 
 The wording of these screens can differ a little between macOS versions. After that Odyssey opens like any other app. If macOS instead says the app "is damaged", run `xattr -dr com.apple.quarantine /Applications/Odyssey.app` in Terminal once and open it again.
 
-On macOS your progress is kept in `~/Library/Application Support/Odyssey`. Some parts work only on Windows for now: SQL exercises (they need SQL Server with Windows sign-in), in-app updates (download the new `.dmg` from the releases page instead), streak reminders, sounds and the Discord status. Docker and Rust exercises need Docker Desktop and Rust installed on the Mac, as on Windows. Git, API, Docker and Rust exercises, step-by-step tracing and taking a quiz have not been tried on a Mac yet.
+On macOS your progress is kept in `~/Library/Application Support/Odyssey`. Some parts work only on Windows for now: SQL exercises (they need SQL Server with Windows sign-in), in-app updates (download the new `.dmg` from the releases page instead), streak reminders, sounds and the Discord status. Docker and Rust exercises need Docker Desktop and Rust installed on the Mac, as on Windows. Every exercise except SQL and Docker (Git, API and Rust included) passes an automatic check on a Mac: the starter code fails, the solution and the last hint pass in both languages. Docker exercises, step-by-step tracing and taking a quiz have not been tried on a Mac yet.
 
 ### Running from source on macOS
 

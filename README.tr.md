@@ -178,7 +178,7 @@ Odyssey Apple tarafından imzalanmadı (bunun için ücretli bir Apple geliştir
 
 Bu ekranların yazısı macOS sürümüne göre biraz değişebilir. Bundan sonra Odyssey her uygulama gibi açılıyor. macOS bunun yerine uygulamanın "hasarlı" olduğunu söylerse Terminal'de bir kez `xattr -dr com.apple.quarantine /Applications/Odyssey.app` çalıştırıp yeniden açın.
 
-macOS'ta ilerlemeniz `~/Library/Application Support/Odyssey` klasöründe tutuluyor. Bazı bölümler şimdilik yalnızca Windows'ta çalışıyor: SQL alıştırmaları (Windows oturum açmasıyla SQL Server istiyor), uygulama içi güncelleme (yeni `.dmg`'yi bunun yerine sürümler sayfasından indirin), seri hatırlatmaları, sesler ve Discord durumu. Docker ve Rust alıştırmaları, Windows'taki gibi Mac'te kurulu Docker Desktop ve Rust istiyor. Git, API, Docker ve Rust alıştırmaları, adım adım izleme ve sınav çözme Mac'te henüz denenmedi.
+macOS'ta ilerlemeniz `~/Library/Application Support/Odyssey` klasöründe tutuluyor. Bazı bölümler şimdilik yalnızca Windows'ta çalışıyor: SQL alıştırmaları (Windows oturum açmasıyla SQL Server istiyor), uygulama içi güncelleme (yeni `.dmg`'yi bunun yerine sürümler sayfasından indirin), seri hatırlatmaları, sesler ve Discord durumu. Docker ve Rust alıştırmaları, Windows'taki gibi Mac'te kurulu Docker Desktop ve Rust istiyor. SQL ve Docker dışındaki bütün alıştırmalar (Git, API ve Rust dahil) Mac'te otomatik denetimden geçiyor: başlangıç kodu düşüyor, çözüm ve son ipucu iki dilde geçiyor. Docker alıştırmaları, adım adım izleme ve sınav çözme Mac'te henüz denenmedi.
 
 ### macOS'ta kaynak koddan çalıştırma
 

@@ -32,9 +32,9 @@ lecture note does not mean downloading the whole application again.
   time macOS will not open it; click "Open Anyway" once in System Settings ›
   Privacy & Security (the steps are in the README). SQL exercises, in-app
   updates, streak reminders and sounds are not available on the Mac yet.
-  Git, API, Docker and Rust exercises, step-by-step tracing and taking a
-  quiz have not been tried on a Mac yet; if something goes wrong, please
-  report it.
+  Every exercise except SQL and Docker passed an automatic check on a Mac;
+  Docker exercises, step-by-step tracing and taking a quiz have not been
+  tried on a Mac yet. If something goes wrong, please report it.
 - **Exercise practice.** Once you finish at least three sections of a
   module, the review card at the top of the path gets a second button:
   five mixed exercises from the sections you finished, with hints closed.
@@ -43,6 +43,16 @@ lecture note does not mean downloading the whole application again.
   they are. At the end you see which ones you solved, where you used help
   that shows the answer, and links back to the sections of the ones you
   did not solve.
+
+### Changed
+- **Some exercises were updated to give the same result on every
+  computer.** In a few exercises the same solution printed a different last
+  digit on Windows and on macOS. In Big Data the orders file is written with
+  the same line endings everywhere (CSV sizes are slightly smaller); two
+  exercises that compare file sizes ask for `lineterminator="\n"`. A few
+  Random Forest and HDBSCAN exercises have new data or model settings, and
+  words with equal scores now come in alphabetical order. Exercises you have
+  already solved still count as solved.
 
 ### Fixed
 - **Switching exercises while code ran mixed up the result.** If you moved

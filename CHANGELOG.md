@@ -30,9 +30,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   için ilk açılışta macOS onu açmaz; Sistem Ayarları › Gizlilik ve
   Güvenlik'te "Yine de Aç"a bir kez basmanız yeterli (adımlar README'de).
   Mac'te SQL alıştırmaları, uygulama içi güncelleme, seri hatırlatmaları ve
-  sesler şimdilik yok. Git, API, Docker ve Rust alıştırmaları, adım adım
-  izleme ve sınav çözme Mac'te henüz denenmedi; bir sorunla karşılaşırsanız
-  bildirmeniz çok işe yarar.
+  sesler şimdilik yok. SQL ve Docker dışındaki bütün alıştırmalar Mac'te
+  otomatik denetimden geçti; Docker alıştırmaları, adım adım izleme ve sınav
+  çözme Mac'te henüz denenmedi. Bir sorunla karşılaşırsanız bildirmeniz çok
+  işe yarar.
 - **Alıştırma tekrarı.** Bir modülde en az üç bölüm bitirince yolun
   başındaki tekrar kartında ikinci bir düğme çıkıyor: bitirdiğiniz
   bölümlerden karışık beş alıştırma, ipuçları kapalı. Python kod
@@ -40,6 +41,16 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   açılıyor, kayıtlı çözümleriniz ve deneme geçmişiniz değişmiyor. Sonda
   hangilerini çözdüğünüz, hangisinde çözümü gösteren bir yardım
   kullandığınız ve çözemediklerinizin bölümüne giden bağlantılar.
+
+### Değişti
+- **Bazı alıştırmalar her bilgisayarda aynı sonucu verecek şekilde
+  güncellendi.** Aynı çözüm Windows'ta ve macOS'ta birkaç alıştırmada son
+  basamakta farklı sayı veriyordu. Büyük Veri'de sipariş dosyası her yerde
+  aynı satır sonuyla yazılıyor (CSV boyutları biraz küçüldü); dosya boyutu
+  karşılaştıran iki alıştırma `lineterminator="\n"` istiyor. Birkaç Random
+  Forest ve HDBSCAN alıştırmasında veri ya da model ayarı değişti, eşit
+  puanlı kelimeler artık abece sırasıyla geliyor. Daha önce çözdüğünüz
+  alıştırmalar çözülmüş sayılmaya devam ediyor.
 
 ### Düzeltildi
 - **Çalışırken başka alıştırmaya geçmek sonucu karıştırıyordu.** Kod
