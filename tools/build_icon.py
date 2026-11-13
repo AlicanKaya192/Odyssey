@@ -20,8 +20,14 @@ içinde kullanılmıyor, yalnızca Developer Portal'a elle yükleniyor:
 Biçim basit: bir başlık, her boyut için bir dizin girdisi ve arkasından PNG
 verileri. Windows Vista'dan beri ICO içinde PNG saklanabiliyor.
 
+macOS paketinin simgesi `icon.icns` de aynı nedenle elle yazılıyor (Qt
+yazmıyor): `icns` + toplam uzunluk, ardından her boyut için dört harfli tür,
+parçanın uzunluğu ve PNG verisi (büyük uçlu sayılar). PNG'li türler macOS
+10.7'den beri okunuyor.
+
 Kullanım:
-    .venv\\Scripts\\python tools/build_icon.py
+    .venv\\Scripts\\python tools/build_icon.py          # bütün dosyalar
+    .venv\\Scripts\\python tools/build_icon.py --icns   # yalnızca icon.icns
 """
 
 from __future__ import annotations
@@ -43,6 +49,22 @@ from app.resources.appicon import paint_banner, paint_cover, paint_icon  # noqa:
 SIZES = (16, 24, 32, 48, 64, 128, 256)
 
 OUTPUT_DIR = PROJECT_ROOT / "app" / "resources"
+
+# macOS simgesinin parçaları: (tür, piksel). `ic11`–`ic14` Retina (@2x)
+# karşılıkları; 16 ve 32 pikselde küçük boy çizimi (kalın yay, menderessiz)
+# kullanılıyor.
+ICNS_TYPES = (
+    ("icp4", 16),
+    ("icp5", 32),
+    ("ic11", 32),
+    ("ic12", 64),
+    ("ic07", 128),
+    ("ic13", 256),
+    ("ic08", 256),
+    ("ic14", 512),
+    ("ic09", 512),
+    ("ic10", 1024),
+)
 
 # Discord'a yüklenecek dosyalar depoya girmiyor: uygulama onları
 # kullanmıyor ve paketin içinde yer kaplamalarının bir anlamı yok.
@@ -116,6 +138,26 @@ def write_ico(path: Path, images: dict[int, bytes]) -> None:
     path.write_bytes(header + directory + payload)
 
 
+def write_icns(path: Path, parts: list[tuple[str, bytes]]) -> None:
+    """(tür, PNG verisi) parçalarını bir `.icns` kabına yazar."""
+    body = b"".join(
+        kind.encode("ascii") + struct.pack(">I", len(data) + 8) + data
+        for kind, data in parts
+    )
+    path.write_bytes(b"icns" + struct.pack(">I", len(body) + 8) + body)
+
+
+def build_icns() -> Path:
+    """`icon.icns`'i yazar; yolunu döndürür."""
+    sizes = {size for _, size in ICNS_TYPES}
+    images = {size: to_png_bytes(render(size)) for size in sizes}
+    path = OUTPUT_DIR / "icon.icns"
+    write_icns(path, [(kind, images[size]) for kind, size in ICNS_TYPES])
+    print(f"Yazıldı: {path.name}  ({path.stat().st_size:,} bayt, "
+          f"{len(ICNS_TYPES)} parça: {', '.join(k for k, _ in ICNS_TYPES)})")
+    return path
+
+
 def render_cover(width: int, height: int) -> QImage:
     """16:9 kapak: açılış sahnesinin özeti (sentor, hedef, ODYSSEY)."""
     image = QImage(QSize(width, height), QImage.Format.Format_ARGB32)
@@ -139,7 +181,13 @@ def render_banner(tagline: str, subline: str) -> QImage:
 def main() -> int:
     application = QApplication(sys.argv)  # noqa: F841 (Qt için gerekli)
 
-    images = {size: to_png_bytes(render(size)) for size in SIZES}
+    build_icns()
+    # Yalnızca macOS simgesi istendiyse öteki dosyalara dokunulmuyor: banner
+    # ve Discord görselleri her çalıştırmada yeniden yazılıyor.
+    if "--icns" in sys.argv:
+        return 0
+
+    images ={size: to_png_bytes(render(size)) for size in SIZES}
 
     ico_path = OUTPUT_DIR / "icon.ico"
     write_ico(ico_path, images)
