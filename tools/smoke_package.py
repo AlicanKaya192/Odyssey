@@ -30,7 +30,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "tools"))
 
-from app.core import runner  # noqa: E402
+from app.core import mpl_cache, runner  # noqa: E402
 from app.core.catalog import BUNDLE_NAME  # noqa: E402
 from build_exe import package_layout  # noqa: E402
 from check_exercises import bir_alistirma  # noqa: E402
@@ -65,6 +65,11 @@ def main() -> int:
         problems.append(f"katalog paketi yok: {catalog}")
 
     use_package(executable)
+    # Program açılınca yaptığı gibi: matplotlib önbelleği (yalnızca macOS'ta,
+    # yoksa). Süresi yazılıyor; grafik alıştırması ondan sonra ölçülüyor.
+    sure = mpl_cache.warm_if_needed()
+    if sure is not None:
+        print(f"önbellek  matplotlib yazı tipleri  ({sure:.1f} sn)")
     content = PROJECT_ROOT / "content"
     for what, relative in EXERCISES:
         started = time.time()

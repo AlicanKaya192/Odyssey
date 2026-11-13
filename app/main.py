@@ -28,6 +28,18 @@ MIN_PYTHON = (3, 10)
 # Pencere belirdikten bu kadar sonra arama dizini arka planda kurulmaya
 # başlıyor (belirme ve yol çizimi animasyonu takılmasın).
 SEARCH_INDEX_DELAY_MS = 1500
+# Arama dizininden sonra; ikisi aynı anda işlemciyi paylaşmasın.
+MPL_CACHE_DELAY_MS = 4000
+
+
+def _warm_matplotlib_cache() -> None:
+    """macOS'ta, önbellek yoksa ayrı iş parçacığında kurar (`core/mpl_cache.py`)."""
+    from app.core import mpl_cache
+
+    if mpl_cache.needed():
+        import threading
+
+        threading.Thread(target=mpl_cache.warm_if_needed, name="mpl-cache", daemon=True).start()
 
 
 def _run_harness_if_asked() -> bool:
@@ -354,6 +366,9 @@ def main() -> int:
     # Arama dizini açılışı geciktirmesin diye pencere göründükten sonra,
     # belirme geçişi bittiğinde arka planda kuruluyor.
     QTimer.singleShot(SEARCH_INDEX_DELAY_MS, window.start_search_index)
+    # macOS: matplotlib'in yazı tipi önbelleği yeni bir Mac'te ~1 dk sürüyor ve
+    # ilk grafik alıştırmasını zaman aşımına düşürüyordu; bir kez, arkada kuruluyor.
+    QTimer.singleShot(SEARCH_INDEX_DELAY_MS + MPL_CACHE_DELAY_MS, _warm_matplotlib_cache)
     # Belge alanlı ekranlar (bölüm, Rotalar, Notlarım...) pencere göründükten
     # sonra; önce tarayıcı bileşeninin dosyaları arka planda okunuyor.
     QTimer.singleShot(0, lambda: window.start_deferred_warm_up(times))
