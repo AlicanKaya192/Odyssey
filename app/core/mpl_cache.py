@@ -74,6 +74,11 @@ def warm_if_needed() -> float | None:
     """
     if not needed():
         return None
+    return warm()
+
+
+def warm() -> float | None:
+    """Önbelleği denetleyicide kurar (zaten varsa kısa sürer)."""
     from . import runner
 
     started = time.monotonic()

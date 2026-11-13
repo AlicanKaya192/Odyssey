@@ -40,6 +40,8 @@ EXERCISES = (
     ("Python", "00-python-temelleri/00-baslangic/exercises/first-program"),
     ("makine öğrenmesi", "02-makine-ogrenmesi/01-ilk-model/exercises/split-and-fit"),
     ("grafik", "01-veri-bilimi/07-gorsellestirme/exercises/trend-line"),
+    # Aynı alıştırma bir kez daha: önbellek kalıcıysa ilkinden kısa sürer.
+    ("grafik (yeniden)", "01-veri-bilimi/07-gorsellestirme/exercises/trend-line"),
     # LightGBM macOS'ta libomp istiyor; paketin içinde gelmezse burada düşer.
     ("LightGBM", "18-ml-kutuphaneleri/14-gradyan-boosting-kutuphaneleri/exercises/lgbm-early"),
 )
@@ -65,11 +67,14 @@ def main() -> int:
         problems.append(f"katalog paketi yok: {catalog}")
 
     use_package(executable)
-    # Program açılınca yaptığı gibi: matplotlib önbelleği (yalnızca macOS'ta,
-    # yoksa). Süresi yazılıyor; grafik alıştırması ondan sonra ölçülüyor.
-    sure = mpl_cache.warm_if_needed()
-    if sure is not None:
-        print(f"önbellek  matplotlib yazı tipleri  ({sure:.1f} sn)")
+    # Program açılınca yaptığı gibi: matplotlib önbelleği (macOS). Bu betik
+    # paketin dışında çalıştığı için `needed()` paketin önbellek klasörüne
+    # bakamıyor; ısındırma her zaman yapılıyor, paketin denetleyicisi kendi
+    # kalıcı klasörünü kullanıyor. Grafik alıştırması ondan sonra ölçülüyor.
+    if sys.platform == "darwin":
+        sure = mpl_cache.warm()
+        if sure is not None:
+            print(f"önbellek  matplotlib yazı tipleri  ({sure:.1f} sn)")
     content = PROJECT_ROOT / "content"
     for what, relative in EXERCISES:
         started = time.time()
