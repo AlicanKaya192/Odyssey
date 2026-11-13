@@ -2487,23 +2487,21 @@ class PathView(QWidget):
         return dialog
 
     def open_exercise_practice(self, chapter_id: str, rng=None, today=None):
-        """Alıştırma tekrarı penceresi; bir şey çözüldüyse kart ve seri tazeleniyor."""
+        """Alıştırma tekrarı; ana pencerenin içerik alanını kaplayan sayfa.
+        Bir şey çözüldüyse kart ve seri tazeleniyor."""
         from .exercise_practice_dialog import ExercisePracticeDialog
-        from .modal import Backdrop
 
         chapter = self._catalog.chapter(chapter_id)
         if chapter is None:
             return None
         kok = self.window()
-        perde = Backdrop(kok)
-        perde.show()
-        dialog = ExercisePracticeDialog(self._language, self._store, chapter, self._mode, kok,
+        sahip = getattr(kok, "_central", None) or kok
+        dialog = ExercisePracticeDialog(self._language, self._store, chapter, self._mode, sahip,
                                         today=today, rng=rng)
         self.exercise_practice_dialog = dialog
         hedef: list[tuple[str, str]] = []
 
         def kapandi(_sonuc) -> None:
-            perde.deleteLater()
             if dialog.solved_count:
                 self._rebuild()
                 self.placement_finished.emit()
@@ -2514,7 +2512,9 @@ class PathView(QWidget):
 
         dialog.section_requested.connect(lambda c, s: hedef.append((c, s)))
         dialog.finished.connect(kapandi)
-        dialog.open()
+        dialog.show()
+        dialog.raise_()
+        dialog.setFocus()
         return dialog
 
     def open_placement(self, chapter_id: str, rng=None):

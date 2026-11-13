@@ -1525,6 +1525,14 @@ class MainWindow(QMainWindow):
         if self._search.isVisible():
             self._search.close_palette()
             return
+        # Alıştırma tekrarı sayfası açıksa yalnızca onu kapatıyor.
+        tekrar = getattr(self._journey.path, "exercise_practice_dialog", None)
+        if tekrar is not None and tekrar.isVisible():
+            if tekrar.view.tracing:
+                tekrar.view.close_trace()
+            else:
+                tekrar.reject()
+            return
         if getattr(self, "_focus_state", None) is not None:
             self.toggle_focus_mode()
             return

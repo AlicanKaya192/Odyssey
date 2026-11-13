@@ -1,4 +1,10 @@
-"""Alıştırma tekrarı penceresi (`core/exercise_practice.py`).
+"""Alıştırma tekrarı sayfası (`core/exercise_practice.py`).
+
+Ayrı bir pencere değil, ana pencerenin içerik alanını kaplayan bir katman
+(tur ve kısayol paneli gibi): kipli pencere ana pencereyi kilitliyordu,
+başlık çubuğundan taşınamıyordu ve kenarlarından arkadaki ekran
+görünüyordu (Alican 13 Kasım). `QDialog` olarak kaldı (`done`, `finished`,
+Esc), ama `Qt.Widget` bayrağıyla bir çocuk bileşen.
 
 İki sayfa: alıştırmalar (içinde ayrı bir alıştırma ekranı) ve özet. Alıştırma
 ekranına gerçek depo yerine `PracticeStore` veriliyor: kişinin kayıtlı
@@ -15,9 +21,10 @@ import html
 import random
 from datetime import date
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QEvent, Qt, Signal
 from PySide6.QtWidgets import (
     QDialog,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -30,13 +37,8 @@ from ..core import exercise_practice
 from ..core.language import LanguageManager
 from ..resources.icons import pixmap
 from ..resources.theme.tokens import PALETTES, SPACING
-from . import modal
 from .exercise_view import ExerciseView
 
-# Pencere ana pencereden bu kadar küçük; alıştırma ekranı en az bu boyda.
-WINDOW_MARGIN = 64
-MIN_WIDTH = 1000
-MIN_HEIGHT = 640
 SUMMARY_WIDTH = 640
 
 
@@ -61,9 +63,16 @@ class ExercisePracticeDialog(QDialog):
         self._results: dict[int, str] = {}
         t = language.t
 
-        modal.prepare(self)
-        self._fit_to_parent()
+        # Çocuk bileşen: sahibinin (ana pencerenin içerik alanı) tamamını kaplıyor.
+        self.setWindowFlags(Qt.WindowType.Widget)
+        self.setObjectName("exercisePractice")
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+        p = PALETTES.get(mode, PALETTES["light"])
+        self.setStyleSheet(f"QDialog#exercisePractice {{ background: {p['bg']}; }}")
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        if parent is not None:
+            self.setGeometry(parent.rect())
+            parent.installEventFilter(self)
 
         kok = QVBoxLayout(self)
         kok.setContentsMargins(SPACING["lg"], SPACING["lg"], SPACING["lg"], SPACING["lg"])
@@ -110,8 +119,25 @@ class ExercisePracticeDialog(QDialog):
         ozet = QWidget()
         ozet.setProperty("role", "bare")
         self._summary_page = ozet
-        r = QVBoxLayout(ozet)
-        r.setContentsMargins(SPACING["md"], SPACING["md"], SPACING["md"], SPACING["md"])
+        dis = QVBoxLayout(ozet)
+        dis.setContentsMargins(0, 0, 0, 0)
+        dis.addStretch(1)
+        orta = QHBoxLayout()
+        orta.addStretch(1)
+        kart = QFrame()
+        kart.setObjectName("practiceSummary")
+        kart.setFixedWidth(SUMMARY_WIDTH)
+        kart.setStyleSheet(
+            f"QFrame#practiceSummary {{ background: {p['surface']}; border: 1px solid {p['border']};"
+            " border-radius: 16px; }"
+            "QFrame#practiceSummary QLabel { background: transparent; border: none; }")
+        self._summary_card = kart
+        orta.addWidget(kart)
+        orta.addStretch(1)
+        dis.addLayout(orta)
+        dis.addStretch(1)
+        r = QVBoxLayout(kart)
+        r.setContentsMargins(SPACING["xl"], SPACING["xl"], SPACING["xl"], SPACING["xl"])
         r.setSpacing(SPACING["sm"])
         self._result_title = QLabel()
         self._result_title.setProperty("role", "modal-title")
@@ -126,7 +152,6 @@ class ExercisePracticeDialog(QDialog):
         self._rows.setSpacing(SPACING["xs"])
         r.addLayout(self._rows)
         r.addSpacing(SPACING["md"])
-        r.addStretch(1)
         alt = QHBoxLayout()
         alt.addStretch(1)
         self._done_button = self._button(t("review.done"), "primary", self.accept)
@@ -149,16 +174,11 @@ class ExercisePracticeDialog(QDialog):
         dugme.clicked.connect(slot)
         return dugme
 
-    def _fit_to_parent(self) -> None:
-        sahip = self.parentWidget()
-        if sahip is not None and sahip.window().isVisible():
-            boy = sahip.window().size()
-            genislik, yukseklik = boy.width() - WINDOW_MARGIN, boy.height() - WINDOW_MARGIN
-        else:
-            ekran = self.screen().availableGeometry() if self.screen() else None
-            genislik = ekran.width() - 2 * WINDOW_MARGIN if ekran else MIN_WIDTH
-            yukseklik = ekran.height() - 2 * WINDOW_MARGIN if ekran else MIN_HEIGHT
-        self.setFixedSize(max(genislik, MIN_WIDTH), max(yukseklik, MIN_HEIGHT))
+    def eventFilter(self, obj, event) -> bool:  # noqa: N802
+        # Sahibi büyüyüp küçülünce sayfa da onu kaplamaya devam ediyor.
+        if obj is self.parentWidget() and event.type() == QEvent.Type.Resize:
+            self.setGeometry(obj.rect())
+        return False
 
     @property
     def solved_count(self) -> int:
@@ -218,7 +238,7 @@ class ExercisePracticeDialog(QDialog):
         if self._view.is_running:
             return
         t = self._language.t
-        self._view.release_workers(self.parentWidget() or self)
+        self._view.release_workers(self.window())
         cozulen = len(self._results)
         yardimli = sum(1 for durum in self._results.values() if durum == "helped")
         self._result_title.setText(t("xpractice.result_title") if cozulen else t("xpractice.title"))
@@ -229,16 +249,6 @@ class ExercisePracticeDialog(QDialog):
         self._result_text.setText(metin)
         self._build_rows()
         self._stack.setCurrentWidget(self._summary_page)
-        if self._stack.indexOf(self._exercise_page) >= 0:
-            self._stack.removeWidget(self._exercise_page)
-            self._exercise_page.hide()
-        # Yükseklik içeriğe göre: sarılan yazılar önce özetin genişliğiyle ölçülüyor.
-        ic = SUMMARY_WIDTH - 2 * SPACING["lg"]
-        duzen = self._summary_page.layout()
-        duzen.activate()
-        boy = duzen.totalHeightForWidth(ic) if duzen.hasHeightForWidth() else duzen.sizeHint().height()
-        self.setFixedSize(SUMMARY_WIDTH, boy + 2 * SPACING["lg"])
-        modal.center(self)
         self.setFocus()
 
     def _build_rows(self) -> None:
@@ -274,7 +284,9 @@ class ExercisePracticeDialog(QDialog):
     # --- kapanış ---------------------------------------------------------------
 
     def done(self, result: int) -> None:  # noqa: D102
-        self._view.release_workers(self.parentWidget() or self)
+        self._view.release_workers(self.window())
+        if self.parentWidget() is not None:
+            self.parentWidget().removeEventFilter(self)
         super().done(result)
 
     def keyPressEvent(self, event) -> None:  # noqa: N802
