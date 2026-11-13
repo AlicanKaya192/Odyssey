@@ -151,7 +151,9 @@ def build_icns() -> Path:
     """`icon.icns`'i yazar; yolunu döndürür."""
     sizes = {size for _, size in ICNS_TYPES}
     images = {size: to_png_bytes(render(size)) for size in sizes}
-    path = OUTPUT_DIR / "icon.icns"
+    # Paketin `app/resources` klasörüne değil: o klasör Windows paketine de giriyor.
+    path = PROJECT_ROOT / "installer" / "macos" / "icon.icns"
+    path.parent.mkdir(parents=True, exist_ok=True)
     write_icns(path, [(kind, images[size]) for kind, size in ICNS_TYPES])
     print(f"Yazıldı: {path.name}  ({path.stat().st_size:,} bayt, "
           f"{len(ICNS_TYPES)} parça: {', '.join(k for k, _ in ICNS_TYPES)})")

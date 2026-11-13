@@ -57,7 +57,14 @@ BUNDLE_IDENTIFIER = "io.github.alicankaya192.odyssey"
 RESOURCES = PROJECT_ROOT / "app" / "resources"
 
 
+# macOS simgesi `app/resources` dışında: o klasör pakete bütün olarak
+# giriyor, `.icns` orada dursa Windows paketine de (ve fark kaydına) girerdi.
+MAC_ICON = PROJECT_ROOT / "installer" / "macos" / "icon.icns"
+
+
 def icon_path() -> Path:
+    if sys.platform == "darwin":
+        return MAC_ICON
     return RESOURCES / ICON_BY_PLATFORM.get(sys.platform, "icon.png")
 
 
