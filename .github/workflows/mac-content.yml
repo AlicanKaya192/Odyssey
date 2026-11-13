@@ -30,6 +30,9 @@ jobs:
     env:
       PYTHONUTF8: 1
       PYTHONIOENCODING: utf-8
+      # GitHub's runners use UTC; with it a starter that forgets the time zone
+      # gives the right answer by luck. Run in a time zone people live in.
+      TZ: Europe/Istanbul
       # Print the failing checks with expected and actual values.
       ODYSSEY_DETAY: "1"
     steps:
@@ -71,6 +74,7 @@ jobs:
         run: |
           mkdir probe
           python -I tools/forest_probe.py dump probe/forest-mac.json
+          python -I tools/platform_probe.py run probe/platform-mac.json
 
       - name: Keep the probe output
         if: matrix.chapter == 'probe'
