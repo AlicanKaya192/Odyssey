@@ -26,7 +26,7 @@ from pathlib import Path
 
 from . import log
 from .memory_limit import CREATE_SUSPENDED, MemoryJob
-from .runner import _child_env, _harness_command, _kill_tree, _prepare_workspace, _write_files
+from .runner import _child_env, _harness_command, _kill_tree, _own_session, _prepare_workspace, _write_files
 from ..paths import install_root
 
 READY_TIMEOUT_SEC = 20
@@ -115,7 +115,8 @@ def start(files: dict[str, str], exercise_dir: Path | None, entry: str, *, modul
     try:
         process = subprocess.Popen(  # noqa: S603 — denetleyici, sabit komut
             _harness_command(job_path), cwd=workspace, stdout=handle, stderr=subprocess.STDOUT,
-            stdin=subprocess.DEVNULL, creationflags=flags, env=_child_env(),
+            stdin=subprocess.DEVNULL, creationflags=flags, start_new_session=_own_session(),
+            env=_child_env(),
         )
     finally:
         handle.close()

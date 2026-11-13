@@ -102,8 +102,9 @@ class UpdateNoticeDialog(QDialog):
         # görünmüyor ve sebebi ekranda yazıyor — basılıp hiçbir şey
         # olmayan bir düğme, olmayan düğmeden kötü.
         # Bu sürümün yaması varsa yalnızca değişen dosyalar iniyor (0.9.1+).
-        self._asset = updater.pick_update(info.assets, info.version)
+        # Güncellenemeyen yerde (macOS gibi) paket hiç seçilmiyor.
         self._can_update, self._blocker = updater.can_update()
+        self._asset = updater.pick_update(info.assets, info.version) if self._can_update else None
         if self._asset is None and self._can_update:
             self._can_update, self._blocker = False, "asset"
 

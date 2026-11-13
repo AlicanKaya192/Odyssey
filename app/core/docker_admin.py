@@ -28,12 +28,24 @@ CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
 INFO_TIMEOUT_SEC = 10
 ADMIN_TIMEOUT_SEC = 120
 
+# macOS'ta Finder'dan açılan uygulamanın PATH'i kısa (`/usr/bin:/bin:...`),
+# `which` kurulu Docker'ı bulamayabiliyor. Sıra: Docker Desktop'ın bağlantısı,
+# Homebrew (Apple Silicon), uygulamanın kendi klasörü. Denetleyicideki
+# (`sandbox/docker_runner.py`) listeyle aynı. Mac'te denenmedi.
+MAC_DOCKER_PATHS = (
+    "/usr/local/bin/docker",
+    "/opt/homebrew/bin/docker",
+    "/Applications/Docker.app/Contents/Resources/bin/docker",
+)
+
 
 def docker_path() -> str:
     """`docker` komutunun yolu; bulunamazsa boş (denetleyicidekiyle aynı arama)."""
     found = shutil.which("docker")
     if found:
         return found
+    if sys.platform == "darwin":
+        return next((path for path in MAC_DOCKER_PATHS if Path(path).is_file()), "")
     for base in (os.environ.get("ProgramFiles", ""), os.environ.get("LOCALAPPDATA", "")):
         if not base:
             continue

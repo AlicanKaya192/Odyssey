@@ -111,6 +111,18 @@ if sys.platform == "win32":
         "display": '"Segoe UI Variable Display"' if _VARIABLE else '"Segoe UI"',
         "mono": '"Cascadia Mono"' if _windows_font_installed("CascadiaMono.ttf") else '"Consolas"',
     }
+# macOS'ta da tek ad, aynı sebeple (Qt orada CoreText kullanıyor; taramanın
+# orada da olup olmadığı ölçülmedi, Mac'te denenmedi). Adlar hem Qt'nin hem
+# Chromium'un (ders sayfaları) tanıdığı adlar olmalı: sistem yazı tipinin
+# gizli adı `.AppleSystemUIFont` CSS'te çalışmıyor. "Helvetica Neue" ve
+# "Menlo" macOS'un uzun süredir hazır gelen yazı tipleri (tahmin: her
+# sürümde var; Mac'te doğrulanmalı).
+elif sys.platform == "darwin":
+    FONTS = {
+        "ui": '"Helvetica Neue"',
+        "display": '"Helvetica Neue"',
+        "mono": '"Menlo"',
+    }
 
 FONT_SIZES = {
     "xs": 12,

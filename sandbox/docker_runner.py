@@ -75,6 +75,15 @@ WORKSPACE_ONLY = {"job.json", "result.json", "seed.sql"}
 
 CREATE_NO_WINDOW = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
 
+# macOS'ta Finder'dan açılan uygulamanın PATH'i kısa, `which` kurulu Docker'ı
+# bulamayabiliyor. `app/core/docker_admin.py` → `MAC_DOCKER_PATHS` ile aynı
+# liste (denetleyici uygulamanın modüllerini içe aktarmıyor). Mac'te denenmedi.
+MAC_DOCKER_PATHS = (
+    "/usr/local/bin/docker",
+    "/opt/homebrew/bin/docker",
+    "/Applications/Docker.app/Contents/Resources/bin/docker",
+)
+
 
 def clip(text: str, limit: int = MAX_OUTPUT_CHARS) -> tuple[str, bool]:
     if len(text) <= limit:
@@ -796,6 +805,8 @@ def docker_path() -> str:
     found = shutil.which("docker")
     if found:
         return found
+    if sys.platform == "darwin":
+        return next((path for path in MAC_DOCKER_PATHS if Path(path).is_file()), "")
     candidates = []
     for base in (os.environ.get("ProgramFiles", ""), os.environ.get("LOCALAPPDATA", "")):
         if base:

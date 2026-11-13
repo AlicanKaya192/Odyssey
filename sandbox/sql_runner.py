@@ -23,6 +23,7 @@ import datetime
 import decimal
 import hashlib
 import re
+import sys
 from pathlib import Path
 
 # Bağlantı denemesi bu kadar bekliyor. Sunucu kapalıysa uzun beklemenin
@@ -102,6 +103,10 @@ def find_server(hint: str = "") -> tuple[str, str]:
     `hint` daha önce bulunmuş bir sunucu adı: önce o deneniyor, böylece
     her çalıştırmada bütün adaylar taranmıyor.
     """
+    if sys.platform != "win32":
+        # Bağlantı `Trusted_Connection=yes` ile, yani Windows hesabıyla
+        # kuruluyor; Windows dışında (macOS) bunun karşılığı yok.
+        raise SqlUnavailable("windows_only")
     try:
         import pyodbc
     except ImportError as exc:  # pragma: no cover - ortama bağlı

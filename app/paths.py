@@ -4,7 +4,8 @@
 
 - **Kurulum klasörü**: uygulama kodu ve müfredat içeriği. Güncellemede
   tamamen değişebilir, üzerine yazılabilir.
-- **Kullanıcı verisi klasörü** (`%APPDATA%\\Odyssey`): ilerleme, sınav notları,
+- **Kullanıcı verisi klasörü** (`%APPDATA%\\Odyssey`; macOS'ta
+  `~/Library/Application Support/Odyssey`): ilerleme, sınav notları,
   yazılan kodlar, kullanıcı notları, profil, rozetler ve ayarlar. Güncelleme
   buraya asla dokunmaz.
 
@@ -67,18 +68,41 @@ def sandbox_dir() -> Path:
     return install_root() / "sandbox"
 
 
+def _uses_mac_layout() -> bool:
+    """macOS'un kendi veri klasörü (`~/Library/Application Support`) mi?"""
+    return sys.platform == "darwin" and not os.environ.get("APPDATA")
+
+
 def _data_root() -> Path:
     """Kullanıcı verilerinin bulunacağı üst klasör."""
     base = os.environ.get("APPDATA")
     if base:
         return Path(base)
-    # Windows dışında veya APPDATA tanımsızsa ev dizini kullanılır.
+    if _uses_mac_layout():
+        return Path.home() / "Library" / "Application Support"
+    # Linux'ta veya APPDATA tanımsızsa ev dizini kullanılır.
     return Path.home()
 
 
 def _folder_name(name: str) -> str:
-    """Windows'ta düz ad, diğerlerinde nokta ile başlayan gizli klasör."""
-    return name if os.environ.get("APPDATA") else f".{name.lower()}"
+    """Windows'ta ve macOS'ta düz ad, diğerlerinde nokta ile başlayan gizli klasör."""
+    if os.environ.get("APPDATA") or _uses_mac_layout():
+        return name
+    return _hidden_name(name)
+
+
+def _hidden_name(name: str) -> str:
+    return f".{name.lower()}"
+
+
+def _legacy_sources() -> list[Path]:
+    """Yeni veri klasörü yokken verisi taşınacak eski klasörler, öncelik sırasıyla."""
+    if _uses_mac_layout():
+        # 1.7.0'dan önce macOS'ta veri Linux'taki gibi ev dizininde gizli
+        # klasördeydi (`~/.odyssey`).
+        return [Path.home() / _hidden_name(name) for name in (APP_DIR_NAME, *LEGACY_APP_DIR_NAMES)]
+    root = _data_root()
+    return [root / _folder_name(name) for name in LEGACY_APP_DIR_NAMES]
 
 
 def _migrate_legacy_data(target: Path) -> None:
@@ -87,16 +111,16 @@ def _migrate_legacy_data(target: Path) -> None:
     Uygulamanın adı değiştiğinde kullanıcının ilerlemesi, yazdığı kodlar ve
     profili eski klasörde kalıyordu; uygulama boş açılıp her şeyi kaybetmiş
     gibi görünüyordu. Taşıma yalnızca bir kez, yeni klasör henüz yokken
-    yapılıyor.
+    yapılıyor. macOS'ta veri klasörünün yeri değiştiği için de aynı yol
+    kullanılıyor (`_legacy_sources`).
     """
     if target.exists():
         return
 
-    root = _data_root()
-    for legacy in LEGACY_APP_DIR_NAMES:
-        source = root / _folder_name(legacy)
+    for source in _legacy_sources():
         if not source.is_dir():
             continue
+        target.parent.mkdir(parents=True, exist_ok=True)
         try:
             source.rename(target)
         except OSError:

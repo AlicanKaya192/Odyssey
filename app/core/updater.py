@@ -200,10 +200,14 @@ def free_space(path: Path) -> int:
 def can_update() -> tuple[bool, str]:
     """Güncelleme buradan yapılabilir mi?
 
-    Dönen ikinci değer, olmuyorsa sebebin anahtarı: `frozen`, `space`. Sebep
-    kullanıcıya söyleniyor — sessizce elle indirmeye yönlendirmek "düğmeye
-    bastım, bir şey olmadı" demek olurdu.
+    Dönen ikinci değer, olmuyorsa sebebin anahtarı: `platform`, `frozen`,
+    `space`. Sebep kullanıcıya söyleniyor — sessizce elle indirmeye
+    yönlendirmek "düğmeye bastım, bir şey olmadı" demek olurdu.
     """
+    if sys.platform != "win32":
+        # Kurulum programı (`-setup.exe`) yalnızca Windows'ta çalışıyor;
+        # macOS'ta yeni sürüm sürüm sayfasından indiriliyor.
+        return False, "platform"
     if not getattr(sys, "frozen", False):
         # Kaynak koddan çalışırken kurulacak bir paket yok.
         return False, "frozen"

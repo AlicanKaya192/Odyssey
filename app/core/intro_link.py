@@ -54,6 +54,10 @@ class IntroLink:
     @classmethod
     def launch(cls, theme: str, language: str, sound: bool = False) -> IntroLink | None:
         """Animasyonu başlatır; başlatılamazsa None (eski açılış ekranı kullanılır)."""
+        if sys.platform == "darwin":
+            # Alt süreç `.app`'i ikinci kez çalıştırır (Dock'ta ikinci simge);
+            # ilk Mac sürümünde açılış ekranı yedeği kullanılıyor.
+            return None
         payload = json.dumps({"theme": theme, "lang": language, "pid": os.getpid(), "sound": sound})
         if getattr(sys, "frozen", False):
             command = [sys.executable, INTRO_FLAG, payload]

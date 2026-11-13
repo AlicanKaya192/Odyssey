@@ -10,6 +10,8 @@ kısayol eklenince (`QShortcut`) buraya da bir satır eklenir.
 
 from __future__ import annotations
 
+import sys
+
 from PySide6.QtCore import QPoint, QSize, Qt
 from PySide6.QtWidgets import (
     QFrame,
@@ -62,6 +64,17 @@ SHORTCUTS = [
         (["C"], "shortcut.captions"),
     ]),
 ]
+
+
+def key_text(key: str) -> str:
+    """Tuşun panelde yazılan adı.
+
+    Qt macOS'ta `Ctrl` kısayollarını Command tuşuna bağlıyor; orada `Ctrl`
+    yazmak yanlış tuşu gösterirdi.
+    """
+    if key == "Ctrl" and sys.platform == "darwin":
+        return "⌘"
+    return key
 
 
 class ShortcutPanel(Popover):
@@ -131,7 +144,7 @@ class ShortcutPanel(Popover):
         self._labels.append((aciklama, anahtar))
 
         for tus in keys:
-            etiket = QLabel(tus)
+            etiket = QLabel(key_text(tus))
             etiket.setProperty("role", "key")
             etiket.setAlignment(Qt.AlignmentFlag.AlignCenter)
             duzen.addWidget(etiket)

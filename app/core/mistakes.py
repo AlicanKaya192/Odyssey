@@ -166,6 +166,8 @@ RULES: list[Rule] = [
     # anlatmıyor, o yüzden ne yapılacağı yazılıyor.
     Rule("SqlUnavailable", r"driver_missing", "mistake.sql_driver_missing"),
     Rule("SqlUnavailable", r"server_missing", "mistake.sql_server_missing"),
+    # Windows dışında: bağlantı Windows kimlik doğrulamasıyla kuruluyor.
+    Rule("SqlUnavailable", r"windows_only", "mistake.sql_windows_only"),
 
     # --- SQL: sorgunun kendisi -------------------------------------------
     Rule("SqlError", r"Invalid object name '([^']+)'", "mistake.sql_no_table"),

@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -191,12 +192,22 @@ def _child_env() -> dict[str, str]:
     return env
 
 
+def _own_session() -> bool:
+    """Denetleyici kendi süreç grubunda mı başlasın? (Windows dışında evet.)
+
+    `_kill_tree` Windows dışında grubu öldürüyor; grup ancak süreç yeni bir
+    oturumda başlarsa yalnızca denetleyiciden ve onun açtıklarından oluşur.
+    """
+    return sys.platform != "win32"
+
+
 def _kill_tree(process: subprocess.Popen) -> None:
     """Süreci ve altındaki bütün süreçleri öldürür.
 
     Windows'ta `process.kill()` yalnızca ana süreci öldürür; kullanıcının
     kodu alt süreç açtıysa onlar arkada kalır. `taskkill /T` ağacın tamamını
-    alır.
+    alır. Windows dışında süreç kendi grubunda başlatılıyor
+    (`_own_session`), grubun tamamı öldürülüyor.
     """
     if sys.platform == "win32":
         subprocess.run(
@@ -205,7 +216,11 @@ def _kill_tree(process: subprocess.Popen) -> None:
             check=False,
         )
     else:
-        process.kill()
+        try:
+            os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+        except OSError:
+            # Grup bulunamadı (süreç az önce bitti) ya da erişilemedi.
+            process.kill()
 
     try:
         process.wait(timeout=KILL_GRACE_SEC)
@@ -387,6 +402,7 @@ def run_code(
             stderr=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
             creationflags=creation_flags,
+            start_new_session=_own_session(),
             env=_child_env(),
             text=True,
             encoding="utf-8",
@@ -516,6 +532,7 @@ def sql_admin(action: str, names: list[str] | None = None) -> dict:
             stderr=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
             creationflags=creation_flags,
+            start_new_session=_own_session(),
             text=True,
             encoding="utf-8",
             errors="replace",
