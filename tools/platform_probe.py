@@ -29,31 +29,33 @@ CONTENT = ROOT / "content"
 ML = "02-makine-ogrenmesi"
 MLLIB = "18-ml-kutuphaneleri"
 # Denetimdeki durum: hdbscan_summary(100).
-HDB_100 = ("print(hdbscan_summary(5))", "print(hdbscan_summary(5))\nprint(hdbscan_summary(100))")
+HDB_SIZES = ("print(hdbscan_summary(5))",
+             "print(hdbscan_summary(5))\nfor s in (40, 60, 80, 100, 120, 150):\n    print(s, hdbscan_summary(s))")
+HOUSE_INT = ("+ 8 * np.minimum(df[\"floor\"], 8) + rng.normal(0, 15, 2000))",
+             "+ 8 * np.minimum(df[\"floor\"], 8) + rng.normal(0, 15, 2000)).round()")
+RFC = "RandomForestClassifier(n_estimators=200, random_state=42)"
+
+
+def leaf(n):
+    return (RFC, f"RandomForestClassifier(n_estimators=200, min_samples_leaf={n}, random_state=42)")
+
+
 CASES = [
     # (ad, alıştırma klasörü, çözüm dosyası, [(eski, yeni), ...])
-    ("cars-forest", f"{ML}/12-genel-tekrar/exercises/review-regression", "solution.py", []),
     ("cars-forest-int-price", f"{ML}/12-genel-tekrar/exercises/review-regression", "solution.py",
      [('y = df["price"]', 'y = df["price"].round()')]),
-    ("cars-forest-leaf5", f"{ML}/12-genel-tekrar/exercises/review-regression", "solution.py",
-     [("RandomForestRegressor(n_estimators=200, random_state=42)",
-       "RandomForestRegressor(n_estimators=200, min_samples_leaf=5, random_state=42)")]),
-    ("pipeline-cv", f"{ML}/11-pipeline-ve-model-kaydetme/exercises/pipeline-in-cv", "solution.py", []),
-    ("pipeline-cv-leaf5", f"{ML}/11-pipeline-ve-model-kaydetme/exercises/pipeline-in-cv", "solution.py",
-     [("RandomForestClassifier(n_estimators=200, random_state=42)",
-       "RandomForestClassifier(n_estimators=200, min_samples_leaf=5, random_state=42)")]),
-    ("pick-model", f"{ML}/12-genel-tekrar/exercises/pick-the-model", "solution.py", []),
-    ("rf-search", f"{MLLIB}/05-model-secimi/exercises/random-forest-search", "solution.py", []),
-    ("rf-search-round", f"{MLLIB}/05-model-secimi/exercises/random-forest-search", "solution.py",
-     [("X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=10)",
-       "X = X.round(4)\nX_train, X_test, y_train, y_test = train_test_split(X, y, random_state=10)")]),
-    ("forest-size", f"{MLLIB}/11-model-kaydetme/exercises/forest-size", "solution.py", []),
-    ("copy-effect", f"{MLLIB}/15-model-aciklama/exercises/copy-effect", "solution.py", []),
-    ("perm-mae", f"{MLLIB}/15-model-aciklama/exercises/perm-mae", "solution.py", []),
-    ("hdbscan", f"{MLLIB}/10-kumeleme-ve-boyut-indirgeme/exercises/hdbscan-summary", "solution.py",
-     [HDB_100]),
-    ("hdbscan-round", f"{MLLIB}/10-kumeleme-ve-boyut-indirgeme/exercises/hdbscan-summary", "solution.py",
-     [HDB_100, ("X = np.vstack([moons, blob])", "X = np.vstack([moons, blob]).round(4)")]),
+    ("pipeline-cv-leaf10", f"{ML}/11-pipeline-ve-model-kaydetme/exercises/pipeline-in-cv", "solution.py", [leaf(10)]),
+    ("pipeline-cv-leaf20", f"{ML}/11-pipeline-ve-model-kaydetme/exercises/pipeline-in-cv", "solution.py", [leaf(20)]),
+    ("pick-model-leaf10", f"{ML}/12-genel-tekrar/exercises/pick-the-model", "solution.py", [leaf(10)]),
+    ("pick-model-leaf20", f"{ML}/12-genel-tekrar/exercises/pick-the-model", "solution.py", [leaf(20)]),
+    ("rf-search-leaf10", f"{MLLIB}/05-model-secimi/exercises/random-forest-search", "solution.py",
+     [("RandomForestClassifier(random_state=0)", "RandomForestClassifier(min_samples_leaf=10, random_state=0)")]),
+    ("rf-search-leaf20", f"{MLLIB}/05-model-secimi/exercises/random-forest-search", "solution.py",
+     [("RandomForestClassifier(random_state=0)", "RandomForestClassifier(min_samples_leaf=20, random_state=0)")]),
+    ("copy-effect-int", f"{MLLIB}/15-model-aciklama/exercises/copy-effect", "solution.py", [HOUSE_INT]),
+    ("perm-mae-int", f"{MLLIB}/15-model-aciklama/exercises/perm-mae", "solution.py", [HOUSE_INT]),
+    ("hdbscan-sizes", f"{MLLIB}/10-kumeleme-ve-boyut-indirgeme/exercises/hdbscan-summary", "solution.py",
+     [HDB_SIZES]),
 ]
 
 # Çözümden önce çalışır: her ağaç eğitiminin girdisini ve sonucunu özetler,
