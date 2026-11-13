@@ -149,15 +149,13 @@ jobs:
             kill "$pid"
             exit 0
           fi
-          wait "$pid"; echo "exit code: $?"
+          code=0; wait "$pid" || code=$?; echo "exit code: $code"
           sleep 5
           echo "--- crash reports"
           ls -t "$HOME/Library/Logs/DiagnosticReports/" 2>/dev/null | head
           for f in $(ls -t "$HOME/Library/Logs/DiagnosticReports/"Odyssey* 2>/dev/null | head -1); do
             head -c 20000 "$f"
           done
-          echo "--- under lldb (native stack at the crash)"
-          lldb --batch -o "settings set target.process.stop-on-exec false"             -o run -k "thread backtrace all" -k "kill" -k quit -- "$app" 2>&1             | grep -v "^\s*$" | head -400 || true
           exit 1
 
       # Same code from source: if this one stays up, the crash is in the
@@ -176,7 +174,7 @@ jobs:
           done
           cat source.log
           if [ "$alive" = 1 ]; then echo "Source run still up after 60 s"; kill "$pid"; exit 0; fi
-          wait "$pid"; echo "exit code: $?"; exit 1
+          code=0; wait "$pid" || code=$?; echo "exit code: $code"; exit 1
 
       - name: Keep the disk image
         if: steps.dmg.outcome == 'success'

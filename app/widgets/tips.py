@@ -24,6 +24,8 @@ Tek tek kareler için (etkinlik ızgarası gibi) `show_text` / `hide_text`.
 
 from __future__ import annotations
 
+import sys
+
 from PySide6.QtCore import QEvent, QObject, QPoint, QPropertyAnimation, QRectF, Qt, QTimer
 from PySide6.QtGui import QColor, QCursor, QGuiApplication, QPainter, QPainterPath
 from PySide6.QtWidgets import QApplication, QLabel, QLayout, QVBoxLayout, QWidget
@@ -235,8 +237,15 @@ def install(app: QApplication) -> TipManager:
     global _manager
     if _manager is None:
         _manager = TipManager(app)
-        app.installEventFilter(_manager)
-        app.aboutToQuit.connect(lambda: app.removeEventFilter(_manager))
+        # macOS'ta uygulama düzeyindeki Python süzgeci PySide 6.11'i
+        # çökertiyor: tarayıcı bileşenine odak verilirken PySide yeni bir
+        # Qt nesnesini sararken nesneye özellik yazıyor, o olay süzgece
+        # gidiyor ve süzgeç aynı nesneyi yeniden sarmaya çalışıyor
+        # (13 Kasım, CI'da açılışta Segmentation fault). Mac'te Qt'nin
+        # kendi ipucu penceresi kalıyor; elle gösterilen kartlar çalışıyor.
+        if sys.platform != "darwin":
+            app.installEventFilter(_manager)
+            app.aboutToQuit.connect(lambda: app.removeEventFilter(_manager))
     return _manager
 
 
