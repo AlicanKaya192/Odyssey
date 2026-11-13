@@ -1,10 +1,12 @@
 """Alıştırma tekrarı sayfası (`core/exercise_practice.py`).
 
-Ayrı bir pencere değil, ana pencerenin içerik alanını kaplayan bir katman
-(tur ve kısayol paneli gibi): kipli pencere ana pencereyi kilitliyordu,
-başlık çubuğundan taşınamıyordu ve kenarlarından arkadaki ekran
-görünüyordu (Alican 13 Kasım). `QDialog` olarak kaldı (`done`, `finished`,
-Esc), ama `Qt.Widget` bayrağıyla bir çocuk bileşen.
+Ayrı bir pencere değil, ana pencerenin ekran alanını (sol şerit ve alt
+şerit dışı) kaplayan bir katman: kipli pencere ana pencereyi kilitliyordu
+ve kenarlarından arkadaki ekran görünüyordu; bütün pencereyi kaplayınca da
+program kapanmış gibi duruyordu (Alican 13 Kasım). `QDialog` olarak kaldı
+(`done`, `finished`, Esc), ama `Qt.Widget` bayrağıyla bir çocuk bileşen.
+Şeritten başka ekrana geçilince kapanıyor (`MainWindow`); dil ve tema
+açıkken değişebiliyor.
 
 İki sayfa: alıştırmalar (içinde ayrı bir alıştırma ekranı) ve özet. Alıştırma
 ekranına gerçek depo yerine `PracticeStore` veriliyor: kişinin kayıtlı
@@ -67,8 +69,6 @@ class ExercisePracticeDialog(QDialog):
         self.setWindowFlags(Qt.WindowType.Widget)
         self.setObjectName("exercisePractice")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-        p = PALETTES.get(mode, PALETTES["light"])
-        self.setStyleSheet(f"QDialog#exercisePractice {{ background: {p['bg']}; }}")
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         if parent is not None:
             self.setGeometry(parent.rect())
@@ -93,6 +93,7 @@ class ExercisePracticeDialog(QDialog):
         basliklar.setSpacing(2)
         baslik = QLabel(t("xpractice.title"))
         baslik.setProperty("role", "modal-title")
+        self._title = baslik
         basliklar.addWidget(baslik)
         self._progress = QLabel()
         self._progress.setProperty("role", "muted")
@@ -127,10 +128,6 @@ class ExercisePracticeDialog(QDialog):
         kart = QFrame()
         kart.setObjectName("practiceSummary")
         kart.setFixedWidth(SUMMARY_WIDTH)
-        kart.setStyleSheet(
-            f"QFrame#practiceSummary {{ background: {p['surface']}; border: 1px solid {p['border']};"
-            " border-radius: 16px; }"
-            "QFrame#practiceSummary QLabel { background: transparent; border: none; }")
         self._summary_card = kart
         orta.addWidget(kart)
         orta.addStretch(1)
@@ -159,10 +156,41 @@ class ExercisePracticeDialog(QDialog):
         r.addLayout(alt)
         self._stack.addWidget(ozet)
 
+        self._apply_style()
+        language.language_changed.connect(self._retranslate)
         if self._items:
             self._show_current()
         else:
             self._finish()
+
+    def _apply_style(self) -> None:
+        p = PALETTES.get(self._mode, PALETTES["light"])
+        self.setStyleSheet(f"QDialog#exercisePractice {{ background: {p['bg']}; }}")
+        self._summary_card.setStyleSheet(
+            f"QFrame#practiceSummary {{ background: {p['surface']}; border: 1px solid {p['border']};"
+            " border-radius: 16px; }"
+            "QFrame#practiceSummary QLabel { background: transparent; border: none; }")
+
+    def set_mode(self, mode: str) -> None:
+        """Tema açıkken değişti."""
+        self._mode = mode
+        self._apply_style()
+        self._view.set_mode(mode)
+        if self._stack.currentWidget() is self._summary_page:
+            self._fill_summary()
+
+    def _retranslate(self, _language: str = "") -> None:
+        """Dil açıkken değişti: yazılar yeni dilde, editördeki kod korunuyor."""
+        t = self._language.t
+        self._title.setText(t("xpractice.title"))
+        self._finish_button.setText(t("xpractice.finish"))
+        self._skip_button.setText(t("xpractice.skip"))
+        self._done_button.setText(t("review.done"))
+        self._view.retranslate()
+        if self._stack.currentWidget() is self._summary_page:
+            self._fill_summary()
+        elif self._items:
+            self._update_progress()
 
     # --- yardımcılar ---------------------------------------------------------
 
@@ -190,14 +218,18 @@ class ExercisePracticeDialog(QDialog):
 
     # --- akış ----------------------------------------------------------------
 
-    def _show_current(self) -> None:
-        section, exercise = self._items[self._index]
+    def _update_progress(self) -> None:
+        section, _exercise = self._items[self._index]
         self._progress.setText(self._language.t(
             "xpractice.progress", index=self._index + 1, total=len(self._items),
             section=self._language.pick(section.title)))
         son = self._index == len(self._items) - 1
         self._next_button.setText(self._language.t("xpractice.finish" if son else "xpractice.next"))
         self._skip_button.setVisible(not son)
+
+    def _show_current(self) -> None:
+        section, exercise = self._items[self._index]
+        self._update_progress()
         self._view.set_advance_label(None)
         self._view.show_exercise(exercise, section.chapter_id, section.id)
         self._sync_buttons()
@@ -237,8 +269,13 @@ class ExercisePracticeDialog(QDialog):
     def _finish(self) -> None:
         if self._view.is_running:
             return
-        t = self._language.t
         self._view.release_workers(self.window())
+        self._fill_summary()
+        self._stack.setCurrentWidget(self._summary_page)
+        self.setFocus()
+
+    def _fill_summary(self) -> None:
+        t = self._language.t
         cozulen = len(self._results)
         yardimli = sum(1 for durum in self._results.values() if durum == "helped")
         self._result_title.setText(t("xpractice.result_title") if cozulen else t("xpractice.title"))
@@ -248,10 +285,15 @@ class ExercisePracticeDialog(QDialog):
             metin += " " + t("xpractice.result_helped", helped=yardimli)
         self._result_text.setText(metin)
         self._build_rows()
-        self._stack.setCurrentWidget(self._summary_page)
-        self.setFocus()
 
     def _build_rows(self) -> None:
+        # Dil ya da tema değişince satırlar baştan kuruluyor.
+        while self._rows.count():
+            satir = self._rows.takeAt(0).layout()
+            while satir is not None and satir.count():
+                parca = satir.takeAt(0).widget()
+                if parca is not None:
+                    parca.deleteLater()
         t = self._language.t
         p = PALETTES.get(self._mode, PALETTES["light"])
         for sira, (section, exercise) in enumerate(self._items):
@@ -284,6 +326,10 @@ class ExercisePracticeDialog(QDialog):
     # --- kapanış ---------------------------------------------------------------
 
     def done(self, result: int) -> None:  # noqa: D102
+        try:
+            self._language.language_changed.disconnect(self._retranslate)
+        except (RuntimeError, TypeError):
+            pass
         self._view.release_workers(self.window())
         if self.parentWidget() is not None:
             self.parentWidget().removeEventFilter(self)

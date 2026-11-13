@@ -1347,8 +1347,19 @@ class MainWindow(QMainWindow):
 
     # --- gezinme ----------------------------------------------------------
 
+    def _practice_page(self):
+        """Açık alıştırma tekrarı sayfası (ekran alanının üstünde) ya da None."""
+        sayfa = getattr(self._journey.path, "exercise_practice_dialog", None)
+        return sayfa if sayfa is not None and sayfa.isVisible() else None
+
     def _leaving_topic_ok(self) -> bool:
-        """Bölümden çıkılacak: sınav sürüyorsa kişiye soruluyor."""
+        """Bölümden çıkılacak: sınav sürüyorsa kişiye soruluyor.
+
+        Başka ekrana geçilirken açık alıştırma tekrarı da kapanıyor (çözülenler
+        her çözümde kaydedildi)."""
+        sayfa = self._practice_page()
+        if sayfa is not None:
+            sayfa.reject()
         if self._stack.currentWidget() is not self._topic_view:
             return True
         tamam = self._topic.confirm_leave_quiz()
@@ -1526,8 +1537,8 @@ class MainWindow(QMainWindow):
             self._search.close_palette()
             return
         # Alıştırma tekrarı sayfası açıksa yalnızca onu kapatıyor.
-        tekrar = getattr(self._journey.path, "exercise_practice_dialog", None)
-        if tekrar is not None and tekrar.isVisible():
+        tekrar = self._practice_page()
+        if tekrar is not None:
             if tekrar.view.tracing:
                 tekrar.view.close_trace()
             else:
@@ -1723,6 +1734,9 @@ class MainWindow(QMainWindow):
         self._stack.set_background(PALETTES[mode]["bg"])
         self._journey.set_mode(mode)
         self._journey_header.set_mode(mode)
+        tekrar = self._practice_page()
+        if tekrar is not None:
+            tekrar.set_mode(mode)
         if self._topic_view is not None:
             self._topic_view.set_mode(mode)
         for view in self._views.values():

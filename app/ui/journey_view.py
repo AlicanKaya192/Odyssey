@@ -2487,15 +2487,15 @@ class PathView(QWidget):
         return dialog
 
     def open_exercise_practice(self, chapter_id: str, rng=None, today=None):
-        """Alıştırma tekrarı; ana pencerenin içerik alanını kaplayan sayfa.
-        Bir şey çözüldüyse kart ve seri tazeleniyor."""
+        """Alıştırma tekrarı; ana pencerenin ekran alanını (şeritler dışı)
+        kaplayan sayfa. Bir şey çözüldüyse kart ve seri tazeleniyor."""
         from .exercise_practice_dialog import ExercisePracticeDialog
 
         chapter = self._catalog.chapter(chapter_id)
         if chapter is None:
             return None
         kok = self.window()
-        sahip = getattr(kok, "_central", None) or kok
+        sahip = getattr(kok, "_stack", None) or kok
         dialog = ExercisePracticeDialog(self._language, self._store, chapter, self._mode, sahip,
                                         today=today, rng=rng)
         self.exercise_practice_dialog = dialog
