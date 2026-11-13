@@ -36,6 +36,7 @@ import importlib.util
 import json
 import os
 import socket
+import socketserver
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -46,6 +47,22 @@ API_HOST = "api.odyssey.test"
 ROUTES_FILE = "api_routes.py"
 # Kayıtta gövdenin en fazla bu kadarı tutuluyor.
 MAX_LOGGED_BODY = 2000
+
+
+class _Server(ThreadingHTTPServer):
+    """Ad çözmeden açılan sunucu.
+
+    `HTTPServer.server_bind` adresin tam adını `socket.getfqdn` ile soruyor;
+    macOS'ta 127.0.0.1 için bu ağdan aranıyor ve 25 saniyeden uzun
+    takılabiliyor (GitHub'ın Mac'inde ölçüldü, 13 Kasım): sunucu açılmadan
+    alıştırma süre aşımına düşüyordu. Ad yalnızca günlükte kullanılıyor.
+    """
+
+    def server_bind(self) -> None:
+        socketserver.TCPServer.server_bind(self)
+        host, port = self.server_address[:2]
+        self.server_name = host
+        self.server_port = port
 
 
 class ApiRequest:
@@ -75,7 +92,7 @@ class ApiServer:
         self.log: list[dict] = []
         self._started = time.monotonic()
         self._lock = threading.Lock()
-        self._server = ThreadingHTTPServer(("127.0.0.1", 0), self._handler_class())
+        self._server = _Server(("127.0.0.1", 0), self._handler_class())
         self._server.daemon_threads = True
         self.port = self._server.server_address[1]
         self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)

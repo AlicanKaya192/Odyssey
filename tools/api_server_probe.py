@@ -35,8 +35,6 @@ def main() -> int:
     t = time.monotonic()
     print("hostname:", socket.gethostname(), flush=True)
     t = adim("gethostname", t)
-    socket.getfqdn("127.0.0.1")
-    t = adim("getfqdn(127.0.0.1)", t)
     with tempfile.TemporaryDirectory() as klasor:
         (Path(klasor) / api_sandbox.ROUTES_FILE).write_text(ROUTES, encoding="utf-8")
         server = api_sandbox.start_if_present(Path(klasor))
