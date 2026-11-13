@@ -1,0 +1,90 @@
+# Every exercise on a Mac: the starter must fail, the solution and the last
+# hint must pass, in both languages (tools/check_exercises.py). One job per
+# path so the run fits in the time limit. SQL (SQL Server, Windows only),
+# Docker (no Docker on GitHub's Mac runners) and the mathematics paths
+# (no code to run) are left out.
+name: Mac content check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [mac-icerik]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: macos-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        chapter:
+          - 00-python-temelleri
+          - 01-veri-bilimi
+          - 02-makine-ogrenmesi
+          - 06-zaman-serileri
+          - 07-api-kullanmak
+          - 08-api-yazmak
+          - 10-git
+          - 11-buyuk-veri
+          - 12-temel-algoritmalar
+          - 13-algoritma-teknikleri
+          - 14-ml-algoritmalari
+          - 15-python-baslangic-kutuphaneleri
+          - 16-python-ileri-kutuphaneleri
+          - 17-veri-bilimi-kutuphaneleri
+          - 18-ml-kutuphaneleri
+          - 19-nlp-temelleri
+          - 20-gommeler-ve-dil-modelleri
+          - 21-uretken-yz-temelleri
+          - 22-prompt-muhendisligi
+          - 23-ci-cd
+          - 24-mlops
+          - 25-cs50-python
+          - 26-rust-temelleri
+          - 27-rust-derinlesmek
+          - 28-ileri-rust
+          - 29-komut-satiri
+          - 30-istatistiksel-cikarim
+          - 31-deney-tasarimi-ve-ab-testi
+          - 32-guvenlik-temelleri
+          - 33-kriptografi
+          - 34-ag-ve-web-guvenligi
+          - 35-sistem-guvenligi-ve-operasyon
+    env:
+      PYTHONUTF8: 1
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: requirements-build.txt
+
+      # LightGBM's Mac wheel needs OpenMP from Homebrew.
+      - name: Install libomp
+        run: brew install libomp
+
+      - name: Install the pinned packages
+        run: python -m pip install -r requirements-build.txt
+
+      - name: Show the Rust toolchain
+        if: startsWith(matrix.chapter, '2') && contains(matrix.chapter, 'rust')
+        run: rustc --version && cargo --version
+
+      - name: Check every exercise
+        run: python tools/check_exercises.py ${{ matrix.chapter }} 2>&1 | tee check.log; exit ${PIPESTATUS[0]}
+
+      - name: Keep the log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-${{ matrix.chapter }}
+          path: check.log
