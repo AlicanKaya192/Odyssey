@@ -64,8 +64,23 @@ On Windows the steps are:
 3. When it finishes, **close and reopen any terminals and Odyssey**. Rust's folder is
    only visible to newly opened programs.
 
+On macOS the steps are:
+
+1. Open the **Terminal** app (type "Terminal" in Spotlight).
+2. The linker comes with Apple's command line tools. Type `xcode-select --install`
+   and confirm the installation in the window that opens. If the tools are already
+   installed it says so.
+3. Paste the command the install page gives for macOS into the terminal and accept
+   the default option:
+
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+
+4. **Close and reopen the terminal and Odyssey.**
+
 A **terminal** is the text window where you type commands. On Windows you can open one
-by typing "PowerShell" in the Start menu. Test the installation with these two commands:
+by typing "PowerShell" in the Start menu, on macOS by typing "Terminal" in Spotlight. Test the installation with these two commands:
 
 ```bash
 rustc --version

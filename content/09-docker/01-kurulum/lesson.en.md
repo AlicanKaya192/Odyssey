@@ -70,6 +70,22 @@ opened as administrator, then restart the computer:
 wsl --install
 ```
 
+## Downloading and installing on macOS (Apple Silicon)
+
+On a Mac the requirements and the installation are shorter: there is no WSL
+and no virtualisation setting; Docker Desktop sets up its own small Linux
+virtual machine.
+
+1. On **docker.com** press **Download for Mac – Apple Silicon**; the file
+   is `Docker.dmg`.
+2. Open `Docker.dmg` and drag the **Docker** icon into the
+   **Applications** folder.
+3. Open **Docker** from **Applications**. On the first start it may ask for
+   your computer's password to install its helper tools.
+
+The next steps (the agreement, skipping sign-in, **Engine running**) are the
+same as on Windows.
+
 ## Step 3 — First start
 
 1. Open **Docker Desktop** from the Start menu.
@@ -126,7 +142,8 @@ itself when the computer starts.
 ## Step 4 — Check from the terminal
 
 You will type commands in a terminal. Type **PowerShell** in Start and open
-it (it does not need to be an administrator). First ask for the version:
+it (it does not need to be an administrator); on a Mac open **Terminal** from
+Spotlight. First ask for the version:
 
 ```text
 docker version
@@ -148,9 +165,10 @@ Server: Docker Desktop 4.92.0 (240144)
 ```
 
 - **Client**: the `docker` command you type. `windows/amd64`: it runs on
-  Windows.
+  Windows. On a Mac this says `darwin/arm64`.
 - **Server**: the Docker Engine running in the background. `linux/amd64`:
-  it runs on Linux, that is, inside WSL 2.
+  it runs on Linux, that is, inside WSL 2. On a Mac `linux/arm64`: the Linux
+  in Docker Desktop's virtual machine.
 
 Your version numbers may differ; what matters is that both parts appear.
 
@@ -235,13 +253,15 @@ enough.
   **Quit Docker Desktop**. Closing the window does not stop the engine; it
   keeps running in the background.
 - **Uninstalling:** Windows Settings › Apps › Docker Desktop › Uninstall.
-  Images and containers go too.
+  On a Mac, **Troubleshoot › Uninstall** in Docker Desktop's menu. Images and
+  containers go too.
 
 ## Summary
 
 - On Windows, Docker = **Docker Desktop**; behind it is a Linux kernel
   running with WSL 2.
 - Needed: 64-bit Windows 10/11, virtualisation on, 4–8 GB of memory.
+- On a Mac (Apple Silicon): `Docker.dmg` → Applications; no WSL needed.
 - `docker` commands do not work until **Engine running** appears at the
   bottom left.
 - `docker version` shows the Client and the Server, `docker run hello-world`

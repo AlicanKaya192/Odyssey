@@ -27,6 +27,8 @@ doğrudan dosyayı göster:
 .venv\Scripts\python.exe
 ```
 
+macOS'ta dosya `.venv/bin/python`.
+
 ### Ortamı VS Code içinden kurmak
 
 Komut paletinde **Python: Create Environment**: `Venv` ya da `Conda` seç,

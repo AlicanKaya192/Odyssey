@@ -63,8 +63,22 @@ Windows'ta adımlar şöyle:
 3. Kurulum bitince açık terminalleri ve **Odyssey'i kapatıp yeniden aç**. Rust'ın
    klasörü ancak yeni açılan programlarda görünür.
 
+macOS'ta adımlar şöyle:
+
+1. **Terminal** uygulamasını aç (Spotlight'ta "Terminal" yaz).
+2. Bağlayıcı Apple'ın komut satırı araçlarından geliyor. `xcode-select --install`
+   yaz ve açılan pencerede kurulumu onayla. Araçlar zaten kuruluysa bunu söyler.
+3. Kurulum sayfasında macOS için verilen komutu terminale yapıştır ve varsayılan
+   seçeneği kabul et:
+
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+
+4. Terminali ve **Odyssey'i kapatıp yeniden aç**.
+
 **Terminal**, komut yazdığın yazı penceresidir. Windows'ta Başlat menüsünden
-"PowerShell" yazarak açabilirsin. Kurulumu şu iki komutla sına:
+"PowerShell" yazarak, macOS'ta Spotlight'tan "Terminal" yazarak açabilirsin. Kurulumu şu iki komutla sına:
 
 ```bash
 rustc --version

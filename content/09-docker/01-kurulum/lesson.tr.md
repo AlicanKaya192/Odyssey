@@ -70,6 +70,21 @@ bir PowerShell'de şunu çalıştır, sonra bilgisayarı yeniden başlat:
 wsl --install
 ```
 
+## macOS'ta (Apple Silicon) indirip kurmak
+
+Mac'te gereksinim listesi ve kurulum daha kısa: WSL ve sanallaştırma ayarı
+yok, Docker Desktop kendi küçük Linux sanal makinesini kendisi kuruyor.
+
+1. **docker.com**'da **Download for Mac – Apple Silicon** düğmesine bas;
+   inen dosya `Docker.dmg`.
+2. `Docker.dmg`'yi aç ve **Docker** simgesini **Applications** klasörüne
+   sürükle.
+3. **Applications**'tan **Docker**'ı aç. İlk açılışta yardımcı araçları
+   kurmak için bilgisayarının parolasını isteyebilir.
+
+Bundan sonraki adımlar (sözleşme, oturum açmadan geçmek, **Engine running**)
+Windows'takiyle aynı.
+
 ## Adım 3 — İlk açılış
 
 1. Başlat menüsünden **Docker Desktop**'ı aç.
@@ -126,7 +141,7 @@ başlamasını sağlayabilirsin.
 ## Adım 4 — Terminalden doğrula
 
 Komutları bir terminalde yazacaksın. Başlat'a **PowerShell** yaz ve aç
-(yönetici olması gerekmiyor). Önce sürümü sor:
+(yönetici olması gerekmiyor); Mac'te Spotlight'tan **Terminal**'i aç. Önce sürümü sor:
 
 ```text
 docker version
@@ -148,9 +163,10 @@ Server: Docker Desktop 4.92.0 (240144)
 ```
 
 - **Client**: senin yazdığın `docker` komutu. `windows/amd64`: Windows'ta
-  çalışıyor.
+  çalışıyor. Mac'te burada `darwin/arm64` yazar.
 - **Server**: arka planda çalışan Docker Engine. `linux/amd64`: Linux'ta,
-  yani WSL 2'nin içinde çalışıyor.
+  yani WSL 2'nin içinde çalışıyor. Mac'te `linux/arm64`: Docker Desktop'ın
+  sanal makinesindeki Linux.
 
 Senin sürüm numaraların farklı olabilir; önemli olan iki bölümün de
 görünmesi.
@@ -235,13 +251,15 @@ uyarısı çıkıyor. Docker Desktop'ı açıp yeniden çalıştırman yeterli.
   **Quit Docker Desktop**. Pencereyi kapatmak motoru durdurmuyor; arka
   planda çalışmaya devam ediyor.
 - **Kaldırmak:** Windows Ayarlar › Uygulamalar › Docker Desktop ›
-  Kaldır. İmajlar ve konteynerler de gidiyor.
+  Kaldır. Mac'te Docker Desktop'ın menüsünden **Troubleshoot ›
+  Uninstall**. İmajlar ve konteynerler de gidiyor.
 
 ## Özet
 
 - Windows'ta Docker = **Docker Desktop**; arkasında WSL 2 ile çalışan bir
   Linux çekirdeği var.
 - Gereken: 64 bit Windows 10/11, açık sanallaştırma, 4–8 GB bellek.
+- Mac'te (Apple Silicon) `Docker.dmg` → Applications; WSL gerekmiyor.
 - Sol altta **Engine running** görünmeden `docker` komutları çalışmaz.
 - `docker version` Client ve Server'ı, `docker run hello-world` ilk
   konteyneri, `docker pull` imaj indirmeyi, `docker images` indirilenleri

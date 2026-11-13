@@ -8,12 +8,20 @@ opened **after** the installation can see it.
 2. If that does not help, restart the computer.
 3. If it is still missing, installation stopped half way: run `rustup-init.exe` again.
 
+On macOS the message is `command not found: rustc` and the folder is `~/.cargo/bin`.
+Closing and reopening the terminal is usually enough; if not, run the install command
+again.
+
 ## Linker not found
 
 The message `linker link.exe not found` says the compiler is installed but the part that assembles
 the program is missing. That part comes with Visual Studio; this step may have been skipped during
 installation. Run `rustup-init.exe` again and accept the Visual Studio step. Detailed instructions:
 `https://rust-lang.github.io/rustup/installation/windows-msvc.html`.
+
+On macOS the same problem shows up as `xcrun: error: invalid active developer path`:
+Apple's command line tools are not installed. Type `xcode-select --install` in the
+terminal and reopen Odyssey when it finishes.
 
 ## The program compiles but Windows blocks it
 

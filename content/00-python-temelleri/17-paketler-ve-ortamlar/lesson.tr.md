@@ -57,6 +57,9 @@ py -3.12 --version
 
 `py -3.12` "listede hangisi önce gelirse gelsin, 3.12'yi çalıştır" demek.
 
+macOS'ta `py` yok; sürümü adıyla çağırırsın: `python3 --version` varsayılanı,
+`python3.12 --version` belirli bir sürümü gösterir.
+
 ## pip: paket yöneticisi
 
 `pip`, Python'la birlikte gelen paket yöneticisi. Bir paketi PyPI'dan indirip
@@ -186,6 +189,8 @@ Python'un sürümü.** Başka bir sürüm istiyorsan ortamı o sürümle kur:
 ```text
 py -3.11 -m venv .venv
 ```
+
+macOS'ta aynısı `python3.11 -m venv .venv`.
 
 ### Etkinleştirmek
 

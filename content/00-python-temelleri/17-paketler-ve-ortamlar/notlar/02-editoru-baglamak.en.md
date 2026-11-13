@@ -27,6 +27,8 @@ interpreter path** and point at the file directly:
 .venv\Scripts\python.exe
 ```
 
+On macOS the file is `.venv/bin/python`.
+
 ### Creating the environment from VS Code
 
 **Python: Create Environment** in the command palette: pick `Venv` or

@@ -57,6 +57,9 @@ py -3.12 --version
 
 `py -3.12` means "run 3.12, whichever one comes first in the list".
 
+macOS has no `py`; you call a version by its name: `python3 --version` shows
+the default, `python3.12 --version` a particular version.
+
 ## pip: the package manager
 
 `pip` is the package manager that comes with Python. It downloads a package
@@ -192,6 +195,8 @@ version, create the environment with that version:
 ```text
 py -3.11 -m venv .venv
 ```
+
+On macOS the same is `python3.11 -m venv .venv`.
 
 ### Activating it
 

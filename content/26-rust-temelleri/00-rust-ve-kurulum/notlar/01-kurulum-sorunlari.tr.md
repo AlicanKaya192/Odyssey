@@ -8,12 +8,19 @@ adresindedir ve yalnızca kurulumdan **sonra** açılan programlar onu görür.
 2. Yine olmuyorsa bilgisayarı yeniden başlat.
 3. Hâlâ yoksa kurulum yarım kalmıştır: `rustup-init.exe` dosyasını yeniden çalıştır.
 
+macOS'ta mesaj `command not found: rustc` olur ve klasör `~/.cargo/bin`. Terminali
+kapatıp açmak çoğu zaman yeter; olmuyorsa kurulum komutunu yeniden çalıştır.
+
 ## Bağlayıcı bulunamadı
 
 `linker link.exe not found` mesajı, derleyicinin kurulu olduğunu ama programı birleştirecek
 parçanın eksik olduğunu söyler. Bu parça Visual Studio ile geliyor; kurulumda bu adım atlanmış
 olabilir. `rustup-init.exe` dosyasını yeniden çalıştırıp Visual Studio adımını kabul et. Ayrıntılı
 yönerge: `https://rust-lang.github.io/rustup/installation/windows-msvc.html`.
+
+macOS'ta aynı durum `xcrun: error: invalid active developer path` mesajıyla görünür:
+Apple'ın komut satırı araçları kurulu değil. Terminalde `xcode-select --install` yaz,
+kurulum bitince Odyssey'i yeniden aç.
 
 ## Program derleniyor ama Windows engelliyor
 
