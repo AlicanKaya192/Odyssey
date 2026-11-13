@@ -166,6 +166,19 @@ This command creates both the environment the application runs in and the separa
 .venv\Scripts\python app\main.py
 ```
 
+### On macOS (Apple Silicon)
+
+Support for macOS is new and has hardly been tried yet; a packaged `.dmg` is being prepared. Running from source needs Python 3.14 from [python.org](https://www.python.org/downloads/macos/) (not Anaconda) and Git:
+
+```bash
+git clone https://github.com/AlicanKaya192/Odyssey.git
+cd Odyssey
+python3.14 tools/setup_env.py
+.venv/bin/python app/main.py
+```
+
+On macOS your progress is kept in `~/Library/Application Support/Odyssey`. Some parts work only on Windows for now: SQL exercises (they need SQL Server with Windows sign-in), in-app updates (pull the new version with `git pull` instead), streak reminders, sounds and the Discord status. Docker and Rust exercises need Docker Desktop and Rust installed on the Mac, as on Windows, and have not been tried on a Mac yet.
+
 ## Languages
 
 Both the interface and the content are available in Turkish and English. You can switch at any time from Settings, without restarting. On a Turkish computer the application starts in Turkish and on any other in English, until you choose for yourself. If a section has not been translated into English yet, the Turkish version is shown with a notice at the top.

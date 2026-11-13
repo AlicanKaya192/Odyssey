@@ -166,6 +166,19 @@ Bu komut hem uygulamanın çalıştığı ortamı hem de alıştırmaların çal
 .venv\Scripts\python app\main.py
 ```
 
+### macOS'ta (Apple Silicon)
+
+macOS desteği yeni ve henüz çok az denendi. Paketlenmiş bir `.dmg` hazırlanıyor. Kaynak koddan çalıştırmak için [python.org](https://www.python.org/downloads/macos/)'dan Python 3.14 (Anaconda değil) ve Git gerekiyor:
+
+```bash
+git clone https://github.com/AlicanKaya192/Odyssey.git
+cd Odyssey
+python3.14 tools/setup_env.py
+.venv/bin/python app/main.py
+```
+
+macOS'ta ilerlemeniz `~/Library/Application Support/Odyssey` klasöründe tutuluyor. Bazı bölümler şimdilik yalnızca Windows'ta çalışıyor: SQL alıştırmaları (Windows oturum açmasıyla SQL Server istiyor), uygulama içi güncelleme (yeni sürümü bunun yerine `git pull` ile alın), seri hatırlatmaları, sesler ve Discord durumu. Docker ve Rust alıştırmaları, Windows'taki gibi Mac'te kurulu Docker Desktop ve Rust istiyor; Mac'te henüz denenmedi.
+
 ## Diller
 
 Arayüz ve içerik Türkçe ve İngilizce. Ayarlardan istediğiniz an değiştirebilirsiniz, uygulamayı yeniden başlatmaya gerek yok. Kendiniz seçene kadar uygulama, Türkçe bir bilgisayarda Türkçe, diğerlerinde İngilizce açılıyor. Bir bölümün İngilizce çevirisi henüz yoksa Türkçesi gösterilir ve üstte bunu belirten bir uyarı çıkar.
