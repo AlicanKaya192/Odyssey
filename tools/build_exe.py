@@ -1,6 +1,6 @@
-"""Uygulamayı tek klasörlük bir `.exe` olarak paketler.
+"""Uygulamayı tek klasörlük bir `.exe` (macOS'ta `.app`) olarak paketler.
 
-Çıktı: `dist/Odyssey/Odyssey.exe`
+Çıktı: Windows'ta `dist/Odyssey/Odyssey.exe`, macOS'ta `dist/Odyssey.app`.
 
 Neden tek dosya değil de klasör: uygulama Chromium (QtWebEngine) taşıyor.
 Tek dosyaya sıkıştırılırsa her açılışta yüzlerce megabayt geçici klasöre
@@ -13,6 +13,11 @@ yalnızca Windows paketi çıkıyor. macOS için `.app` üretmek isteyen bir
 Mac'te aynı komutu çalıştırmalı; script gerekli farkları (simge biçimi,
 çalıştırılabilir dosya adı, veri ayıracı) kendisi hallediyor.
 
+macOS'ta paket imzasız dağıtılıyor (Apple geliştirici hesabı yok); yalnızca
+geçici imza (`codesign -s -`) atılıyor. Apple Silicon'da imzasız kod hiç
+çalışmıyor, katalog paketi `.app`'e yazıldıktan sonra da imza bozuluyor; bu
+yüzden imza en son adım. `.dmg` için: `python tools/build_dmg.py`.
+
 Kullanım:
     .venv\\Scripts\\python tools/build_exe.py
     .venv\\Scripts\\python tools/build_exe.py --temiz   # önce eskiyi sil
@@ -21,10 +26,12 @@ Kullanım:
 
 from __future__ import annotations
 
+import plistlib
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -42,10 +49,46 @@ ICON_BY_PLATFORM = {
     "win32": "icon.ico",
     "darwin": "icon.icns",
 }
-ICON = (
-    PROJECT_ROOT / "app" / "resources"
-    / ICON_BY_PLATFORM.get(sys.platform, "icon.png")
-)
+
+# macOS paketinin kimliği (Info.plist `CFBundleIdentifier`); imza ve
+# sistemin uygulamayı tanıması buna bakıyor, sonradan değiştirilmez.
+BUNDLE_IDENTIFIER = "io.github.alicankaya192.odyssey"
+
+RESOURCES = PROJECT_ROOT / "app" / "resources"
+
+
+def icon_path() -> Path:
+    return RESOURCES / ICON_BY_PLATFORM.get(sys.platform, "icon.png")
+
+
+class PackageLayout(NamedTuple):
+    """Paketin diskteki yeri: dağıtılan kök, çalıştırılabilir, içerik klasörü."""
+
+    root: Path
+    executable: Path
+    content: Path
+
+
+def package_layout(dist: Path | None = None) -> PackageLayout:
+    """Bu platformda PyInstaller'ın ürettiği paketin yerleşimi.
+
+    macOS'ta `--windowed` klasörün yanında bir `.app` de kuruyor ve dağıtılan
+    o. İçinde veri dosyaları `Contents/Resources`'ta; yalnızca veri taşıyan
+    `content` klasörü oraya konup `Contents/Frameworks/content` bağlantısıyla
+    gösteriliyor (PyInstaller 6.22 `building/osx.py`, `BUNDLE._process_bundle_toc`).
+    """
+    dist = dist or PROJECT_ROOT / "dist"
+    if sys.platform == "darwin":
+        root = dist / f"{APP_NAME}.app"
+        return PackageLayout(
+            root,
+            root / "Contents" / "MacOS" / APP_NAME,
+            root / "Contents" / "Resources" / "content",
+        )
+    root = dist / APP_NAME
+    executable = root / (f"{APP_NAME}.exe" if sys.platform == "win32" else APP_NAME)
+    return PackageLayout(root, executable, root / "_internal" / "content")
+
 
 # Uygulamayla birlikte gidecek klasörler: (kaynak, paket içindeki yer)
 DATA = [
@@ -238,13 +281,15 @@ def build_command() -> list[str]:
         "--noconfirm",
         "--windowed",              # arkada konsol penceresi açılmasın
         "--name", APP_NAME,
-        "--icon", str(ICON),
+        "--icon", str(icon_path()),
         "--distpath", str(PROJECT_ROOT / "dist"),
         "--workpath", str(PROJECT_ROOT / "build"),
         "--specpath", str(PROJECT_ROOT / "build"),
     ]
     if sys.platform == "win32":
         command += ["--version-file", str(version_file())]
+    elif sys.platform == "darwin":
+        command += ["--osx-bundle-identifier", BUNDLE_IDENTIFIER]
 
     for source, target in DATA:
         command += ["--add-data", f"{PROJECT_ROOT / source}{';' if sys.platform == 'win32' else ':'}{target}"]
@@ -291,20 +336,46 @@ def changelog_dated() -> str:
 
 
 def folder_size(path: Path) -> str:
-    total = sum(f.stat().st_size for f in path.rglob("*") if f.is_file())
+    # `.app` içindeki bağlantılar (Frameworks → Resources) iki kez sayılmasın.
+    total = sum(
+        f.stat().st_size for f in path.rglob("*")
+        if f.is_file() and not f.is_symlink()
+    )
     return f"{total / 1024 / 1024:.0f} MB"
 
 
+def set_bundle_version(app: Path) -> None:
+    """Info.plist'e uygulamanın sürümünü yazar.
+
+    PyInstaller'ın `.app` şablonu sürüm almıyor, `CFBundleShortVersionString`
+    `0.0.0` kalıyor (Finder › Bilgi Al bunu gösterir).
+    """
+    plist = app / "Contents" / "Info.plist"
+    info = plistlib.loads(plist.read_bytes())
+    info["CFBundleShortVersionString"] = APP_VERSION
+    info["CFBundleVersion"] = APP_VERSION
+    plist.write_bytes(plistlib.dumps(info))
+
+
+def sign_bundle(app: Path) -> int:
+    """`.app`'i geçici imzayla baştan imzalar ve imzayı doğrular."""
+    for command in (
+        ["codesign", "--force", "--deep", "-s", "-", str(app)],
+        ["codesign", "--verify", "--deep", "--strict", str(app)],
+    ):
+        result = subprocess.run(command)
+        if result.returncode != 0:
+            print("İmza adımı başarısız:", " ".join(command))
+            return result.returncode
+    print("Geçici imza atıldı ve doğrulandı (codesign -s -).")
+    return 0
+
+
 def main() -> int:
-    if not ICON.exists():
-        print(f"Simge bulunamadı: {ICON.name}")
-        if sys.platform == "win32":
-            print("Önce: python tools/build_icon.py")
-        else:
-            print(
-                f"{sys.platform} için {ICON.name} gerekiyor; "
-                "build_icon.py şimdilik yalnızca .ico üretiyor."
-            )
+    icon = icon_path()
+    if not icon.exists():
+        print(f"Simge bulunamadı: {icon.name}")
+        print("Önce: python tools/build_icon.py")
         return 1
 
     eksik = changelog_dated()
@@ -329,14 +400,10 @@ def main() -> int:
         print("Paketleme başarısız.")
         return result.returncode
 
-    output = PROJECT_ROOT / "dist" / APP_NAME
-    exe = output / (
-        f"{APP_NAME}.exe" if sys.platform == "win32" else APP_NAME
-    )
+    output, exe, packaged_content = package_layout()
 
     # Katalog tek dosyadan okunsun: soğuk açılışta ~490 JSON'u tek tek
     # açmak 9,9 sn sürüyordu (`app/core/catalog.py` → `BUNDLE_NAME`).
-    packaged_content = output / "_internal" / "content"
     if packaged_content.is_dir():
         write_bundle(packaged_content, packaged_content / BUNDLE_NAME)
         print(f"Katalog paketi yazıldı: {BUNDLE_NAME}")
@@ -344,12 +411,23 @@ def main() -> int:
         print("Paketin içerik klasörü bulunamadı:", packaged_content)
         return 1
 
+    # macOS: sürüm ve imza katalog paketinden sonra; `.app`'e sonradan giren
+    # her dosya imzayı bozuyor.
+    if sys.platform == "darwin":
+        set_bundle_version(output)
+        status = sign_bundle(output)
+        if status != 0:
+            return status
+
     print()
     if exe.exists():
         print(f"Hazır: {exe}")
         print(f"Klasör boyutu: {folder_size(output)}")
         print()
-        print("Dağıtım kurulum programıyla: python tools/build_installer.py")
+        if sys.platform == "darwin":
+            print("Disk görüntüsü: python tools/build_dmg.py")
+        else:
+            print("Dağıtım kurulum programıyla: python tools/build_installer.py")
     else:
         print("Beklenen çıktı oluşmadı:", exe)
         return 1
