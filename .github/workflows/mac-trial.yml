@@ -156,7 +156,27 @@ jobs:
           for f in $(ls -t "$HOME/Library/Logs/DiagnosticReports/"Odyssey* 2>/dev/null | head -1); do
             head -c 20000 "$f"
           done
+          echo "--- under lldb (native stack at the crash)"
+          lldb --batch -o "settings set target.process.stop-on-exec false"             -o run -k "thread backtrace all" -k "kill" -k quit -- "$app" 2>&1             | grep -v "^\s*$" | head -400 || true
           exit 1
+
+      # Same code from source: if this one stays up, the crash is in the
+      # packaging (bundle layout or signature), not in the program.
+      - name: Launch from source
+        id: source
+        if: (inputs.full_build || github.event_name == 'push') && steps.launch.outcome == 'failure'
+        continue-on-error: true
+        run: |
+          python -X faulthandler app/main.py > source.log 2>&1 &
+          pid=$!
+          alive=1
+          for i in $(seq 1 60); do
+            if ! kill -0 "$pid" 2>/dev/null; then alive=0; break; fi
+            sleep 1
+          done
+          cat source.log
+          if [ "$alive" = 1 ]; then echo "Source run still up after 60 s"; kill "$pid"; exit 0; fi
+          wait "$pid"; echo "exit code: $?"; exit 1
 
       - name: Keep the disk image
         if: steps.dmg.outcome == 'success'
@@ -184,6 +204,7 @@ jobs:
             echo "| Build the disk image | ${{ steps.dmg.outcome }} |"
             echo "| Smoke test | ${{ steps.smoke.outcome }} |"
             echo "| Launch the app window | ${{ steps.launch.outcome }} |"
+            echo "| Launch from source | ${{ steps.source.outcome }} |"
             if [ -f pip.log ] && grep -qiE "^ERROR|No matching distribution" pip.log; then
               echo
               echo "### pip errors"
