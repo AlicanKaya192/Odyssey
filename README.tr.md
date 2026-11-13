@@ -145,7 +145,7 @@ Sürüm `1.7.0`; `1.0.0` açık betadan (0.7.1 – 0.9.3) sonraki ilk tam sürü
 
 **Çalışanlar:** sentor maskotlu açılış animasyonu, öğrenme patikaları, bölüm içi başlık listesi ve okuma takibiyle konu anlatımı, ders notları, süreli sınavlar, Python, SQL, Git, Linux komut satırı, FastAPI, Docker ve GitHub Actions için otomatik kontrollü alıştırmalar (SQL kendi SQL Server'ınızda çalışıyor ve her deneme geri alınıyor, Git yerleşik bir terminalde, Docker derlemeleri için Docker Desktop gerekiyor), birden fazla dosyadan oluşan alıştırmalar, alıştırma API sunucusu ve tarayıcıda denenebilen canlı FastAPI sunucusu, kademeli ipuçları, hatalı satırı editörde işaretleyen hata açıklamaları, kodunuzu ve örnek çözümü adım adım izleme, derslerin içinde açıklaması görünen terimler sözlüğü, takılınca dersin ilgili kısmına yönlendirme, bildiğiniz bölümleri açan seviye tespit sınavı, çizim kâğıdında çözülen ve adım adım çözüm yolları olan matematik problemleri, önerilen çalışma rotaları, Windows bildirimi olarak gelen seri hatırlatmaları, sırayla açılan bölümler, kalıcı ilerleme kaydı, kendi notlarınız ve genel arama (`Ctrl+K`), kazanınca bir kartla kutlanan 141 rozet, XP, seviyeler ve profilde gösterilebilen unvanlar, Pomodoro ve başka düzenlerle çalışma zamanlayıcısı, alıştırma ve sınavlarda geçmiş denemeler, klavyeyle cevaplanabilen sınavlar, tam ekran okuma odağı, seviyeniz, rozetleriniz ve çalışma takviminizle paylaşım kartı, ilerlemeyi başka bir bilgisayara taşıma ve günlük yedek, alıştırmaların bıraktığı veritabanlarını ve imajları silen Ayarlar › Depolama sayfası, yeni gelenler için tanıtım turu, etkinlik takvimi, kendi fotoğrafınızı seçebildiğiniz profil, Türkçe/İngilizce arayüz ve içerik, açık/koyu tema, ayarlanabilir yazı boyu, uygulama içinden güncelleme, kilidi ve sınav süresini kaldırma seçenekleri.
 
-**Henüz yok:** kalan patikaların içeriği ve macOS sürümü.
+**Henüz yok:** kalan patikaların içeriği ve macOS'ta bazı özellikler (aşağıda).
 
 Yol haritası [CHANGELOG.md](CHANGELOG.md) dosyasında ilerliyor.
 
@@ -166,9 +166,23 @@ Bu komut hem uygulamanın çalıştığı ortamı hem de alıştırmaların çal
 .venv\Scripts\python app\main.py
 ```
 
-### macOS'ta (Apple Silicon)
+## macOS'ta kurulum (Apple Silicon)
 
-macOS desteği yeni ve henüz çok az denendi. Paketlenmiş bir `.dmg` hazırlanıyor. Kaynak koddan çalıştırmak için [python.org](https://www.python.org/downloads/macos/)'dan Python 3.14 (Anaconda değil) ve Git gerekiyor:
+Odyssey Apple Silicon'lu (M1 ve sonrası) Mac'lerde çalışıyor; Intel işlemcili Mac'ler desteklenmiyor. [Sürümler sayfasından](https://github.com/AlicanKaya192/Odyssey/releases) `Odyssey-<sürüm>-macos-arm64.dmg` dosyasını indirin, açın ve Odyssey'i Uygulamalar klasörüne sürükleyin.
+
+Odyssey Apple tarafından imzalanmadı (bunun için ücretli bir Apple geliştirici hesabı gerekiyor). Bu yüzden ilk açılışta macOS uygulamayı doğrulayamadığını söyleyip açmıyor. Bir kez izin vermeniz yeterli:
+
+1. Uygulamalar klasöründe Odyssey'e çift tıklayın ve uyarıyı **Bitti** ile kapatın.
+2. **Sistem Ayarları › Gizlilik ve Güvenlik**'i açıp Güvenlik bölümüne kadar aşağı kaydırın.
+3. Odyssey'in engellendiğini söyleyen satırın yanındaki **Yine de Aç**'a basın ve parolanızla ya da Touch ID ile onaylayın.
+
+Bundan sonra Odyssey her uygulama gibi açılıyor. macOS bunun yerine uygulamanın "hasarlı" olduğunu söylerse Terminal'de bir kez `xattr -dr com.apple.quarantine /Applications/Odyssey.app` çalıştırıp yeniden açın.
+
+macOS'ta ilerlemeniz `~/Library/Application Support/Odyssey` klasöründe tutuluyor. Bazı bölümler şimdilik yalnızca Windows'ta çalışıyor: SQL alıştırmaları (Windows oturum açmasıyla SQL Server istiyor), uygulama içi güncelleme (yeni `.dmg`'yi bunun yerine sürümler sayfasından indirin), seri hatırlatmaları, sesler ve Discord durumu. Docker ve Rust alıştırmaları, Windows'taki gibi Mac'te kurulu Docker Desktop ve Rust istiyor; Mac'te henüz denenmedi.
+
+### macOS'ta kaynak koddan çalıştırma
+
+Kaynak koddan çalıştırmak için [python.org](https://www.python.org/downloads/macos/)'dan Python 3.14 (Anaconda değil) ve Git gerekiyor:
 
 ```bash
 git clone https://github.com/AlicanKaya192/Odyssey.git
@@ -177,7 +191,7 @@ python3.14 tools/setup_env.py
 .venv/bin/python app/main.py
 ```
 
-macOS'ta ilerlemeniz `~/Library/Application Support/Odyssey` klasöründe tutuluyor. Bazı bölümler şimdilik yalnızca Windows'ta çalışıyor: SQL alıştırmaları (Windows oturum açmasıyla SQL Server istiyor), uygulama içi güncelleme (yeni sürümü bunun yerine `git pull` ile alın), seri hatırlatmaları, sesler ve Discord durumu. Docker ve Rust alıştırmaları, Windows'taki gibi Mac'te kurulu Docker Desktop ve Rust istiyor; Mac'te henüz denenmedi.
+Kaynak koddan çalıştırırken yeni sürümleri `git pull` ile alın.
 
 ## Diller
 

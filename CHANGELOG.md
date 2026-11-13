@@ -24,6 +24,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [1.7.0] — Yayınlanmadı
 
 ### Eklendi
+- **macOS sürümü.** Odyssey artık Apple Silicon'lu (M1 ve sonrası) Mac'lerde
+  de çalışıyor: sürüm sayfasındaki `.dmg` dosyasını açıp Odyssey'i
+  Uygulamalar klasörüne sürükleyin. Program Apple tarafından imzalanmadığı
+  için ilk açılışta macOS onu açmaz; Sistem Ayarları › Gizlilik ve
+  Güvenlik'te "Yine de Aç"a bir kez basmanız yeterli (adımlar README'de).
+  Mac'te SQL alıştırmaları, uygulama içi güncelleme, seri hatırlatmaları ve
+  sesler şimdilik yok.
 - **Alıştırma tekrarı.** Bir modülde en az üç bölüm bitirince yolun
   başındaki tekrar kartında ikinci bir düğme çıkıyor: bitirdiğiniz
   bölümlerden karışık beş alıştırma, ipuçları kapalı. Python kod

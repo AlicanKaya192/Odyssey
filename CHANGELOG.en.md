@@ -26,6 +26,12 @@ lecture note does not mean downloading the whole application again.
 ## [1.7.0] — Unreleased
 
 ### Added
+- **macOS version.** Odyssey now also runs on Macs with Apple Silicon (M1
+  and later): open the `.dmg` from the release page and drag Odyssey into
+  the Applications folder. The app is not signed by Apple, so the first
+  time macOS will not open it; click "Open Anyway" once in System Settings ›
+  Privacy & Security (the steps are in the README). SQL exercises, in-app
+  updates, streak reminders and sounds are not available on the Mac yet.
 - **Exercise practice.** Once you finish at least three sections of a
   module, the review card at the top of the path gets a second button:
   five mixed exercises from the sections you finished, with hints closed.

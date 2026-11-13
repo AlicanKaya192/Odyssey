@@ -145,7 +145,7 @@ Version `1.7.0`; `1.0.0` was the first full release after the open beta (0.7.1 â
 
 **Working:** an animated start-up with the centaur mascot, learning paths, lessons with a section outline and reading progress, lecture notes, timed quizzes, exercises in Python, SQL, Git, the Linux command line, FastAPI, Docker and GitHub Actions with automatic checking (SQL runs on your own SQL Server and every run is rolled back, Git in a built-in terminal, Docker builds need Docker Desktop), exercises that span several files, a practice API server and a live FastAPI server you can try in the browser, graded hints, error explanations with the failing line marked in the editor, step-by-step tracing of your code and of a sample solution, a glossary with explanations right in the lessons, a "Stuck?" pointer back to the lesson, a placement test that unlocks the sections you already know, mathematics problems on a drawing sheet with step-by-step solution paths, suggested study routes, streak reminders as Windows notifications, sections that unlock in order, persistent progress, your own notes with a global search (`Ctrl+K`), 141 badges celebrated with a card as you earn them, XP, levels and titles you can show on your profile, a study timer with Pomodoro and other routines, a history of your past attempts in exercises and quizzes, quizzes you can answer from the keyboard, a full-screen reading mode, a share card with your level, badges and study calendar, moving your progress to another computer and a daily backup, a Storage page in Settings that removes the databases and images exercises leave behind, a guided tour for new users, an activity calendar, a profile with your own photo, Turkish/English interface and content, light and dark themes, adjustable text size, in-app updates, and options to remove the section lock and the quiz time limit.
 
-**Not there yet:** the content for the remaining paths, and a macOS version.
+**Not there yet:** the content for the remaining paths, and some features on macOS (see below).
 
 The roadmap moves along in [CHANGELOG.en.md](CHANGELOG.en.md).
 
@@ -166,9 +166,23 @@ This command creates both the environment the application runs in and the separa
 .venv\Scripts\python app\main.py
 ```
 
-### On macOS (Apple Silicon)
+## Installing on macOS (Apple Silicon)
 
-Support for macOS is new and has hardly been tried yet; a packaged `.dmg` is being prepared. Running from source needs Python 3.14 from [python.org](https://www.python.org/downloads/macos/) (not Anaconda) and Git:
+Odyssey runs on Macs with Apple Silicon (M1 and later); Intel Macs are not supported. Download `Odyssey-<version>-macos-arm64.dmg` from the [releases page](https://github.com/AlicanKaya192/Odyssey/releases), open it and drag Odyssey into the Applications folder.
+
+Odyssey is not signed by Apple (that needs a paid Apple developer account), so the first time you open it macOS says it cannot verify the app and does not open it. You only have to allow it once:
+
+1. Double-click Odyssey in Applications and close the warning with **Done**.
+2. Open **System Settings â€º Privacy & Security** and scroll down to the Security section.
+3. Next to the line about Odyssey being blocked, click **Open Anyway**, then confirm with your password or Touch ID.
+
+After that Odyssey opens like any other app. If macOS instead says the app "is damaged", run `xattr -dr com.apple.quarantine /Applications/Odyssey.app` in Terminal once and open it again.
+
+On macOS your progress is kept in `~/Library/Application Support/Odyssey`. Some parts work only on Windows for now: SQL exercises (they need SQL Server with Windows sign-in), in-app updates (download the new `.dmg` from the releases page instead), streak reminders, sounds and the Discord status. Docker and Rust exercises need Docker Desktop and Rust installed on the Mac, as on Windows, and have not been tried on a Mac yet.
+
+### Running from source on macOS
+
+Running from source needs Python 3.14 from [python.org](https://www.python.org/downloads/macos/) (not Anaconda) and Git:
 
 ```bash
 git clone https://github.com/AlicanKaya192/Odyssey.git
@@ -177,7 +191,7 @@ python3.14 tools/setup_env.py
 .venv/bin/python app/main.py
 ```
 
-On macOS your progress is kept in `~/Library/Application Support/Odyssey`. Some parts work only on Windows for now: SQL exercises (they need SQL Server with Windows sign-in), in-app updates (pull the new version with `git pull` instead), streak reminders, sounds and the Discord status. Docker and Rust exercises need Docker Desktop and Rust installed on the Mac, as on Windows, and have not been tried on a Mac yet.
+When you run from source, pull new versions with `git pull`.
 
 ## Languages
 
