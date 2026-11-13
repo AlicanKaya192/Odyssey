@@ -1487,8 +1487,9 @@ class TracksView(QWidget):
                 return ""
 
         chapter = self._catalog.chapter(section.chapter_id)
+        # Hiç bölüm açılmamışsa "kaldığı yer" yok (Mac deneme raporu, 13 Kasım).
         return self._language.t(
-            "home.resume",
+            "home.resume" if last is not None else "home.start",
             chapter=self._language.pick(chapter.title) if chapter else "",
             section=self._language.pick(section.title),
         )
@@ -1642,8 +1643,9 @@ class ModulesView(QWidget):
                 return ""
             chapter = self._catalog.chapter(section.chapter_id)
 
+        # Hiç bölüm açılmamışsa "kaldığı yer" yok (Mac deneme raporu, 13 Kasım).
         return self._language.t(
-            "home.resume",
+            "home.resume" if last is not None else "home.start",
             chapter=self._language.pick(chapter.title) if chapter else "",
             section=self._language.pick(section.title),
         )
