@@ -54,6 +54,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.core.catalog import Exercise  # noqa: E402
+from app.core.exercise_practice import START_PASSES  # noqa: E402
 from app.core import docker_admin  # noqa: E402
 from app.core.git_checks import build_world, evaluate, hint_commands  # noqa: E402
 from app.core.runner import run_code, sql_admin  # noqa: E402
@@ -76,13 +77,9 @@ ISCI_SAYISI = 6
 # Başlangıç kodunda yorum satırının nasıl başladığı.
 YORUM_ONEKI = {"python": "#", "tsql": "--", "docker": "#", "workflow": "#", "rust": "//"}
 
-# Başlangıç koduyla bilerek geçen alıştırmalar: (modül, bölüm, alıştırma id)
-# → neden. İçerik şemasına alan eklenmedi; istisna burada, gerekçesiyle
-# duruyor. Listede olmayan her alıştırmanın başlangıcı düşmeli.
-BASLANGIC_GECEBILIR: dict[tuple[str, str, str], str] = {
-    ("03-sql", "00-kurulum", "merhaba-sql"):
-        "Kurulum denemesi: yönerge 'hiçbir şey değiştirmeden Çalıştır'a bas' diyor.",
-}
+# Başlangıç koduyla bilerek geçen alıştırmalar: liste çekirdekte (alıştırma
+# tekrarı da onları seçmiyor), gerekçeleriyle.
+BASLANGIC_GECEBILIR = START_PASSES
 
 
 def _baslangic_izinli(where: str) -> bool:
