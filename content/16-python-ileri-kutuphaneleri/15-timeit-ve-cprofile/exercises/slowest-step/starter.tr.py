@@ -4,7 +4,7 @@ import time
 
 
 def read():
-    time.sleep(0.15)
+    time.sleep(0.5)
 
 
 def clean():

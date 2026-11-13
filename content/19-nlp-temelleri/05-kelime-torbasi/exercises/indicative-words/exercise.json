@@ -28,12 +28,12 @@
       "en": "Class totals: `np.asarray(X[labels == label_a].sum(axis=0)).ravel() + 1`."
     },
     {
-      "tr": "`np.log((a / a.sum()) / (b / b.sum()))`; büyükten küçüğe `np.argsort(...)[::-1][:k]`; kelimeleri `str(...)` ile döndür.",
-      "en": "`np.log((a / a.sum()) / (b / b.sum()))`; largest first with `np.argsort(...)[::-1][:k]`; return the words with `str(...)`."
+      "tr": "`np.log((a / a.sum()) / (b / b.sum()))`; büyükten küçüğe, eşitler abece sırasıyla `np.argsort(-log_ratio, kind=\"stable\")[:k]`; kelimeleri `str(...)` ile döndür.",
+      "en": "`np.log((a / a.sum()) / (b / b.sum()))`; largest first, equal ones in alphabetical order, with `np.argsort(-log_ratio, kind=\"stable\")[:k]`; return the words with `str(...)`."
     },
     {
-      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\nlabels = np.array([r[\"label\"] for r in reviews])\nvectorizer = CountVectorizer()\nX = vectorizer.fit_transform([r[\"text\"] for r in reviews])\nwords = vectorizer.get_feature_names_out()\n\n\ndef indicative(label_a, label_b, k):\n    a = np.asarray(X[labels == label_a].sum(axis=0)).ravel() + 1\n    b = np.asarray(X[labels == label_b].sum(axis=0)).ravel() + 1\n    log_ratio = np.log((a / a.sum()) / (b / b.sum()))\n    return [str(words[i]) for i in np.argsort(log_ratio)[::-1][:k]]\n\n\nprint(\", \".join(indicative(\"neutral\", \"positive\", 5)))\nprint(\", \".join(indicative(\"positive\", \"neutral\", 5)))\n```",
-      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\nlabels = np.array([r[\"label\"] for r in reviews])\nvectorizer = CountVectorizer()\nX = vectorizer.fit_transform([r[\"text\"] for r in reviews])\nwords = vectorizer.get_feature_names_out()\n\n\ndef indicative(label_a, label_b, k):\n    a = np.asarray(X[labels == label_a].sum(axis=0)).ravel() + 1\n    b = np.asarray(X[labels == label_b].sum(axis=0)).ravel() + 1\n    log_ratio = np.log((a / a.sum()) / (b / b.sum()))\n    return [str(words[i]) for i in np.argsort(log_ratio)[::-1][:k]]\n\n\nprint(\", \".join(indicative(\"neutral\", \"positive\", 5)))\nprint(\", \".join(indicative(\"positive\", \"neutral\", 5)))\n```"
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\nlabels = np.array([r[\"label\"] for r in reviews])\nvectorizer = CountVectorizer()\nX = vectorizer.fit_transform([r[\"text\"] for r in reviews])\nwords = vectorizer.get_feature_names_out()\n\n\ndef indicative(label_a, label_b, k):\n    a = np.asarray(X[labels == label_a].sum(axis=0)).ravel() + 1\n    b = np.asarray(X[labels == label_b].sum(axis=0)).ravel() + 1\n    log_ratio = np.log((a / a.sum()) / (b / b.sum()))\n    return [str(words[i]) for i in np.argsort(-log_ratio, kind=\"stable\")[:k]]\n\n\nprint(\", \".join(indicative(\"neutral\", \"positive\", 5)))\nprint(\", \".join(indicative(\"positive\", \"neutral\", 5)))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nfrom sklearn.feature_extraction.text import CountVectorizer\nfrom text_data import make_reviews\n\nreviews = make_reviews(2000)\nlabels = np.array([r[\"label\"] for r in reviews])\nvectorizer = CountVectorizer()\nX = vectorizer.fit_transform([r[\"text\"] for r in reviews])\nwords = vectorizer.get_feature_names_out()\n\n\ndef indicative(label_a, label_b, k):\n    a = np.asarray(X[labels == label_a].sum(axis=0)).ravel() + 1\n    b = np.asarray(X[labels == label_b].sum(axis=0)).ravel() + 1\n    log_ratio = np.log((a / a.sum()) / (b / b.sum()))\n    return [str(words[i]) for i in np.argsort(-log_ratio, kind=\"stable\")[:k]]\n\n\nprint(\", \".join(indicative(\"neutral\", \"positive\", 5)))\nprint(\", \".join(indicative(\"positive\", \"neutral\", 5)))\n```"
     }
   ],
   "checks": [
@@ -69,7 +69,7 @@
     {
       "type": "stdout",
       "match": "trimmed_lines",
-      "expected": "deos, 30, bluetotoh, buttnos, 11\nbut, be, to, all, at"
+      "expected": "deos, 30, 11, battrey, bluetotoh\nbut, be, to, all, at"
     }
   ]
 }

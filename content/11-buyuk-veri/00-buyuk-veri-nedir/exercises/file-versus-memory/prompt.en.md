@@ -19,8 +19,8 @@ to a CSV, read it back and compare the two sizes.
 
 ```
 100000
-5.9 9.6
-1.62
+5.8 9.6
+1.65
 order_time
 ```
 

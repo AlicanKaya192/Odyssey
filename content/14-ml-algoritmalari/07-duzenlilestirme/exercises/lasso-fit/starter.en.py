@@ -2,7 +2,7 @@ import numpy as np
 
 
 def soft(z, t):
-    return np.sign(z) * max(abs(z) - t, 0.0)
+    return np.sign(z) * max(abs(z) - t, 0.0) + 0.0
 
 
 def lasso_fit(X, y, alpha, rounds):

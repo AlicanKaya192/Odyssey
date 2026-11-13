@@ -114,7 +114,7 @@ vectorizer = TfidfVectorizer()
 X = vectorizer.fit_transform(texts)
 words = vectorizer.get_feature_names_out()
 idf = vectorizer.idf_
-order = np.argsort(idf)
+order = np.argsort(idf, kind="stable")
 
 
 def show(indices):
@@ -127,12 +127,12 @@ print("high", show(order[-3:]))
 
 ```text
 low  [('the', 1.12), ('is', 1.54), ('for', 2.25), ('it', 2.33)]
-high [('wosre', 7.91), ('wsate', 7.91), ('zpiper', 7.91)]
+high [('wroking', 7.91), ('wsate', 7.91), ('zpiper', 7.91)]
 ```
 
 - The lowest IDFs are "the", "is", "for" and "it": words found in almost
   every review. TF-IDF pushes them down without any stop list.
-- The highest IDFs are "wosre", "wsate" and "zpiper": **typos**. Every word
+- The highest IDFs are "wroking", "wsate" and "zpiper": **typos**. Every word
   that appears only once gets the highest IDF, and most of those are mistakes
   or one-off numbers. TF-IDF rewards rarity; it does not know whether rarity
   is information or noise. That is why `min_df` (04) is used with TF-IDF so
@@ -153,14 +153,14 @@ doc = 7
 print(textwrap.fill(texts[doc], 60))
 row_c = C[doc].toarray().ravel()
 row_t = X[doc].toarray().ravel()
-print("count", [str(words[i]) for i in np.argsort(row_c)[::-1][:4]])
-print("tfidf", [str(words[i]) for i in np.argsort(row_t)[::-1][:4]])
+print("count", [str(words[i]) for i in np.argsort(-row_c, kind="stable")[:4]])
+print("tfidf", [str(words[i]) for i in np.argsort(-row_t, kind="stable")[:4]])
 ```
 
 ```text
 Totally worth the money. The colour is not loud at all. I
 love the buttons. I love the colour.
-count ['the', 'love', 'colour', 'not']
+count ['the', 'colour', 'love', 'all']
 tfidf ['colour', 'love', 'the', 'buttons']
 ```
 

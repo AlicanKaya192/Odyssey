@@ -63,7 +63,7 @@ thresholding**: small contributions are pulled to exactly zero.
 
 ```python
 def soft(z, t):
-    return np.sign(z) * max(abs(z) - t, 0.0)          # exactly 0 if |z| ≤ t
+    return np.sign(z) * max(abs(z) - t, 0.0) + 0.0    # exactly 0 if |z| ≤ t
 
 
 def lasso(X, y, alpha, rounds=200):
@@ -100,6 +100,11 @@ features to **exactly zero** and brought the other two down to 0.04 and 0.06;
 in the unregularised model the same five were between 0.06 and 0.26. So Lasso
 also does **feature selection**. Ridge shrinks the weights but does not make
 them zero.
+
+The `+ 0.0` in `soft` is a small detail: when a small negative `z` is pulled
+to zero the result is `-0.0`. The value is the same, but it prints with a
+minus, and which sign comes out depends on the last digit of a sum, that is,
+on the computer. `-0.0 + 0.0` is always `0.0`.
 
 <figure class="fig">
 <svg viewBox="0 0 460 275" width="460" xmlns="http://www.w3.org/2000/svg"><line class="grid" x1="20" y1="150" x2="200" y2="150"/><line class="grid" x1="110" y1="40" x2="110" y2="230"/><polygon class="box" points="110,95 165,150 110,205 55,150" fill-opacity=".3"/><circle class="curve2" cx="130" cy="60" r="40.3" fill="none"/><circle class="curve2" cx="130" cy="60" r="26.2" fill="none"/><circle class="curve2" cx="130" cy="60" r="12.1" fill="none"/><circle class="dot" cx="110.0" cy="95.0" r="5"/><text class="ink" x="110" y="262" font-size="12" text-anchor="middle">Lasso (L1)</text><line class="grid" x1="260" y1="150" x2="440" y2="150"/><line class="grid" x1="350" y1="40" x2="350" y2="230"/><circle class="box" cx="350" cy="150" r="55" fill-opacity=".3"/><circle class="curve2" cx="370" cy="60" r="37.2" fill="none"/><circle class="curve2" cx="370" cy="60" r="24.2" fill="none"/><circle class="curve2" cx="370" cy="60" r="11.2" fill="none"/><circle class="dot" cx="361.9" cy="96.3" r="5"/><text class="ink" x="350" y="262" font-size="12" text-anchor="middle">Ridge (L2)</text></svg>

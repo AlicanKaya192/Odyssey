@@ -11,7 +11,7 @@ class Counter:
         for _ in range(n):
             with self.lock:
                 current = self.value
-                time.sleep(0)
+                time.sleep(0.0001)
                 self.value = current + 1
 
 

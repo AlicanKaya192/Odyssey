@@ -283,10 +283,10 @@ tracemalloc.stop()
 
 ```text
 chunks peak 4.7
-full peak 23.8
+full peak 23.9
 ```
 
-Parçalarla tepe 4,7 MB, tek seferde 23,8 MB. Tek seferde okurken tepe
+Parçalarla tepe 4,7 MB, tek seferde 23,9 MB. Tek seferde okurken tepe
 dosyayla birlikte büyüyor; parçalarla okurken bir parçanın boyutunda kalıyor,
 çünkü önceki parça bir sonraki gelmeden bırakılıyor. Parçalarla okumanın asıl
 gücü bu: **bellek dosyanın boyutuna bağlı değil, parçanın

@@ -19,8 +19,8 @@ siparişi CSV'ye yaz, geri oku ve iki boyutu karşılaştır.
 
 ```
 100000
-5.9 9.6
-1.62
+5.8 9.6
+1.65
 order_time
 ```
 

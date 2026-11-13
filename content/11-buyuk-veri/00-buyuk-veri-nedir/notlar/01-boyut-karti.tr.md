@@ -66,7 +66,7 @@ array.nbytes                              # NumPy dizisi, bayt
 
 | | Boyut |
 |---|---|
-| CSV dosyası | 61,1 MB |
+| CSV dosyası | 60,1 MB |
 | pandas 3, `str` metin | 95,9 MB |
 | eski `object` metin | 252,3 MB |
 | 1 milyon sayı, Python listesi | 34,3 MB |

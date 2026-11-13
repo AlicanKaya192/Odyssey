@@ -7,7 +7,7 @@ otherwise return `"missing"`.
 **Expected output:**
 
 ```
-math built-in
+sys built-in
 json standard
 numpy third-party
 no_such_module_x missing

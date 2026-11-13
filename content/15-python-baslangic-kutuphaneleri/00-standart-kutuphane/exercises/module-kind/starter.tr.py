@@ -6,5 +6,5 @@ def module_kind(name):
     # Sirayla: built-in, standard, third-party, missing
     return "missing"
 
-for name in ("math", "json", "numpy", "no_such_module_x"):
+for name in ("sys", "json", "numpy", "no_such_module_x"):
     print(name, module_kind(name))

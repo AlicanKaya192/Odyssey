@@ -8,7 +8,7 @@ df.to_csv("orders.csv", index=False)
 pd.read_csv("orders.csv", usecols=[...], dtype={...}, parse_dates=[...])
 ```
 
-61.1 MB · read 0.84 s · types are lost.
+60.1 MB · read 0.84 s · types are lost.
 
 Without `index=False` the index goes into the file as an extra column.
 

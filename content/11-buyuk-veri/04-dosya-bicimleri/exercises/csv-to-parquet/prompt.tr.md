@@ -16,8 +16,8 @@ kaybolmadığını doğrula.
 **Beklenen çıktı:**
 
 ```
-18.0 4.7
-3.9
+17.8 4.7
+3.8
 True True
 ```
 

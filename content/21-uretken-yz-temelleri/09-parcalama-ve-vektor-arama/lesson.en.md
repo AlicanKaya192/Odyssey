@@ -97,7 +97,7 @@ class Index:
     def search(self, query, k=3):
         q = self.vectorizer.transform([query])
         scores = (self.matrix @ q.T).toarray().ravel()
-        best = np.argsort(-scores)[:k]
+        best = np.argsort(-scores, kind="stable")[:k]
         return [(self.chunks[i], round(float(scores[i]), 3)) for i in best]
 
 
@@ -115,6 +115,11 @@ for (doc, text), score in index.search("Do gift cards expire?"):
 0.26 loyalty
   Points expire if you make no purchase for 12 months.
 ```
+
+`kind="stable"` leaves chunks with equal scores in list order. When a
+question matches no chunk every score is 0; without a stable sort which
+three chunks come back depends on the sorting method NumPy uses, that is,
+on the computer.
 
 The most relevant chunk is the sentence that carries the question's words
 "gift cards" and gives the answer ("valid for 3 years"). In real systems the
@@ -154,16 +159,16 @@ for name, chunks in [("article", by_article()),
 ```
 
 ```text
-article            chunks 14  key@3 (1.0, 225)
+article            chunks 14  key@3 (1.0, 234)
 sentence           chunks 52  key@3 (0.71, 50)
 window 12          chunks 53  key@3 (0.42, 54)
-window 12/4        chunks 69  key@3 (0.5, 56)
+window 12/4        chunks 69  key@3 (0.5, 55)
 window 12/4+title  chunks 69  key@3 (0.58, 75)
 window 24/8        chunks 33  key@3 (0.88, 106)
 window 24/8+title  chunks 33  key@3 (0.88, 125)
 ```
 
-The whole article always brings the key (1.0) but takes 225 tokens per
+The whole article always brings the key (1.0) but takes 234 tokens per
 question. Sentences are four times cheaper (50 tokens) but stop at 0.71.
 Windows of 12 words split the facts between chunks (0.42); an overlap of 4
 words raises this to 0.50, adding the title to 0.58. Windows of 24 words with

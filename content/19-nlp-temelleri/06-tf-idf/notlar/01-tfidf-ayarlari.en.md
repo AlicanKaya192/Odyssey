@@ -26,7 +26,7 @@ for sublinear in [False, True]:
     X = vectorizer.fit_transform(texts)
     words = vectorizer.get_feature_names_out()
     row = X[7].toarray().ravel()
-    print(sublinear, [str(words[i]) for i in np.argsort(row)[::-1][:4]])
+    print(sublinear, [str(words[i]) for i in np.argsort(-row, kind="stable")[:4]])
 ```
 
 ```text

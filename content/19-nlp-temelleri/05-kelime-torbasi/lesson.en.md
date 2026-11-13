@@ -143,10 +143,10 @@ words = vectorizer.get_feature_names_out()
 pos = np.asarray(X[labels == "positive"].sum(axis=0)).ravel() + 1
 neg = np.asarray(X[labels == "negative"].sum(axis=0)).ravel() + 1
 log_ratio = np.log((neg / neg.sum()) / (pos / pos.sum()))
-for i in np.argsort(log_ratio)[::-1][:6]:
+for i in np.argsort(-log_ratio, kind="stable")[:6]:
     print(words[i], int(neg[i] - 1), int(pos[i] - 1), round(log_ratio[i], 2))
 print("---")
-for i in np.argsort(log_ratio)[:4]:
+for i in np.argsort(log_ratio, kind="stable")[:4]:
     print(words[i], int(neg[i] - 1), int(pos[i] - 1), round(log_ratio[i], 2))
 ```
 

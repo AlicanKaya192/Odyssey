@@ -96,7 +96,7 @@ class Index:
     def search(self, query, k=3):
         q = self.vectorizer.transform([query])
         scores = (self.matrix @ q.T).toarray().ravel()
-        best = np.argsort(-scores)[:k]
+        best = np.argsort(-scores, kind="stable")[:k]
         return [(self.chunks[i], round(float(scores[i]), 3)) for i in best]
 
 
@@ -114,6 +114,11 @@ for (doc, text), score in index.search("Do gift cards expire?"):
 0.26 loyalty
   Points expire if you make no purchase for 12 months.
 ```
+
+`kind="stable"` eşit puanlı parçaları listedeki sırasıyla bırakıyor.
+Soru hiçbir parçayla eşleşmeyince bütün puanlar 0 oluyor; kararlı
+sıralama olmadan hangi üç parçanın geleceği NumPy'ın kullandığı sıralama
+yöntemine, yani bilgisayara bağlı.
 
 En ilgili parça, sorudaki "gift cards" kelimelerini taşıyan ve cevabı
 ("valid for 3 years") veren cümle. Gerçek sistemlerde vektörler genellikle
@@ -153,16 +158,16 @@ for name, chunks in [("article", by_article()),
 ```
 
 ```text
-article            chunks 14  key@3 (1.0, 225)
+article            chunks 14  key@3 (1.0, 234)
 sentence           chunks 52  key@3 (0.71, 50)
 window 12          chunks 53  key@3 (0.42, 54)
-window 12/4        chunks 69  key@3 (0.5, 56)
+window 12/4        chunks 69  key@3 (0.5, 55)
 window 12/4+title  chunks 69  key@3 (0.58, 75)
 window 24/8        chunks 33  key@3 (0.88, 106)
 window 24/8+title  chunks 33  key@3 (0.88, 125)
 ```
 
-Makalenin tamamı anahtarı her zaman getiriyor (1,0) ama soru başına 225
+Makalenin tamamı anahtarı her zaman getiriyor (1,0) ama soru başına 234
 token götürüyor. Cümleler dört kat ucuz (50 token) ama 0,71'de kalıyor.
 12 kelimelik pencere bilgiyi parçaların arasında bölüyor (0,42); 4 kelime
 örtüşme 0,50'ye, başlık eklemek 0,58'e çıkarıyor. 24 kelimelik pencere ve

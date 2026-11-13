@@ -15,7 +15,7 @@ small sample and compare the estimate with the real value.
 **Expected output:**
 
 ```
-12.0
+11.8
 9.0
 9.0
 True

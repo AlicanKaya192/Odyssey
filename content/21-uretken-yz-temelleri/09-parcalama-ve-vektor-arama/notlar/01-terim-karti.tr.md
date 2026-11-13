@@ -12,7 +12,7 @@
 
 **Akılda tut:**
 
-- Bölümde makalenin tamamı 1,0 / 225 token, cümle 0,71 / 50 token,
+- Bölümde makalenin tamamı 1,0 / 234 token, cümle 0,71 / 50 token,
   24 kelime + 8 örtüşme 0,88 / 106 token verdi.
 - Kelime araması, başka kelimelerle sorulan soruyu kaçırır ("money back"
   ile "refund").

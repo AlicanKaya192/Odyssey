@@ -10,7 +10,7 @@ class Counter:
     def add_many(self, n):
         for _ in range(n):
             current = self.value
-            time.sleep(0)
+            time.sleep(0.0001)
             self.value = current + 1
 
 

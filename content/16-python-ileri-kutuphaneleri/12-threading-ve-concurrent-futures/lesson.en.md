@@ -97,7 +97,7 @@ def add():
     global count
     for _ in range(1000):
         value = count
-        time.sleep(0)
+        time.sleep(0.0001)
         count = value + 1
 
 
@@ -117,7 +117,7 @@ def safe_add():
     for _ in range(1000):
         with lock:
             value = count
-            time.sleep(0)
+            time.sleep(0.0001)
             count = value + 1
 
 
@@ -135,10 +135,11 @@ True
 ```
 
 - Four threads add 1000 each; 4000 is expected. But if another thread steps in
-  between "read" and "write" (`sleep(0)` makes that easy here), two of them
-  read the same old value and write the same new value: increments **get
-  lost**. On this computer the result was different on every run (between
-  1047 and 1622).
+  between "read" and "write" (the short `sleep` between reading and
+  writing makes sure of that here), two of them read the same old value and
+  write the same new value: increments **get lost**. On this computer the
+  result was 1000; another computer may print another number, but less than
+  4000.
 - **`threading.Lock`** is a lock: only one thread at a time enters a
   `with lock:` block. The read-change-write step becomes indivisible; the
   result is 4000.

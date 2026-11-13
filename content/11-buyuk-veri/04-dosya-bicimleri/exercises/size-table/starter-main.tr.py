@@ -10,7 +10,10 @@ for c in ["city", "category", "payment"]:
 # Uc bicimde yaz.
 
 
-# Her dosyanin boyutu (MB).
+# CSV ve Parquet boyutu (MB).
+
+
+# gzip CSV'yi kac kat kucultuyor?
 
 
 # CSV / Parquet orani.

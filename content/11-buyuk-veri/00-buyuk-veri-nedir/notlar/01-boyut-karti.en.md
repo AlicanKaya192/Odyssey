@@ -67,7 +67,7 @@ array.nbytes                              # a NumPy array, bytes
 
 | | Size |
 |---|---|
-| CSV file | 61.1 MB |
+| CSV file | 60.1 MB |
 | pandas 3, `str` text | 95.9 MB |
 | old `object` text | 252.3 MB |
 | 1 million numbers, Python list | 34.3 MB |

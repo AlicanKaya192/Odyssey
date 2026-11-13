@@ -73,14 +73,20 @@ If you add `.gz` to the end of the file name, pandas compresses the file with
 **gzip** as it writes, and opens it by itself when reading:
 
 ```python
-df.to_csv("orders.csv.gz", index=False)
+df.to_csv("orders.csv.gz", index=False, lineterminator="\n")
 back = pd.read_csv("orders.csv.gz")
 ```
 
-The file went from 61.1 MB to 15.2 MB. But writing went up from 1.3 seconds
+The file went from 60.1 MB to 15.2 MB. But writing went up from 1.3 seconds
 to 3.5 seconds and reading got a little slower: first it has to be opened,
 then the text parsed as before. A good choice if disk or network is tight; the
 problems of types and row layout stay exactly as they were.
+
+**The line ending depends on the computer.** On Windows pandas ends every
+line with two bytes (`\r\n`), on macOS and Linux with one (`\n`); the same
+table comes out about 1 MB bigger on Windows for a million rows. When you
+compare sizes write `lineterminator="\n"` so the result is the same
+everywhere. The sizes in this section were measured that way.
 
 ## JSON Lines: for nested data
 
@@ -199,7 +205,7 @@ The same million orders, on this computer:
 
 | Format | Size | Write | Read | Read two columns |
 |---|---|---|---|---|
-| CSV | 61.1 MB | 1.3 s | 0.84 s | 0.32 s |
+| CSV | 60.1 MB | 1.3 s | 0.84 s | 0.32 s |
 | CSV + gzip | 15.2 MB | 3.5 s | 0.92 s | — |
 | JSON Lines | 159.3 MB | 1.6 s | 3.25 s | — |
 | Parquet (snappy) | 20.9 MB | 0.18 s | 0.02 s | 0.01 s |

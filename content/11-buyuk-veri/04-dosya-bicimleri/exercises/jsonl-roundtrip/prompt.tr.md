@@ -10,8 +10,8 @@ CSV'yle boyut karşılaştır.
 3. Dosyayı `pd.read_json(..., lines=True)` ile geri oku; satır ve sütun
    sayısını (`shape`) ve `quantity` toplamını aynı satıra yazdır.
 4. `big = make_orders(50_000)` tablosunu hem `big.jsonl` hem `big.csv`
-   (`index=False`) olarak yaz; JSON boyutunun CSV boyutuna oranını iki
-   ondalığa yuvarlayıp yazdır.
+   (`index=False, lineterminator="\n"`) olarak yaz; JSON boyutunun CSV
+   boyutuna oranını iki ondalığa yuvarlayıp yazdır.
 
 **Beklenen çıktı:**
 
@@ -19,5 +19,5 @@ CSV'yle boyut karşılaştır.
 4
 {"order_id":1,"quantity":2}
 (4, 2) 15
-2.61
+2.65
 ```

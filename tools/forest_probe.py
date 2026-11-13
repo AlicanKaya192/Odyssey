@@ -142,7 +142,7 @@ def compare(mine: Path, other: Path) -> int:
         print(f"  bu makine: özellik {fa}, eşik {float.fromhex(ha)!r}")
         print(f"  öteki    : özellik {fb}, eşik {float.fromhex(hb)!r}")
         est = model.estimators_[k]
-        idx = _generate_sample_indices(est.random_state, n, n)
+        idx = _generate_sample_indices(est.random_state, n, n, None)
         counts = np.bincount(idx, minlength=n).astype(np.float64)
         unique = np.flatnonzero(counts)
         rows = node_samples(est, X, unique, node)

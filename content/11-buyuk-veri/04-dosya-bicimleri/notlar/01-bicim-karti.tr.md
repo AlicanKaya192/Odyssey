@@ -8,7 +8,7 @@ df.to_csv("orders.csv", index=False)
 pd.read_csv("orders.csv", usecols=[...], dtype={...}, parse_dates=[...])
 ```
 
-61,1 MB · okuma 0,84 sn · türler kayboluyor.
+60,1 MB · okuma 0,84 sn · türler kayboluyor.
 
 `index=False` yazılmazsa indeks fazladan bir sütun olarak dosyaya giriyor.
 

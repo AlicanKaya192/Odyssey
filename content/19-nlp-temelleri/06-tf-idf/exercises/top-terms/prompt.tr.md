@@ -2,6 +2,10 @@
 kelimeyi büyükten küçüğe bir liste olarak döndürsün. Vektörleştirici
 (`min_df=2`), `X` ve `words` hazır.
 
+Eşit puanlı kelimeler abece sırasıyla gelsin: `np.argsort(-puan,
+kind="stable")` büyükten küçüğe sıralar ve eşitleri yerinde bırakır,
+böylece sıra her bilgisayarda aynı olur.
+
 **Beklenen çıktı:**
 
 ```

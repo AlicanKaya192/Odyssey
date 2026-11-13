@@ -15,5 +15,5 @@ print(back.shape, back["quantity"].sum())
 
 big = make_orders(50_000)
 big.to_json("big.jsonl", orient="records", lines=True)
-big.to_csv("big.csv", index=False)
+big.to_csv("big.csv", index=False, lineterminator="\n")
 print(round(os.path.getsize("big.jsonl") / os.path.getsize("big.csv"), 2))

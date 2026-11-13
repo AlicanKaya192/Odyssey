@@ -6,7 +6,7 @@ içindeyse `"standard"`, `importlib.util.find_spec(name)` bir şey buluyorsa
 **Beklenen çıktı:**
 
 ```
-math built-in
+sys built-in
 json standard
 numpy third-party
 no_such_module_x missing

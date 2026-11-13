@@ -225,7 +225,7 @@ print(f"memory: {memory_mb:.1f} MB")
 
 ```text
 rows:   1,000,000
-file:   61.1 MB
+file:   60.1 MB
 memory: 95.9 MB
 ```
 

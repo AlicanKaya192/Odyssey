@@ -10,7 +10,7 @@ words = vectorizer.get_feature_names_out()
 
 def top_terms(index, k):
     row = X[index].toarray().ravel()
-    return [str(words[i]) for i in np.argsort(row)[::-1][:k]]
+    return [str(words[i]) for i in np.argsort(-row, kind="stable")[:k]]
 
 
 for i in range(3):

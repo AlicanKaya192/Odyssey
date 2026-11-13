@@ -111,7 +111,7 @@ vectorizer = TfidfVectorizer()
 X = vectorizer.fit_transform(texts)
 words = vectorizer.get_feature_names_out()
 idf = vectorizer.idf_
-order = np.argsort(idf)
+order = np.argsort(idf, kind="stable")
 
 
 def show(indices):
@@ -124,12 +124,12 @@ print("high", show(order[-3:]))
 
 ```text
 low  [('the', 1.12), ('is', 1.54), ('for', 2.25), ('it', 2.33)]
-high [('wosre', 7.91), ('wsate', 7.91), ('zpiper', 7.91)]
+high [('wroking', 7.91), ('wsate', 7.91), ('zpiper', 7.91)]
 ```
 
 - En düşük IDF'ler "the", "is", "for", "it": neredeyse her yorumda geçen
   kelimeler. TF-IDF onları durak listesine gerek kalmadan bastırıyor.
-- En yüksek IDF'ler "wosre", "wsate", "zpiper": **yazım hataları**. Yalnızca
+- En yüksek IDF'ler "wroking", "wsate", "zpiper": **yazım hataları**. Yalnızca
   bir kez geçen her kelime en yüksek IDF'yi alır ve bunların çoğu hata ya da
   tek seferlik numaralardır. TF-IDF nadirliği ödüllendirir; nadirliğin bilgi
   mi gürültü mü olduğunu bilmez. Bu yüzden `min_df` (04) TF-IDF ile çok sık
@@ -150,14 +150,14 @@ doc = 7
 print(textwrap.fill(texts[doc], 60))
 row_c = C[doc].toarray().ravel()
 row_t = X[doc].toarray().ravel()
-print("count", [str(words[i]) for i in np.argsort(row_c)[::-1][:4]])
-print("tfidf", [str(words[i]) for i in np.argsort(row_t)[::-1][:4]])
+print("count", [str(words[i]) for i in np.argsort(-row_c, kind="stable")[:4]])
+print("tfidf", [str(words[i]) for i in np.argsort(-row_t, kind="stable")[:4]])
 ```
 
 ```text
 Totally worth the money. The colour is not loud at all. I
 love the buttons. I love the colour.
-count ['the', 'love', 'colour', 'not']
+count ['the', 'colour', 'love', 'all']
 tfidf ['colour', 'love', 'the', 'buttons']
 ```
 

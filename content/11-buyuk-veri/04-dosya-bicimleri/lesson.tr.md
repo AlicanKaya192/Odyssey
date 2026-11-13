@@ -71,14 +71,20 @@ Dosya adının sonuna `.gz` eklersen pandas dosyayı **gzip** ile sıkıştırı
 yazıyor, okurken de kendisi açıyor:
 
 ```python
-df.to_csv("orders.csv.gz", index=False)
+df.to_csv("orders.csv.gz", index=False, lineterminator="\n")
 back = pd.read_csv("orders.csv.gz")
 ```
 
-Dosya 61,1 MB'tan 15,2 MB'a indi. Ama yazmak 1,3 saniyeden 3,5 saniyeye
+Dosya 60,1 MB'tan 15,2 MB'a indi. Ama yazmak 1,3 saniyeden 3,5 saniyeye
 çıktı ve okuma biraz yavaşladı: önce açmak, sonra yine metni çözmek gerekiyor.
 Disk ya da ağ darsa iyi bir seçim; türler ve satır düzeni sorunu ise aynen
 duruyor.
+
+**Satır sonu bilgisayara göre değişiyor.** pandas Windows'ta her satırın
+sonuna iki bayt (`\r\n`), macOS ve Linux'ta bir bayt (`\n`) yazıyor; aynı
+tablo Windows'ta bir milyon satırda yaklaşık 1 MB büyük çıkıyor. Boyut
+karşılaştırırken `lineterminator="\n"` yaz, sonuç her yerde aynı olsun. Bu
+bölümdeki boyutlar böyle ölçüldü.
 
 ## JSON Lines: iç içe veri için
 
@@ -195,7 +201,7 @@ Aynı bir milyon sipariş, bu bilgisayarda:
 
 | Biçim | Boyut | Yazma | Okuma | İki sütun okuma |
 |---|---|---|---|---|
-| CSV | 61,1 MB | 1,3 sn | 0,84 sn | 0,32 sn |
+| CSV | 60,1 MB | 1,3 sn | 0,84 sn | 0,32 sn |
 | CSV + gzip | 15,2 MB | 3,5 sn | 0,92 sn | — |
 | JSON Lines | 159,3 MB | 1,6 sn | 3,25 sn | — |
 | Parquet (snappy) | 20,9 MB | 0,18 sn | 0,02 sn | 0,01 sn |

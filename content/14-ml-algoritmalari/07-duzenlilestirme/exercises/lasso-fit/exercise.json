@@ -22,8 +22,8 @@
       "en": "`resid`, `rho`, then `w[j] = soft(rho, alpha) / (Xc[:, j] @ Xc[:, j] / n)`."
     },
     {
-      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef soft(z, t):\n    return np.sign(z) * max(abs(z) - t, 0.0)\n\n\ndef lasso_fit(X, y, alpha, rounds):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    xm, ym = X.mean(axis=0), y.mean()\n    Xc, yc = X - xm, y - ym\n    n, d = Xc.shape\n    w = np.zeros(d)\n    for _ in range(rounds):\n        for j in range(d):\n            resid = yc - Xc @ w + Xc[:, j] * w[j]\n            rho = Xc[:, j] @ resid / n\n            w[j] = soft(rho, alpha) / (Xc[:, j] @ Xc[:, j] / n)\n    return [round(float(ym - xm @ w), 3)] + [round(float(v), 3) for v in w]\n\nX = [[1, 0, 2], [2, 1, 0], [3, 0, 1], [4, 1, 3], [5, 0, 0]]\ny = [3, 5, 7, 9, 11]\nprint(lasso_fit(X, y, 0.1, 300))\nprint(lasso_fit(X, y, 2.0, 300))\n```",
-      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef soft(z, t):\n    return np.sign(z) * max(abs(z) - t, 0.0)\n\n\ndef lasso_fit(X, y, alpha, rounds):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    xm, ym = X.mean(axis=0), y.mean()\n    Xc, yc = X - xm, y - ym\n    n, d = Xc.shape\n    w = np.zeros(d)\n    for _ in range(rounds):\n        for j in range(d):\n            resid = yc - Xc @ w + Xc[:, j] * w[j]\n            rho = Xc[:, j] @ resid / n\n            w[j] = soft(rho, alpha) / (Xc[:, j] @ Xc[:, j] / n)\n    return [round(float(ym - xm @ w), 3)] + [round(float(v), 3) for v in w]\n\nX = [[1, 0, 2], [2, 1, 0], [3, 0, 1], [4, 1, 3], [5, 0, 0]]\ny = [3, 5, 7, 9, 11]\nprint(lasso_fit(X, y, 0.1, 300))\nprint(lasso_fit(X, y, 2.0, 300))\n```"
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\n\n\ndef soft(z, t):\n    return np.sign(z) * max(abs(z) - t, 0.0) + 0.0\n\n\ndef lasso_fit(X, y, alpha, rounds):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    xm, ym = X.mean(axis=0), y.mean()\n    Xc, yc = X - xm, y - ym\n    n, d = Xc.shape\n    w = np.zeros(d)\n    for _ in range(rounds):\n        for j in range(d):\n            resid = yc - Xc @ w + Xc[:, j] * w[j]\n            rho = Xc[:, j] @ resid / n\n            w[j] = soft(rho, alpha) / (Xc[:, j] @ Xc[:, j] / n)\n    return [round(float(ym - xm @ w), 3)] + [round(float(v), 3) for v in w]\n\nX = [[1, 0, 2], [2, 1, 0], [3, 0, 1], [4, 1, 3], [5, 0, 0]]\ny = [3, 5, 7, 9, 11]\nprint(lasso_fit(X, y, 0.1, 300))\nprint(lasso_fit(X, y, 2.0, 300))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\n\n\ndef soft(z, t):\n    return np.sign(z) * max(abs(z) - t, 0.0) + 0.0\n\n\ndef lasso_fit(X, y, alpha, rounds):\n    X, y = np.array(X, dtype=float), np.array(y, dtype=float)\n    xm, ym = X.mean(axis=0), y.mean()\n    Xc, yc = X - xm, y - ym\n    n, d = Xc.shape\n    w = np.zeros(d)\n    for _ in range(rounds):\n        for j in range(d):\n            resid = yc - Xc @ w + Xc[:, j] * w[j]\n            rho = Xc[:, j] @ resid / n\n            w[j] = soft(rho, alpha) / (Xc[:, j] @ Xc[:, j] / n)\n    return [round(float(ym - xm @ w), 3)] + [round(float(v), 3) for v in w]\n\nX = [[1, 0, 2], [2, 1, 0], [3, 0, 1], [4, 1, 3], [5, 0, 0]]\ny = [3, 5, 7, 9, 11]\nprint(lasso_fit(X, y, 0.1, 300))\nprint(lasso_fit(X, y, 2.0, 300))\n```"
     }
   ],
   "checks": [
@@ -82,7 +82,7 @@
             1.15,
             1.95,
             0.0,
-            -0.0
+            0.0
           ]
         },
         {
@@ -128,7 +128,7 @@
             4.0,
             1.0,
             0.0,
-            -0.0
+            0.0
           ]
         }
       ]
@@ -136,7 +136,7 @@
     {
       "type": "stdout",
       "match": "trimmed_lines",
-      "expected": "[1.15, 1.95, 0.0, -0.0]\n[4.0, 1.0, 0.0, -0.0]"
+      "expected": "[1.15, 1.95, 0.0, 0.0]\n[4.0, 1.0, 0.0, 0.0]"
     }
   ]
 }

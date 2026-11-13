@@ -15,7 +15,7 @@ tahmin et ve tahmini gerçekle karşılaştır.
 **Beklenen çıktı:**
 
 ```
-12.0
+11.8
 9.0
 9.0
 True

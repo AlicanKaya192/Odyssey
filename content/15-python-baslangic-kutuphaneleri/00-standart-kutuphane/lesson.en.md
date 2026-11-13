@@ -113,18 +113,21 @@ def kind(name):
     return "missing"
 
 
-for name in ("math", "json", "numpy", "nosuchmodule"):
+for name in ("sys", "json", "numpy", "nosuchmodule"):
     print(name, kind(name))
 ```
 
 ```text
-math built-in
+sys built-in
 json standard
 numpy third-party
 nosuchmodule missing
 ```
 
-`math` is written in C and compiled into Python, so it has no file of its own.
+`sys` is written in C and compiled into Python, so it has no file of its own.
+Which modules are compiled in depends on the operating system: `math` is
+built in on Windows but a separate file (`.so`) on macOS and Linux. `sys`
+is built in everywhere.
 `json` is part of the standard library and comes with Python. `numpy` is
 installed on this computer but is not in the standard library: a program
 using it needs `pip install numpy` on another computer first. `find_spec`

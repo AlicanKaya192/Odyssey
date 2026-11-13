@@ -10,7 +10,10 @@ for c in ["city", "category", "payment"]:
 # Write in three formats.
 
 
-# Each file's size (MB).
+# The CSV and Parquet sizes (MB).
+
+
+# How many times smaller does gzip make the CSV?
 
 
 # The CSV / Parquet ratio.

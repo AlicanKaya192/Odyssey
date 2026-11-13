@@ -113,18 +113,21 @@ def kind(name):
     return "missing"
 
 
-for name in ("math", "json", "numpy", "nosuchmodule"):
+for name in ("sys", "json", "numpy", "nosuchmodule"):
     print(name, kind(name))
 ```
 
 ```text
-math built-in
+sys built-in
 json standard
 numpy third-party
 nosuchmodule missing
 ```
 
-`math` C ile yazılıp Python'un içine gömülmüş, bu yüzden bir dosyası yok.
+`sys` C ile yazılıp Python'un içine gömülmüş, bu yüzden bir dosyası yok.
+Hangi modülün gömülü olduğu işletim sistemine göre değişiyor: `math`
+Windows'ta gömülü, macOS ve Linux'ta ayrı bir dosya (`.so`). `sys` her
+yerde gömülü.
 `json` standart kütüphanenin bir parçası, Python ile birlikte geliyor.
 `numpy` bu bilgisayarda kurulu ama standart kütüphanede değil: onu kullanan
 bir program başka bir bilgisayarda önce `pip install numpy` ister.

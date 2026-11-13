@@ -287,10 +287,10 @@ tracemalloc.stop()
 
 ```text
 chunks peak 4.7
-full peak 23.8
+full peak 23.9
 ```
 
-With chunks the peak is 4.7 MB, all at once 23.8 MB. Reading all at once,
+With chunks the peak is 4.7 MB, all at once 23.9 MB. Reading all at once,
 the peak grows with the file; reading in chunks, it stays at the size of one
 chunk, because the previous chunk is let go before the next one arrives. That
 is the real strength of chunked reading: **memory depends not on the size of

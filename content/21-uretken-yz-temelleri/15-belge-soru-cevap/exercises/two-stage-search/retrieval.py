@@ -35,5 +35,5 @@ class Index:
     def search(self, query, k=3):
         q = self.vectorizer.transform([query])
         scores = (self.matrix @ q.T).toarray().ravel()
-        best = np.argsort(-scores)[:k]
+        best = np.argsort(-scores, kind="stable")[:k]
         return [(self.chunks[i], round(float(scores[i]), 3)) for i in best]

@@ -95,7 +95,7 @@ def add():
     global count
     for _ in range(1000):
         value = count
-        time.sleep(0)
+        time.sleep(0.0001)
         count = value + 1
 
 
@@ -115,7 +115,7 @@ def safe_add():
     for _ in range(1000):
         with lock:
             value = count
-            time.sleep(0)
+            time.sleep(0.0001)
             count = value + 1
 
 
@@ -133,10 +133,11 @@ True
 ```
 
 - Dört iş parçacığı 1000'er kez artırıyor; 4000 beklenir. Ama "oku, sonra
-  yaz" arasında başka bir iş parçacığı araya girerse (burada `sleep(0)` bunu
-  kolaylaştırıyor) ikisi aynı eski değeri okuyup aynı yeni değeri yazıyor:
-  artışlar **kayboluyor**. Bu bilgisayarda sonuç her çalıştırmada farklıydı
-  (1047 ile 1622 arası).
+  yaz" arasında başka bir iş parçacığı araya girerse (burada okumayla yazma
+  arasındaki kısa `sleep` bunu kesinleştiriyor) ikisi aynı eski değeri okuyup
+  aynı yeni değeri yazıyor: artışlar **kayboluyor**. Bu bilgisayarda sonuç
+  1000 çıktı; başka bir bilgisayarda başka bir sayı çıkabilir, ama 4000'den
+  az.
 - **`threading.Lock`** bir kilit: `with lock:` bloğuna aynı anda yalnızca bir
   iş parçacığı girer. Oku-değiştir-yaz işlemi bölünmez hâle gelir; sonuç
   4000.

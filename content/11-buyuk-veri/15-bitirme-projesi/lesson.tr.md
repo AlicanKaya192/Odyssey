@@ -46,7 +46,7 @@ print(round(per_row * 1_000_000 / 1024**2, 1), "MB in memory (estimate)")
 ```
 
 ```text
-61.1 MB on disk
+60.1 MB on disk
 95.9 MB in memory (estimate)
 ```
 

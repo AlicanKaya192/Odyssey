@@ -12,7 +12,7 @@
 
 **Keep in mind:**
 
-- In the section the whole article gave 1.0 / 225 tokens, sentences 0.71 / 50
+- In the section the whole article gave 1.0 / 234 tokens, sentences 0.71 / 50
   tokens, 24 words + 8 overlap 0.88 / 106 tokens.
 - Word search misses a question asked in other words ("money back" vs
   "refund").

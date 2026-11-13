@@ -7,9 +7,13 @@ döndürsün. Dersteki hesabın genel hâli.
 hataları ve sayılar. Bir sınıfta bir iki kez geçen nadir kelimelerin oranı
 yapay olarak yüksek çıkıyor; 04'teki `min_df` bunun için.
 
+Eşit puanlı kelimeler abece sırasıyla gelsin: `np.argsort(-puan,
+kind="stable")` büyükten küçüğe sıralar ve eşitleri yerinde bırakır,
+böylece sıra her bilgisayarda aynı olur.
+
 **Beklenen çıktı:**
 
 ```
-deos, 30, bluetotoh, buttnos, 11
+deos, 30, 11, battrey, bluetotoh
 but, be, to, all, at
 ```

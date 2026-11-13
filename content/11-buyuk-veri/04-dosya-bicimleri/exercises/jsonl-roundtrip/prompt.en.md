@@ -9,8 +9,8 @@ its size with CSV.
 3. Read the file back with `pd.read_json(..., lines=True)`; print the number
    of rows and columns (`shape`) and the total of `quantity` on one line.
 4. Write the table `big = make_orders(50_000)` as both `big.jsonl` and
-   `big.csv` (`index=False`); print the ratio of the JSON size to the CSV
-   size, rounded to two decimals.
+   `big.csv` (`index=False, lineterminator="\n"`); print the ratio of the
+   JSON size to the CSV size, rounded to two decimals.
 
 **Expected output:**
 
@@ -18,5 +18,5 @@ its size with CSV.
 4
 {"order_id":1,"quantity":2}
 (4, 2) 15
-2.61
+2.65
 ```

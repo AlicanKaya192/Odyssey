@@ -36,6 +36,10 @@ def make_orders(n, seed=7):
 
 
 def write_orders_csv(path, n, seed=7):
-    """Writes make_orders(n) to a CSV file and returns the path."""
-    make_orders(n, seed).to_csv(path, index=False)
+    """Writes make_orders(n) to a CSV file and returns the path.
+
+    Every line ends with "\n", so the file has the same bytes on Windows,
+    macOS and Linux (pandas would end lines with "\r\n" on Windows).
+    """
+    make_orders(n, seed).to_csv(path, index=False, lineterminator="\n")
     return path

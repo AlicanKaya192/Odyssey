@@ -62,7 +62,7 @@ thresholding) ile bulunur: küçük katkılar tam sıfıra çekilir.
 
 ```python
 def soft(z, t):
-    return np.sign(z) * max(abs(z) - t, 0.0)          # |z| ≤ t ise tam 0
+    return np.sign(z) * max(abs(z) - t, 0.0) + 0.0    # |z| ≤ t ise tam 0
 
 
 def lasso(X, y, alpha, rounds=200):
@@ -98,6 +98,11 @@ Lasso, scikit-learn ile aynı ağırlıkları buldu. Etkisiz beş özellikten ü
 **tam sıfır** yaptı, ikisini 0,04 ve 0,06'ya indirdi; düzenlileştirmesiz
 modelde aynı beşi 0,06 ile 0,26 arasındaydı. Lasso böylece **özellik
 seçimi** de yapar. Ridge ağırlıkları küçültür ama sıfır yapmaz.
+
+`soft` içindeki `+ 0.0` küçük bir ayrıntı: eksi işaretli küçük bir `z`
+sıfıra çekilince sonuç `-0.0` oluyor. Değer aynı ama yazdırınca eksi
+görünüyor ve hangi işaretin çıkacağı toplamanın son basamağına, yani
+bilgisayara bağlı. `-0.0 + 0.0` her zaman `0.0`.
 
 <figure class="fig">
 <svg viewBox="0 0 460 275" width="460" xmlns="http://www.w3.org/2000/svg"><line class="grid" x1="20" y1="150" x2="200" y2="150"/><line class="grid" x1="110" y1="40" x2="110" y2="230"/><polygon class="box" points="110,95 165,150 110,205 55,150" fill-opacity=".3"/><circle class="curve2" cx="130" cy="60" r="40.3" fill="none"/><circle class="curve2" cx="130" cy="60" r="26.2" fill="none"/><circle class="curve2" cx="130" cy="60" r="12.1" fill="none"/><circle class="dot" cx="110.0" cy="95.0" r="5"/><text class="ink" x="110" y="262" font-size="12" text-anchor="middle">Lasso (L1)</text><line class="grid" x1="260" y1="150" x2="440" y2="150"/><line class="grid" x1="350" y1="40" x2="350" y2="230"/><circle class="box" cx="350" cy="150" r="55" fill-opacity=".3"/><circle class="curve2" cx="370" cy="60" r="37.2" fill="none"/><circle class="curve2" cx="370" cy="60" r="24.2" fill="none"/><circle class="curve2" cx="370" cy="60" r="11.2" fill="none"/><circle class="dot" cx="361.9" cy="96.3" r="5"/><text class="ink" x="350" y="262" font-size="12" text-anchor="middle">Ridge (L2)</text></svg>

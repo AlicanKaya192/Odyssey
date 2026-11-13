@@ -12,7 +12,7 @@ words = vectorizer.get_feature_names_out()
 
 def top_words(label, k):
     row = model.coef_[list(model.classes_).index(label)]
-    return [str(words[i]) for i in np.argsort(row)[::-1][:k]]
+    return [str(words[i]) for i in np.argsort(-row, kind="stable")[:k]]
 
 
 for label in model.classes_:

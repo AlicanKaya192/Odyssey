@@ -7,9 +7,13 @@ Look at the first line of the output: the words pointing most to neutral
 reviews are typos and numbers. Rare words seen once or twice in one class get
 an artificially high ratio; that is what `min_df` from section 04 is for.
 
+Words with equal scores should come in alphabetical order:
+`np.argsort(-score, kind="stable")` sorts from largest to smallest and
+keeps equal ones in place, so the order is the same on every computer.
+
 **Expected output:**
 
 ```
-deos, 30, bluetotoh, buttnos, 11
+deos, 30, 11, battrey, bluetotoh
 but, be, to, all, at
 ```

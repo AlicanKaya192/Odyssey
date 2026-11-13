@@ -159,7 +159,7 @@ ağırlıklı kelimeleri.
 ```python
 words = vectorizer.get_feature_names_out()
 for i, label in enumerate(lr.classes_):
-    top = np.argsort(lr.coef_[i])[::-1][:5]
+    top = np.argsort(-lr.coef_[i], kind="stable")[:5]
     print(label, [str(words[j]) for j in top])
 ```
 
