@@ -46,7 +46,15 @@ def opts(text):
 
 PIPE = f"{ML}/11-pipeline-ve-model-kaydetme/exercises/pipeline-in-cv"
 PICK = f"{ML}/12-genel-tekrar/exercises/pick-the-model"
+DROP = ('OneHotEncoder(handle_unknown="ignore")', 'OneHotEncoder(handle_unknown="ignore", drop="if_binary")')
 CASES = [
+    ("pick-model-drop", PICK, "solution.py", [DROP]),
+    ("pick-model-drop-leaf10", PICK, "solution.py", [DROP, leaf(10)]),
+    ("pick-model-drop-leaf20", PICK, "solution.py", [DROP, leaf(20)]),
+    ("pick-model-drop-leaf30", PICK, "solution.py", [DROP, leaf(30)]),
+    ("pipeline-cv-leaf30", PIPE, "solution.py", [leaf(30)]),
+]
+CASES_3 = [
     ("pipeline-cv-leaf30", PIPE, "solution.py", [leaf(30)]),
     ("pipeline-cv-depth5", PIPE, "solution.py", [opts("max_depth=5")]),
     ("pick-model-leaf30", PICK, "solution.py", [leaf(30)]),
