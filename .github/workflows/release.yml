@@ -253,6 +253,25 @@ jobs:
       - name: Smoke test the package
         run: python tools/smoke_package.py
 
+      # The smoke test only runs the exercise checker. This opens the real
+      # window, as a person would, and fails if it dies (the first Mac build
+      # crashed at launch while every exercise passed).
+      - name: Launch the app window
+        run: |
+          app="dist/Odyssey.app/Contents/MacOS/Odyssey"
+          "$app" > launch.log 2>&1 &
+          pid=$!
+          for i in $(seq 1 60); do
+            if ! kill -0 "$pid" 2>/dev/null; then
+              cat launch.log
+              echo "The app quit within 60 s"
+              exit 1
+            fi
+            sleep 1
+          done
+          kill "$pid"
+          echo "Window still running after 60 s"
+
       - name: Keep the disk image
         uses: actions/upload-artifact@v4
         with:

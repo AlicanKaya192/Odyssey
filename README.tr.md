@@ -176,7 +176,7 @@ Odyssey Apple tarafından imzalanmadı (bunun için ücretli bir Apple geliştir
 2. **Sistem Ayarları › Gizlilik ve Güvenlik**'i açıp Güvenlik bölümüne kadar aşağı kaydırın.
 3. Odyssey'in engellendiğini söyleyen satırın yanındaki **Yine de Aç**'a basın ve parolanızla ya da Touch ID ile onaylayın.
 
-Bundan sonra Odyssey her uygulama gibi açılıyor. macOS bunun yerine uygulamanın "hasarlı" olduğunu söylerse Terminal'de bir kez `xattr -dr com.apple.quarantine /Applications/Odyssey.app` çalıştırıp yeniden açın.
+Bu ekranların yazısı macOS sürümüne göre biraz değişebilir. Bundan sonra Odyssey her uygulama gibi açılıyor. macOS bunun yerine uygulamanın "hasarlı" olduğunu söylerse Terminal'de bir kez `xattr -dr com.apple.quarantine /Applications/Odyssey.app` çalıştırıp yeniden açın.
 
 macOS'ta ilerlemeniz `~/Library/Application Support/Odyssey` klasöründe tutuluyor. Bazı bölümler şimdilik yalnızca Windows'ta çalışıyor: SQL alıştırmaları (Windows oturum açmasıyla SQL Server istiyor), uygulama içi güncelleme (yeni `.dmg`'yi bunun yerine sürümler sayfasından indirin), seri hatırlatmaları, sesler ve Discord durumu. Docker ve Rust alıştırmaları, Windows'taki gibi Mac'te kurulu Docker Desktop ve Rust istiyor; Mac'te henüz denenmedi.
 

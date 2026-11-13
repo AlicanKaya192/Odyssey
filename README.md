@@ -176,7 +176,7 @@ Odyssey is not signed by Apple (that needs a paid Apple developer account), so t
 2. Open **System Settings › Privacy & Security** and scroll down to the Security section.
 3. Next to the line about Odyssey being blocked, click **Open Anyway**, then confirm with your password or Touch ID.
 
-After that Odyssey opens like any other app. If macOS instead says the app "is damaged", run `xattr -dr com.apple.quarantine /Applications/Odyssey.app` in Terminal once and open it again.
+The wording of these screens can differ a little between macOS versions. After that Odyssey opens like any other app. If macOS instead says the app "is damaged", run `xattr -dr com.apple.quarantine /Applications/Odyssey.app` in Terminal once and open it again.
 
 On macOS your progress is kept in `~/Library/Application Support/Odyssey`. Some parts work only on Windows for now: SQL exercises (they need SQL Server with Windows sign-in), in-app updates (download the new `.dmg` from the releases page instead), streak reminders, sounds and the Discord status. Docker and Rust exercises need Docker Desktop and Rust installed on the Mac, as on Windows, and have not been tried on a Mac yet.
 

@@ -42,6 +42,10 @@ TONES = ("muted", "success", "warning", "danger", "accent")
 
 def rich(title: str, body: str = "", status: str = "", tone: str = "muted") -> str:
     """Başlık, renkli bir durum satırı ve açıklamadan oluşan ipucu metni."""
+    if sys.platform == "darwin":
+        # Mac'te kartı çizen süzgeç takılmıyor (`install`); Qt'nin kendi
+        # ipucu kodlu metni olduğu gibi gösterirdi. Düz, satır satır metin.
+        return "\n".join(parca for parca in (title, status, body) if parca)
     return SEP.join([MARKER, title, status, tone if tone in TONES else "muted", body])
 
 

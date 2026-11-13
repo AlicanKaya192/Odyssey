@@ -44,6 +44,9 @@ EXERCISES = (
     ("grafik (yeniden)", "01-veri-bilimi/07-gorsellestirme/exercises/trend-line"),
     # LightGBM macOS'ta libomp istiyor; paketin içinde gelmezse burada düşer.
     ("LightGBM", "18-ml-kutuphaneleri/14-gradyan-boosting-kutuphaneleri/exercises/lgbm-early"),
+    # Süreç havuzu: paketli programda alt süreçler denetleyicinin kendisi
+    # (Windows'ta `freeze_support` ve `WINEXE` düzeltmesi gerekmişti).
+    ("süreç havuzu", "11-buyuk-veri/10-paralel-isleme/exercises/primes-with-processes"),
 )
 
 
