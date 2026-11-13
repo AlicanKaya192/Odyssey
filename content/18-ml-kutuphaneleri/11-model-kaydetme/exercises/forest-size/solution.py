@@ -22,4 +22,4 @@ def forest_size(level):
     return os.path.getsize("forest.joblib") // 1024
 
 print(forest_size(0))
-print(forest_size(3))
+print(forest_size(3) < forest_size(0) // 3)

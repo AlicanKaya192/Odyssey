@@ -65,7 +65,8 @@ Türkçe altyazılı uyarlamasıdır. Toplamda {{sections}} bölüm, {{questions
 Programı ilk kez kullanıyorsanız **Ayarlar › Öğrenme › Tanıtım turu**
 bütün ekranları sırayla gösterir.
 
-macOS sürümü yol haritasındadır.
+Odyssey Windows'ta ve deneysel olarak macOS'ta (Apple Silicon) çalışır. macOS'ta
+SQL alıştırmaları henüz yok.
 
 Hangi değişikliğin hangi sürümde geldiğini **Sürüm Notları** ekranından
 izleyebilirsiniz.

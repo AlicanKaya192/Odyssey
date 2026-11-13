@@ -52,7 +52,10 @@ EXIT_PANIC = 101
 CRASH_CODE_MIN = 0xC0000000
 
 NO_TOOLCHAIN = re.compile(r"could not choose a version|no override and no default toolchain", re.I)
-NO_LINKER = re.compile(r"linker `[^`]*` not found|link\.exe.*not found", re.I)
+# macOS: the linker comes with Apple's command line tools; without them `cc`
+# stops with "xcrun: error: invalid active developer path".
+NO_LINKER = re.compile(r"linker `[^`]*` not found|link\.exe.*not found"
+                       r"|xcrun: error: invalid active developer path", re.I)
 PANIC = re.compile(r"panicked at ([^\n]+?):(\d+):\d+:\n([^\n]*)")
 TEST_LINE = re.compile(r"^test (\S+)(?: - should panic)? \.\.\. (ok|FAILED)\s*$", re.M)
 FAILURE_BLOCK = re.compile(r"^---- (\S+) stdout ----\n(.*?)(?=^---- |^failures:|\Z)", re.M | re.S)

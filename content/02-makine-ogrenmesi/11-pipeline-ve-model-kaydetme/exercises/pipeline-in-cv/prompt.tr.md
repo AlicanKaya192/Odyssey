@@ -8,7 +8,10 @@ Bir pipeline'ın asıl kazancı tek satırda görünmüyor. Bölüm 05'teki
 2. `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` kur.
 3. İki pipeline kur ve sırayla ele al:
    - `logreg` — `LogisticRegression(max_iter=1000)`
-   - `forest` — `RandomForestClassifier(n_estimators=200, random_state=42)`
+   - `forest` — `RandomForestClassifier(n_estimators=200, min_samples_leaf=30, random_state=42)`
+     (`min_samples_leaf=30` her yaprakta en az 30 satır bırakıyor. Çok küçük
+     yapraklarda iki ayrım tam eşit puan alabiliyor ve bu eşitlik işlemciye
+     göre farklı bozuluyor; büyük yapraklarla sonuç her bilgisayarda aynı.)
 4. Her biri için tek satır yazdır: **ad, CV ortalaması, CV yayılımı, test
    doğruluğu** (üç ondalık). Çapraz doğrulamayı **ham `X_train`** ile yap —
    pipeline hazırlığı kendisi yapıyor.
@@ -18,7 +21,7 @@ Bir pipeline'ın asıl kazancı tek satırda görünmüyor. Bölüm 05'teki
 
 ```
 logreg 0.738 0.037 0.793
-forest 0.689 0.027 0.753
+forest 0.711 0.021 0.733
 logreg logreg
 ```
 
@@ -42,5 +45,7 @@ alıştırmada bu sızıntının ne kadar büyüyebildiğini ölçeceksin.
 büyük ölçüde doğrusal — `tenure` arttıkça ayrılma düşüyor, `support`
 arttıkça yükseliyor — ve orman bu düzgünlükten faydalanamıyor.
 
-**Yayılımlar da anlamlı:** 0.037 ile 0.027. Aradaki 0.049'luk ortalama
-farkı bu yayılımların üstünde, yani gerçek bir fark.
+**Yayılımlara da bak:** 0.037 ile 0.021. Aradaki 0.027'lik ortalama farkı
+logreg'in yayılımından küçük: CV tek başına kesin bir kazanan söylemiyor.
+Test doğruluğu da aynı yönü gösteriyor (0.793'e 0.733); iki ölçü birlikte
+logreg'i öne çıkarıyor.

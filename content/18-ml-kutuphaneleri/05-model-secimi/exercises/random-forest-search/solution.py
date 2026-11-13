@@ -11,7 +11,7 @@ from sklearn.model_selection import RandomizedSearchCV
 
 def random_forest_search(n_iter):
     space = {"n_estimators": randint(10, 60), "max_depth": randint(2, 8)}
-    search = RandomizedSearchCV(RandomForestClassifier(random_state=0), space,
+    search = RandomizedSearchCV(RandomForestClassifier(min_samples_leaf=10, random_state=0), space,
                                 n_iter=n_iter, cv=3, random_state=0).fit(X_train, y_train)
     return [int(search.best_params_["max_depth"]), round(search.best_score_, 3)]
 

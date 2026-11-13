@@ -5,6 +5,6 @@ karıştırılınca ortalama mutlak hata kaç birim büyüyor.
 **Beklenen çıktı:**
 
 ```
-42.37
-13.47
+42.41
+13.46
 ```

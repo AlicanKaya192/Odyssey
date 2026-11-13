@@ -62,7 +62,7 @@ txt/notes.txt
 
 ## 2. Üzerine yazma
 
-Hedefte aynı adlı dosya varsa `rename` Windows'ta hata verir, Linux'ta ise
+Hedefte aynı adlı dosya varsa `rename` Windows'ta hata verir, macOS ve Linux'ta ise
 **sessizce üzerine yazar**: eski dosya kaybolur. Güvenli yol, boş bir ad
 bulmaktır:
 

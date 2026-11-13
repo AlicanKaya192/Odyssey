@@ -25,7 +25,7 @@ df = pd.DataFrame({
     "coin": rng.integers(0, 2, 2000),          # meaningless
 })
 df["price"] = (df["area"] - 0.1 * (df["age"] - 25) ** 2
-               + 8 * np.minimum(df["floor"], 8) + rng.normal(0, 15, 2000))
+               + 8 * np.minimum(df["floor"], 8) + rng.normal(0, 15, 2000)).round()
 X, y = df.drop(columns="price"), df["price"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 rf = RandomForestRegressor(n_estimators=200, random_state=0, n_jobs=-1)
@@ -40,9 +40,9 @@ for name, impurity, mean, std in zip(X.columns, rf.feature_importances_,
 
 ```text
 0.91
-area     0.701  1.390 0.060
+area     0.701  1.390 0.061
 age      0.114  0.177 0.012
-floor    0.164  0.282 0.019
+floor    0.164  0.281 0.019
 row_id   0.019 -0.000 0.001
 coin     0.003 -0.000 0.001
 ```
@@ -54,7 +54,7 @@ coin     0.003 -0.000 0.001
   shuffled (moved between rows) and the model is scored again. The more the
   score drops, the more the column was helping. This is repeated 10 times
   (`n_repeats`); the mean and spread are given.
-- Shuffling area drops R² by 1.39 (from 0.91 to below zero). Floor 0.282,
+- Shuffling area drops R² by 1.39 (from 0.91 to below zero). Floor 0.281,
   age 0.177. `row_id` and `coin` 0: shuffling changed nothing. (`-0.000` is a
   tiny random wobble.)
 - The second column is the forest's own importance (`feature_importances_`):
@@ -111,7 +111,7 @@ print(age["average"][0].round().astype(int).tolist())
 
 ```text
 [3, 12, 21, 30, 39, 48]
-[118, 150, 160, 160, 147, 115]
+[118, 150, 160, 160, 146, 115]
 ```
 
 <figure class="fig">
@@ -195,61 +195,61 @@ L -3.5 0
 " style="stroke: currentColor; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="#m5c8d5162d3" x="47.288281" y="165.346989" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="47.288281" y="165.439308" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_6">
-      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="169.145817" transform="rotate(-0 40.288281 169.145817)">110</text>
+      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="169.238136" transform="rotate(-0 40.288281 169.238136)">110</text>
      </g>
     </g>
     <g id="ytick_2">
      <g id="line2d_6">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="47.288281" y="137.473724" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="47.288281" y="137.6013" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_7">
-      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="141.272552" transform="rotate(-0 40.288281 141.272552)">120</text>
+      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="141.400128" transform="rotate(-0 40.288281 141.400128)">120</text>
      </g>
     </g>
     <g id="ytick_3">
      <g id="line2d_7">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="47.288281" y="109.60046" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="47.288281" y="109.763292" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_8">
-      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="113.399288" transform="rotate(-0 40.288281 113.399288)">130</text>
+      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="113.56212" transform="rotate(-0 40.288281 113.56212)">130</text>
      </g>
     </g>
     <g id="ytick_4">
      <g id="line2d_8">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="47.288281" y="81.727196" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="47.288281" y="81.925284" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
-      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="85.526024" transform="rotate(-0 40.288281 85.526024)">140</text>
+      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="85.724112" transform="rotate(-0 40.288281 85.724112)">140</text>
      </g>
     </g>
     <g id="ytick_5">
      <g id="line2d_9">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="47.288281" y="53.853932" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="47.288281" y="54.087276" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
-      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="57.65276" transform="rotate(-0 40.288281 57.65276)">150</text>
+      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="57.886104" transform="rotate(-0 40.288281 57.886104)">150</text>
      </g>
     </g>
     <g id="ytick_6">
      <g id="line2d_10">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="47.288281" y="25.980667" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="47.288281" y="26.249268" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
-      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="29.779496" transform="rotate(-0 40.288281 29.779496)">160</text>
+      <text style="font-size: 10px; font-family:inherit; text-anchor: end; fill: currentColor" x="40.288281" y="30.048096" transform="rotate(-0 40.288281 30.048096)">160</text>
      </g>
     </g>
     <g id="text_12">
@@ -257,106 +257,106 @@ L -3.5 0
     </g>
    </g>
    <g id="line2d_11">
-    <path d="M 56.511422 142.0232 
-L 58.374682 139.691361 
-L 60.237943 138.087743 
-L 62.101204 135.714361 
-L 63.964465 131.708241 
-L 65.827725 126.63983 
-L 67.690986 120.505662 
-L 69.554247 114.366175 
-L 71.417507 110.495937 
-L 73.280768 106.930806 
-L 75.144029 100.177455 
-L 77.00729 89.497063 
-L 78.87055 85.056281 
-L 80.733811 81.092628 
-L 82.597072 78.09608 
-L 84.460332 73.798618 
-L 86.323593 68.547802 
-L 88.186854 64.73892 
-L 90.050114 60.87461 
-L 91.913375 58.564934 
-L 93.776636 49.844813 
-L 95.639897 48.868202 
-L 97.503157 47.176316 
-L 99.366418 44.890096 
-L 101.229679 43.323248 
-L 103.092939 41.171933 
-L 104.9562 38.762692 
-L 106.819461 38.011378 
-L 108.682722 36.539655 
-L 110.545982 34.825699 
-L 112.409243 33.008377 
-L 114.272504 32.320181 
-L 116.135764 31.47899 
-L 117.999025 30.574968 
-L 119.862286 29.732872 
-L 121.725546 29.233894 
-L 123.588807 28.749697 
-L 125.452068 28.345382 
-L 127.315329 28.225956 
-L 129.178589 26.64161 
-L 131.04185 26.233124 
-L 132.905111 25.322939 
-L 134.768371 25.118294 
-L 136.631632 24.709064 
-L 138.494893 24.399082 
-L 140.358154 24.452399 
-L 142.221414 24.138973 
-L 144.084675 24.327785 
-L 145.947936 24.116113 
-L 147.811196 24.040627 
-L 149.674457 24.532263 
-L 151.537718 24.584972 
-L 153.400978 24.816004 
-L 155.264239 24.687979 
-L 157.1275 25.194912 
-L 158.990761 25.538375 
-L 160.854021 25.502852 
-L 162.717282 25.842314 
-L 164.580543 25.868028 
-L 166.443803 26.709116 
-L 168.307064 27.309968 
-L 170.170325 27.567213 
-L 172.033586 28.33743 
-L 173.896846 29.268373 
-L 175.760107 29.759481 
-L 177.623368 32.068632 
-L 179.486628 33.79672 
-L 181.349889 33.640575 
-L 183.21315 33.442174 
-L 185.07641 34.09563 
-L 186.939671 37.508142 
-L 188.802932 38.620117 
-L 190.666193 40.419125 
-L 192.529453 46.407938 
-L 194.392714 49.70958 
-L 196.255975 51.710476 
-L 198.119235 53.211295 
-L 199.982496 55.599812 
-L 201.845757 57.163406 
-L 203.709018 60.882351 
-L 205.572278 66.713877 
-L 207.435539 69.484649 
-L 209.2988 73.696556 
-L 211.16206 74.828411 
-L 213.025321 77.767057 
-L 214.888582 80.464786 
-L 216.751842 85.284758 
-L 218.615103 89.479588 
-L 220.478364 96.991997 
-L 222.341625 102.520672 
-L 224.204885 105.442867 
-L 226.068146 111.118253 
-L 227.931407 115.615683 
-L 229.794667 118.80428 
-L 231.657928 127.632663 
-L 233.521189 133.992286 
-L 235.38445 144.359409 
-L 237.24771 146.711016 
-L 239.110971 148.526677 
-L 240.974232 151.805485 
+    <path d="M 56.511422 141.926573 
+L 58.374682 139.542121 
+L 60.237943 138.241945 
+L 62.101204 136.000659 
+L 63.964465 131.832406 
+L 65.827725 126.658746 
+L 67.690986 120.694013 
+L 69.554247 114.731879 
+L 71.417507 110.706285 
+L 73.280768 107.106914 
+L 75.144029 100.160358 
+L 77.00729 89.702931 
+L 78.87055 85.260631 
+L 80.733811 81.382554 
+L 82.597072 78.538907 
+L 84.460332 74.156816 
+L 86.323593 68.809556 
+L 88.186854 64.830645 
+L 90.050114 61.067402 
+L 91.913375 58.9032 
+L 93.776636 50.120512 
+L 95.639897 49.01977 
+L 97.503157 47.358091 
+L 99.366418 44.989723 
+L 101.229679 43.588305 
+L 103.092939 41.529066 
+L 104.9562 38.937258 
+L 106.819461 38.055341 
+L 108.682722 36.565082 
+L 110.545982 34.806382 
+L 112.409243 32.903817 
+L 114.272504 32.282238 
+L 116.135764 31.496162 
+L 117.999025 30.659929 
+L 119.862286 29.880163 
+L 121.725546 29.345096 
+L 123.588807 28.770652 
+L 125.452068 28.374314 
+L 127.315329 28.240574 
+L 129.178589 26.689339 
+L 131.04185 26.369249 
+L 132.905111 25.336938 
+L 134.768371 25.311827 
+L 136.631632 25.081629 
+L 138.494893 24.809361 
+L 140.358154 24.823299 
+L 142.221414 24.548184 
+L 144.084675 24.724312 
+L 145.947936 24.48741 
+L 147.811196 24.429784 
+L 149.674457 24.856054 
+L 151.537718 24.964792 
+L 153.400978 25.159677 
+L 155.264239 25.159345 
+L 157.1275 25.736575 
+L 158.990761 26.016201 
+L 160.854021 25.997143 
+L 162.717282 26.48203 
+L 164.580543 26.50386 
+L 166.443803 27.251343 
+L 168.307064 27.946609 
+L 170.170325 28.175832 
+L 172.033586 29.0386 
+L 173.896846 30.004858 
+L 175.760107 30.518327 
+L 177.623368 32.52805 
+L 179.486628 34.150102 
+L 181.349889 34.086008 
+L 183.21315 33.941427 
+L 185.07641 34.527725 
+L 186.939671 38.035356 
+L 188.802932 39.093606 
+L 190.666193 41.110057 
+L 192.529453 46.916014 
+L 194.392714 50.046273 
+L 196.255975 52.104039 
+L 198.119235 53.635663 
+L 199.982496 56.068226 
+L 201.845757 57.691455 
+L 203.709018 61.480211 
+L 205.572278 67.394218 
+L 207.435539 70.11383 
+L 209.2988 74.372087 
+L 211.16206 75.576667 
+L 213.025321 78.176178 
+L 214.888582 81.154553 
+L 216.751842 85.83488 
+L 218.615103 89.967169 
+L 220.478364 97.605185 
+L 222.341625 103.102321 
+L 224.204885 105.713224 
+L 226.068146 111.295263 
+L 227.931407 115.78908 
+L 229.794667 118.735752 
+L 231.657928 127.633329 
+L 233.521189 133.649636 
+L 235.38445 144.272012 
+L 237.24771 146.490722 
+L 239.110971 148.462179 
+L 240.974232 151.982023 
 " clip-path="url(#p9ab65b44be)" style="fill: none; stroke: #1f77b4; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="LineCollection_1">
@@ -458,42 +458,42 @@ z
     <g id="ytick_7">
      <g id="line2d_15">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="290.77919" y="165.346989" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="290.77919" y="165.439308" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
     </g>
     <g id="ytick_8">
      <g id="line2d_16">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="290.77919" y="137.473724" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="290.77919" y="137.6013" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
     </g>
     <g id="ytick_9">
      <g id="line2d_17">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="290.77919" y="109.60046" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="290.77919" y="109.763292" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
     </g>
     <g id="ytick_10">
      <g id="line2d_18">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="290.77919" y="81.727196" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="290.77919" y="81.925284" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
     </g>
     <g id="ytick_11">
      <g id="line2d_19">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="290.77919" y="53.853932" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="290.77919" y="54.087276" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
     </g>
     <g id="ytick_12">
      <g id="line2d_20">
       <g>
-       <use xlink:href="#m5c8d5162d3" x="290.77919" y="25.980667" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
+       <use xlink:href="#m5c8d5162d3" x="290.77919" y="26.249268" style="fill: currentColor; stroke: currentColor; stroke-width: 0.8"/>
       </g>
      </g>
     </g>
@@ -503,20 +503,20 @@ z
    </g>
    <g id="line2d_21">
     <path d="M 300.002331 176.544 
-L 313.178246 170.314592 
-L 326.354161 146.898413 
-L 339.530076 126.841213 
-L 352.705991 109.034712 
-L 365.881906 90.951243 
-L 379.057821 59.459744 
-L 392.233736 29.090979 
-L 405.409651 19.615237 
-L 418.585566 17.457928 
-L 431.761481 16.600028 
+L 313.178246 170.297097 
+L 326.354161 146.989083 
+L 339.530076 127.120644 
+L 352.705991 109.109471 
+L 365.881906 91.175388 
+L 379.057821 59.773244 
+L 392.233736 29.337345 
+L 405.409651 19.936403 
+L 418.585566 17.864749 
+L 431.761481 16.914379 
 L 444.937396 15.264 
-L 458.113311 16.410573 
-L 471.289226 16.394227 
-L 484.465141 16.626268 
+L 458.113311 16.661046 
+L 471.289226 16.754464 
+L 484.465141 17.036297 
 " clip-path="url(#p4976ef00ed)" style="fill: none; stroke: #1f77b4; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="LineCollection_2">
@@ -607,14 +607,14 @@ for name in ["area", "area_copy", "floor"]:
 
 ```text
 0.911
-area 0.588
-area_copy 0.188
-floor 0.282
+area 0.589
+area_copy 0.189
+floor 0.283
 ```
 
 - We added a column that is almost the same as area. The model's score did
-  not change (0.911), but area's importance fell from 1.39 to 0.588; the copy
-  got 0.188.
+  not change (0.911), but area's importance fell from 1.39 to 0.589; the copy
+  got 0.189.
 - When one column is shuffled, the model can take the same information from
   its copy; both columns look less important. Even their sum does not reach
   area's importance on its own.

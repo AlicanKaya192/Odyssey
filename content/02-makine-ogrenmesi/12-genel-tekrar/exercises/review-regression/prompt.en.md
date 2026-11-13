@@ -24,10 +24,10 @@ This exercise runs a regression project **from start to finish**.
 **Expected output:**
 
 ```
-137.3 154.7 -0.02
+137.3 154.6 -0.02
 linear 16.6 2.8 16.2 0.984
 tree 69.3 10.2 65.7 0.746
-forest 42.3 15.1 44.2 0.883
+forest 42.3 15.0 44.2 0.884
 linear linear
 ```
 

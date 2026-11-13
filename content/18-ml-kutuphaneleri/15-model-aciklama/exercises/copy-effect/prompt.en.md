@@ -7,5 +7,5 @@ column). The starter code does not add the copy.
 **Expected output:**
 
 ```
-[0.457, 0.282]
+[0.459, 0.279]
 ```

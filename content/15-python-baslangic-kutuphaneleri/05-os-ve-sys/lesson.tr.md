@@ -68,7 +68,7 @@ False False
   yok. `isabs` yolun mutlak (`C:\...` ya da `/home/...`) olup olmadığını
   söyler; bu yol **göreli**, yani programın çalıştığı klasöre göre.
 
-Windows'ta çıktıda `\` görüyorsun; aynı kod Linux'ta `data/raw/sales.csv`
+Windows'ta çıktıda `\` görüyorsun; aynı kod macOS ve Linux'ta `data/raw/sales.csv`
 yazar. Bir sonraki bölümdeki `pathlib` aynı işleri daha okunaklı yapar; ama
 `os.path`'i eski kodda ve kütüphanelerde çok göreceksin.
 

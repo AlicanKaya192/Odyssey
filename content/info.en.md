@@ -66,7 +66,8 @@ exercises and {{problems}} mathematics problems.
 If you are new to the application, **Settings › Learning › Guided tour**
 walks you through every screen in turn.
 
-A macOS build is on the roadmap.
+Odyssey runs on Windows and, as an experimental build, on macOS (Apple
+Silicon). The SQL exercises are not available on macOS yet.
 
 You can follow which change arrived in which version from the **Release
 Notes** screen.

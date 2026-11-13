@@ -17,7 +17,7 @@ def make_preprocessor(numeric):
         ]), numeric),
         ("cat", Pipeline([
             ("impute", SimpleImputer(strategy="most_frequent")),
-            ("encode", OneHotEncoder(handle_unknown="ignore")),
+            ("encode", OneHotEncoder(handle_unknown="ignore", drop="if_binary")),
         ]), text),
     ])
 
@@ -37,7 +37,7 @@ folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 models = [
     ("logreg", LogisticRegression(max_iter=1000)),
     ("knn", KNeighborsClassifier(n_neighbors=15)),
-    ("forest", RandomForestClassifier(n_estimators=200, random_state=42)),
+    ("forest", RandomForestClassifier(n_estimators=200, min_samples_leaf=30, random_state=42)),
     ("boosting", GradientBoostingClassifier(random_state=42)),
 ]
 

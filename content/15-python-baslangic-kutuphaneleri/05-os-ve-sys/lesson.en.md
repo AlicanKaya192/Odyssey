@@ -70,7 +70,7 @@ False False
   path is **relative**, meaning relative to the folder the program runs in.
 
 On Windows you see `\` in the output; the same code writes
-`data/raw/sales.csv` on Linux. `pathlib` in the next section does the same
+`data/raw/sales.csv` on macOS and Linux. `pathlib` in the next section does the same
 jobs more readably; but you will see `os.path` a lot in older code and in
 libraries.
 

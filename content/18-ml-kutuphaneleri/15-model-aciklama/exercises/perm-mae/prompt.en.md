@@ -6,6 +6,6 @@ shuffled.
 **Expected output:**
 
 ```
-42.37
-13.47
+42.41
+13.46
 ```

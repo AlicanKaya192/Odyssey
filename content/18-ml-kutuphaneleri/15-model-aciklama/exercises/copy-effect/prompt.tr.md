@@ -7,5 +7,5 @@ Başlangıç kodu kopyayı eklemiyor.
 **Beklenen çıktı:**
 
 ```
-[0.457, 0.282]
+[0.459, 0.279]
 ```

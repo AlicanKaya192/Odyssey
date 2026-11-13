@@ -36,7 +36,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score
 folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 models = [
     ("logreg", LogisticRegression(max_iter=1000)),
-    ("forest", RandomForestClassifier(n_estimators=200, random_state=42)),
+    ("forest", RandomForestClassifier(n_estimators=200, min_samples_leaf=30, random_state=42)),
 ]
 
 rows = []

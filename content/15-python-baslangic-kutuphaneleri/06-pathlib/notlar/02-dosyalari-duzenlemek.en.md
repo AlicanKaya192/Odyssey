@@ -63,7 +63,7 @@ txt/notes.txt
 ## 2. Overwriting
 
 If a file with the same name exists at the target, `rename` raises an error
-on Windows but **silently overwrites** on Linux: the old file is lost. The
+on Windows but **silently overwrites** on macOS and Linux: the old file is lost. The
 safe way is to find a free name:
 
 ```python

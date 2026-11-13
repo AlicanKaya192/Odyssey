@@ -12,7 +12,7 @@ df = pd.DataFrame({
     "coin": rng.integers(0, 2, 2000),
 })
 df["price"] = (df["area"] - 0.1 * (df["age"] - 25) ** 2
-               + 8 * np.minimum(df["floor"], 8) + rng.normal(0, 15, 2000))
+               + 8 * np.minimum(df["floor"], 8) + rng.normal(0, 15, 2000)).round()
 X, y = df.drop(columns="price"), df["price"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
 rf = RandomForestRegressor(n_estimators=100, random_state=0).fit(X_train, y_train)
