@@ -175,6 +175,9 @@ end with `\r\r\n`: the file opens in Excel **with blank lines between the
 rows**. Give `newline=""` when reading too; values containing a line break
 inside quotes are only read correctly this way.
 
+On macOS and Linux text mode does not change line endings; there both files
+end with `\r\n`. Writing `newline=""` gives the right file on every computer.
+
 ## Summary
 
 - Read and write CSV with the `csv` module, not `split(",")`; it knows the

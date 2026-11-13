@@ -172,6 +172,9 @@ Windows metin kipi `\n`'yi bir kez daha `\r\n`'ye çevirir ve satırlar
 açılır. Okurken de `newline=""` verilir; tırnak içinde satır sonu olan
 değerler ancak böyle doğru okunur.
 
+macOS ve Linux'ta metin kipi satır sonunu değiştirmiyor; orada iki dosya da
+`\r\n` ile biter. `newline=""` yazmak her bilgisayarda doğru dosyayı verir.
+
 ## Özet
 
 - CSV'yi `split(",")` ile değil `csv` modülüyle oku ve yaz; tırnak kurallarını
