@@ -40,6 +40,8 @@ EXERCISES = (
     ("Python", "00-python-temelleri/00-baslangic/exercises/first-program"),
     ("makine öğrenmesi", "02-makine-ogrenmesi/01-ilk-model/exercises/split-and-fit"),
     ("grafik", "01-veri-bilimi/07-gorsellestirme/exercises/trend-line"),
+    # LightGBM macOS'ta libomp istiyor; paketin içinde gelmezse burada düşer.
+    ("LightGBM", "18-ml-kutuphaneleri/14-gradyan-boosting-kutuphaneleri/exercises/lgbm-early"),
 )
 
 

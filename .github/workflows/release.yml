@@ -211,6 +211,11 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-build.txt
 
+      # LightGBM's macOS wheel links against libomp but does not ship it;
+      # PyInstaller collects it into the app once it is installed here.
+      - name: Install libomp for LightGBM
+        run: brew install libomp
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -238,8 +243,13 @@ jobs:
       - name: Build the disk image
         run: python tools/build_dmg.py
 
+      # Without the runner's own libomp the LightGBM exercise only passes if the
+      # app carries its own copy, as it must on a Mac without Homebrew.
+      - name: Remove the runner's libomp
+        run: brew uninstall --ignore-dependencies libomp
+
       # Runs exercises through the packaged app's own harness: Python,
-      # machine learning (pandas + scikit-learn) and a chart (matplotlib).
+      # machine learning (pandas + scikit-learn), a chart (matplotlib) and LightGBM.
       - name: Smoke test the package
         run: python tools/smoke_package.py
 

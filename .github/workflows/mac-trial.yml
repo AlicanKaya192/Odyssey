@@ -42,6 +42,11 @@ jobs:
         with:
           python-version: "3.14"
 
+      # LightGBM's macOS wheel links against libomp but does not ship it;
+      # PyInstaller collects it into the app once it is installed here.
+      - name: Install libomp for LightGBM
+        run: brew install libomp
+
       - name: Install the pinned build packages
         id: install
         continue-on-error: true
@@ -104,6 +109,12 @@ jobs:
         if: (inputs.full_build || github.event_name == 'push') && steps.build.outcome == 'success'
         continue-on-error: true
         run: python tools/build_dmg.py
+
+      # Without the runner's own libomp the LightGBM exercise only passes if the
+      # app carries its own copy, as it must on a Mac without Homebrew.
+      - name: Remove the runner's libomp
+        if: (inputs.full_build || github.event_name == 'push') && steps.build.outcome == 'success'
+        run: brew uninstall --ignore-dependencies libomp
 
       - name: Smoke test the package
         id: smoke
