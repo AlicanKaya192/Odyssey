@@ -1,6 +1,6 @@
 # Measures whether the pinned build environment works on macOS (Apple
 # Silicon) before the real Mac release job is trusted. Started by hand from
-# the Actions tab; it never touches a release.
+# the Actions tab or by pushing `mac-deneme`; it never touches a release.
 #
 # Each measured step may fail without stopping the others; the run summary
 # lists every result and the job fails at the end if any of them failed.
@@ -10,6 +10,10 @@
 name: Mac trial
 
 on:
+  # Pushing the `mac-deneme` branch runs the whole trial (with the full build)
+  # without touching main; the branch exists only for these measurements.
+  push:
+    branches: [mac-deneme]
   workflow_dispatch:
     inputs:
       full_build:
@@ -91,19 +95,19 @@ jobs:
 
       - name: Build the application
         id: build
-        if: inputs.full_build
+        if: (inputs.full_build || github.event_name == 'push')
         continue-on-error: true
         run: python tools/build_exe.py --temiz --deneme
 
       - name: Build the disk image
         id: dmg
-        if: inputs.full_build && steps.build.outcome == 'success'
+        if: (inputs.full_build || github.event_name == 'push') && steps.build.outcome == 'success'
         continue-on-error: true
         run: python tools/build_dmg.py
 
       - name: Smoke test the package
         id: smoke
-        if: inputs.full_build && steps.build.outcome == 'success'
+        if: (inputs.full_build || github.event_name == 'push') && steps.build.outcome == 'success'
         continue-on-error: true
         run: python tools/smoke_package.py
 
