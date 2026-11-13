@@ -168,7 +168,7 @@ This command creates both the environment the application runs in and the separa
 
 ## Installing on macOS (Apple Silicon)
 
-Odyssey runs on Macs with Apple Silicon (M1 and later); Intel Macs are not supported. Download `Odyssey-<version>-macos-arm64.dmg` from the [releases page](https://github.com/AlicanKaya192/Odyssey/releases), open it and drag Odyssey into the Applications folder.
+The macOS version is experimental. Odyssey runs on Macs with Apple Silicon (M1 and later); Intel Macs are not supported. Download `Odyssey-<version>-macos-arm64.dmg` from the [releases page](https://github.com/AlicanKaya192/Odyssey/releases), open it and drag Odyssey into the Applications folder.
 
 Odyssey is not signed by Apple (that needs a paid Apple developer account), so the first time you open it macOS says it cannot verify the app and does not open it. You only have to allow it once:
 
@@ -178,7 +178,7 @@ Odyssey is not signed by Apple (that needs a paid Apple developer account), so t
 
 The wording of these screens can differ a little between macOS versions. After that Odyssey opens like any other app. If macOS instead says the app "is damaged", run `xattr -dr com.apple.quarantine /Applications/Odyssey.app` in Terminal once and open it again.
 
-On macOS your progress is kept in `~/Library/Application Support/Odyssey`. Some parts work only on Windows for now: SQL exercises (they need SQL Server with Windows sign-in), in-app updates (download the new `.dmg` from the releases page instead), streak reminders, sounds and the Discord status. Docker and Rust exercises need Docker Desktop and Rust installed on the Mac, as on Windows, and have not been tried on a Mac yet.
+On macOS your progress is kept in `~/Library/Application Support/Odyssey`. Some parts work only on Windows for now: SQL exercises (they need SQL Server with Windows sign-in), in-app updates (download the new `.dmg` from the releases page instead), streak reminders, sounds and the Discord status. Docker and Rust exercises need Docker Desktop and Rust installed on the Mac, as on Windows. Git, API, Docker and Rust exercises, step-by-step tracing and taking a quiz have not been tried on a Mac yet.
 
 ### Running from source on macOS
 

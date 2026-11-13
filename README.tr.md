@@ -168,7 +168,7 @@ Bu komut hem uygulamanın çalıştığı ortamı hem de alıştırmaların çal
 
 ## macOS'ta kurulum (Apple Silicon)
 
-Odyssey Apple Silicon'lu (M1 ve sonrası) Mac'lerde çalışıyor; Intel işlemcili Mac'ler desteklenmiyor. [Sürümler sayfasından](https://github.com/AlicanKaya192/Odyssey/releases) `Odyssey-<sürüm>-macos-arm64.dmg` dosyasını indirin, açın ve Odyssey'i Uygulamalar klasörüne sürükleyin.
+macOS sürümü deneysel. Odyssey Apple Silicon'lu (M1 ve sonrası) Mac'lerde çalışıyor; Intel işlemcili Mac'ler desteklenmiyor. [Sürümler sayfasından](https://github.com/AlicanKaya192/Odyssey/releases) `Odyssey-<sürüm>-macos-arm64.dmg` dosyasını indirin, açın ve Odyssey'i Uygulamalar klasörüne sürükleyin.
 
 Odyssey Apple tarafından imzalanmadı (bunun için ücretli bir Apple geliştirici hesabı gerekiyor). Bu yüzden ilk açılışta macOS uygulamayı doğrulayamadığını söyleyip açmıyor. Bir kez izin vermeniz yeterli:
 
@@ -178,7 +178,7 @@ Odyssey Apple tarafından imzalanmadı (bunun için ücretli bir Apple geliştir
 
 Bu ekranların yazısı macOS sürümüne göre biraz değişebilir. Bundan sonra Odyssey her uygulama gibi açılıyor. macOS bunun yerine uygulamanın "hasarlı" olduğunu söylerse Terminal'de bir kez `xattr -dr com.apple.quarantine /Applications/Odyssey.app` çalıştırıp yeniden açın.
 
-macOS'ta ilerlemeniz `~/Library/Application Support/Odyssey` klasöründe tutuluyor. Bazı bölümler şimdilik yalnızca Windows'ta çalışıyor: SQL alıştırmaları (Windows oturum açmasıyla SQL Server istiyor), uygulama içi güncelleme (yeni `.dmg`'yi bunun yerine sürümler sayfasından indirin), seri hatırlatmaları, sesler ve Discord durumu. Docker ve Rust alıştırmaları, Windows'taki gibi Mac'te kurulu Docker Desktop ve Rust istiyor; Mac'te henüz denenmedi.
+macOS'ta ilerlemeniz `~/Library/Application Support/Odyssey` klasöründe tutuluyor. Bazı bölümler şimdilik yalnızca Windows'ta çalışıyor: SQL alıştırmaları (Windows oturum açmasıyla SQL Server istiyor), uygulama içi güncelleme (yeni `.dmg`'yi bunun yerine sürümler sayfasından indirin), seri hatırlatmaları, sesler ve Discord durumu. Docker ve Rust alıştırmaları, Windows'taki gibi Mac'te kurulu Docker Desktop ve Rust istiyor. Git, API, Docker ve Rust alıştırmaları, adım adım izleme ve sınav çözme Mac'te henüz denenmedi.
 
 ### macOS'ta kaynak koddan çalıştırma
 
