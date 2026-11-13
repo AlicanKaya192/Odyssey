@@ -189,7 +189,7 @@ def main() -> int:
     if "--icns" in sys.argv:
         return 0
 
-    images ={size: to_png_bytes(render(size)) for size in SIZES}
+    images = {size: to_png_bytes(render(size)) for size in SIZES}
 
     ico_path = OUTPUT_DIR / "icon.ico"
     write_ico(ico_path, images)

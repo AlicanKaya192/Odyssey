@@ -217,7 +217,13 @@ def _kill_tree(process: subprocess.Popen) -> None:
         )
     else:
         try:
-            os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+            grup = os.getpgid(process.pid)
+            if grup == process.pid:
+                os.killpg(grup, signal.SIGKILL)
+            else:
+                # Kendi oturumunda başlatılmamış süreç Odyssey'nin grubunda:
+                # grubu öldürmek uygulamayı da kapatırdı.
+                process.kill()
         except OSError:
             # Grup bulunamadı (süreç az önce bitti) ya da erişilemedi.
             process.kill()

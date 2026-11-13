@@ -82,6 +82,7 @@ MAC_DOCKER_PATHS = (
     "/usr/local/bin/docker",
     "/opt/homebrew/bin/docker",
     "/Applications/Docker.app/Contents/Resources/bin/docker",
+    str(Path.home() / ".docker" / "bin" / "docker"),
 )
 
 
@@ -840,7 +841,19 @@ class Docker:
         return subprocess.run(
             [self.exe, *args], cwd=cwd, capture_output=True, text=True, encoding="utf-8",
             errors="replace", timeout=limit, creationflags=CREATE_NO_WINDOW, stdin=subprocess.DEVNULL,
+            env=_docker_env(self.exe),
         )
+
+
+def _docker_env(exe: str) -> dict | None:
+    """macOS'ta Docker'ın kendi klasörü PATH'in başına: Finder'dan açılan
+    uygulamanın PATH'i kısa, imaj çekerken aranan `docker-credential-desktop`
+    orada. Başka yerde ortam olduğu gibi (None). Mac'te denenmedi."""
+    if sys.platform != "darwin" or not exe:
+        return None
+    env = os.environ.copy()
+    env["PATH"] = os.pathsep.join([str(Path(exe).parent), env.get("PATH", "")])
+    return env
 
 
 def docker_state(exe: str) -> tuple[str, str]:

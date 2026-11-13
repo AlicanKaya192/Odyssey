@@ -125,8 +125,12 @@ def _migrate_legacy_data(target: Path) -> None:
             source.rename(target)
         except OSError:
             # Taşınamazsa kopyalamayı deniyoruz; eski klasör olduğu yerde
-            # kalır, veri hiçbir durumda silinmez.
-            shutil.copytree(source, target, dirs_exist_ok=True)
+            # kalır, veri hiçbir durumda silinmez. Kopya önce yandaki geçici
+            # klasöre yazılıp bitince adını alıyor: yarıda kesilirse hedef
+            # oluşmuyor ve bir sonraki açılışta yeniden deneniyor.
+            gecici = target.with_name(target.name + ".tmp")
+            shutil.copytree(source, gecici, dirs_exist_ok=True)
+            gecici.rename(target)
         return
 
 

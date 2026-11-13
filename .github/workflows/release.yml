@@ -193,11 +193,16 @@ jobs:
   build-macos:
     needs: build
     runs-on: macos-latest
+    permissions:
+      contents: write
     timeout-minutes: 90
 
     steps:
       - name: Check out the source
         uses: actions/checkout@v4
+        with:
+          # Installed packages and build scripts cannot read the token from .git/config.
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -220,7 +225,7 @@ jobs:
           VERSION=$(python -c "from app.version import APP_VERSION; print(APP_VERSION)")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # The icon (app/resources/icon.icns) is in the repository; build_icon
+      # The icon (installer/macos/icon.icns) is in the repository; build_icon
       # needs a screen for its fonts, so it is not run here.
       - name: Build the application
         run: |

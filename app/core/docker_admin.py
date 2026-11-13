@@ -36,6 +36,7 @@ MAC_DOCKER_PATHS = (
     "/usr/local/bin/docker",
     "/opt/homebrew/bin/docker",
     "/Applications/Docker.app/Contents/Resources/bin/docker",
+    str(Path.home() / ".docker" / "bin" / "docker"),
 )
 
 

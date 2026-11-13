@@ -47,7 +47,6 @@ ENTRY = PROJECT_ROOT / "app" / "main.py"
 # atlıyor ve uygulama genel bir simgeyle çıkıyor.
 ICON_BY_PLATFORM = {
     "win32": "icon.ico",
-    "darwin": "icon.icns",
 }
 
 # macOS paketinin kimliği (Info.plist `CFBundleIdentifier`); imza ve
