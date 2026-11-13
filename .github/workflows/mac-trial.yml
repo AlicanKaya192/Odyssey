@@ -120,6 +120,10 @@ jobs:
         id: smoke
         if: (inputs.full_build || github.event_name == 'push') && steps.build.outcome == 'success'
         continue-on-error: true
+        env:
+          # An empty matplotlib folder: the run measures the font cache
+          # warm-up the app does on a fresh Mac (nothing is deleted).
+          MPLCONFIGDIR: ${{ runner.temp }}/mpl-fresh
         run: python tools/smoke_package.py
 
       - name: Keep the disk image

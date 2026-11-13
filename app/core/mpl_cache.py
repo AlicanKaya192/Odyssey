@@ -13,6 +13,7 @@ tarama kısa sürdüğü için yapılmıyor.
 
 from __future__ import annotations
 
+import os
 import sys
 import tempfile
 import time
@@ -31,8 +32,10 @@ WARM_CODE = (
 
 
 def _cache_dir() -> Path:
-    # macOS'ta matplotlib'in varsayılan yapılandırma ve önbellek klasörü.
-    return Path.home() / ".matplotlib"
+    # matplotlib'in kuralı: `MPLCONFIGDIR` verilmişse o, yoksa macOS'ta
+    # `~/.matplotlib` (yapılandırma ve önbellek aynı klasörde).
+    verilen = os.environ.get("MPLCONFIGDIR")
+    return Path(verilen) if verilen else Path.home() / ".matplotlib"
 
 
 def needed() -> bool:
