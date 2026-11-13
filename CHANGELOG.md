@@ -25,12 +25,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ### Eklendi
 - **Alıştırma tekrarı.** Bir modülde en az üç bölüm bitirince yolun
-  başındaki tekrar kartında ikinci bir düğme çıkıyor: bitirdiğin
+  başındaki tekrar kartında ikinci bir düğme çıkıyor: bitirdiğiniz
   bölümlerden karışık beş alıştırma, ipuçları kapalı. Python kod
   alıştırmaları ve matematik problemleri geliyor; editör başlangıç koduyla
-  açılıyor, kayıtlı çözümlerin ve deneme geçmişin değişmiyor. Sonda
-  hangilerini çözdüğün, hangisinde çözümü gösteren bir yardım kullandığın
-  ve çözemediklerinin bölümüne giden bağlantılar.
+  açılıyor, kayıtlı çözümleriniz ve deneme geçmişiniz değişmiyor. Sonda
+  hangilerini çözdüğünüz, hangisinde çözümü gösteren bir yardım
+  kullandığınız ve çözemediklerinizin bölümüne giden bağlantılar.
 
 ### Düzeltildi
 - **Çalışırken başka alıştırmaya geçmek sonucu karıştırıyordu.** Kod
