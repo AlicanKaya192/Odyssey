@@ -45,6 +45,8 @@ kullanıyor ama silmiyor.
 
 from __future__ import annotations
 
+import json
+import os
 import re
 import sys
 import time
@@ -155,6 +157,20 @@ def _terminal(exercise: Exercise, where: str) -> list[str]:
     return problems
 
 
+def _detay(result) -> str:
+    """`ODYSSEY_DETAY=1` ise düşen kontroller ve hata (başka bir makinede
+    neden düştüğünü görmek için; Mac içerik denetimi, 13 Kasım)."""
+    if os.environ.get("ODYSSEY_DETAY") != "1":
+        return ""
+    parcalar = [f"{c.type}: {json.dumps(c.detail, ensure_ascii=False)[:400]}"
+                for c in result.checks if not c.passed]
+    if result.error:
+        parcalar.append(f"hata: {json.dumps(result.error, ensure_ascii=False)[:400]}")
+    if result.status != "ok" and result.stderr:
+        parcalar.append(f"stderr: {result.stderr[-300:]!r}")
+    return "".join("\n      " + p for p in parcalar)
+
+
 def bir_alistirma(path: Path) -> list[str]:
     """Tek bir alıştırmayı denetler; bulduğu sorunları döndürür."""
     problems: list[str] = []
@@ -179,7 +195,7 @@ def bir_alistirma(path: Path) -> list[str]:
 
     result = calistir(exercise.solution_code)
     if not result.passed:
-        problems.append(f"{where}: çözüm geçmiyor ({result.status})")
+        problems.append(f"{where}: çözüm geçmiyor ({result.status}){_detay(result)}")
 
     for language in ("tr", "en"):
         code = hint_kodu(exercise, language)
@@ -239,7 +255,7 @@ def _cok_dosya(exercise: Exercise, where: str, calistir) -> list[str]:
     for language in ("tr", "en"):
         result = calistir(exercise.solution_files(language))
         if not result.passed:
-            problems.append(f"{where}: çözüm ({language}) geçmiyor ({result.status}) {result.error or ''}")
+            problems.append(f"{where}: çözüm ({language}) geçmiyor ({result.status}) {result.error or ''}{_detay(result)}")
         dosyalar = hint_dosyalari(exercise, language)
         if dosyalar is None:
             problems.append(f"{where}: son ipucunda ({language}) dosya adlı kod bloğu yok")
