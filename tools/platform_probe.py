@@ -40,7 +40,21 @@ def leaf(n):
     return (RFC, f"RandomForestClassifier(n_estimators=200, min_samples_leaf={n}, random_state=42)")
 
 
+def opts(text):
+    return (RFC, f"RandomForestClassifier(n_estimators=200, {text}, random_state=42)")
+
+
+PIPE = f"{ML}/11-pipeline-ve-model-kaydetme/exercises/pipeline-in-cv"
+PICK = f"{ML}/12-genel-tekrar/exercises/pick-the-model"
 CASES = [
+    ("pipeline-cv-leaf30", PIPE, "solution.py", [leaf(30)]),
+    ("pipeline-cv-depth5", PIPE, "solution.py", [opts("max_depth=5")]),
+    ("pick-model-leaf30", PICK, "solution.py", [leaf(30)]),
+    ("pick-model-leaf50", PICK, "solution.py", [leaf(50)]),
+    ("pick-model-depth5", PICK, "solution.py", [opts("max_depth=5")]),
+    ("pick-model-depth8", PICK, "solution.py", [opts("max_depth=8")]),
+]
+CASES_2 = [
     # (ad, alıştırma klasörü, çözüm dosyası, [(eski, yeni), ...])
     ("cars-forest-int-price", f"{ML}/12-genel-tekrar/exercises/review-regression", "solution.py",
      [('y = df["price"]', 'y = df["price"].round()')]),
