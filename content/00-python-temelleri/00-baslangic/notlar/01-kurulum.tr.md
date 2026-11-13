@@ -10,9 +10,16 @@ Kurulum ekranında **çok önemli bir kutu** var:
 
 Bunu işaretlemeden devam edersen komut satırında `python` yazdığında "böyle bir komut yok" hatası alırsın. Sonradan düzeltmek mümkün ama uğraştırıcı; ilk seferde işaretle.
 
+## macOS'a kurmak
+
+Aynı sayfadan macOS kurulum dosyasını (`.pkg`) indir ve adımları izle; PATH
+kutusu yok, kurulum `python3` komutunu kendisi ekliyor. macOS'ta komutun adı
+`python` değil **`python3`**, paket yöneticisininki **`pip3`**.
+
 ## Kurulumu doğrulamak
 
-Komut satırını (Windows'ta `cmd` veya PowerShell) açıp şunu yaz:
+Komut satırını (Windows'ta `cmd` veya PowerShell, macOS'ta Terminal) açıp şunu yaz
+(macOS'ta `python3 --version`):
 
 ```
 python --version

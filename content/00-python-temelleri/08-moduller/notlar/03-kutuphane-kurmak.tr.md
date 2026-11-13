@@ -35,6 +35,8 @@ Sık kullanacağın komutlar:
 ## Terminal nerede?
 
 - **Windows:** Başlat menüsüne `cmd` ya da `powershell` yaz.
+- **macOS:** Spotlight'a `Terminal` yaz. Komutlarda `python` yerine `python3`,
+  `pip` yerine `pip3` kullan.
 - **VS Code içinde:** `Ctrl` + `` ` `` (üstteki ters tırnak tuşu).
 
 Komut çalışmıyorsa `pip` yerine şunu dene:
@@ -79,6 +81,8 @@ python -m venv .venv
 ```bash
 .venv\Scripts\activate
 ```
+
+macOS'ta: `source .venv/bin/activate`.
 
 Terminalin başında `(.venv)` yazısı beliriyor — artık o ortamdasın. Bundan
 sonra `pip install` yaptığın her şey oraya kuruluyor.

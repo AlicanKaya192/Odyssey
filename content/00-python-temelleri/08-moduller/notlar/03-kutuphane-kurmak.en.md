@@ -35,6 +35,8 @@ The commands you will use often:
 ## Where is the terminal?
 
 - **Windows:** type `cmd` or `powershell` into the Start menu.
+- **macOS:** type `Terminal` into Spotlight. In the commands use `python3`
+  instead of `python` and `pip3` instead of `pip`.
 - **Inside VS Code:** `Ctrl` + `` ` `` (the backtick key).
 
 If the command does not work, try this instead of `pip`:
@@ -82,6 +84,8 @@ A folder called `.venv` appears. The project's own Python lives inside it.
 ```bash
 .venv\Scripts\activate
 ```
+
+On macOS: `source .venv/bin/activate`.
 
 `(.venv)` appears at the start of the terminal line — you are now inside that
 environment. From then on, everything you `pip install` goes there.

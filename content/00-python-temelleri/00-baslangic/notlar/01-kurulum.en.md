@@ -10,9 +10,17 @@ There is **one very important checkbox** on the installer screen:
 
 If you continue without ticking it, typing `python` at the command line gives you a "command not found" error. It can be fixed later, but it is fiddly; tick it the first time.
 
+## Installing on macOS
+
+Download the macOS installer (`.pkg`) from the same page and follow the steps;
+there is no PATH box, the installer adds the `python3` command itself. On
+macOS the command is **`python3`**, not `python`, and the package manager is
+**`pip3`**.
+
 ## Checking the installation
 
-Open a command line (`cmd` or PowerShell on Windows) and type:
+Open a command line (`cmd` or PowerShell on Windows, Terminal on macOS) and type
+(`python3 --version` on macOS):
 
 ```
 python --version
