@@ -500,6 +500,12 @@ def steps_for(win) -> list[Step]:  # noqa: C901 — adım listesi uzun ama düz
         kart = getattr(journey.path, "_placement", None)
         return [kart] if kart is not None else []
 
+    def tekrar_karti():
+        # Kart üç bölüm bitince çıkıyor; yeni kullanıcıda yok, o zaman
+        # yerinin hemen üstündeki seviye tespit kartı gösteriliyor.
+        kart = getattr(journey.path, "_practice", None)
+        return [kart] if kart is not None else seviye_karti()
+
     return [
         Step("tour.s_welcome_title", "tour.s_welcome_text", prepare=nav("journey"), wait=350),
         Step("tour.s_rail_title", "tour.s_rail_text", targets=lambda: [rail]),
@@ -508,6 +514,7 @@ def steps_for(win) -> list[Step]:  # noqa: C901 — adım listesi uzun ama düz
         Step("tour.s_cs50_title", "tour.s_cs50_text", targets=cs50_karti),
         Step("tour.s_placement_title", "tour.s_placement_text", prepare=python_yolu, wait=900,
              targets=seviye_karti),
+        Step("tour.s_review_card_title", "tour.s_review_card_text", targets=tekrar_karti),
         Step("tour.s_section_title", "tour.s_section_text",
              prepare=section(ilk_bolum(), "lesson"), wait=900,
              targets=lambda: [topic._segments]),
