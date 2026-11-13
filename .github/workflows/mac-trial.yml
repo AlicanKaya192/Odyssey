@@ -1,0 +1,151 @@
+# Measures whether the pinned build environment works on macOS (Apple
+# Silicon) before the real Mac release job is trusted. Started by hand from
+# the Actions tab; it never touches a release.
+#
+# Each measured step may fail without stopping the others; the run summary
+# lists every result and the job fails at the end if any of them failed.
+# With "full_build" it also builds the `.app` and the `.dmg` and runs the
+# smoke test, and keeps the disk image as an artifact.
+
+name: Mac trial
+
+on:
+  workflow_dispatch:
+    inputs:
+      full_build:
+        description: "Also build the app and the disk image and run the smoke test (slow)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUTF8: "1"
+  PYTHONIOENCODING: utf-8
+
+jobs:
+  measure:
+    runs-on: macos-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install the pinned build packages
+        id: install
+        continue-on-error: true
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-build.txt 2>&1 | tee pip.log
+          exit "${PIPESTATUS[0]}"
+
+      - name: Import QtWebEngine
+        id: webengine
+        continue-on-error: true
+        run: python -c "import PySide6, PySide6.QtWebEngineCore; print('PySide6', PySide6.__version__)"
+
+      - name: Import the exercise libraries
+        id: libraries
+        continue-on-error: true
+        run: |
+          python - <<'EOF'
+          import importlib
+          failed = []
+          for name in ("numpy", "pandas", "scipy", "sklearn", "matplotlib",
+                       "statsmodels", "seaborn", "lightgbm", "pyarrow", "duckdb",
+                       "dask.dataframe", "pydantic_core", "fastapi", "yaml", "PIL",
+                       "fpdf", "requests", "pytest"):
+              try:
+                  importlib.import_module(name)
+                  print("ok     ", name)
+              except Exception as error:
+                  failed.append(name)
+                  print("FAILED ", name, "-", type(error).__name__, error)
+          raise SystemExit(1 if failed else 0)
+          EOF
+
+      # SQL is off on the Mac in the first release; this only records whether
+      # the driver module loads (it needs unixODBC).
+      - name: Import pyodbc
+        id: pyodbc
+        continue-on-error: true
+        run: python -c "import pyodbc; print(pyodbc.version)"
+
+      - name: Empty PyInstaller build
+        id: empty
+        continue-on-error: true
+        run: |
+          mkdir -p "$RUNNER_TEMP/empty"
+          cd "$RUNNER_TEMP/empty"
+          printf 'import sys\nfrom PySide6 import QtCore\nprint("Qt", QtCore.qVersion(), sys.platform)\n' > hello.py
+          python -m PyInstaller --noconfirm --windowed --name hello hello.py
+          codesign --verify --deep --strict dist/hello.app
+          dist/hello.app/Contents/MacOS/hello
+
+      - name: Build the application
+        id: build
+        if: inputs.full_build
+        continue-on-error: true
+        run: python tools/build_exe.py --temiz --deneme
+
+      - name: Build the disk image
+        id: dmg
+        if: inputs.full_build && steps.build.outcome == 'success'
+        continue-on-error: true
+        run: python tools/build_dmg.py
+
+      - name: Smoke test the package
+        id: smoke
+        if: inputs.full_build && steps.build.outcome == 'success'
+        continue-on-error: true
+        run: python tools/smoke_package.py
+
+      - name: Keep the disk image
+        if: steps.dmg.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: odyssey-mac-trial
+          path: dist/*.dmg
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Mac trial"
+            echo
+            echo "$(sw_vers -productName) $(sw_vers -productVersion), $(uname -m), $(python --version)"
+            echo
+            echo "| Step | Result |"
+            echo "|---|---|"
+            echo "| Install requirements-build.txt | ${{ steps.install.outcome }} |"
+            echo "| Import QtWebEngine | ${{ steps.webengine.outcome }} |"
+            echo "| Import the exercise libraries | ${{ steps.libraries.outcome }} |"
+            echo "| Import pyodbc (SQL is off on the Mac) | ${{ steps.pyodbc.outcome }} |"
+            echo "| Empty PyInstaller build + codesign verify | ${{ steps.empty.outcome }} |"
+            echo "| Build the application | ${{ steps.build.outcome }} |"
+            echo "| Build the disk image | ${{ steps.dmg.outcome }} |"
+            echo "| Smoke test | ${{ steps.smoke.outcome }} |"
+            if [ -f pip.log ] && grep -qiE "^ERROR|No matching distribution" pip.log; then
+              echo
+              echo "### pip errors"
+              echo '```'
+              grep -iE "^ERROR|No matching distribution" pip.log | head -n 20
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # pyodbc is left out: SQL is not part of the first Mac release.
+      - name: Fail if a measured step failed
+        if: >-
+          steps.install.outcome == 'failure' || steps.webengine.outcome == 'failure' ||
+          steps.libraries.outcome == 'failure' || steps.empty.outcome == 'failure' ||
+          steps.build.outcome == 'failure' || steps.dmg.outcome == 'failure' ||
+          steps.smoke.outcome == 'failure'
+        run: exit 1
