@@ -35,7 +35,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..paths import app_dir, updates_dir
-from . import log
+from . import log, tls
 from .updates import USER_AGENT
 
 _log = log.get(__name__)
@@ -236,7 +236,7 @@ def download(
     target.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        with urllib.request.urlopen(istek, timeout=30) as cevap:
+        with urllib.request.urlopen(istek, timeout=30, context=tls.context()) as cevap:
             toplam = int(cevap.headers.get("Content-Length") or asset.size or 0)
             inen = 0
             with target.open("wb") as dosya:

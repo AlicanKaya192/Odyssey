@@ -19,6 +19,7 @@ import json
 import urllib.error
 import urllib.request
 
+from . import tls
 from .updates import USER_AGENT
 
 REPO_API = "https://api.github.com/repos/AlicanKaya192/Odyssey"
@@ -58,7 +59,7 @@ def fetch_stars(url: str = "", timeout: int = TIMEOUT_SEC) -> int | None:
         },
     )
     try:
-        with urllib.request.urlopen(istek, timeout=timeout) as cevap:
+        with urllib.request.urlopen(istek, timeout=timeout, context=tls.context()) as cevap:
             ham = cevap.read(MAX_RESPONSE_BYTES)
         veri = json.loads(ham)
     except (urllib.error.URLError, TimeoutError, OSError, ValueError, UnicodeDecodeError):

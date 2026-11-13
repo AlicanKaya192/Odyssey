@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..core.language import keys
 from ..widgets import motion
 from .note_panel import PANEL_WIDTH as NOTE_PANEL_WIDTH
 from ..core import quiz_spots
@@ -922,7 +923,7 @@ class TopicView(QWidget):
         if running:
             self.toggle_note(False)
         self._note_button.setEnabled(not running)
-        self._note_button.setToolTip(self._language.t("notebook.quiz_locked") if running else "Ctrl+N")
+        self._note_button.setToolTip(self._language.t("notebook.quiz_locked") if running else keys("Ctrl+N"))
 
     def _set_note_slide(self, value: float) -> None:
         self._note_slide = value
@@ -1133,7 +1134,7 @@ class TopicView(QWidget):
 
         t = self._language.t
         self._note_button.setText(f" {t('notebook.take_note')}")
-        self._note_button.setToolTip(t("notebook.quiz_locked") if self._quiz.in_progress else "Ctrl+N")
+        self._note_button.setToolTip(t("notebook.quiz_locked") if self._quiz.in_progress else keys("Ctrl+N"))
         from ..widgets import tips
 
         self._report_button.setToolTip(tips.rich(t("report.title"), t("report.help")))

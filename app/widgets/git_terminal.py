@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..resources.theme.tokens import FONTS
 from . import text_scale
 from .terminal_view import COLORS
 
@@ -39,7 +40,9 @@ LINE_COLORS = {
     "bold": "#E6EDF3",
     "": COLORS["text"],
 }
-MONO = "Cascadia Mono, Consolas, monospace"
+# Temanın tek adlı kod yazı tipi: ad listesi Qt'ye yazı tiplerini taratıyor
+# (Mac'te "Cascadia Mono" yok uyarısı, 13 Kasım).
+MONO = FONTS["mono"]
 # Yazı boyu ayarı %100'deyken hedeflerin, ekranın ve komut satırının boyu.
 BASE_TEXT_PX = 13
 # Ekranda en fazla bu kadar satır tutuluyor (eskiler düşüyor).

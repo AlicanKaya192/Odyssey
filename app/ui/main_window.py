@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..core.language import keys
 from ..core import animations, text_size
 from ..core.catalog import Catalog
 from ..widgets import motion, text_scale
@@ -1760,7 +1761,7 @@ class MainWindow(QMainWindow):
     def retranslate(self) -> None:
         self.setWindowTitle(self._language.t("app.title"))
         self._rail.retranslate()
-        self._rail_toggle.setToolTip(f"{self._language.t('nav.toggle_menu')}  (Ctrl+M)")
+        self._rail_toggle.setToolTip(keys(f"{self._language.t('nav.toggle_menu')}  (Ctrl+M)"))
         self._refresh_progress()
         self._footer.retranslate()
         self._journey.retranslate()

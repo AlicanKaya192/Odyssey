@@ -49,6 +49,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ..core.language import keys
 from ..widgets import motion
 from ..core.catalog import Catalog
 from ..core.language import LanguageManager
@@ -1251,7 +1252,7 @@ class NotebookView(QWidget):
     def retranslate(self) -> None:
         t = self._language.t
         self._new_button.setText(f"  {t('notebook.new')}")
-        self._new_button.setToolTip("Ctrl+N")
+        self._new_button.setToolTip(keys("Ctrl+N"))
         self._folder_button.setToolTip(t("notebook.new_folder"))
         self._download_button.setText(f"  {t('notebook.download')}  ▾")
         self._upload_button.setText(f"  {t('notebook.upload')}")

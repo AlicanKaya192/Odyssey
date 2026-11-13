@@ -55,8 +55,11 @@ def _run_harness_if_asked() -> bool:
     if len(sys.argv) < 3 or sys.argv[1] != HARNESS_FLAG:
         return False
 
+    from app.core import mpl_cache
     from app.paths import sandbox_dir
 
+    # macOS paketinde matplotlib önbelleği kalıcı klasörde (`mpl_cache`).
+    mpl_cache.pin_config_dir()
     harness = sandbox_dir() / "harness.py"
     source = harness.read_text(encoding="utf-8")
 

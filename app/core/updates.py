@@ -34,7 +34,7 @@ import time
 from dataclasses import dataclass, field
 
 from ..version import APP_VERSION
-from . import log
+from . import log, tls
 
 _log = log.get(__name__)
 
@@ -240,7 +240,7 @@ def fetch_latest(url: str = "", timeout: int = TIMEOUT_SEC) -> UpdateInfo:
     )
 
     try:
-        with urllib.request.urlopen(istek, timeout=timeout) as cevap:
+        with urllib.request.urlopen(istek, timeout=timeout, context=tls.context()) as cevap:
             ham = cevap.read(MAX_RESPONSE_BYTES)
     except urllib.error.HTTPError as hata:
         # 404: depo private ya da hiç sürüm yok. 403: istek sınırı.

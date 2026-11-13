@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal
@@ -131,7 +132,27 @@ def _load_catalog(language: str) -> dict[str, str]:
     if not path.exists():
         return {}
     with path.open(encoding="utf-8") as handle:
-        return json.load(handle)
+        return for_platform(json.load(handle))
+
+
+MAC_SUFFIX = "@mac"
+
+
+def keys(text: str) -> str:
+    """Kısayol yazısı: Qt macOS'ta `Ctrl` kısayollarını Command tuşuna bağlıyor."""
+    return text.replace("Ctrl+", "⌘") if sys.platform == "darwin" else text
+
+
+def for_platform(catalog: dict[str, str]) -> dict[str, str]:
+    """macOS'ta `anahtar@mac` metni `anahtar`ın yerine geçer ("Windows'un
+    teması" gibi); Windows'ta bu anahtarlar kullanılmıyor."""
+    sonuc = {k: v for k, v in catalog.items() if not k.endswith(MAC_SUFFIX)}
+    if sys.platform == "darwin":
+        for k, v in catalog.items():
+            if k.endswith(MAC_SUFFIX):
+                sonuc[k[: -len(MAC_SUFFIX)]] = v
+        sonuc = {k: keys(v) for k, v in sonuc.items()}
+    return sonuc
 
 
 class LanguageManager(QObject):

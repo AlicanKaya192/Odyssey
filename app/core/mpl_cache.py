@@ -19,6 +19,7 @@ import tempfile
 import time
 from pathlib import Path
 
+from .. import paths
 from . import log
 
 # Önbelleği kurmak uzun sürebiliyor; alıştırma süresine bağlı değil.
@@ -31,18 +32,38 @@ WARM_CODE = (
 )
 
 
-def _cache_dir() -> Path:
+def _pinned() -> bool:
+    # Paketlenmiş programda PyInstaller'ın matplotlib kancası
+    # (`pyi_rth_mplconfig`) her süreç açılışında `MPLCONFIGDIR`'ı yeni bir
+    # geçici klasöre çeviriyor ve çıkışta siliyor: önbellek hiç kalıcı
+    # olmuyor, her grafik alıştırması yazı tiplerini baştan tarıyordu
+    # (Mac denemesi, 13 Kasım: her çalıştırma 11–12 sn).
+    return sys.platform == "darwin" and paths.is_frozen()
+
+
+def config_dir() -> Path:
+    """matplotlib'in önbelleğini yazdığı klasör."""
+    if _pinned():
+        return paths.user_data_dir() / "cache" / "matplotlib"
     # matplotlib'in kuralı: `MPLCONFIGDIR` verilmişse o, yoksa macOS'ta
     # `~/.matplotlib` (yapılandırma ve önbellek aynı klasörde).
     verilen = os.environ.get("MPLCONFIGDIR")
     return Path(verilen) if verilen else Path.home() / ".matplotlib"
 
 
+def pin_config_dir() -> None:
+    """Denetleyici süreci matplotlib'i içe aktarmadan önce çağırır."""
+    if _pinned():
+        klasor = config_dir()
+        klasor.mkdir(parents=True, exist_ok=True)
+        os.environ["MPLCONFIGDIR"] = str(klasor)
+
+
 def needed() -> bool:
     """Yalnızca macOS'ta ve önbellek henüz yoksa."""
     if sys.platform != "darwin":
         return False
-    return not any(_cache_dir().glob("fontlist-*.json"))
+    return not any(config_dir().glob("fontlist-*.json"))
 
 
 def warm_if_needed() -> float | None:

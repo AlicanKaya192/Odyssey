@@ -31,6 +31,7 @@ import textwrap
 import time
 from pathlib import Path
 
+from ..widgets.shortcut_panel import key_text
 from ..widgets.feedback import ButtonSpinner, EdgeFlash
 from ..core import pdf_preview, workspace_files
 from ..core.catalog import Exercise
@@ -794,7 +795,7 @@ class ExerciseView(QWidget):
         kisayol.setContentsMargins(0, 0, 0, 0)
         kisayol.setSpacing(4)
         for parca in ("Ctrl", "+", "Enter"):
-            etiket = QLabel(parca)
+            etiket = QLabel(key_text(parca))
             etiket.setProperty("role", "kbd" if parca != "+" else "muted")
             kisayol.addWidget(etiket, 0, Qt.AlignmentFlag.AlignVCenter)
         layout.addWidget(self._shortcut_hint)

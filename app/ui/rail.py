@@ -34,6 +34,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import QFrame, QPushButton, QVBoxLayout, QWidget
 
+from ..core.language import keys
 from ..core.avatar import load_avatar
 from ..core.language import LanguageManager
 from ..resources.icons import MODERN_FILL_ACTIVE, MODERN_FILL_HOVER, icon
@@ -517,4 +518,4 @@ class Rail(QFrame):
         for key, _, translation_key in DESTINATIONS:
             self._buttons[key].setToolTip(self._language.t(translation_key))
         self._buttons["settings"].setToolTip(self._language.t("settings.title"))
-        self._buttons["search"].setToolTip(f"{self._language.t('nav.search')}  (Ctrl+K)")
+        self._buttons["search"].setToolTip(keys(f"{self._language.t('nav.search')}  (Ctrl+K)"))
