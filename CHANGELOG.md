@@ -53,10 +53,11 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   alıştırmalar çözülmüş sayılmaya devam ediyor.
 
 ### Düzeltildi
-- **Çalışırken başka alıştırmaya geçmek sonucu karıştırıyordu.** Kod
-  çalışırken bölümdeki sonraki alıştırmaya geçilirse eski alıştırmanın
-  sonucu yeni alıştırmaya yazılıyor, onu hiç çözülmemişken "çözüldü"
-  sayıyordu. Sonuç artık çalıştırılan alıştırmaya kaydediliyor.
+- **Kod çalışırken başka alıştırmaya geçilince sonuç yanlış yere
+  yazılıyordu.** Çalıştır'a basıp sonuç gelmeden sonraki alıştırmaya
+  geçilirse sonuç yeni alıştırmaya kaydediliyor, o alıştırma hiç
+  çözülmeden çözülmüş görünüyordu. Sonuç artık kodun çalıştırıldığı
+  alıştırmaya kaydediliyor.
 
 ## [1.6.0] — 3 Kasım 2026
 

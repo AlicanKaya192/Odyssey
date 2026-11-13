@@ -55,10 +55,11 @@ lecture note does not mean downloading the whole application again.
   already solved still count as solved.
 
 ### Fixed
-- **Switching exercises while code ran mixed up the result.** If you moved
-  to the next exercise in a section while your code was still running, the
-  old exercise's result was written to the new one and marked it solved
-  without you solving it. The result is now saved to the exercise you ran.
+- **Moving to another exercise while code ran saved the result in the
+  wrong place.** If you pressed Run and opened the next exercise before
+  the result came back, the result was saved to the new exercise and it
+  showed as solved even though you had not solved it. The result now goes
+  to the exercise you ran.
 
 ## [1.6.0] — 3 November 2026
 
