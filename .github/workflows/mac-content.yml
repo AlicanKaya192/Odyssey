@@ -64,11 +64,27 @@ jobs:
         if: startsWith(matrix.chapter, '2') && contains(matrix.chapter, 'rust')
         run: rustc --version && cargo --version
 
+      # Measures why a result differs between Windows and the Mac
+      # (chapters='["probe"]'); the dumps are compared on Windows.
+      - name: Platform probes
+        if: matrix.chapter == 'probe'
+        run: |
+          mkdir probe
+          python -I tools/forest_probe.py dump probe/forest-mac.json
+
+      - name: Keep the probe output
+        if: matrix.chapter == 'probe'
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe
+          path: probe
+
       - name: Check every exercise
+        if: matrix.chapter != 'probe'
         run: python tools/check_exercises.py ${{ matrix.chapter }} 2>&1 | tee check.log; exit ${PIPESTATUS[0]}
 
       - name: Keep the log
-        if: always()
+        if: always() && matrix.chapter != 'probe'
         uses: actions/upload-artifact@v4
         with:
           name: check-${{ matrix.chapter }}
