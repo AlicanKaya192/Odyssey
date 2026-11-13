@@ -126,6 +126,38 @@ jobs:
           MPLCONFIGDIR: ${{ runner.temp }}/mpl-fresh
         run: python tools/smoke_package.py
 
+      # The smoke test only runs the exercise checker. This opens the real
+      # window, as a person would, and prints the crash report if it dies.
+      - name: Launch the app window
+        id: launch
+        if: (inputs.full_build || github.event_name == 'push') && steps.build.outcome == 'success'
+        continue-on-error: true
+        run: |
+          app="dist/Odyssey.app/Contents/MacOS/Odyssey"
+          "$app" > launch.log 2>&1 &
+          pid=$!
+          alive=1
+          for i in $(seq 1 60); do
+            if ! kill -0 "$pid" 2>/dev/null; then alive=0; break; fi
+            sleep 1
+          done
+          echo "--- output"; cat launch.log
+          echo "--- app log"
+          cat "$HOME/Library/Application Support/Odyssey/logs/odyssey.log" 2>/dev/null || echo "(none)"
+          if [ "$alive" = 1 ]; then
+            echo "Window still running after 60 s"
+            kill "$pid"
+            exit 0
+          fi
+          wait "$pid"; echo "exit code: $?"
+          sleep 5
+          echo "--- crash reports"
+          ls -t "$HOME/Library/Logs/DiagnosticReports/" 2>/dev/null | head
+          for f in $(ls -t "$HOME/Library/Logs/DiagnosticReports/"Odyssey* 2>/dev/null | head -1); do
+            head -c 20000 "$f"
+          done
+          exit 1
+
       - name: Keep the disk image
         if: steps.dmg.outcome == 'success'
         uses: actions/upload-artifact@v4
@@ -151,6 +183,7 @@ jobs:
             echo "| Build the application | ${{ steps.build.outcome }} |"
             echo "| Build the disk image | ${{ steps.dmg.outcome }} |"
             echo "| Smoke test | ${{ steps.smoke.outcome }} |"
+            echo "| Launch the app window | ${{ steps.launch.outcome }} |"
             if [ -f pip.log ] && grep -qiE "^ERROR|No matching distribution" pip.log; then
               echo
               echo "### pip errors"
