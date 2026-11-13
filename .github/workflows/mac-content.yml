@@ -50,6 +50,16 @@ jobs:
       - name: Install the pinned packages
         run: python -m pip install -r requirements-build.txt
 
+      # The app builds matplotlib's font cache once after start-up; without
+      # it six chart exercises started together all time out here.
+      - name: Build the matplotlib font cache
+        run: python -c "import matplotlib; matplotlib.use('Agg'); import matplotlib.font_manager"
+
+      - name: Probe the practice API server
+        if: matrix.chapter == '07-api-kullanmak' || matrix.chapter == '25-cs50-python'
+        continue-on-error: true
+        run: python -I tools/api_server_probe.py
+
       - name: Show the Rust toolchain
         if: startsWith(matrix.chapter, '2') && contains(matrix.chapter, 'rust')
         run: rustc --version && cargo --version
