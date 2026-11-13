@@ -21,6 +21,14 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [1.7.0] — Yayınlanmadı
+
+### Düzeltildi
+- **Çalışırken başka alıştırmaya geçmek sonucu karıştırıyordu.** Kod
+  çalışırken bölümdeki sonraki alıştırmaya geçilirse eski alıştırmanın
+  sonucu yeni alıştırmaya yazılıyor, onu hiç çözülmemişken "çözüldü"
+  sayıyordu. Sonuç artık çalıştırılan alıştırmaya kaydediliyor.
+
 ## [1.6.0] — 3 Kasım 2026
 
 ### Eklendi

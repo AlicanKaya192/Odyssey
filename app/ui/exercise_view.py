@@ -242,6 +242,8 @@ class ExerciseView(QWidget):
     advance = Signal()
     # "Takıldın mı?" kartındaki "Derse git": dersin o başlığına (çapa; "" başı).
     lesson_requested = Signal(str)
+    # Kod çalışmaya başladı / bitti (alıştırma tekrarı çalışırken geçişi kapatıyor).
+    running_changed = Signal(bool)
 
     def __init__(
         self,
@@ -259,6 +261,9 @@ class ExerciseView(QWidget):
         # Çözüm kartındaki "modül · bölüm" satırı; bölüm ekranı veriyor (dil alır).
         self.place_for = None
         self._worker: RunWorker | None = None
+        # Çalışmanın hangi alıştırma için başladığı ve kaydedilecek kodu:
+        # sonuç geldiğinde ekranda başka alıştırma olabilir.
+        self._run_context: tuple[str, str, Exercise, str] | None = None
         self._trace_worker: TraceWorker | None = None
         # API 2: istek paneli ve "Sunucuyu başlat".
         self._request_worker: RequestWorker | None = None
@@ -1406,14 +1411,32 @@ class ExerciseView(QWidget):
         )
         self._run_started = time.monotonic()
 
+        self._run_context = (self._chapter_id, self._section_id, self._exercise, self._code_to_save())
         self._worker = RunWorker(self._code_now(), self._exercise, self)
         self._worker.completed.connect(self._on_completed)
         self._worker.start()
+        self.running_changed.emit(True)
+
+    @property
+    def is_running(self) -> bool:
+        return self._worker is not None and self._worker.isRunning()
 
     def _on_completed(self, result: RunResult) -> None:
         self._run_spinner.stop()
         self._run_button.setEnabled(True)
         self._run_button.setText("  " + self._language.t("exercise.run"))
+        baglam, self._run_context = self._run_context, None
+        self.running_changed.emit(False)
+        if baglam is not None and (baglam[0], baglam[1], baglam[2]) != (
+                self._chapter_id, self._section_id, self._exercise):
+            # Çalışırken başka alıştırmaya geçildi: sonuç başladığı alıştırmanın,
+            # ekrandakine (terminal, editör, "çözüldü") dokunulmuyor.
+            bolum_id, kisim_id, eski, kod = baglam
+            self._store.save_exercise(bolum_id, kisim_id, eski.id, kod,
+                                      solved=result.passed, count_attempt=True)
+            self._store.add_exercise_attempt(bolum_id, kisim_id, eski.id, kod,
+                                             result.passed, run_detail(result))
+            return
         p = PALETTES.get(self._mode, PALETTES["light"])
         self._editor_flash.flash(p["success"] if result.passed else p["danger"])
         # Hata veren satır editörde işaretleniyor (SQL'de satır bilgisi yok).

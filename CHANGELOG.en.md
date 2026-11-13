@@ -23,6 +23,14 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [1.7.0] — Unreleased
+
+### Fixed
+- **Switching exercises while code ran mixed up the result.** If you moved
+  to the next exercise in a section while your code was still running, the
+  old exercise's result was written to the new one and marked it solved
+  without you solving it. The result is now saved to the exercise you ran.
+
 ## [1.6.0] — 3 November 2026
 
 ### Added
