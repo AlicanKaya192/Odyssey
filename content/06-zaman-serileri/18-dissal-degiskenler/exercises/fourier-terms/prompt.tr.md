@@ -19,7 +19,7 @@ hazır.
    biri dış değişkensiz, öteki `exog=calendar(train.index)` ile.
 5. İki modelin 28 günlük tahminini al (ikincisine
    `exog=calendar(test.index)` ver). Ortalama mutlak hatalarını ve
-   yanlılıklarını iki ondalıkla `ad MAE yanlılık` biçiminde alt alta yazdır
+   yanlılıklarını tam sayıya yuvarlayarak `ad MAE yanlılık` biçiminde alt alta yazdır
    (adlar: `plain`, `calendar`).
 6. `dec` sütununun katsayısını bir ondalıkla yazdır.
 
@@ -27,13 +27,13 @@ hazır.
 
 ```
 (1068, 5) ['sin1', 'cos1', 'sin2', 'cos2', 'dec']
-plain 31.34 31.07
-calendar 14.35 9.5
+plain 31 31
+calendar 14 9
 49.4
 ```
 
 Yalın model Aralık tırmanışını bilmiyor: 28 günün hepsinde düşük kalıyor
 (yanlılık neredeyse MAE kadar). Takvim bilgisiyle hata yarıdan fazla azalıyor
-ve yanlılık 31'den 9.5'e iniyor. `dec` katsayısı, ay sonuna doğru satışın kaç
+ve yanlılık 31'den 9'a iniyor. `dec` katsayısı, ay sonuna doğru satışın kaç
 birim yükseldiğini söylüyor. Fourier sütunlarının geleceği için hiçbir tahmin
 gerekmedi: yılın günü takvimden belli.

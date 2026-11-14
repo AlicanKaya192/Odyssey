@@ -43,7 +43,9 @@ lecture note does not mean downloading the whole application again.
   appear under the name "Script Editor".
 - **Intel Macs.** Odyssey now runs on Intel Macs too: download the
   `macos-x86_64.dmg` file from the release page (`macos-arm64.dmg` is for
-  Apple Silicon).
+  Apple Silicon). So that every exercise gives the same result on Intel too,
+  the expected output of two exercises changed (Fourier terms in Time Series,
+  the best measurement in Python Libraries: Beginner).
 
 ## [1.7.0] — 14 November 2026
 

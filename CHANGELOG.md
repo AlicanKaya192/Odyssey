@@ -40,7 +40,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   açılıp kapanıyor; bildirimler "Script Editor" adıyla görünüyor.
 - **Intel işlemcili Mac'ler.** Odyssey artık Intel Mac'lerde de çalışıyor:
   sürüm sayfasından `macos-x86_64.dmg` dosyasını indirin (Apple Silicon için
-  `macos-arm64.dmg`).
+  `macos-arm64.dmg`). Bütün alıştırmalar Intel'de de aynı sonucu versin diye
+  iki alıştırmanın beklenen çıktısı değişti (Zaman Serileri'nde Fourier
+  terimleri, Python Başlangıç'ta en iyi ölçüm).
 
 ## [1.7.0] — 14 Kasım 2026
 

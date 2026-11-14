@@ -19,7 +19,7 @@ In the starter code `train` (up to 3 December 2024) and `test` (the next
    without external variables, the other with `exog=calendar(train.index)`.
 5. Take the 28-day forecast of the two models (give the second
    `exog=calendar(test.index)`). Print their mean absolute errors and biases
-   with two decimals as `name MAE bias`, one per line (names: `plain`,
+   rounded to whole numbers as `name MAE bias`, one per line (names: `plain`,
    `calendar`).
 6. Print the coefficient of the `dec` column with one decimal.
 
@@ -27,14 +27,14 @@ In the starter code `train` (up to 3 December 2024) and `test` (the next
 
 ```
 (1068, 5) ['sin1', 'cos1', 'sin2', 'cos2', 'dec']
-plain 31.34 31.07
-calendar 14.35 9.5
+plain 31 31
+calendar 14 9
 49.4
 ```
 
 The plain model does not know about the December climb: it is low on all
 28 days (the bias is almost as large as the MAE). With calendar information
-the error falls by more than half and the bias drops from 31 to 9.5. The
+the error falls by more than half and the bias drops from 31 to 9. The
 `dec` coefficient tells by how many units sales rise towards the end of the
 month. No forecast was needed for the future of the Fourier columns: the day
 of the year is known from the calendar.

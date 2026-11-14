@@ -65,8 +65,14 @@ FIXED_FILE_NAMES = {"docker": "Dockerfile", "rust": "main.rs"}
 # aynı doğru çözüm çok çekirdekli bir makinede bellek sınırına
 # çarpabilirdi. Alıştırmaların verisi küçük, tek iş parçacığı yavaşlatmıyor
 # (on ağır alıştırmada toplam 48,9 sn; varsayılanla 58,4 sn).
+# macOS'ta NumPy Apple'ın Accelerate kütüphanesini kullanıyor; onun değişkeni
+# `VECLIB_MAXIMUM_THREADS`. Sınırsızken 4 çekirdekli Intel Mac'te LightGBM
+# alıştırması 96 sn sürüp zaman aşımına düşüyordu, sınırla 7,6 sn (ölçüldü,
+# 14 Kasım, `tools/timing_probe.py`).
 COMPUTE_THREADS = "1"
-THREAD_VARIABLES = ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS")
+THREAD_VARIABLES = (
+    "OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS", "VECLIB_MAXIMUM_THREADS",
+)
 
 # joblib'in `n_jobs=-1` ile açtığı işçi süreç sayısı; notlar bunu
 # öğretiyor. Her işçi kütüphaneleri yeniden yüklüyor (~180 MB, ölçüldü):

@@ -41,6 +41,6 @@ forecasts = {
 
 for name, forecast in forecasts.items():
     error = test - forecast
-    print(name, round(float(error.abs().mean()), 2), round(float(error.mean()), 2))
+    print(name, round(float(error.abs().mean())), round(float(error.mean())))
 
 print(round(float(rich.params["dec"]), 1))
