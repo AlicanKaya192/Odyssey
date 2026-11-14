@@ -81,6 +81,17 @@ jobs:
           python -I tools/forest_probe.py dump probe/forest-mac.json
           python -I tools/platform_probe.py run probe/platform-mac.json
 
+      # How long the slow exercises take one at a time (chapters='["timing"]').
+      - name: Timing probe
+        if: matrix.chapter == 'timing'
+        run: >-
+          python tools/timing_probe.py
+          content/18-ml-kutuphaneleri/14-gradyan-boosting-kutuphaneleri/exercises/gain-top
+          content/18-ml-kutuphaneleri/14-gradyan-boosting-kutuphaneleri/exercises/leaves-search
+          content/18-ml-kutuphaneleri/14-gradyan-boosting-kutuphaneleri/exercises/lgbm-early
+          content/18-ml-kutuphaneleri/14-gradyan-boosting-kutuphaneleri/exercises/category-model
+          content/21-uretken-yz-temelleri/03-vae/exercises/digit-coverage
+
       - name: Keep the probe output
         if: matrix.chapter == 'probe'
         uses: actions/upload-artifact@v4
@@ -89,7 +100,7 @@ jobs:
           path: probe
 
       - name: Check every exercise
-        if: matrix.chapter != 'probe'
+        if: matrix.chapter != 'probe' && matrix.chapter != 'timing'
         run: python tools/check_exercises.py ${{ matrix.chapter }} 2>&1 | tee check.log; exit ${PIPESTATUS[0]}
 
       - name: Keep the log
