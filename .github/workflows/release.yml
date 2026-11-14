@@ -11,10 +11,11 @@
 # SIGNPATH_ORGANIZATION_ID (and the secret SIGNPATH_API_TOKEN). Without
 # them the workflow builds unsigned files, as before.
 #
-# A second job builds the macOS package (Apple Silicon, ad-hoc signed
-# `.app` in a `.dmg`) after the Windows one. It never creates the release:
-# on a tag it only adds the `.dmg` to the draft the Windows job opened, so
-# a failing Mac build does not hold back the Windows files.
+# A second job builds the macOS packages (ad-hoc signed `.app` in a `.dmg`,
+# one for Apple Silicon and one for Intel, each on its own kind of Mac)
+# after the Windows one. It never creates the release: on a tag it only adds
+# the `.dmg` files to the draft the Windows job opened, so a failing Mac
+# build does not hold back the Windows files.
 
 name: Release build
 
@@ -192,7 +193,12 @@ jobs:
 
   build-macos:
     needs: build
-    runs-on: macos-latest
+    strategy:
+      # One Mac kind failing does not cancel the other.
+      fail-fast: false
+      matrix:
+        runner: [macos-latest, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: write
     timeout-minutes: 90
@@ -275,7 +281,7 @@ jobs:
       - name: Keep the disk image
         uses: actions/upload-artifact@v4
         with:
-          name: odyssey-${{ steps.version.outputs.version }}-macos
+          name: odyssey-${{ steps.version.outputs.version }}-${{ matrix.runner }}
           path: dist/*.dmg
 
       - name: Attach the disk image to the draft release

@@ -38,6 +38,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Mac'te seri hatırlatmaları.** O gün çalışmadıysanız seçtiğiniz saatte
   macOS bildirimi geliyor, program kapalıyken de. Ayarlar › Bildirimler'den
   açılıp kapanıyor; bildirimler "Script Editor" adıyla görünüyor.
+- **Intel işlemcili Mac'ler.** Odyssey artık Intel Mac'lerde de çalışıyor:
+  sürüm sayfasından `macos-x86_64.dmg` dosyasını indirin (Apple Silicon için
+  `macos-arm64.dmg`).
 
 ## [1.7.0] — 14 Kasım 2026
 

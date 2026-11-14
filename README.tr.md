@@ -166,9 +166,9 @@ Bu komut hem uygulamanın çalıştığı ortamı hem de alıştırmaların çal
 .venv\Scripts\python app\main.py
 ```
 
-## macOS'ta kurulum (Apple Silicon)
+## macOS'ta kurulum
 
-macOS sürümü deneysel. Odyssey Apple Silicon'lu (M1 ve sonrası) Mac'lerde çalışıyor; Intel işlemcili Mac'ler desteklenmiyor. [Sürümler sayfasından](https://github.com/AlicanKaya192/Odyssey/releases) `Odyssey-<sürüm>-macos-arm64.dmg` dosyasını indirin, açın ve Odyssey'i Uygulamalar klasörüne sürükleyin.
+macOS sürümü deneysel. Odyssey Apple Silicon'lu (M1 ve sonrası) ve Intel işlemcili Mac'lerde çalışıyor. [Sürümler sayfasından](https://github.com/AlicanKaya192/Odyssey/releases) Apple Silicon için `Odyssey-<sürüm>-macos-arm64.dmg`, Intel için `Odyssey-<sürüm>-macos-x86_64.dmg` dosyasını indirin (Apple menüsü › Bu Mac Hakkında'da “Çip Apple M…” ya da “İşlemci … Intel” yazar), açın ve Odyssey'i Uygulamalar klasörüne sürükleyin.
 
 Odyssey Apple tarafından imzalanmadı (bunun için ücretli bir Apple geliştirici hesabı gerekiyor). Bu yüzden ilk açılışta macOS uygulamayı doğrulayamadığını söyleyip açmıyor. Bir kez izin vermeniz yeterli:
 

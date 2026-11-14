@@ -166,9 +166,9 @@ This command creates both the environment the application runs in and the separa
 .venv\Scripts\python app\main.py
 ```
 
-## Installing on macOS (Apple Silicon)
+## Installing on macOS
 
-The macOS version is experimental. Odyssey runs on Macs with Apple Silicon (M1 and later); Intel Macs are not supported. Download `Odyssey-<version>-macos-arm64.dmg` from the [releases page](https://github.com/AlicanKaya192/Odyssey/releases), open it and drag Odyssey into the Applications folder.
+The macOS version is experimental. Odyssey runs on Macs with Apple Silicon (M1 and later) and on Intel Macs. Download `Odyssey-<version>-macos-arm64.dmg` for Apple Silicon or `Odyssey-<version>-macos-x86_64.dmg` for an Intel Mac (Apple menu › About This Mac shows which: “Chip Apple M…” or “Processor … Intel”) from the [releases page](https://github.com/AlicanKaya192/Odyssey/releases), open it and drag Odyssey into the Applications folder.
 
 Odyssey is not signed by Apple (that needs a paid Apple developer account), so the first time you open it macOS says it cannot verify the app and does not open it. You only have to allow it once:
 

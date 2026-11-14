@@ -41,6 +41,9 @@ lecture note does not mean downloading the whole application again.
   notification arrives at the time you choose, even while the program is
   closed. Turn them on or off in Settings › Notifications; the notifications
   appear under the name "Script Editor".
+- **Intel Macs.** Odyssey now runs on Intel Macs too: download the
+  `macos-x86_64.dmg` file from the release page (`macos-arm64.dmg` is for
+  Apple Silicon).
 
 ## [1.7.0] — 14 November 2026
 
