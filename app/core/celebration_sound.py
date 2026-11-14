@@ -1,12 +1,12 @@
 """Kutlama kartlarının sesi: bölüm bitince, rozet kazanılınca ve seviye atlayınca.
 
 Sesler `app/resources/sounds/` altında (`tools/make_sounds.py` üretiyor).
-Çalma Windows'un kendi `winsound` modülüyle, arka planda (`SND_ASYNC`):
-ek kütüphane yok, arayüz beklemiyor. Başka bir sistemde ses çalınmıyor;
-ayar da orada gösterilmiyor (Bildirimler sayfası zaten Windows'a özgü).
+Çalma `sound_player` ile arka planda: Windows'ta `winsound`, macOS'ta
+sistemin `afplay` komutu; ek kütüphane yok, arayüz beklemiyor. Başka bir
+sistemde ses çalınmıyor; ayar da orada gösterilmiyor.
 
 Aynı anda birden fazla kart geliyor (bölüm kartı ve onunla kazanılan
-rozetler): `winsound` yeni sesi başlatınca öncekini kesiyor, üst üste
+rozetler): yeni ses başlayınca öncekini kesiyor, üst üste
 çalan sesler de gürültü oluyor. Bu yüzden bir kart grubu için **tek ses**
 çalınıyor; grupta seviye atlama varsa onun sesi, yoksa rozet varsa rozet
 sesi. Grubu toplamak çağıranın işi
@@ -15,10 +15,10 @@ sesi. Grubu toplamak çağıranın işi
 
 from __future__ import annotations
 
-import sys
 import time
 
 from ..paths import install_root
+from . import sound_player
 
 SETTING_KEY = "celebration_sound"
 KINDS = ("section", "badge", "level", "timer")
@@ -27,7 +27,7 @@ MIN_GAP = 1.0
 
 
 def supported() -> bool:
-    return sys.platform == "win32"
+    return sound_player.supported()
 
 
 def enabled(store) -> bool:
@@ -49,6 +49,7 @@ class CelebrationSound:
     def __init__(self, store) -> None:
         self._store = store
         self._last = 0.0
+        self._player = sound_player.SoundPlayer()
 
     def play(self, kind: str) -> bool:
         """Sesi çalar; çaldıysa True. Kapalıysa, desteklenmiyorsa, dosya
@@ -62,12 +63,8 @@ class CelebrationSound:
         if not path.exists():
             return False
         try:
-            import winsound
-
-            winsound.PlaySound(
-                str(path),
-                winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT,
-            )
+            if not self._player.play(path):
+                return False
         except (RuntimeError, OSError):
             # Ses aygıtı yoksa ya da meşgulse kutlama sessiz geçer; kart
             # yine de çıkıyor.

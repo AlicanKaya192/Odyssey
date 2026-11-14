@@ -21,6 +21,13 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
+## [1.7.1] — Yayınlanmadı
+
+### Eklendi
+- **Mac'te sesler.** Bölüm bitince, rozet kazanınca, seviye atlayınca ve
+  çalışma zamanlayıcısında süre dolunca kartla birlikte çalan ses artık
+  macOS'ta da var. Ayarlar › Bildirimler › Sesler'den kapatabilirsiniz.
+
 ## [1.7.0] — 14 Kasım 2026
 
 ### Eklendi

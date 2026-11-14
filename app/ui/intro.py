@@ -56,6 +56,7 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import QApplication, QWidget
 
+from ..core import sound_player
 from ..resources.theme.tokens import FONTS, PALETTES
 from ..widgets import centaur as C
 
@@ -796,6 +797,7 @@ class IntroWindow(QWidget):
         self._scene = scene
         self._parent_pid = parent_pid
         self._sound = sound
+        self._player = sound_player.SoundPlayer()
         self._ready = False
         self._offset = 0.0
         self._revealed = False
@@ -917,23 +919,21 @@ class IntroWindow(QWidget):
     def _play(self, name: str | None) -> None:
         """Sahnenin sesi (`tools/make_intro_sounds.py`); `None` susturur.
 
-        Tek kayıt: nallar, okun rüzgârı ve hedefe saplanma. `winsound` aynı
-        anda tek ses çalıyor. Ayar kutlama sesiyle ortak (Ayarlar ›
+        Tek kayıt: nallar, okun rüzgârı ve hedefe saplanma; aynı anda tek ses
+        çalıyor (`sound_player`). Ayar kutlama sesiyle ortak (Ayarlar ›
         Bildirimler › Sesler).
         """
-        if not self._sound or sys.platform != "win32":
+        if not self._sound or not sound_player.supported():
             return
         try:
-            import winsound
-
             if name is None:
-                winsound.PlaySound(None, winsound.SND_PURGE)
+                self._player.stop()
                 return
             from ..paths import install_root
 
             path = install_root() / "app" / "resources" / "sounds" / f"{name}.wav"
             if path.exists():
-                winsound.PlaySound(str(path), winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT)
+                self._player.play(path)
         except (RuntimeError, OSError):
             pass
 

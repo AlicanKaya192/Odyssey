@@ -392,8 +392,11 @@ class SettingsDialog(QDialog):
             button.clicked.connect(lambda _=False, n=name: self._show_page(n))
             side_layout.addWidget(button)
             self._nav_buttons[name] = button
-        # Bildirimler yalnızca Windows'ta; başka yerde kategori hiç görünmüyor.
-        self._nav_buttons["notifications"].setVisible(reminder_service.supported())
+        # Bildirimler: hatırlatmalar yalnızca Windows'ta, sesler Windows ve
+        # macOS'ta; ikisi de yoksa kategori hiç görünmüyor.
+        self._nav_buttons["notifications"].setVisible(
+            reminder_service.supported() or celebration_sound.supported()
+        )
 
         side_layout.addStretch(1)
         self._version = QLabel(f"Odyssey {APP_VERSION}")
@@ -603,8 +606,8 @@ class SettingsDialog(QDialog):
         """Seri hatırlatmaları: anahtar, saat ve deneme bildirimi.
 
         Önce Öğrenme sayfasındaydı; o sayfa altı satıra çıkınca pencerenin
-        boyunu büyütüyordu. Yalnızca Windows'ta (bildirim ve Görev
-        Zamanlayıcı Windows'a özgü); başka yerde kategori gizli.
+        boyunu büyütüyordu. Hatırlatmalar yalnızca Windows'ta (bildirim ve
+        Görev Zamanlayıcı); macOS'ta sayfada yalnızca ses satırı var.
         """
         sayfa, layout = self._page()
 
@@ -624,9 +627,11 @@ class SettingsDialog(QDialog):
         self._reminder_test.clicked.connect(self._on_reminder_test)
         self._reminder_test_row = SettingRow(self._reminder_test)
 
-        layout.addWidget(self._group(
+        self._reminder_group = self._group(
             [self._reminder_row, self._reminder_time_row, self._reminder_test_row]
-        ))
+        )
+        self._reminder_group.setVisible(reminder_service.supported())
+        layout.addWidget(self._reminder_group)
 
         # Kutlama kartlarının sesi program açıkken çalıyor; hatırlatmalarla
         # ilgisi yok, o yüzden ayrı bir kartta.

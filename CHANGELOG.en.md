@@ -23,6 +23,13 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
+## [1.7.1] — Unreleased
+
+### Added
+- **Sounds on the Mac.** The sound that plays with the card when you finish
+  a section, earn a badge, level up or a study timer round ends now plays
+  on macOS too. You can turn it off in Settings › Notifications › Sounds.
+
 ## [1.7.0] — 14 November 2026
 
 ### Added
