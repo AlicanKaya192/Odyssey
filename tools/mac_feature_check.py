@@ -4,6 +4,8 @@
   sürümün dosya listesinden seçiliyor.
 - Ses: `afplay` var ve programın ses dosyasını çalabiliyor.
 - Discord: Discord yokken bağlantı denemesi hata vermeden `None` dönüyor.
+- Hatırlatma: launchd görevi kurulup kaldırılıyor, kilit başka süreçten
+  görülüyor, `osascript` bildirimi çağrılabiliyor.
 
 Kullanım (proje kökünde, derleme ve `build_dmg.py`'den sonra):
 
@@ -67,11 +69,47 @@ def check_discord() -> list[str]:
     return []
 
 
+def check_reminders() -> list[str]:
+    """launchd görevi kurulup kaldırılıyor, kilit başka süreçten görülüyor."""
+    from datetime import time
+
+    from app.core import mac_notify, reminder_task
+
+    hatalar = []
+    plist = reminder_task.launchd_plist_path()
+    ok, hata = reminder_task.install(time(3, 0))
+    if not ok:
+        hatalar.append(f"launchd görevi kurulamadı: {hata}")
+    else:
+        lint = subprocess.run(["/usr/bin/plutil", "-lint", str(plist)], capture_output=True, text=True)
+        if lint.returncode != 0:
+            hatalar.append(f"plist geçersiz: {lint.stdout.strip()}")
+        if not reminder_task.installed():
+            hatalar.append("launchd görevi kurulu görünmüyor")
+    reminder_task.remove()
+    if plist.exists() or reminder_task.installed():
+        hatalar.append("launchd görevi kaldırılamadı")
+
+    mac_notify.claim_running()
+    baska = subprocess.run(
+        [sys.executable, "-c",
+         "import sys; sys.path.insert(0, sys.argv[1]); from app.core import mac_notify; "
+         "print(mac_notify.app_running())", str(ROOT)],
+        capture_output=True, text=True, timeout=60,
+    )
+    if baska.stdout.strip() != "True":
+        hatalar.append(f"kilit başka süreçten görülmüyor: {baska.stdout.strip()} {baska.stderr.strip()[:200]}")
+
+    gosterildi = mac_notify.show("Odyssey", "mac_feature_check")
+    print(f"hatırlatma: launchd {'tamam' if not hatalar else 'sorunlu'}, osascript {'0' if gosterildi else 'hata'}")
+    return hatalar
+
+
 def main() -> int:
     if sys.platform != "darwin":
         print("Bu denetim yalnızca macOS'ta çalışır.")
         return 1
-    hatalar = check_update() + check_sound() + check_discord()
+    hatalar = check_update() + check_sound() + check_discord() + check_reminders()
     for hata in hatalar:
         print("HATA", hata)
     print("Sorun yok." if not hatalar else f"{len(hatalar)} sorun.")
