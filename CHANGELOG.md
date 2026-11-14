@@ -21,7 +21,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.7.0] — Yayınlanmadı
+## [1.7.0] — 14 Kasım 2026
 
 ### Eklendi
 - **macOS sürümü (deneysel).** Odyssey artık Apple Silicon'lu (M1 ve

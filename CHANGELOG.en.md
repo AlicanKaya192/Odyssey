@@ -23,7 +23,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.7.0] — Unreleased
+## [1.7.0] — 14 November 2026
 
 ### Added
 - **macOS version (experimental).** Odyssey now also runs on Macs with
