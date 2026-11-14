@@ -1099,10 +1099,10 @@ class MainWindow(QMainWindow):
             payload=("timer",),
         ))
         if not self.isActiveWindow() or self.isMinimized():
-            from ..core import reminder_service, win_notify
+            from ..core import notify, reminder_service
 
             try:
-                win_notify.show_toast(baslik, metin, reminder_service.icon_path())
+                notify.show(baslik, metin, reminder_service.icon_path())
             except Exception:  # noqa: BLE001 — bildirim gösterilemezse kart yeter
                 from ..core import log
 

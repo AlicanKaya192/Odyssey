@@ -35,6 +35,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
   açılan pencerede Odyssey'i Uygulamalar klasörüne sürükleyip eskisinin
   yerine koyuyorsunuz. Bu, 1.7.1'den sonraki sürümler için geçerli; 1.7.1'e
   geçmek için `.dmg`'yi sürüm sayfasından indirmeniz gerekiyor.
+- **Mac'te seri hatırlatmaları.** O gün çalışmadıysanız seçtiğiniz saatte
+  macOS bildirimi geliyor, program kapalıyken de. Ayarlar › Bildirimler'den
+  açılıp kapanıyor; bildirimler "Script Editor" adıyla görünüyor.
 
 ## [1.7.0] — 14 Kasım 2026
 

@@ -1,22 +1,29 @@
 """Hatırlatmaları açma, kapatma ve denetleyiciyi çalıştırma.
 
-Karar mantığı `reminders.py`, Windows'a özgü parçalar `win_notify.py` ve
-`reminder_task.py` içinde; burası onları birleştiriyor. Ayarlar penceresi,
+Karar mantığı `reminders.py`, bildirim `notify.py` (Windows ya da macOS),
+zamanlanmış görev `reminder_task.py` içinde; burası onları birleştiriyor. Ayarlar penceresi,
 ilk açılıştaki soru ve `main.py --reminder-check` buradan geçiyor.
 """
 
 from __future__ import annotations
 
+import sys
 import threading
 from datetime import datetime
 from pathlib import Path
 
 from ..paths import install_root
-from . import reminder_task, reminders, win_notify
+from . import notify, reminder_task, reminders, win_notify
 
 
 def supported() -> bool:
-    return win_notify.supported()
+    return notify.supported()
+
+
+def _register() -> None:
+    """Windows'ta bildirim kimliği ve `odyssey://` kaydı; macOS'ta yok."""
+    if sys.platform == "win32":
+        win_notify.register(icon_path(), reminder_task.launch_command())
 
 
 def icon_path() -> Path | None:
@@ -34,7 +41,7 @@ def enable(store, at: str | None = None) -> tuple[bool, str]:
         store.set_setting(reminders.TIME_KEY, at)
     saat = reminders.reminder_time(store)
     try:
-        win_notify.register(icon_path(), reminder_task.launch_command())
+        _register()
     except OSError as exc:
         store.set_setting(reminders.ENABLED_KEY, "0")
         return False, str(exc)
@@ -47,7 +54,8 @@ def disable(store) -> None:
     """Hatırlatmaları kapatır; görevi ve kayıtları siler."""
     store.set_setting(reminders.ENABLED_KEY, "0")
     reminder_task.remove()
-    win_notify.unregister()
+    if sys.platform == "win32":
+        win_notify.unregister()
 
 
 def decline(store) -> None:
@@ -64,11 +72,10 @@ def ensure_async(store) -> None:
     if not supported() or not reminders.enabled(store):
         return
     saat = reminders.reminder_time(store)
-    komut = reminder_task.launch_command()
 
     def work() -> None:
         try:
-            win_notify.register(icon_path(), komut)
+            _register()
             reminder_task.install(saat)
         except Exception:  # noqa: BLE001 - açılışı hiçbir koşulda bozmasın
             from . import log
@@ -80,14 +87,14 @@ def ensure_async(store) -> None:
 
 def send_test(store, catalog=None) -> bool:
     """Ayarlardaki "Deneme bildirimi" düğmesi: seri uyarısından bir örnek."""
-    win_notify.register(icon_path(), reminder_task.launch_command())
+    _register()
     title, body, _ = reminders.compose(
         store,
         "streak_risk",
         datetime.now(),
         reminders.last_section_title(store, catalog) if catalog is not None else "",
     )
-    return win_notify.show_toast(title, body, icon_path())
+    return notify.show(title, body, icon_path())
 
 
 def run_check() -> str | None:
@@ -100,7 +107,7 @@ def run_check() -> str | None:
     from .progress import ProgressStore
     from ..paths import content_dir
 
-    if win_notify.app_running():
+    if notify.app_running():
         return None
     store = ProgressStore()
     try:
@@ -111,6 +118,6 @@ def run_check() -> str | None:
     return reminders.run_check(
         store,
         datetime.now(),
-        lambda title, body: win_notify.show_toast(title, body, icon),
+        lambda title, body: notify.show(title, body, icon),
         catalog,
     )

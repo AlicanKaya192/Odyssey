@@ -245,9 +245,9 @@ def main() -> int:
 
     # "Program açık" kilidi: hatırlatma denetleyicisi buna bakıp açıkken
     # bildirim göndermiyor. Süreç kapanınca kilit kendiliğinden kalkıyor.
-    from app.core import win_notify
+    from app.core import notify
 
-    win_notify.claim_running()
+    notify.claim_running()
 
     _claim_taskbar_identity()
     icon_path = _icon_file()

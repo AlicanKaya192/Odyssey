@@ -1,4 +1,5 @@
-"""Hatırlatma denetleyicisinin Windows Görev Zamanlayıcı görevi.
+"""Hatırlatma denetleyicisinin zamanlanmış görevi: Windows Görev
+Zamanlayıcı ya da macOS launchd.
 
 **Neden hizmet değil:** Windows hizmetleri kullanıcı oturumundan ayrı bir
 yerde (oturum 0) çalışıyor ve ekrana bildirim gösteremiyor; kurmak için
@@ -13,10 +14,17 @@ saatin geçip geçmediğine yine kendisi bakıyor.
 Uygulama her açılışta, hatırlatmalar açıksa görevi yeniden yazıyor
 (`ensure`): güncellemeden ya da taşımadan sonra programın yolu değişmiş
 olabilir.
+
+**macOS:** `~/Library/LaunchAgents/<LAUNCHD_LABEL>.plist`, aynı iki saat
+(`StartCalendarInterval`). launchd uykuda kaçan çalışmayı uyanınca bir kez
+yapıyor (Windows'taki `StartWhenAvailable` gibi). `launchctl bootstrap`
+ile oturuma yükleniyor; kapatınca `bootout` ve dosya siliniyor.
 """
 
 from __future__ import annotations
 
+import os
+import plistlib
 import subprocess
 import sys
 import tempfile
@@ -29,6 +37,8 @@ from ..paths import install_root, is_frozen
 TASK_NAME = "Odyssey Reminder"
 CHECK_FLAG = "--reminder-check"
 LAST_CALL = time(21, 30)
+LAUNCHD_LABEL = "io.github.alicankaya192.odyssey.reminder"
+LAUNCHCTL = "/bin/launchctl"
 
 
 def launch_parts() -> tuple[str, list[str]]:
@@ -39,6 +49,8 @@ def launch_parts() -> tuple[str, list[str]]:
     """
     if is_frozen():
         return sys.executable, []
+    if sys.platform == "darwin":
+        return sys.executable, [str(install_root() / "app" / "main.py")]
     python = Path(sys.executable)
     pythonw = python.with_name("pythonw.exe")
     program = pythonw if pythonw.exists() else python
@@ -55,9 +67,7 @@ def task_xml(at: time) -> str:
     program, args = launch_parts()
     arguments = " ".join(f'"{a}"' for a in args + [CHECK_FLAG])
     start = date.today().isoformat()
-    triggers = [at]
-    if at < LAST_CALL:
-        triggers.append(LAST_CALL)
+    triggers = _triggers(at)
     trigger_xml = "".join(
         "<CalendarTrigger>"
         f"<StartBoundary>{start}T{t.strftime('%H:%M')}:00</StartBoundary>"
@@ -111,8 +121,64 @@ def _schtasks(*args: str) -> subprocess.CompletedProcess:
     )
 
 
+def _triggers(at: time) -> list[time]:
+    return [at, LAST_CALL] if at < LAST_CALL else [at]
+
+
+# --- macOS: launchd ------------------------------------------------------
+
+
+def launchd_plist_path() -> Path:
+    return Path.home() / "Library" / "LaunchAgents" / f"{LAUNCHD_LABEL}.plist"
+
+
+def launchd_plist(at: time) -> bytes:
+    program, args = launch_parts()
+    return plistlib.dumps({
+        "Label": LAUNCHD_LABEL,
+        "ProgramArguments": [program, *args, CHECK_FLAG],
+        "StartCalendarInterval": [{"Hour": t.hour, "Minute": t.minute} for t in _triggers(at)],
+        "ProcessType": "Background",
+    })
+
+
+def _gui_domain() -> str:
+    return f"gui/{os.getuid()}"
+
+
+def _launchctl(*args: str) -> subprocess.CompletedProcess:
+    return subprocess.run([LAUNCHCTL, *args], capture_output=True, text=True, timeout=30)
+
+
+def _install_launchd(at: time) -> tuple[bool, str]:
+    yol = launchd_plist_path()
+    try:
+        yol.parent.mkdir(parents=True, exist_ok=True)
+        yol.write_bytes(launchd_plist(at))
+        # Eski tanım yüklüyse önce kaldırılıyor; yoksa hata veriyor, önemsiz.
+        _launchctl("bootout", _gui_domain(), str(yol))
+        sonuc = _launchctl("bootstrap", _gui_domain(), str(yol))
+    except (OSError, subprocess.SubprocessError) as exc:
+        return False, str(exc)
+    return sonuc.returncode == 0, (sonuc.stderr or sonuc.stdout or "").strip()
+
+
+def _remove_launchd() -> None:
+    yol = launchd_plist_path()
+    try:
+        _launchctl("bootout", _gui_domain(), str(yol))
+    except (OSError, subprocess.SubprocessError):
+        pass
+    try:
+        yol.unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
 def install(at: time, name: str = TASK_NAME) -> tuple[bool, str]:
     """Görevi kurar ya da üzerine yazar. (başarılı mı, hata metni)"""
+    if sys.platform == "darwin":
+        return _install_launchd(at)
     if sys.platform != "win32":
         return False, "unsupported"
     with tempfile.TemporaryDirectory() as folder:
@@ -127,6 +193,9 @@ def install(at: time, name: str = TASK_NAME) -> tuple[bool, str]:
 
 
 def remove(name: str = TASK_NAME) -> None:
+    if sys.platform == "darwin":
+        _remove_launchd()
+        return
     if sys.platform != "win32":
         return
     try:
@@ -136,6 +205,11 @@ def remove(name: str = TASK_NAME) -> None:
 
 
 def installed(name: str = TASK_NAME) -> bool:
+    if sys.platform == "darwin":
+        try:
+            return _launchctl("print", f"{_gui_domain()}/{LAUNCHD_LABEL}").returncode == 0
+        except (OSError, subprocess.SubprocessError):
+            return False
     if sys.platform != "win32":
         return False
     try:

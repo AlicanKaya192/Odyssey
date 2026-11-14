@@ -37,6 +37,10 @@ lecture note does not mean downloading the whole application again.
   Odyssey into the Applications folder to replace the old one. This works
   for the versions after 1.7.1; to get 1.7.1 itself, download the `.dmg`
   from the release page.
+- **Streak reminders on the Mac.** If you haven't studied that day, a macOS
+  notification arrives at the time you choose, even while the program is
+  closed. Turn them on or off in Settings › Notifications; the notifications
+  appear under the name "Script Editor".
 
 ## [1.7.0] — 14 November 2026
 
