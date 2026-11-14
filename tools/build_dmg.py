@@ -1,6 +1,6 @@
 """macOS paketinden (`dist/Odyssey.app`) dağıtılacak disk görüntüsünü kurar.
 
-Çıktı: `dist/Odyssey-<sürüm>-macos-arm64.dmg`
+Çıktı: `dist/Odyssey-<sürüm>-macos-<mimari>.dmg` (`arm64` ya da `x86_64`)
 
 Görüntünün içinde `Odyssey.app` ve `Applications` klasörüne bir bağlantı
 var: kişi uygulamayı sürükleyip bırakarak kuruyor. Görüntü sıkıştırılmış ve
@@ -11,8 +11,10 @@ Dosya adı Windows güncelleyicisinin seçtikleriyle çakışmıyor: o yalnızca
 `-setup.exe` ile biten tam kurulumu ve `Odyssey-<yeni>-patch-<eski>.exe`
 yamasını arıyor (`app/core/updater.py`).
 
-Yalnızca macOS'ta, Apple Silicon'da çalışır (`hdiutil` ve `ditto` macOS
-araçları; paket tek mimarili, `arm64`).
+Yalnızca macOS'ta çalışır (`hdiutil` ve `ditto` macOS araçları). Paket tek
+mimarili: derlendiği Mac'in mimarisi (Apple Silicon `arm64`, Intel
+`x86_64`); dosya adı da ona göre. Güncelleyici aynı adı arıyor
+(`updater.mac_arch`).
 
 Kullanım:
     python tools/build_exe.py --temiz
@@ -35,7 +37,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "tools"))
 from build_exe import APP_NAME, package_layout  # noqa: E402
 from app.version import APP_VERSION  # noqa: E402
 
-ARCHITECTURE = "arm64"
+ARCHITECTURE = "arm64" if platform.machine() == "arm64" else "x86_64"
 
 
 def dmg_path(dist: Path | None = None) -> Path:
@@ -76,10 +78,6 @@ def main() -> int:
     if sys.platform != "darwin":
         print("Disk görüntüsü yalnızca macOS'ta kurulabiliyor (hdiutil).")
         return 1
-    if platform.machine() != ARCHITECTURE:
-        print(f"Bu Mac {platform.machine()}; paket ve dosya adı {ARCHITECTURE} için.")
-        return 1
-
     app = package_layout().root
     if not app.is_dir():
         print("Paket bulunamadı:", app)

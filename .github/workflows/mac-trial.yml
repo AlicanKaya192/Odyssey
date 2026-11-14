@@ -1,5 +1,6 @@
 # Measures whether the pinned build environment works on macOS (Apple
-# Silicon) before the real Mac release job is trusted. Started by hand from
+# Silicon by default, Intel with runner=macos-15-intel) before the real Mac
+# release job is trusted. Started by hand from
 # the Actions tab or by pushing `mac-deneme`; it never touches a release.
 #
 # Each measured step may fail without stopping the others; the run summary
@@ -20,6 +21,11 @@ on:
         description: "Also build the app and the disk image and run the smoke test (slow)"
         type: boolean
         default: false
+      runner:
+        description: "Mac to run on: macos-latest (Apple Silicon) or macos-15-intel (Intel)"
+        type: choice
+        options: [macos-latest, macos-15-intel]
+        default: macos-latest
 
 permissions:
   contents: read
@@ -30,7 +36,7 @@ env:
 
 jobs:
   measure:
-    runs-on: macos-latest
+    runs-on: ${{ inputs.runner || 'macos-latest' }}
     timeout-minutes: 120
 
     steps:
