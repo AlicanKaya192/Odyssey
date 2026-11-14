@@ -29,6 +29,9 @@ lecture note does not mean downloading the whole application again.
 - **Sounds on the Mac.** The sound that plays with the card when you finish
   a section, earn a badge, level up or a study timer round ends now plays
   on macOS too. You can turn it off in Settings › Notifications › Sounds.
+- **Discord status on the Mac.** While Discord is open, your profile now
+  shows on macOS too that you are using Odyssey and which section you are
+  on (Settings › Appearance › Show on Discord).
 
 ## [1.7.0] — 14 November 2026
 

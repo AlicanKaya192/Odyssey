@@ -27,6 +27,9 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Mac'te sesler.** Bölüm bitince, rozet kazanınca, seviye atlayınca ve
   çalışma zamanlayıcısında süre dolunca kartla birlikte çalan ses artık
   macOS'ta da var. Ayarlar › Bildirimler › Sesler'den kapatabilirsiniz.
+- **Mac'te Discord durumu.** Discord açıkken profilinizde Odyssey'i
+  kullandığınız ve hangi bölümde olduğunuz artık macOS'ta da görünüyor
+  (Ayarlar › Görünüm › Discord'da göster).
 
 ## [1.7.0] — 14 Kasım 2026
 

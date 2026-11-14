@@ -1,7 +1,8 @@
 """Discord'da "Odyssey kullanıyor" yazısını gösterir.
 
-Discord masaüstü uygulaması, bilgisayarda bir **adlandırılmış boru** açıyor
-(`\\\\.\\pipe\\discord-ipc-0`). O boruya bağlanan bir program, kullanıcının
+Discord masaüstü uygulaması, Windows'ta bir **adlandırılmış boru**
+(`\\\\.\\pipe\\discord-ipc-0`), macOS'ta bir **Unix soketi**
+(`$TMPDIR/discord-ipc-0`) açıyor. Oraya bağlanan bir program, kullanıcının
 profilinde ne yaptığını yazdırabiliyor. Sunucu, hesap, ağ bağlantısı yok:
 her şey aynı bilgisayarın içinde kalıyor.
 
@@ -23,7 +24,7 @@ kullanıcı ortasında kapatırsa uygulama bunu fark etmiyor bile:
 - Discord kapanınca ilk yazma hatası bağlantıyı düşürüyor; döngü yeniden
   bağlanmaya başlıyor.
 - Okuma **hiçbir zaman bloklamıyor**: borudan yalnızca hazır bekleyen bayt
-  kadar okunuyor (`PeekNamedPipe`). Cevaplar bize lazım değil, ama
+  kadar okunuyor (Windows'ta `PeekNamedPipe`, macOS'ta `select`). Cevaplar bize lazım değil, ama
   okunmazsa boru dolup Discord tarafını tıkıyor.
 
 ## Neden 15 saniye, neden 60 saniye
@@ -41,6 +42,8 @@ from __future__ import annotations
 
 import json
 import os
+import select
+import socket
 import struct
 import sys
 import threading
@@ -72,6 +75,9 @@ RELEASES_URL = PROJECT_URL + "/releases/latest"
 
 PIPE_TEMPLATE = r"\\.\pipe\discord-ipc-{}"
 PIPE_COUNT = 10
+# macOS'ta soketin bulunduğu klasörler, Discord'un baktığı sırayla.
+SOCKET_DIR_VARS = ("XDG_RUNTIME_DIR", "TMPDIR", "TMP", "TEMP")
+SOCKET_TIMEOUT = 2.0
 
 OP_HANDSHAKE = 0
 OP_FRAME = 1
@@ -113,6 +119,42 @@ def enabled(store) -> bool:
 
 def set_enabled(store, value: bool) -> None:
     store.set_setting(SETTING_KEY, "1" if value else "0")
+
+
+def _parse_frames(buffer: bytes) -> tuple[list[tuple[int, dict]], bytes]:
+    """Tampondaki tam çerçeveleri ayrıştırır; yarım kalanı geri verir."""
+    frames: list[tuple[int, dict]] = []
+    while len(buffer) >= 8:
+        opcode, length = struct.unpack("<II", buffer[:8])
+        if len(buffer) < 8 + length:
+            break
+        body = buffer[8 : 8 + length]
+        buffer = buffer[8 + length :]
+        try:
+            frames.append((opcode, json.loads(body.decode("utf-8"))))
+        except (ValueError, UnicodeDecodeError):
+            # Bozuk çerçeve bizi ilgilendirmiyor; sıradakine geçiliyor.
+            continue
+    return frames, buffer
+
+
+def socket_paths() -> list[str]:
+    """macOS'ta denenecek soket yolları: önce numara, sonra klasör sırası."""
+    dirs: list[str] = []
+    for name in SOCKET_DIR_VARS:
+        value = os.environ.get(name, "").rstrip("/")
+        if value and value not in dirs:
+            dirs.append(value)
+    if "/tmp" not in dirs:
+        dirs.append("/tmp")
+    return [f"{d}/discord-ipc-{i}" for i in range(PIPE_COUNT) for d in dirs]
+
+
+def _connect():
+    """Discord'a bağlanır (Windows'ta boru, başka yerde soket); yoksa None."""
+    if sys.platform == "win32":
+        return _Pipe.connect()
+    return _SocketPipe.connect()
 
 
 class _Pipe:
@@ -202,23 +244,64 @@ class _Pipe:
         if available.value:
             self._buffer += self._file.read(available.value)
 
-        frames: list[tuple[int, dict]] = []
-        while len(self._buffer) >= 8:
-            opcode, length = struct.unpack("<II", self._buffer[:8])
-            if len(self._buffer) < 8 + length:
-                break
-            body = self._buffer[8 : 8 + length]
-            self._buffer = self._buffer[8 + length :]
-            try:
-                frames.append((opcode, json.loads(body.decode("utf-8"))))
-            except (ValueError, UnicodeDecodeError):
-                # Bozuk çerçeve bizi ilgilendirmiyor; sıradakine geçiliyor.
-                continue
+        frames, self._buffer = _parse_frames(self._buffer)
         return frames
 
     def close(self) -> None:
         try:
             self._file.close()
+        except OSError:
+            pass
+
+
+class _SocketPipe:
+    """macOS'ta Discord'un Unix soketine açılan bağlantı.
+
+    `_Pipe` ile aynı yüzü taşıyor; hatalar `OSError` olarak dışarı çıkıyor.
+    Okuma `select` ile yoklanıyor, yani hiçbir zaman beklemiyor.
+    """
+
+    def __init__(self, sock) -> None:
+        self._sock = sock
+        self._buffer = b""
+
+    @classmethod
+    def connect(cls) -> "_SocketPipe | None":
+        family = getattr(socket, "AF_UNIX", None)
+        if family is None:
+            return None
+        for path in socket_paths():
+            sock = socket.socket(family, socket.SOCK_STREAM)
+            sock.settimeout(SOCKET_TIMEOUT)
+            try:
+                sock.connect(path)
+            except OSError:
+                sock.close()
+                continue
+            return cls(sock)
+        return None
+
+    def send(self, opcode: int, payload: dict) -> None:
+        body = json.dumps(payload).encode("utf-8")
+        self._sock.sendall(struct.pack("<II", opcode, len(body)) + body)
+
+    @property
+    def can_read(self) -> bool:
+        return True
+
+    def read_frames(self) -> list[tuple[int, dict]]:
+        ready, _, _ = select.select([self._sock], [], [], 0)
+        if ready:
+            data = self._sock.recv(65536)
+            if not data:
+                raise OSError("Discord bağlantıyı kapattı")
+            self._buffer += data
+        frames, self._buffer = _parse_frames(self._buffer)
+        return frames
+
+    def close(self) -> None:
+        try:
+            self._sock.close()
         except OSError:
             pass
 
@@ -249,7 +332,7 @@ class DiscordPresence:
         self._buttons: list[dict] = []
         self._dirty = False
         self._started_at = int(time.time())
-        self._pipe: _Pipe | None = None
+        self._pipe: _Pipe | _SocketPipe | None = None
         self._last_send = 0.0
         self._next_connect = 0.0
         # El sıkışmanın cevabı geldi mi? Gelmeden etkinlik gönderilmiyor.
@@ -336,7 +419,7 @@ class DiscordPresence:
                 return
             self._attempts += 1
             self._next_connect = now + self._retry_delay()
-            pipe = _Pipe.connect()
+            pipe = _connect()
             if pipe is None:
                 return
             try:
