@@ -32,6 +32,11 @@ lecture note does not mean downloading the whole application again.
 - **Discord status on the Mac.** While Discord is open, your profile now
   shows on macOS too that you are using Odyssey and which section you are
   on (Settings › Appearance › Show on Discord).
+- **Updates on the Mac.** When a new version is out, press Update: Odyssey
+  downloads and opens the new version's `.dmg` and closes, and you drag
+  Odyssey into the Applications folder to replace the old one. This works
+  for the versions after 1.7.1; to get 1.7.1 itself, download the `.dmg`
+  from the release page.
 
 ## [1.7.0] — 14 November 2026
 

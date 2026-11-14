@@ -110,6 +110,14 @@ jobs:
         continue-on-error: true
         run: python tools/build_dmg.py
 
+      # The disk image passes the update's file check, the sound player finds
+      # afplay and the Discord connection fails quietly without Discord.
+      - name: Check the Mac features
+        id: features
+        if: (inputs.full_build || github.event_name == 'push') && steps.dmg.outcome == 'success'
+        continue-on-error: true
+        run: python tools/mac_feature_check.py
+
       # Without the runner's own libomp the LightGBM exercise only passes if the
       # app carries its own copy, as it must on a Mac without Homebrew.
       - name: Remove the runner's libomp
@@ -196,6 +204,7 @@ jobs:
             echo "| Empty PyInstaller build + codesign verify | ${{ steps.empty.outcome }} |"
             echo "| Build the application | ${{ steps.build.outcome }} |"
             echo "| Build the disk image | ${{ steps.dmg.outcome }} |"
+            echo "| Mac features (update, sound, Discord) | ${{ steps.features.outcome }} |"
             echo "| Smoke test | ${{ steps.smoke.outcome }} |"
             echo "| Launch the app window | ${{ steps.launch.outcome }} |"
             echo "| Launch from source | ${{ steps.source.outcome }} |"
@@ -214,5 +223,5 @@ jobs:
           steps.install.outcome == 'failure' || steps.webengine.outcome == 'failure' ||
           steps.libraries.outcome == 'failure' || steps.empty.outcome == 'failure' ||
           steps.build.outcome == 'failure' || steps.dmg.outcome == 'failure' ||
-          steps.smoke.outcome == 'failure'
+          steps.features.outcome == 'failure' || steps.smoke.outcome == 'failure'
         run: exit 1

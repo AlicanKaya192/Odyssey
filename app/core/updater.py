@@ -26,6 +26,7 @@ için `updates.py` → `SETUP_TAG_PREFIX`.
 from __future__ import annotations
 
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -48,6 +49,14 @@ BLOCKED_ERRORS = {4551, 1260, 225, 226}
 # Kurulum dosyası: `Odyssey-0.8.3-setup.exe`.
 INSTALLER_PREFIX = "Odyssey-"
 INSTALLER_SUFFIX = "-setup.exe"
+# macOS: `Odyssey-<sürüm>-macos-<mimari>.dmg` (`tools/build_dmg.py`). Program
+# onu indirip açıyor, kendisi kapanıyor; kişi Odyssey'i Uygulamalar'a
+# sürüklüyor. İmzasız bir uygulama kendi dosyalarını değiştiremiyor.
+DMG_TEMPLATE = "Odyssey-{version}-macos-{arch}.dmg"
+MAC_OPEN = "/usr/bin/open"
+# UDIF disk görüntüsünün son 512 baytı `koly` ile başlıyor.
+DMG_TRAILER = b"koly"
+DMG_TRAILER_SIZE = 512
 
 # Kurulum programına verilen parametreler. Adlar kurulum betiğiyle
 # (`installer/odyssey.iss`, `{param:OLDDIR}` / `{param:OLDPID}`) aynı.
@@ -140,11 +149,30 @@ def pick_patch(assets, version: str, base: str | None = None) -> Asset | None:
     return None
 
 
+def mac_arch() -> str:
+    """Bu Mac'in `.dmg` adındaki mimarisi: `arm64` ya da `x86_64`."""
+    return "arm64" if platform.machine() == "arm64" else "x86_64"
+
+
+def pick_dmg(assets, version: str) -> Asset | None:
+    """macOS'ta bu sürümün bu Mac'e uyan `.dmg` dosyası."""
+    ad_beklenen = DMG_TEMPLATE.format(version=version, arch=mac_arch())
+    for ham in assets or ():
+        ad = str(ham.get("name") or "")
+        adres = str(ham.get("browser_download_url") or "")
+        if ad == ad_beklenen and adres.startswith(DOWNLOAD_PREFIX):
+            return Asset(name=ad, url=adres, size=int(ham.get("size") or 0))
+    return None
+
+
 def pick_update(assets, version: str) -> Asset | None:
     """İndirilecek dosya: bu sürümün yaması varsa o, yoksa tam kurulum.
 
     Yama bir kez denenip tutmadıysa (`patch_failed_before`) tam kurulum.
+    macOS'ta yalnızca o Mac'in `.dmg` dosyası.
     """
+    if sys.platform == "darwin":
+        return pick_dmg(assets, version)
     if not patch_failed_before(version):
         yama = pick_patch(assets, version)
         if yama is not None:
@@ -204,9 +232,9 @@ def can_update() -> tuple[bool, str]:
     `space`. Sebep kullanıcıya söyleniyor — sessizce elle indirmeye
     yönlendirmek "düğmeye bastım, bir şey olmadı" demek olurdu.
     """
-    if sys.platform != "win32":
-        # Kurulum programı (`-setup.exe`) yalnızca Windows'ta çalışıyor;
-        # macOS'ta yeni sürüm sürüm sayfasından indiriliyor.
+    if sys.platform not in ("win32", "darwin"):
+        # Kurulum dosyası yalnızca Windows (`-setup.exe`) ve macOS (`.dmg`)
+        # için var.
         return False, "platform"
     if not getattr(sys, "frozen", False):
         # Kaynak koddan çalışırken kurulacak bir paket yok.
@@ -263,7 +291,8 @@ def verify_installer(path: Path, expected_size: int) -> str:
     """İnen kurulum programını denetler. Boş metin döndürürse sağlam.
 
     Boyut sunucunun söylediğiyle aynı olmalı (yarım inmiş dosya) ve dosya
-    bir Windows programı olmalı (`MZ` imzası) — başka bir şey çalıştırılmıyor.
+    Windows'ta bir program (`MZ` imzası), macOS'ta bir disk görüntüsü
+    (sondaki `koly` bloğu) olmalı — başka bir şey açılmıyor.
     """
     if not path.exists():
         return "missing"
@@ -271,7 +300,13 @@ def verify_installer(path: Path, expected_size: int) -> str:
         return "size"
     try:
         with path.open("rb") as dosya:
-            if dosya.read(2) != b"MZ":
+            if sys.platform == "darwin":
+                if path.stat().st_size < DMG_TRAILER_SIZE:
+                    return "content"
+                dosya.seek(-DMG_TRAILER_SIZE, os.SEEK_END)
+                if dosya.read(len(DMG_TRAILER)) != DMG_TRAILER:
+                    return "content"
+            elif dosya.read(2) != b"MZ":
                 return "content"
     except OSError:
         return "corrupt"
@@ -305,6 +340,8 @@ def start_installer(path: Path) -> str:
     if not path.exists():
         _log.error("Kurulum dosyası yok: %s", path.name)
         return "start"
+    if sys.platform == "darwin":
+        return _open_dmg(path)
     if "-patch-" in path.name:
         # `Odyssey-<yeni>-patch-<eski>.exe`: tutmazsa bir dahaki sefere tam kurulum.
         mark_patch_attempt(path.name.split("-")[1])
@@ -317,6 +354,17 @@ def start_installer(path: Path) -> str:
         _log.error("Kurulum başlatılamadı: %s (winerror %s)", path.name, kod, exc_info=True)
         return "blocked" if kod in BLOCKED_ERRORS else "start"
     _log.info("Kurulum başlatıldı: %s", path.name)
+    return ""
+
+
+def _open_dmg(path: Path) -> str:
+    """macOS: disk görüntüsünü açar (Finder bağlayıp penceresini gösteriyor)."""
+    try:
+        subprocess.Popen([MAC_OPEN, str(path)], close_fds=True)
+    except OSError:
+        _log.error("Disk görüntüsü açılamadı: %s", path.name, exc_info=True)
+        return "start"
+    _log.info("Disk görüntüsü açıldı: %s", path.name)
     return ""
 
 

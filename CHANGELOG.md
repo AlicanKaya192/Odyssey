@@ -30,6 +30,11 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Mac'te Discord durumu.** Discord açıkken profilinizde Odyssey'i
   kullandığınız ve hangi bölümde olduğunuz artık macOS'ta da görünüyor
   (Ayarlar › Görünüm › Discord'da göster).
+- **Mac'te güncelleme.** Yeni sürüm çıkınca Güncelle'ye basmanız yetiyor:
+  Odyssey yeni sürümün `.dmg` dosyasını indirip açıyor ve kapanıyor, siz de
+  açılan pencerede Odyssey'i Uygulamalar klasörüne sürükleyip eskisinin
+  yerine koyuyorsunuz. Bu, 1.7.1'den sonraki sürümler için geçerli; 1.7.1'e
+  geçmek için `.dmg`'yi sürüm sayfasından indirmeniz gerekiyor.
 
 ## [1.7.0] — 14 Kasım 2026
 

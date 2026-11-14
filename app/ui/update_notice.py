@@ -20,9 +20,10 @@ sürüyor (`update_window.py`).
 
 from __future__ import annotations
 
+import sys
 import webbrowser
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
@@ -42,6 +43,8 @@ from . import modal
 from .update_scene import UpdateScene
 
 WIDTH = 540
+# macOS: disk görüntüsü açıldıktan sonra uygulamanın kapanmasına kalan süre.
+MAC_CLOSE_DELAY_MS = 6000
 
 
 class UpdateNoticeDialog(QDialog):
@@ -175,6 +178,13 @@ def install(path, window, owner) -> None:
     if hata:
         window.show_error(hata)
         return
+    if sys.platform == "darwin":
+        # Disk görüntüsü açıldı; kişi Odyssey'i Uygulamalar'a sürükleyecek.
+        # Çalışan uygulamanın yerine kopyalanamadığı için Odyssey kapanıyor;
+        # pencerede yazan yönergeyi okuyabilsin diye biraz bekleniyor.
+        window.release()
+        QTimer.singleShot(MAC_CLOSE_DELAY_MS, lambda: _close(owner))
+        return
     # Kurulum sessiz; yeni sürüm açılana kadar ekranda "güncelleniyor"
     # penceresi dursun (Alican: hiçbir şey görünmeyince çöktü sanılıyordu).
     try:
@@ -190,6 +200,11 @@ def install(path, window, owner) -> None:
 
         log.get(__name__).exception("Kurulum penceresi hazırlanamadı")
     window.release()
+    _close(owner)
+
+
+def _close(owner) -> None:
+    """Uygulamayı onay sormadan kapatır (güncelleme kabul edildi)."""
     if owner is not None and hasattr(owner, "close_for_update"):
         owner.close_for_update()
     else:
