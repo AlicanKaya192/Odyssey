@@ -73,8 +73,10 @@ DOSYA_BLOGU = re.compile(r"\*\*`?([\w./-]+)`?\*\*[ \t]*\n+```[\w-]*\n(.*?)```", 
 # Kaç alıştırma aynı anda çalışsın. Her biri bir alt süreç açıp beklerken
 # GIL'i bırakıyor, yani iş parçacığı yeterli — süreç havuzuna gerek yok.
 # Altıda tutuluyor: daha fazlası hem belleği hem MSSQL bağlantılarını
-# zorluyor, kazanç ise düzleşiyor.
-ISCI_SAYISI = 6
+# zorluyor, kazanç ise düzleşiyor. Çekirdekten fazlası da olmaz: 4 çekirdekli
+# Intel Mac'te 6 alıştırma yan yana koşunca tek başına 4 sn süren LightGBM
+# alıştırması 60 sn'lik sınırı aştı (kişi alıştırmaları tek tek çalıştırıyor).
+ISCI_SAYISI = min(6, os.cpu_count() or 1)
 
 # Başlangıç kodunda yorum satırının nasıl başladığı.
 YORUM_ONEKI = {"python": "#", "tsql": "--", "docker": "#", "workflow": "#", "rust": "//"}
