@@ -12,6 +12,11 @@ on:
         description: JSON list of paths to check (empty = all)
         required: false
         default: ""
+      runner:
+        description: "Mac to run on: macos-latest (Apple Silicon) or macos-15-intel (Intel)"
+        type: choice
+        options: [macos-latest, macos-15-intel]
+        default: macos-latest
   push:
     branches: [mac-icerik]
 
@@ -20,7 +25,7 @@ permissions:
 
 jobs:
   check:
-    runs-on: macos-latest
+    runs-on: ${{ inputs.runner || 'macos-latest' }}
     timeout-minutes: 180
     strategy:
       fail-fast: false
