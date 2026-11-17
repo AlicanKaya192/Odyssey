@@ -57,9 +57,15 @@ TORCH_EXERCISES = (
 
 
 def has_torch(executable: Path) -> bool:
-    """Paketin içinde PyTorch var mı (`torch/__init__.py`)."""
+    """Paketin içinde PyTorch var mı (paketin kökünde `torch/__init__.py`).
+
+    Yalnızca kökteki `torch`'a bakılıyor: scikit-learn'ün içinde de
+    `sklearn/externals/array_api_compat/torch/__init__.py` var ve PyTorch'suz
+    Intel paketinde onu PyTorch sanmıştık (1.8.0 yayın derlemesi).
+    """
     root = executable.parent.parent if sys.platform == "darwin" else executable.parent
-    return any(root.rglob("torch/__init__.py"))
+    tops = ("Frameworks", "Resources") if sys.platform == "darwin" else ("_internal",)
+    return any((root / top / "torch" / "__init__.py").is_file() for top in tops)
 
 
 def use_package(executable: Path) -> None:
