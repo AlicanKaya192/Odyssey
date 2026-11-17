@@ -49,6 +49,18 @@ EXERCISES = (
     ("süreç havuzu", "11-buyuk-veri/10-paralel-isleme/exercises/primes-with-processes"),
 )
 
+# Derin Öğrenme yalnızca PyTorch pakette varsa (Intel Mac'te yok, patika kapalı).
+TORCH_EXERCISES = (
+    ("PyTorch eğitimi", "36-derin-ogrenme-temelleri/09-egitim-dongusu/exercises/full-training-loop"),
+    ("torch.export", "38-ileri-derin-ogrenme/12-disa-aktarma/exercises/cond-net"),
+)
+
+
+def has_torch(executable: Path) -> bool:
+    """Paketin içinde PyTorch var mı (`torch/__init__.py`)."""
+    root = executable.parent.parent if sys.platform == "darwin" else executable.parent
+    return any(root.rglob("torch/__init__.py"))
+
 
 def use_package(executable: Path) -> None:
     """Alıştırmalar kurulu alıştırma ortamıyla değil, paketin kendisiyle koşsun."""
@@ -79,7 +91,10 @@ def main() -> int:
         if sure is not None:
             print(f"önbellek  matplotlib yazı tipleri  ({sure:.1f} sn)")
     content = PROJECT_ROOT / "content"
-    for what, relative in EXERCISES:
+    exercises = EXERCISES + (TORCH_EXERCISES if has_torch(executable) else ())
+    if not has_torch(executable):
+        print("PyTorch pakette yok; Derin Öğrenme alıştırmaları atlandı.")
+    for what, relative in exercises:
         started = time.time()
         found = bir_alistirma(content / relative)
         state = "geçti" if not found else "DÜŞTÜ"
