@@ -28,6 +28,7 @@ import json
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
+from ..core import for_you
 from ..core.catalog import Catalog
 from ..core.completion import is_completed
 from ..core.language import LanguageManager
@@ -139,16 +140,8 @@ class RoadmapView(QWidget):
         route = self._routes[self._index]
         pick = self._language.pick
         states = [self._step_state(step) for step in route.get("steps", [])]
-
-        # "Sıradaki" işareti bitmemiş ilk adıma gidiyor. İsteğe bağlı ve
-        # henüz yazılmamış adımlar atlanıyor: kimse onlarda bekletilmemeli.
-        next_index = next(
-            (
-                i for i, (step, state) in enumerate(zip(route["steps"], states))
-                if not state["soon"] and not state["done"] and not step.get("optional")
-            ),
-            -1,
-        )
+        # Öğrenme Yolu'nun "Senin için" şeridi de aynı hesabı kullanıyor.
+        next_index = for_you.next_step_index(route["steps"], states)
 
         steps = "".join(
             self._step_html(number, step, state, number - 1 == next_index)
@@ -171,29 +164,7 @@ class RoadmapView(QWidget):
 
     def _step_state(self, step: dict) -> dict:
         """Adımın durumu: yazılmış mı, kaç bölümün kaçı bitti."""
-        track = self._catalog.track(step.get("track", ""))
-        if track is None or track.locked:
-            return {"soon": True, "done": False, "completed": 0, "total": 0}
-
-        if step.get("sections"):
-            sections = [
-                self._catalog.section(*section_ref(entry).split("/", 1))
-                for entry in step["sections"]
-            ]
-            sections = [section for section in sections if section is not None]
-        else:
-            sections = [s for chapter in track.chapters for s in chapter.sections]
-
-        active = self._store.active_sections()
-        completed = sum(1 for section in sections if is_completed(self._store, section, active))
-        total = len(sections)
-        return {
-            "soon": False,
-            "done": total > 0 and completed == total,
-            "completed": completed,
-            "total": total,
-            "minutes": sum(section.estimated_minutes for section in sections),
-        }
+        return for_you.step_state(self._catalog, self._store, step, self._store.active_sections())
 
     def _completed(self, section) -> bool:
         return is_completed(self._store, section, self._store.active_sections())
