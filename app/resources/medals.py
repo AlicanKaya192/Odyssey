@@ -641,6 +641,84 @@ GLYPHS: dict[str, str] = {
                       '<circle cx="12" cy="4" r="1.5" fill="#fff" stroke="none"/>'
                       '<path d="M3.8 7.2 1.6 13M3.8 7.2 6 13M20.2 7.2 18 13M20.2 7.2l2.2 5.8" stroke-width="1.1"/>'
                       '<path d="M1.2 13h5.2a2.6 2.6 0 0 1-5.2 0zM17.6 13h5.2a2.6 2.6 0 0 1-5.2 0z" fill="#fff" fill-opacity=".45" stroke-width="1.3"/>'),
+    # Gradyan inişiyle doğrusal model: noktalara oturan doğru ve kalan farklar.
+    "fitted-line": ('<path d="M2.6 19.6 21.4 4.8" stroke-width="1.8"/>'
+                    '<path d="M6 12.4v4.4M10 18v-4.2M14 6.6v4M18 11.8v-4.2" stroke-width="1.2" stroke-opacity=".75"/>'
+                    '<g fill="#fff" stroke="none"><circle cx="6" cy="11.8" r="1.8"/><circle cx="10" cy="18.6" r="1.8"/>'
+                    '<circle cx="14" cy="6" r="1.8"/><circle cx="18" cy="12.4" r="1.8"/></g>'),
+    # Eğitim döngüsü: eğitim kaybı iniyor, doğrulama kaybı dönüyor; en iyi tur işaretli.
+    "best-epoch": ('<path d="M2.4 21.6h19.2" stroke-width="1.2" stroke-opacity=".6"/>'
+                   '<path d="M2.6 2.8C5 11.6 9.6 16.4 21.4 17.6" stroke-width="1.8"/>'
+                   '<path d="M2.6 5.6C5.4 10.6 8.4 12.4 11.8 12.4s6.6-1.8 9.6-5.6" stroke-width="1.5"'
+                   ' stroke-dasharray="2.2 1.6"/>'
+                   '<path d="M11.8 15.4v6.2" stroke-width="1.1" stroke-dasharray="1.2 1.2"/>'
+                   '<path d="M11.8 9.2l3 3.2-3 3.2-3-3.2z" fill="#fff" stroke-width="1"/>'),
+    # Uçtan uca rakam sınıflandırıcı: 8×8'lik resimdeki gibi piksellerden bir 7.
+    "pixel-digit": ('<rect x="2.6" y="1.8" width="18.8" height="20.4" rx="1.6" stroke-width="1.2" stroke-opacity=".6"/>'
+                    '<g fill="#fff" stroke="none"><rect x="5" y="3.6" width="3.2" height="3.2" rx=".5"/>'
+                    '<rect x="8.6" y="3.6" width="3.2" height="3.2" rx=".5"/><rect x="12.2" y="3.6" width="3.2" height="3.2" rx=".5"/>'
+                    '<rect x="15.8" y="3.6" width="3.2" height="3.2" rx=".5"/><rect x="15.8" y="7.2" width="3.2" height="3.2" rx=".5"/>'
+                    '<rect x="12.2" y="10.8" width="3.2" height="3.2" rx=".5"/><rect x="12.2" y="14.4" width="3.2" height="3.2" rx=".5"/>'
+                    '<rect x="8.6" y="18" width="3.2" height="3.2" rx=".5"/></g>'),
+    # Derin Öğrenmenin Temelleri'nin tamamı: üç boyutlu tensör küpü.
+    "tensor-cube": ('<path d="M12 2.4 20.6 7v10L12 21.6 3.4 17V7z" fill="#fff" fill-opacity=".15" stroke-width="1.5"/>'
+                    '<path d="M3.4 7 12 11.6 20.6 7M12 11.6v10" stroke-width="1.5"/>'
+                    '<path d="M7.7 4.7l8.6 4.6M7.7 9.3v10M16.3 9.3v10M3.4 12l8.6 4.6 8.6-4.6" stroke-width="1"'
+                    ' stroke-opacity=".75"/>'
+                    '<circle cx="12" cy="11.6" r="1.4" fill="#fff" stroke="none"/>'),
+    # İlk CNN: resmin üstünde kayan pencere ve onun ürettiği tek çıktı hücresi.
+    "conv-window": ('<rect x="2.4" y="8.2" width="13.4" height="13.4" rx="1" stroke-width="1.3"/>'
+                    '<path d="M6.9 8.2v13.4M11.3 8.2v13.4M2.4 12.7h13.4M2.4 17.1h13.4" stroke-width=".9"'
+                    ' stroke-opacity=".6"/>'
+                    '<rect x="2.4" y="8.2" width="8.9" height="8.9" rx="1" fill="#fff" fill-opacity=".35" stroke-width="1.8"/>'
+                    '<path d="M11.3 8.2 17 5.4M11.3 17.1 17 7.8" stroke-width="1" stroke-dasharray="1.4 1.2"/>'
+                    '<rect x="17" y="3" width="4.8" height="4.8" rx=".8" fill="#fff" stroke="none"/>'),
+    # Transfer öğrenme: donmuş katmanlar (kar tanesi) ve üstte yeni eğitilen baş.
+    "frozen-layers": ('<rect x="2.4" y="9.4" width="13" height="3.4" rx="1" stroke-width="1.3"/>'
+                      '<rect x="2.4" y="14.2" width="13" height="3.4" rx="1" stroke-width="1.3"/>'
+                      '<rect x="2.4" y="19" width="13" height="3.4" rx="1" stroke-width="1.3"/>'
+                      '<rect x="4.6" y="2.6" width="8.6" height="4.2" rx="1" fill="#fff" stroke="none"/>'
+                      '<path d="M8.9 6.8v2.6" stroke-width="1.3"/>'
+                      '<path d="M19.4 11v8M15.9 13l7 4M15.9 17l7-4" stroke-width="1.4"/>'),
+    # Bitirme: şekli bulan algılayıcının kutusu (köşe ayraçları) ve sınıf etiketi.
+    "detect-corners": ('<path d="M2.6 8.6V4.2h4.4M17 4.2h4.4v4.4M21.4 17.8v4.4H17M7 22.2H2.6v-4.4" stroke-width="1.8"/>'
+                       '<path d="M12 7.6l5 8.8H7z" fill="#fff" fill-opacity=".4" stroke-width="1.5"/>'
+                       '<rect x="2.6" y="1" width="7" height="2.4" rx=".6" fill="#fff" stroke="none"/>'),
+    # Bilgisayarlı Görü'nün tamamı: kamera diyaframı.
+    "camera-iris": ('<circle cx="12" cy="12" r="9.6" stroke-width="1.5"/>'
+                    '<path d="M14.6 6.2 7.2 7.4M17.6 11.2l-4.4-6M15 17.4l2.6-6.8M9.4 17.8l5.6-.4M6.4 12.8l3 5'
+                    'M7.2 7.4l-.8 5.4" stroke-width="1.3"/>'
+                    '<path d="M14.6 6.2 21 9.4M17.6 11.2 15.4 21M15 17.4l-9.6 2.4M6.4 12.8 3 6.4M7.2 7.4 11 2.4" stroke-width="1"'
+                    ' stroke-opacity=".7"/>'),
+    # Dikkat ve Transformer: bir konum bütün konumlara farklı ağırlıklarla bakıyor.
+    "attention-web": ('<path d="M9.4 5.4 3.6 18.6" stroke-width=".9" stroke-opacity=".5"/>'
+                      '<path d="M9.4 5.4 9.4 18.6" stroke-width="2.6"/>'
+                      '<path d="M9.4 5.4l5.6 13.2" stroke-width="1.6" stroke-opacity=".85"/>'
+                      '<path d="M9.4 5.4l11 13.2" stroke-width=".9" stroke-opacity=".5"/>'
+                      '<g fill="#fff" stroke="none"><circle cx="3.6" cy="4.4" r="1.4" fill-opacity=".55"/>'
+                      '<circle cx="9.4" cy="4.4" r="2.4"/><circle cx="15" cy="4.4" r="1.4" fill-opacity=".55"/>'
+                      '<circle cx="20.4" cy="4.4" r="1.4" fill-opacity=".55"/>'
+                      '<rect x="1.8" y="18.6" width="3.6" height="3" rx=".7"/><rect x="7.6" y="18.6" width="3.6" height="3" rx=".7"/>'
+                      '<rect x="13.2" y="18.6" width="3.6" height="3" rx=".7"/><rect x="18.6" y="18.6" width="3.6" height="3" rx=".7"/></g>'),
+    # GAN: sahte banknot ve onu inceleyen büyüteç (üretici ile ayırt edici).
+    "forger-detective": ('<rect x="1.8" y="5" width="13.4" height="8.8" rx="1.2" fill="#fff" fill-opacity=".25" stroke-width="1.5"/>'
+                         '<circle cx="8.5" cy="9.4" r="2.2" stroke-width="1.3"/>'
+                         '<path d="M3.8 7.2h1.4M11.8 11.6h1.4" stroke-width="1.3"/>'
+                         '<circle cx="15.6" cy="14.6" r="4.4" fill="#fff" fill-opacity=".2" stroke-width="1.7"/>'
+                         '<path d="M18.8 17.8l3.4 3.4" stroke-width="2.4"/>'),
+    # Sensör arıza algılayıcı: titreşim dalgasındaki sıçrama ve üstünde nişangâh.
+    "spike-target": ('<path d="M1.6 16.4c1.2-2.2 2.4-2.2 3.6 0s2.4 2.2 3.6 0L12 5.6l2.4 13.4 1.6-2.6c1.2-2.2 2.4-2.2 3.6 0'
+                     's1.6 1.6 2.6 0" stroke-width="1.6"/>'
+                     '<circle cx="12" cy="5.6" r="3.6" stroke-width="1.2"/>'
+                     '<path d="M12 .6v2M12 8.6v1.6M7 5.6h1.6M15.4 5.6H17" stroke-width="1.2"/>'
+                     '<circle cx="12" cy="5.6" r="1.2" fill="#fff" stroke="none"/>'),
+    # Diziler, Üretken Modeller ve Dağıtım'ın tamamı: dalgadan (diziden) kalkan roket.
+    "wave-rocket": ('<path d="M19.6 2.6c-4.4.2-7.8 2.6-10 6.6l3.6 3.6c4-2.2 6.4-5.6 6.4-10.2z" fill="#fff" fill-opacity=".35"'
+                    ' stroke-width="1.5"/>'
+                    '<circle cx="15" cy="7.4" r="1.4" fill="#fff" stroke="none"/>'
+                    '<path d="M9.6 9.2 6.6 9l-2 2.6 3.4.6M13.2 12.8l.2 3-2.6 2-.6-3.4" stroke-width="1.3"/>'
+                    '<path d="M8.2 14.2 5.4 17" stroke-width="1.6"/>'
+                    '<path d="M1.6 21.4c1.4-1.6 2.8-1.6 4.2 0s2.8 1.6 4.2 0 2.8-1.6 4.2 0" stroke-width="1.4"/>'),
 }
 
 

@@ -29,8 +29,9 @@ TIER_XP = {"bronze": 100, "silver": 200, "gold": 400, "legendary": 1000}
 
 # İçerik büyüyünce adım değil en yüksek seviye artıyor: başlarda seviye
 # atlamak yine kolay kalsın. İçeriğin tamamı en yüksek seviyenin 10 altına
-# gelince sınır yükseltilir (1.6'da 50'den 56'ya; içerik 46. seviye).
-MAX_LEVEL = 56
+# gelince sınır yükseltilir (1.6'da 50'den 56'ya; içerik 46. seviye. Derin
+# Öğrenme patikasıyla 56'dan 58'e; içerik 48. seviye).
+MAX_LEVEL = 58
 # Bir sonraki seviye için gereken XP: 1 → 2 için 100, her seviyede 100 artıyor.
 # (1.0'dan 1.4'e kadar her yeni patikada adım büyütülüyordu: 40'tan 100'e.)
 FIRST_STEP = 100
@@ -87,6 +88,9 @@ BADGE_TAGS = {
     "sphinx": "crypto-complete",
     "cerberus": "netweb-complete",
     "cassandra": "sysops-complete",
+    "metis": "dl1-complete",
+    "lynceus": "cv-complete",
+    "proteus": "dl3-complete",
 }
 MATH_CHAPTERS = ("04-temel-matematik", "05-ileri-matematik")
 TIRELESS_EXERCISES = 200

@@ -73,6 +73,9 @@ SEC1_CHAPTER = "32-guvenlik-temelleri"
 SEC2_CHAPTER = "33-kriptografi"
 SEC3_CHAPTER = "34-ag-ve-web-guvenligi"
 SEC4_CHAPTER = "35-sistem-guvenligi-ve-operasyon"
+DL1_CHAPTER = "36-derin-ogrenme-temelleri"
+CV_CHAPTER = "37-bilgisayarli-goru"
+DL3_CHAPTER = "38-ileri-derin-ogrenme"
 
 # Şaka rozeti (Alican 23 Ekim): CS50'de bir bölümü açmak yetiyor. Açmak
 # ilerleme kaydı bırakmadığı için ilk açılış bu ayara yazılıyor.
@@ -176,6 +179,15 @@ SEC_SQLI_SECTION = (SEC3_CHAPTER, "08-sql-enjeksiyonu")
 SEC_SCAN_SECTION = (SEC4_CHAPTER, "06-kod-inceleme")
 SEC_LOG_SECTION = (SEC4_CHAPTER, "09-kayit-ve-izleme")
 SEC_FORENSICS_SECTION = (SEC4_CHAPTER, "12-adli-bilisim")
+DL_LINEAR_SECTION = (DL1_CHAPTER, "04-dogrusal-model-egitmek")
+DL_LOOP_SECTION = (DL1_CHAPTER, "09-egitim-dongusu")
+DL_DIGITS_SECTION = (DL1_CHAPTER, "15-bitirme-projesi")
+CV_FIRST_CNN_SECTION = (CV_CHAPTER, "03-ilk-cnn")
+CV_TRANSFER_SECTION = (CV_CHAPTER, "08-transfer-ogrenme")
+CV_DETECTOR_SECTION = (CV_CHAPTER, "15-bitirme-projesi")
+DL_ATTENTION_SECTION = (DL3_CHAPTER, "06-dikkat-ve-transformer")
+DL_GAN_SECTION = (DL3_CHAPTER, "08-gan")
+DL_FAULT_SECTION = (DL3_CHAPTER, "15-bitirme-projesi")
 
 # Patikanın tamamına bağlı rozetler için: modüldeki bölüm sayısı.
 PY_SECTION_COUNT = 19
@@ -212,6 +224,9 @@ SEC1_SECTION_COUNT = 17
 SEC2_SECTION_COUNT = 19
 SEC3_SECTION_COUNT = 17
 SEC4_SECTION_COUNT = 19
+DL1_SECTION_COUNT = 17
+CV_SECTION_COUNT = 17
+DL3_SECTION_COUNT = 17
 
 
 def note_section_opened(store, chapter_id: str) -> bool:
@@ -428,6 +443,18 @@ def evaluate(catalog, store) -> dict[str, bool]:
         "log-keeper": SEC_LOG_SECTION in bitenler,
         "trail-follower": SEC_FORENSICS_SECTION in bitenler,
         "sysops-complete": modul_basina.get(SEC4_CHAPTER, 0) >= SEC4_SECTION_COUNT,
+        "trained-by-hand": DL_LINEAR_SECTION in bitenler,
+        "loop-master": DL_LOOP_SECTION in bitenler,
+        "digit-reader": DL_DIGITS_SECTION in bitenler,
+        "dl1-complete": modul_basina.get(DL1_CHAPTER, 0) >= DL1_SECTION_COUNT,
+        "first-convnet": CV_FIRST_CNN_SECTION in bitenler,
+        "borrowed-knowledge": CV_TRANSFER_SECTION in bitenler,
+        "first-detector": CV_DETECTOR_SECTION in bitenler,
+        "cv-complete": modul_basina.get(CV_CHAPTER, 0) >= CV_SECTION_COUNT,
+        "all-attention": DL_ATTENTION_SECTION in bitenler,
+        "forger-and-detective": DL_GAN_SECTION in bitenler,
+        "fault-hunter": DL_FAULT_SECTION in bitenler,
+        "dl3-complete": modul_basina.get(DL3_CHAPTER, 0) >= DL3_SECTION_COUNT,
     }
 
 
