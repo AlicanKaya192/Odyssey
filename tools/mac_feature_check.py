@@ -1,4 +1,4 @@
-"""macOS'a 1.7.1'de gelen özellikleri gerçek bir Mac'te dener (CI: mac-trial).
+"""macOS'a 1.8.0'de gelen özellikleri gerçek bir Mac'te dener (CI: mac-trial).
 
 - Güncelleme: derlenen `.dmg` güncellemenin dosya denetiminden geçiyor ve
   sürümün dosya listesinden seçiliyor.

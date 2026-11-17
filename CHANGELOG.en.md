@@ -23,9 +23,25 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.7.1] — Unreleased
+## [1.8.0] — Unreleased
 
 ### Added
+- **Deep Learning path.** Three modules with real PyTorch: Deep Learning
+  Fundamentals (tensors, automatic differentiation, the training loop,
+  regularisation, saving), Computer Vision (convolutional networks, transfer
+  learning, object detection, segmentation, what the model looks at) and
+  Sequences, Generative Models and Deployment (sequences, attention and the
+  Transformer, generative models, LoRA, exporting, quantisation). Everything
+  runs on your computer, on the processor; nothing is downloaded from the
+  internet. The path is closed on Intel Macs: PyTorch is not built for that
+  processor.
+- **A new layout for the Learning Path.** At the top, "For you": the path
+  you are working on, the newly added path and the next path on your route.
+  Below it every path, group by group, in three columns of smaller cards;
+  paths further down no longer go unnoticed. The group buttons take you to
+  that group, the card of a newly added path glows for its first days, and
+  the path you are advised to finish first ("First: …") is shown with a
+  clear label.
 - **Sounds on the Mac.** The sound that plays with the card when you finish
   a section, earn a badge, level up or a study timer round ends now plays
   on macOS too. You can turn it off in Settings › Notifications › Sounds.
@@ -35,7 +51,7 @@ lecture note does not mean downloading the whole application again.
 - **Updates on the Mac.** When a new version is out, press Update: Odyssey
   downloads and opens the new version's `.dmg` and closes, and you drag
   Odyssey into the Applications folder to replace the old one. This works
-  for the versions after 1.7.1; to get 1.7.1 itself, download the `.dmg`
+  for the versions after 1.8.0; to get 1.8.0 itself, download the `.dmg`
   from the release page.
 - **Streak reminders on the Mac.** If you haven't studied that day, a macOS
   notification arrives at the time you choose, even while the program is

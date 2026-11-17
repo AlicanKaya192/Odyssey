@@ -21,9 +21,25 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.7.1] — Yayınlanmadı
+## [1.8.0] — Yayınlanmadı
 
 ### Eklendi
+- **Derin Öğrenme patikası.** Gerçek PyTorch ile üç modül: Derin Öğrenmenin
+  Temelleri (tensörler, otomatik türev, eğitim döngüsü, düzenlileştirme,
+  kaydetme), Bilgisayarlı Görü (evrişimli ağlar, transfer öğrenme, nesne
+  algılama, bölütleme, modelin neye baktığı) ve Diziler, Üretken Modeller ve
+  Dağıtım (diziler, dikkat ve Transformer, üretici modeller, LoRA, dışa
+  aktarma, nicemleme).
+  Her şey bilgisayarınızda, işlemciyle; hiçbir şey internetten indirilmiyor.
+  Intel işlemcili Mac'lerde bu patika kapalı: PyTorch o işlemci için
+  çıkmıyor.
+- **Öğrenme Yolu'nun yeni düzeni.** En üstte "Senin için": devam ettiğiniz
+  patika, yeni gelen patika ve rotanızda sıradaki patika. Altında bütün
+  patikalar grup grup, üç sütunda ve daha küçük kartlarla; aşağıda kalan
+  patikalar artık gözden kaçmıyor. Gruplar düğmesi sizi o gruba götürüyor,
+  yeni eklenen patikanın kartı ilk günlerde parlıyor ve bir patikaya
+  başlamadan önce bitirmeniz önerilen patika ("Önce: …") belirgin bir
+  etiketle gösteriliyor.
 - **Mac'te sesler.** Bölüm bitince, rozet kazanınca, seviye atlayınca ve
   çalışma zamanlayıcısında süre dolunca kartla birlikte çalan ses artık
   macOS'ta da var. Ayarlar › Bildirimler › Sesler'den kapatabilirsiniz.
@@ -33,7 +49,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 - **Mac'te güncelleme.** Yeni sürüm çıkınca Güncelle'ye basmanız yetiyor:
   Odyssey yeni sürümün `.dmg` dosyasını indirip açıyor ve kapanıyor, siz de
   açılan pencerede Odyssey'i Uygulamalar klasörüne sürükleyip eskisinin
-  yerine koyuyorsunuz. Bu, 1.7.1'den sonraki sürümler için geçerli; 1.7.1'e
+  yerine koyuyorsunuz. Bu, 1.8.0'dan sonraki sürümler için geçerli; 1.8.0'a
   geçmek için `.dmg`'yi sürüm sayfasından indirmeniz gerekiyor.
 - **Mac'te seri hatırlatmaları.** O gün çalışmadıysanız seçtiğiniz saatte
   macOS bildirimi geliyor, program kapalıyken de. Ayarlar › Bildirimler'den
