@@ -398,10 +398,26 @@ def drop_torch_dev_files(output: Path) -> None:
         base = root.parent
         for pattern in TORCH_DEV_FILES:
             for path in base.glob(pattern):
-                if path.is_dir():
-                    shutil.rmtree(path)
-                else:
-                    path.unlink()
+                _remove_packaged(path, output)
+
+
+def _remove_packaged(path: Path, output: Path) -> None:
+    """Paketteki bir dosyayı ya da klasörü siler; sembolik bağlantıyı da.
+
+    `.app`'te PyInstaller `Contents/Frameworks` ile `Contents/Resources`
+    arasında sembolik bağlantı kuruyor (`torch/include` gibi); `rmtree`
+    bağlantıda duruyor. Bağlantı kaldırılır, hedefi paketin içindeyse o da
+    silinir: biri kalırsa imza kırık bağlantıda düşer.
+    """
+    if path.is_symlink():
+        target = path.resolve()
+        path.unlink()
+        if target.is_relative_to(output.resolve()) and target.exists():
+            _remove_packaged(target, output)
+    elif path.is_dir():
+        shutil.rmtree(path)
+    elif path.exists():
+        path.unlink()
 
 
 def main() -> int:
