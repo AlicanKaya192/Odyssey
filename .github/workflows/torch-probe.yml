@@ -1,0 +1,53 @@
+# How far PyTorch results agree between machines (Deep Learning path).
+# Runs tools/torch_probe.py on Windows and both Macs, with and without the
+# portable CPU code path; the dumps are compared on Windows.
+name: Torch probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, macos-15-intel]
+    env:
+      PYTHONUTF8: 1
+      OMP_NUM_THREADS: 1
+      MKL_NUM_THREADS: 1
+      VECLIB_MAXIMUM_THREADS: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install
+        shell: bash
+        run: |
+          python -m pip install numpy==$(grep -i '^numpy==' requirements-build.txt | cut -d= -f3) \
+            scikit-learn==$(grep -i '^scikit-learn==' requirements-build.txt | cut -d= -f3) \
+            torch==2.15.0 torchvision==0.29.2 2>&1 | tail -5
+
+      - name: Probe
+        shell: bash
+        run: |
+          mkdir out
+          python -I tools/torch_probe.py run out/${{ matrix.os }}.json
+          ATEN_CPU_CAPABILITY=default MKL_CBWR=COMPATIBLE \
+            python -I tools/torch_probe.py run out/${{ matrix.os }}-portable.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: torch-${{ matrix.os }}
+          path: out
