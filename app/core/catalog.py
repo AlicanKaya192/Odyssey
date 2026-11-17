@@ -13,6 +13,7 @@ sabit kalır.
 
 from __future__ import annotations
 
+import importlib.util
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -683,9 +684,22 @@ class Track:
         return self.raw.get("prerequisite", "")
 
     @property
+    def unavailable(self) -> bool:
+        """Patikanın istediği kütüphane bu bilgisayarda yok mu?
+
+        `tracks.json` → `requires`: modül adları. Derin Öğrenme PyTorch istiyor;
+        Intel Mac için PyTorch paketi çıkmıyor ve orada paket onsuz derleniyor.
+        Modül yüklenmiyor, yalnızca aranıyor.
+        """
+        if "_unavailable" not in self.__dict__:
+            self.__dict__["_unavailable"] = any(
+                importlib.util.find_spec(name) is None for name in self.raw.get("requires", []))
+        return self.__dict__["_unavailable"]
+
+    @property
     def locked(self) -> bool:
-        """İçeriği henüz yazılmamış patika kilitli sayılıyor."""
-        return not self.chapters
+        """İçeriği henüz yazılmamış ya da bu bilgisayarda çalışmayan patika kilitli sayılıyor."""
+        return not self.chapters or self.unavailable
 
     @property
     def chapter_tabs(self) -> bool:

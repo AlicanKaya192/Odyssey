@@ -53,6 +53,14 @@ GLYPHS: dict[str, dict[str, object]] = {
         '<g fill="#fff"><circle cx="5" cy="7" r="2.2"/><circle cx="5" cy="17" r="2.2"/><circle cx="12" cy="4.5" r="2.2"/>'
         '<circle cx="12" cy="14.5" r="2.2"/><circle cx="12" cy="20" r="1.8" opacity=".8"/><circle cx="19" cy="12" r="2.6"/></g>'
     )},
+    # Derin Öğrenme: üst üste binen öznitelik haritaları ve en öndekinde evrişim çekirdeği.
+    "dl": {"svg": (
+        '<rect x="11" y="3" width="10" height="10" rx="1.6" fill="#fff" fill-opacity=".35"/>'
+        '<rect x="7" y="7" width="10" height="10" rx="1.6" fill="#fff" fill-opacity=".6"/>'
+        '<rect x="3" y="11" width="10" height="10" rx="1.6" fill="#fff"/>'
+        '<g fill="#000" fill-opacity=".28"><rect x="5" y="13" width="2.4" height="2.4"/><rect x="8.6" y="13" width="2.4" height="2.4"/>'
+        '<rect x="5" y="16.6" width="2.4" height="2.4"/><rect x="8.6" y="16.6" width="2.4" height="2.4"/></g>'
+    )},
     "sql": {"svg": (
         '<path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6" fill="#fff" fill-opacity=".22" stroke="#fff" stroke-width="1.8"/>'
         '<path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3" fill="none" stroke="#fff" stroke-width="1.8"/>'
@@ -174,7 +182,7 @@ ICON_TO_LOGO = {
     "calculator": "math", "link": "api", "package": "docker", "clock": "time", "git-branch": "git",
     "message": "nlp", "sparkles": "genai", "cpu": "algo", "library": "lib",
     "server": "sys", "layers": "big", "graduation-cap": "cs50", "wrench": "rust",
-    "terminal": "shell", "sigma": "stats", "shield": "security",
+    "terminal": "shell", "sigma": "stats", "shield": "security", "deep": "dl",
 }
 
 # Matematik patikasının iki modülü kendi işaretini taşıyor.

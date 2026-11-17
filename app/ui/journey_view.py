@@ -1178,7 +1178,9 @@ class TrackCard(GlowCard):
         self._title.setText(keep_slash_words(self._language.pick(self._track.title)))
         self._description.setText(keep_slash_words(self._language.pick(self._track.description)))
         self._chip.setText(t("track.in_progress"))
-        if self._track.locked:
+        if self._track.unavailable:
+            self._caption.setText(t("track.unavailable"))
+        elif self._track.locked:
             self._caption.setText(
                 t("track.prerequisite") if self._track.prerequisite else t("track.locked"))
         self._render_meta()

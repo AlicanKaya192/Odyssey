@@ -257,6 +257,12 @@ PATHS: dict[str, str] = {
         '<path d="M11 21V4"/><path d="M16 21v-7"/><path d="M21 21v-3"/>'
     ),
     # Makine öğrenmesi: birbirine bağlı düğümler.
+    # Derin Öğrenme: üst üste binen öznitelik haritaları (evrişim katmanları).
+    "deep": (
+        '<rect x="3" y="9" width="10" height="10" rx="1.5"/>'
+        '<path d="M7 9V6.5A1.5 1.5 0 0 1 8.5 5H16a1.5 1.5 0 0 1 1.5 1.5V14a1.5 1.5 0 0 1-1.5 1.5h-3"/>'
+        '<path d="M11 5V3.5A1.5 1.5 0 0 1 12.5 2H20a1.5 1.5 0 0 1 1.5 1.5V11a1.5 1.5 0 0 1-1.5 1.5h-2.5"/>'
+    ),
     "network": (
         '<circle cx="5" cy="7" r="2"/><circle cx="5" cy="17" r="2"/>'
         '<circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>'

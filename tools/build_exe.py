@@ -26,6 +26,7 @@ Kullanım:
 
 from __future__ import annotations
 
+import importlib.util
 import plistlib
 import shutil
 import subprocess
@@ -211,6 +212,16 @@ COLLECT = [
     "defusedxml",
 ]
 
+# Derin Öğrenme patikası: PyTorch (yalnızca işlemci sürümü). `import torch`
+# sympy ve mpmath'i hemen yüklüyor; networkx, jinja2 ve filelock torch'un
+# derleme ve dışa aktarma yollarında. Intel Mac için torch tekerleği yok
+# (torch 2.15.0, ölçüldü); orada paket bunlarsız derleniyor ve patika
+# kapalı görünüyor.
+OPTIONAL_COLLECT = ["torch", "torchvision", "sympy", "mpmath", "networkx", "jinja2", "markupsafe", "filelock"]
+
+# Paketlenmiş programda gereksiz, torch'un C++ geliştirici dosyaları.
+TORCH_DEV_FILES = ("torch/include", "torch/lib/*.lib", "torch/share/cmake")
+
 # Yalnızca denetleyicinin kullandığı standart kütüphane modülleri.
 # Denetleyici pakete düz dosya olarak giriyor; PyInstaller içindeki
 # import'ları görmüyor. Alıştırma sunucusu (`sandbox/api_sandbox.py`)
@@ -300,7 +311,7 @@ def build_command() -> list[str]:
     for source, target in DATA:
         command += ["--add-data", f"{PROJECT_ROOT / source}{';' if sys.platform == 'win32' else ':'}{target}"]
 
-    for module in COLLECT:
+    for module in COLLECT + [m for m in OPTIONAL_COLLECT if importlib.util.find_spec(m)]:
         command += ["--collect-all", module]
 
     for module in HIDDEN:
@@ -377,6 +388,22 @@ def sign_bundle(app: Path) -> int:
     return 0
 
 
+def drop_torch_dev_files(output: Path) -> None:
+    """torch'un başlık ve bağlama dosyalarını paketten çıkarır (~110 MB).
+
+    Yalnızca az önce PyInstaller'ın ürettiği paketin içinde çalışıyor;
+    kaynak ortama dokunmuyor. `.app`'te imzadan önce çağrılıyor.
+    """
+    for root in {p.parent for p in output.rglob("torch/__init__.py")}:
+        base = root.parent
+        for pattern in TORCH_DEV_FILES:
+            for path in base.glob(pattern):
+                if path.is_dir():
+                    shutil.rmtree(path)
+                else:
+                    path.unlink()
+
+
 def main() -> int:
     icon = icon_path()
     if not icon.exists():
@@ -407,6 +434,7 @@ def main() -> int:
         return result.returncode
 
     output, exe, packaged_content = package_layout()
+    drop_torch_dev_files(output)
 
     # Katalog tek dosyadan okunsun: soğuk açılışta ~490 JSON'u tek tek
     # açmak 9,9 sn sürüyordu (`app/core/catalog.py` → `BUNDLE_NAME`).
