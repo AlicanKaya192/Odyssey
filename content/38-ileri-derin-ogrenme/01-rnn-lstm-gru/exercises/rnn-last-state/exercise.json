@@ -1,0 +1,89 @@
+{
+  "id": "rnn-last-state",
+  "title": {
+    "tr": "RNN'i elle yürütmek",
+    "en": "Running an RNN by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Listeleri `torch.tensor` yap; `h = torch.zeros(w_ih.shape[0])`.",
+      "en": "Make the lists `torch.tensor`s; `h = torch.zeros(w_ih.shape[0])`."
+    },
+    {
+      "tr": "Bitince `[round(v, 3) for v in h.tolist()]`.",
+      "en": "At the end `[round(v, 3) for v in h.tolist()]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef rnn_last_state(xs, w_ih, w_hh):\n    w_ih, w_hh = torch.tensor(w_ih), torch.tensor(w_hh)\n    h = torch.zeros(w_ih.shape[0])\n    for x in torch.tensor(xs):\n        h = torch.tanh(x @ w_ih.T + h @ w_hh.T)\n    return [round(v, 3) for v in h.tolist()]\n\nxs = [[1.0, 0.0], [0.0, 1.0]]\nw_ih = [[0.5, 0.0], [0.0, 0.5]]\nw_hh = [[0.0, 0.0], [0.0, 0.0]]\nprint(rnn_last_state(xs, w_ih, w_hh))\nprint(rnn_last_state(xs, w_ih, [[1.0, 0.0], [0.0, 1.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef rnn_last_state(xs, w_ih, w_hh):\n    w_ih, w_hh = torch.tensor(w_ih), torch.tensor(w_hh)\n    h = torch.zeros(w_ih.shape[0])\n    for x in torch.tensor(xs):\n        h = torch.tanh(x @ w_ih.T + h @ w_hh.T)\n    return [round(v, 3) for v in h.tolist()]\n\nxs = [[1.0, 0.0], [0.0, 1.0]]\nw_ih = [[0.5, 0.0], [0.0, 0.5]]\nw_hh = [[0.0, 0.0], [0.0, 0.0]]\nprint(rnn_last_state(xs, w_ih, w_hh))\nprint(rnn_last_state(xs, w_ih, [[1.0, 0.0], [0.0, 1.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rnn_last_state",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0
+              ]
+            ],
+            [
+              [
+                2.0
+              ]
+            ],
+            [
+              [
+                0.0
+              ]
+            ]
+          ],
+          "returns": [
+            0.964
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0
+              ],
+              [
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0
+              ]
+            ],
+            [
+              [
+                0.5
+              ]
+            ]
+          ],
+          "returns": [
+            0.881
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0, 0.462]\n[0.432, 0.462]"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "temperature-probs",
+  "title": {
+    "tr": "Sıcaklıkla olasılık",
+    "en": "Probabilities with temperature"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.softmax(torch.tensor(logits) / temp, dim=0)`.",
+      "en": "`torch.softmax(torch.tensor(logits) / temp, dim=0)`."
+    },
+    {
+      "tr": "Her olasılığı `round(p, 3)` ile yuvarla.",
+      "en": "Round every probability with `round(p, 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef temperature_probs(logits, temp):\n    probs = torch.softmax(torch.tensor(logits) / temp, dim=0)\n    return [round(p, 3) for p in probs.tolist()]\n\nprint(temperature_probs([2.0, 1.0, 0.1], 0.5))\nprint(temperature_probs([2.0, 1.0, 0.1], 2.0))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef temperature_probs(logits, temp):\n    probs = torch.softmax(torch.tensor(logits) / temp, dim=0)\n    return [round(p, 3) for p in probs.tolist()]\n\nprint(temperature_probs([2.0, 1.0, 0.1], 0.5))\nprint(temperature_probs([2.0, 1.0, 0.1], 2.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "temperature_probs",
+      "cases": [
+        {
+          "args": [
+            [
+              0.0,
+              0.0
+            ],
+            1.0
+          ],
+          "returns": [
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "args": [
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            3.0
+          ],
+          "returns": [
+            0.25,
+            0.25,
+            0.25,
+            0.25
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.864, 0.117, 0.019]\n[0.502, 0.304, 0.194]"
+    }
+  ]
+}

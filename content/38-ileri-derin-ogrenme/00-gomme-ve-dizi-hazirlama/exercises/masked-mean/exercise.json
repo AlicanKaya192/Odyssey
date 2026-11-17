@@ -1,0 +1,94 @@
+{
+  "id": "masked-mean",
+  "title": {
+    "tr": "Maskeli ortalama",
+    "en": "The masked mean"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Maskeyi `float` yap ve `unsqueeze(-1)` ile `(B, T, 1)`'e getir.",
+      "en": "Make the mask `float` and bring it to `(B, T, 1)` with `unsqueeze(-1)`."
+    },
+    {
+      "tr": "`(x * m).sum(dim=1) / m.sum(dim=1)`, sonra `.round(decimals=3)`.",
+      "en": "`(x * m).sum(dim=1) / m.sum(dim=1)`, then `.round(decimals=3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef masked_mean(vectors, mask):\n    x = torch.tensor(vectors)\n    m = torch.tensor(mask, dtype=torch.float32).unsqueeze(-1)\n    mean = (x * m).sum(dim=1) / m.sum(dim=1)\n    return mean.round(decimals=3).tolist()\n\nvectors = [[[1.0, 2.0], [3.0, 4.0], [0.0, 0.0]],\n           [[2.0, 2.0], [0.0, 0.0], [0.0, 0.0]]]\nmask = [[1, 1, 0], [1, 0, 0]]\nprint(masked_mean(vectors, mask))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef masked_mean(vectors, mask):\n    x = torch.tensor(vectors)\n    m = torch.tensor(mask, dtype=torch.float32).unsqueeze(-1)\n    mean = (x * m).sum(dim=1) / m.sum(dim=1)\n    return mean.round(decimals=3).tolist()\n\nvectors = [[[1.0, 2.0], [3.0, 4.0], [0.0, 0.0]],\n           [[2.0, 2.0], [0.0, 0.0], [0.0, 0.0]]]\nmask = [[1, 1, 0], [1, 0, 0]]\nprint(masked_mean(vectors, mask))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "masked_mean",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                [
+                  1.0
+                ],
+                [
+                  5.0
+                ],
+                [
+                  9.0
+                ]
+              ]
+            ],
+            [
+              [
+                1,
+                1,
+                0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              3.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                [
+                  2.0,
+                  4.0
+                ]
+              ]
+            ],
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              2.0,
+              4.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[2.0, 3.0], [2.0, 2.0]]"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "order-blind",
+  "title": {
+    "tr": "Sırayı kim görüyor?",
+    "en": "Who sees the order?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`x_rev = x.flip(dims=[1])`.",
+      "en": "`x_rev = x.flip(dims=[1])`."
+    },
+    {
+      "tr": "`torch.allclose(bag(x), bag(x_rev))`; LSTM için de aynısı.",
+      "en": "`torch.allclose(bag(x), bag(x_rev))`; the same for the LSTM."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass SeqClassifier(nn.Module):\n    def __init__(self, vocab=10, dim=8, hidden=16):\n        super().__init__()\n        self.emb = nn.Embedding(vocab, dim)\n        self.lstm = nn.LSTM(dim, hidden, batch_first=True)\n        self.head = nn.Linear(hidden, 2)\n\n    def forward(self, x):\n        out, (h, c) = self.lstm(self.emb(x))\n        return self.head(h[-1])\n\n\nclass BagClassifier(nn.Module):\n    def __init__(self, vocab=10, dim=8):\n        super().__init__()\n        self.emb = nn.Embedding(vocab, dim)\n        self.head = nn.Linear(dim, 2)\n\n    def forward(self, x):\n        return self.head(self.emb(x).mean(dim=1))\n\n\ndef order_blind(seqs):\n    torch.manual_seed(0)\n    bag, lstm = BagClassifier(), SeqClassifier()\n    x = torch.tensor(seqs)\n    x_rev = x.flip(dims=[1])\n    with torch.no_grad():\n        bag_same = torch.allclose(bag(x), bag(x_rev))\n        lstm_same = torch.allclose(lstm(x), lstm(x_rev))\n    return [bag_same, lstm_same]\n\nprint(order_blind([[1, 2, 3, 4], [5, 5, 0, 9]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass SeqClassifier(nn.Module):\n    def __init__(self, vocab=10, dim=8, hidden=16):\n        super().__init__()\n        self.emb = nn.Embedding(vocab, dim)\n        self.lstm = nn.LSTM(dim, hidden, batch_first=True)\n        self.head = nn.Linear(hidden, 2)\n\n    def forward(self, x):\n        out, (h, c) = self.lstm(self.emb(x))\n        return self.head(h[-1])\n\n\nclass BagClassifier(nn.Module):\n    def __init__(self, vocab=10, dim=8):\n        super().__init__()\n        self.emb = nn.Embedding(vocab, dim)\n        self.head = nn.Linear(dim, 2)\n\n    def forward(self, x):\n        return self.head(self.emb(x).mean(dim=1))\n\n\ndef order_blind(seqs):\n    torch.manual_seed(0)\n    bag, lstm = BagClassifier(), SeqClassifier()\n    x = torch.tensor(seqs)\n    x_rev = x.flip(dims=[1])\n    with torch.no_grad():\n        bag_same = torch.allclose(bag(x), bag(x_rev))\n        lstm_same = torch.allclose(lstm(x), lstm(x_rev))\n    return [bag_same, lstm_same]\n\nprint(order_blind([[1, 2, 3, 4], [5, 5, 0, 9]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "order_blind",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                2,
+                3
+              ]
+            ]
+          ],
+          "returns": [
+            true,
+            false
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                4,
+                4,
+                4
+              ]
+            ]
+          ],
+          "returns": [
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[True, False]"
+    }
+  ]
+}

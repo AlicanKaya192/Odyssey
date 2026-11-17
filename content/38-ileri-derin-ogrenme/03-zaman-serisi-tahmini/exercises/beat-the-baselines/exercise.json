@@ -1,0 +1,46 @@
+{
+  "id": "beat-the-baselines",
+  "title": {
+    "tr": "Taban çizgilerini yenmek",
+    "en": "Beating the baselines"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Tahmin `torch.no_grad()` içinde: `model(x_test).numpy() * std + mean`.",
+      "en": "Forecast inside `torch.no_grad()`: `model(x_test).numpy() * std + mean`."
+    },
+    {
+      "tr": "Naif tahminler `series[split - 1:-1]` ve `series[split - 7:-7]`.",
+      "en": "The naive forecasts are `series[split - 1:-1]` and `series[split - 7:-7]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nimport torch\nfrom torch import nn\nfrom dl_data import make_series\n\nseries = make_series(730)\nsplit = 630\nmean, std = series[:split].mean(), series[:split].std()\nscaled = (series - mean) / std\n\n\ndef windows(values, size):\n    xs = [values[i:i + size] for i in range(len(values) - size)]\n    ys = [values[i + size] for i in range(len(values) - size)]\n    return torch.tensor(np.array(xs)).unsqueeze(-1), torch.tensor(np.array(ys))\n\n\nx_train, y_train = windows(scaled[:split], 28)\nx_test, y_test = windows(scaled[split - 28:], 28)\n\n\nclass Forecaster(nn.Module):\n    def __init__(self, hidden=32):\n        super().__init__()\n        self.lstm = nn.LSTM(1, hidden, batch_first=True)\n        self.head = nn.Linear(hidden, 1)\n\n    def forward(self, x):\n        out, (h, c) = self.lstm(x)\n        return self.head(h[-1]).squeeze(-1)\n\n\ntorch.manual_seed(0)\nmodel = Forecaster()\nloader = torch.utils.data.DataLoader(\n    torch.utils.data.TensorDataset(x_train, y_train), batch_size=32, shuffle=True,\n    generator=torch.Generator().manual_seed(0))\nopt = torch.optim.Adam(model.parameters(), lr=0.005)\nfor epoch in range(15):\n    for xb, yb in loader:\n        opt.zero_grad()\n        nn.functional.mse_loss(model(xb), yb).backward()\n        opt.step()\n\nmodel.eval()\nactual = series[split:]\n\nwith torch.no_grad():\n    pred = model(x_test).numpy() * std + mean\nmae_lstm = np.abs(pred - actual).mean()\nmae_naive = np.abs(series[split - 1:-1] - actual).mean()\nmae_week = np.abs(series[split - 7:-7] - actual).mean()\n\nprint(mae_lstm < mae_naive, mae_lstm < mae_week)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nimport torch\nfrom torch import nn\nfrom dl_data import make_series\n\nseries = make_series(730)\nsplit = 630\nmean, std = series[:split].mean(), series[:split].std()\nscaled = (series - mean) / std\n\n\ndef windows(values, size):\n    xs = [values[i:i + size] for i in range(len(values) - size)]\n    ys = [values[i + size] for i in range(len(values) - size)]\n    return torch.tensor(np.array(xs)).unsqueeze(-1), torch.tensor(np.array(ys))\n\n\nx_train, y_train = windows(scaled[:split], 28)\nx_test, y_test = windows(scaled[split - 28:], 28)\n\n\nclass Forecaster(nn.Module):\n    def __init__(self, hidden=32):\n        super().__init__()\n        self.lstm = nn.LSTM(1, hidden, batch_first=True)\n        self.head = nn.Linear(hidden, 1)\n\n    def forward(self, x):\n        out, (h, c) = self.lstm(x)\n        return self.head(h[-1]).squeeze(-1)\n\n\ntorch.manual_seed(0)\nmodel = Forecaster()\nloader = torch.utils.data.DataLoader(\n    torch.utils.data.TensorDataset(x_train, y_train), batch_size=32, shuffle=True,\n    generator=torch.Generator().manual_seed(0))\nopt = torch.optim.Adam(model.parameters(), lr=0.005)\nfor epoch in range(15):\n    for xb, yb in loader:\n        opt.zero_grad()\n        nn.functional.mse_loss(model(xb), yb).backward()\n        opt.step()\n\nmodel.eval()\nactual = series[split:]\n\nwith torch.no_grad():\n    pred = model(x_test).numpy() * std + mean\nmae_lstm = np.abs(pred - actual).mean()\nmae_naive = np.abs(series[split - 1:-1] - actual).mean()\nmae_week = np.abs(series[split - 7:-7] - actual).mean()\n\nprint(mae_lstm < mae_naive, mae_lstm < mae_week)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True True"
+    }
+  ]
+}

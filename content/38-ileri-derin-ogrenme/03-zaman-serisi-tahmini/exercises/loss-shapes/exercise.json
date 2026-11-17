@@ -1,0 +1,70 @@
+{
+  "id": "loss-shapes",
+  "title": {
+    "tr": "Sessiz şekil hatası",
+    "en": "The silent shape bug"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Şekil `list((pred - target).shape)`.",
+      "en": "The shape is `list((pred - target).shape)`."
+    },
+    {
+      "tr": "Yayınlama `(B, 1)` ile `(B,)`'den `(B, B)` kurar.",
+      "en": "Broadcasting builds `(B, B)` from `(B, 1)` and `(B,)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef loss_shapes(batch):\n    pred = torch.zeros(batch, 1)\n    target = torch.zeros(batch)\n    wrong = list((pred - target).shape)\n    right = list((pred.squeeze(-1) - target).shape)\n    return [wrong, right]\n\nprint(loss_shapes(4))\nprint(loss_shapes(1))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef loss_shapes(batch):\n    pred = torch.zeros(batch, 1)\n    target = torch.zeros(batch)\n    wrong = list((pred - target).shape)\n    right = list((pred.squeeze(-1) - target).shape)\n    return [wrong, right]\n\nprint(loss_shapes(4))\nprint(loss_shapes(1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "loss_shapes",
+      "cases": [
+        {
+          "args": [
+            2
+          ],
+          "returns": [
+            [
+              2,
+              2
+            ],
+            [
+              2
+            ]
+          ]
+        },
+        {
+          "args": [
+            7
+          ],
+          "returns": [
+            [
+              7,
+              7
+            ],
+            [
+              7
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[4, 4], [4]]\n[[1, 1], [1]]"
+    }
+  ]
+}

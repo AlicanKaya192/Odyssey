@@ -1,0 +1,92 @@
+{
+  "id": "build-vocab",
+  "title": {
+    "tr": "Sözlük kurmak",
+    "en": "Building a vocabulary"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Kelimeleri `collections.Counter` ile say.",
+      "en": "Count the words with `collections.Counter`."
+    },
+    {
+      "tr": "`sorted(w for w, c in counts.items() if c >= min_count)`.",
+      "en": "`sorted(w for w, c in counts.items() if c >= min_count)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom collections import Counter\n\n\ndef build_vocab(sentences, min_count):\n    counts = Counter(w for s in sentences for w in s)\n    kept = sorted(w for w, c in counts.items() if c >= min_count)\n    return [\"<pad>\", \"<unk>\"] + kept\n\ndata = [[\"the\", \"cat\", \"sat\"], [\"the\", \"dog\"], [\"a\", \"cat\"]]\nprint(len(build_vocab(data, 1)))\nprint(build_vocab(data, 2))\n```",
+      "en": "The full solution:\n\n```python\nfrom collections import Counter\n\n\ndef build_vocab(sentences, min_count):\n    counts = Counter(w for s in sentences for w in s)\n    kept = sorted(w for w, c in counts.items() if c >= min_count)\n    return [\"<pad>\", \"<unk>\"] + kept\n\ndata = [[\"the\", \"cat\", \"sat\"], [\"the\", \"dog\"], [\"a\", \"cat\"]]\nprint(len(build_vocab(data, 1)))\nprint(build_vocab(data, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "build_vocab",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                "b",
+                "a"
+              ],
+              [
+                "a",
+                "c",
+                "a"
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            "<pad>",
+            "<unk>",
+            "a"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "x"
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            "<pad>",
+            "<unk>",
+            "x"
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                "x"
+              ]
+            ],
+            3
+          ],
+          "returns": [
+            "<pad>",
+            "<unk>"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "7\n['<pad>', '<unk>', 'cat', 'the']"
+    }
+  ]
+}

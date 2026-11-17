@@ -1,0 +1,78 @@
+{
+  "id": "reparameterize",
+  "title": {
+    "tr": "Yeniden parametreleme",
+    "en": "Reparameterisation"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Hepsini `torch.tensor` yap; `torch.exp(0.5 * logvar)` standart sapma.",
+      "en": "Make them all `torch.tensor`s; `torch.exp(0.5 * logvar)` is the standard deviation."
+    },
+    {
+      "tr": "`[round(v, 3) for v in z.tolist()]`.",
+      "en": "`[round(v, 3) for v in z.tolist()]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef reparameterize(mu, logvar, eps):\n    mu, logvar, eps = torch.tensor(mu), torch.tensor(logvar), torch.tensor(eps)\n    z = mu + torch.exp(0.5 * logvar) * eps\n    return [round(v, 3) for v in z.tolist()]\n\nprint(reparameterize([0.0, 1.0], [0.0, 0.0], [1.0, -1.0]))\nprint(reparameterize([2.0], [-1.3862944], [1.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef reparameterize(mu, logvar, eps):\n    mu, logvar, eps = torch.tensor(mu), torch.tensor(logvar), torch.tensor(eps)\n    z = mu + torch.exp(0.5 * logvar) * eps\n    return [round(v, 3) for v in z.tolist()]\n\nprint(reparameterize([0.0, 1.0], [0.0, 0.0], [1.0, -1.0]))\nprint(reparameterize([2.0], [-1.3862944], [1.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "reparameterize",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0
+            ],
+            [
+              0.0
+            ],
+            [
+              0.5
+            ]
+          ],
+          "returns": [
+            1.5
+          ]
+        },
+        {
+          "args": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              2.0,
+              -2.0
+            ]
+          ],
+          "returns": [
+            2.0,
+            -2.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.0, 0.0]\n[2.5]"
+    }
+  ]
+}

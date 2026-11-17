@@ -1,0 +1,46 @@
+{
+  "id": "fault-net",
+  "title": {
+    "tr": "Arıza ağı",
+    "en": "The fault network"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Katmanları `nn.Sequential(...)` içinde sırayla yaz.",
+      "en": "Write the layers in order inside `nn.Sequential(...)`."
+    },
+    {
+      "tr": "Havuzlamadan sonra şekil `(B, 8, 1)`; `forward` onu `squeeze(-1)` ile düzleştiriyor.",
+      "en": "After pooling the shape is `(B, 8, 1)`; `forward` flattens it with `squeeze(-1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom dl_data import make_sensor\n\nxs, ys = make_sensor(300, length=64, seed=11)\nx = torch.from_numpy(xs).unsqueeze(1)\ny = torch.from_numpy(ys)\n\n\nclass FaultNet(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.features = nn.Sequential(\n            nn.Conv1d(1, 8, kernel_size=5, padding=2), nn.ReLU(),\n            nn.Conv1d(8, 8, kernel_size=5, padding=2), nn.ReLU(),\n            nn.AdaptiveMaxPool1d(1))\n        self.head = nn.Linear(8, 2)\n\n    def forward(self, x):\n        return self.head(self.features(x).squeeze(-1))\n\n\ntorch.manual_seed(0)\nmodel = FaultNet()\nprint(tuple(model.features(x[:2]).shape))\nloader = torch.utils.data.DataLoader(\n    torch.utils.data.TensorDataset(x[:200], y[:200]), batch_size=32, shuffle=True,\n    generator=torch.Generator().manual_seed(0))\nopt = torch.optim.Adam(model.parameters(), lr=0.01)\nfor epoch in range(15):\n    model.train()\n    for xb, yb in loader:\n        opt.zero_grad()\n        nn.functional.cross_entropy(model(xb), yb).backward()\n        opt.step()\nmodel.eval()\nwith torch.no_grad():\n    acc = (model(x[200:]).argmax(dim=1) == y[200:]).float().mean().item()\nprint(acc > 0.9)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom dl_data import make_sensor\n\nxs, ys = make_sensor(300, length=64, seed=11)\nx = torch.from_numpy(xs).unsqueeze(1)\ny = torch.from_numpy(ys)\n\n\nclass FaultNet(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.features = nn.Sequential(\n            nn.Conv1d(1, 8, kernel_size=5, padding=2), nn.ReLU(),\n            nn.Conv1d(8, 8, kernel_size=5, padding=2), nn.ReLU(),\n            nn.AdaptiveMaxPool1d(1))\n        self.head = nn.Linear(8, 2)\n\n    def forward(self, x):\n        return self.head(self.features(x).squeeze(-1))\n\n\ntorch.manual_seed(0)\nmodel = FaultNet()\nprint(tuple(model.features(x[:2]).shape))\nloader = torch.utils.data.DataLoader(\n    torch.utils.data.TensorDataset(x[:200], y[:200]), batch_size=32, shuffle=True,\n    generator=torch.Generator().manual_seed(0))\nopt = torch.optim.Adam(model.parameters(), lr=0.01)\nfor epoch in range(15):\n    model.train()\n    for xb, yb in loader:\n        opt.zero_grad()\n        nn.functional.cross_entropy(model(xb), yb).backward()\n        opt.step()\nmodel.eval()\nwith torch.no_grad():\n    acc = (model(x[200:]).argmax(dim=1) == y[200:]).float().mean().item()\nprint(acc > 0.9)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(2, 8, 1)\nTrue"
+    }
+  ]
+}

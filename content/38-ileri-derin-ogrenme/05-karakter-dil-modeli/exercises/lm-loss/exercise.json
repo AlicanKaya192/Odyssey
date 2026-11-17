@@ -1,0 +1,85 @@
+{
+  "id": "lm-loss",
+  "title": {
+    "tr": "Dil modelinin kaybı",
+    "en": "The language model's loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`V = logits.shape[-1]`; `logits.reshape(-1, V)`.",
+      "en": "`V = logits.shape[-1]`; `logits.reshape(-1, V)`."
+    },
+    {
+      "tr": "Hedef `targets.reshape(-1)`; sonuç `round(loss.item(), 3)`.",
+      "en": "The target is `targets.reshape(-1)`; the result `round(loss.item(), 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef lm_loss(logits, targets):\n    logits = torch.tensor(logits)\n    targets = torch.tensor(targets)\n    vocab = logits.shape[-1]\n    loss = nn.functional.cross_entropy(logits.reshape(-1, vocab), targets.reshape(-1))\n    return round(loss.item(), 3)\n\nzeros = [[[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]]\nprint(lm_loss(zeros, [[1, 3]]))\nsure = [[[8.0, 0.0], [0.0, 8.0]]]\nprint(lm_loss(sure, [[0, 1]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef lm_loss(logits, targets):\n    logits = torch.tensor(logits)\n    targets = torch.tensor(targets)\n    vocab = logits.shape[-1]\n    loss = nn.functional.cross_entropy(logits.reshape(-1, vocab), targets.reshape(-1))\n    return round(loss.item(), 3)\n\nzeros = [[[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]]\nprint(lm_loss(zeros, [[1, 3]]))\nsure = [[[8.0, 0.0], [0.0, 8.0]]]\nprint(lm_loss(sure, [[0, 1]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lm_loss",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                [
+                  0.0,
+                  0.0
+                ]
+              ]
+            ],
+            [
+              [
+                0
+              ]
+            ]
+          ],
+          "returns": 0.693
+        },
+        {
+          "args": [
+            [
+              [
+                [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              ]
+            ],
+            [
+              [
+                2,
+                2
+              ]
+            ]
+          ],
+          "returns": 1.099
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.386\n0.0"
+    }
+  ]
+}

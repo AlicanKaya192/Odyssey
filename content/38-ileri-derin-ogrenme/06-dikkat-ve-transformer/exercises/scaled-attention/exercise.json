@@ -1,0 +1,100 @@
+{
+  "id": "scaled-attention",
+  "title": {
+    "tr": "Ölçekli dikkat",
+    "en": "Scaled attention"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`scores = q @ k.T / q.shape[-1] ** 0.5`.",
+      "en": "`scores = q @ k.T / q.shape[-1] ** 0.5`."
+    },
+    {
+      "tr": "`torch.softmax(scores, dim=-1) @ v`, sonra satır satır yuvarla.",
+      "en": "`torch.softmax(scores, dim=-1) @ v`, then round row by row."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef attention(q, k, v):\n    q, k, v = torch.tensor(q), torch.tensor(k), torch.tensor(v)\n    scores = q @ k.T / q.shape[-1] ** 0.5\n    weights = torch.softmax(scores, dim=-1)\n    return [[round(x, 3) for x in row] for row in (weights @ v).tolist()]\n\nq = [[1.0, 0.0]]\nk = [[1.0, 0.0], [0.0, 1.0]]\nv = [[10.0, 0.0], [0.0, 10.0]]\nprint(attention(q, k, v))\nprint(attention([[0.0, 0.0]], k, v))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef attention(q, k, v):\n    q, k, v = torch.tensor(q), torch.tensor(k), torch.tensor(v)\n    scores = q @ k.T / q.shape[-1] ** 0.5\n    weights = torch.softmax(scores, dim=-1)\n    return [[round(x, 3) for x in row] for row in (weights @ v).tolist()]\n\nq = [[1.0, 0.0]]\nk = [[1.0, 0.0], [0.0, 1.0]]\nv = [[10.0, 0.0], [0.0, 10.0]]\nprint(attention(q, k, v))\nprint(attention([[0.0, 0.0]], k, v))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "attention",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0
+              ]
+            ],
+            [
+              [
+                1.0
+              ],
+              [
+                1.0
+              ]
+            ],
+            [
+              [
+                2.0
+              ],
+              [
+                4.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              3.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                2.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                5.0,
+                5.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              5.0,
+              5.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[6.698, 3.302]]\n[[5.0, 5.0]]"
+    }
+  ]
+}

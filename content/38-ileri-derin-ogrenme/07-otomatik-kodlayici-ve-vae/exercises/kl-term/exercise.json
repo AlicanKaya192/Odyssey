@@ -1,0 +1,78 @@
+{
+  "id": "kl-term",
+  "title": {
+    "tr": "KL terimi",
+    "en": "The KL term"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Toplam `dim=1` boyunca, ortalama gruptan.",
+      "en": "Sum along `dim=1`, mean over the batch."
+    },
+    {
+      "tr": "`round(kl.item(), 3) + 0.0`.",
+      "en": "`round(kl.item(), 3) + 0.0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef kl_term(mu, logvar):\n    mu, logvar = torch.tensor(mu), torch.tensor(logvar)\n    kl = -0.5 * torch.mean(torch.sum(1 + logvar - mu ** 2 - logvar.exp(), dim=1))\n    return round(kl.item(), 3) + 0.0\n\nprint(kl_term([[1.0, 1.0, 1.0, 1.0]], [[0.0, 0.0, 0.0, 0.0]]))\nprint(kl_term([[0.0, 0.0]], [[0.0, 0.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef kl_term(mu, logvar):\n    mu, logvar = torch.tensor(mu), torch.tensor(logvar)\n    kl = -0.5 * torch.mean(torch.sum(1 + logvar - mu ** 2 - logvar.exp(), dim=1))\n    return round(kl.item(), 3) + 0.0\n\nprint(kl_term([[1.0, 1.0, 1.0, 1.0]], [[0.0, 0.0, 0.0, 0.0]]))\nprint(kl_term([[0.0, 0.0]], [[0.0, 0.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "kl_term",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2.0
+              ]
+            ],
+            [
+              [
+                0.0
+              ]
+            ]
+          ],
+          "returns": 2.0
+        },
+        {
+          "args": [
+            [
+              [
+                0.0
+              ],
+              [
+                0.0
+              ]
+            ],
+            [
+              [
+                0.0
+              ],
+              [
+                0.0
+              ]
+            ]
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.0\n0.0"
+    }
+  ]
+}

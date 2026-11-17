@@ -1,0 +1,81 @@
+{
+  "id": "generate-greedy",
+  "title": {
+    "tr": "Açgözlü üretim",
+    "en": "Greedy generation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`ids = [start]` ile başla.",
+      "en": "Start with `ids = [start]`."
+    },
+    {
+      "tr": "Her adımda `table[ids[-1]].argmax().item()`.",
+      "en": "At every step `table[ids[-1]].argmax().item()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef generate_greedy(table, start, n):\n    table = torch.tensor(table)\n    ids = [start]\n    for _ in range(n):\n        ids.append(table[ids[-1]].argmax().item())\n    return ids\n\ntable = [[0.0, 3.0, 1.0],\n         [0.5, 0.0, 2.0],\n         [4.0, 1.0, 0.0]]\nprint(generate_greedy(table, 0, 5))\nprint(generate_greedy(table, 2, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef generate_greedy(table, start, n):\n    table = torch.tensor(table)\n    ids = [start]\n    for _ in range(n):\n        ids.append(table[ids[-1]].argmax().item())\n    return ids\n\ntable = [[0.0, 3.0, 1.0],\n         [0.5, 0.0, 2.0],\n         [4.0, 1.0, 0.0]]\nprint(generate_greedy(table, 0, 5))\nprint(generate_greedy(table, 2, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "generate_greedy",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                0.0
+              ]
+            ],
+            0,
+            4
+          ],
+          "returns": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                5.0
+              ]
+            ],
+            0,
+            2
+          ],
+          "returns": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 2, 0, 1, 2]\n[2, 0, 1, 2]"
+    }
+  ]
+}

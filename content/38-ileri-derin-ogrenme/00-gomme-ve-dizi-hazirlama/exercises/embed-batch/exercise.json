@@ -1,0 +1,88 @@
+{
+  "id": "embed-batch",
+  "title": {
+    "tr": "Dolgulu grubu gömmek",
+    "en": "Embedding a padded batch"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sıfır konumlar: `(out.abs().sum(dim=-1) == 0).sum()`.",
+      "en": "Zero positions: `(out.abs().sum(dim=-1) == 0).sum()`."
+    },
+    {
+      "tr": "Parametre sayısı `emb.weight.numel()`.",
+      "en": "The parameter count is `emb.weight.numel()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef embed_batch(batch_ids, vocab_size, dim):\n    torch.manual_seed(0)\n    emb = nn.Embedding(vocab_size, dim, padding_idx=0)\n    out = emb(torch.tensor(batch_ids))\n    zero_rows = int((out.abs().sum(dim=-1) == 0).sum())\n    return [list(out.shape), zero_rows, emb.weight.numel()]\n\nbatch = [[3, 4, 0, 0], [5, 6, 7, 0]]\nprint(embed_batch(batch, 10, 4))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef embed_batch(batch_ids, vocab_size, dim):\n    torch.manual_seed(0)\n    emb = nn.Embedding(vocab_size, dim, padding_idx=0)\n    out = emb(torch.tensor(batch_ids))\n    zero_rows = int((out.abs().sum(dim=-1) == 0).sum())\n    return [list(out.shape), zero_rows, emb.weight.numel()]\n\nbatch = [[3, 4, 0, 0], [5, 6, 7, 0]]\nprint(embed_batch(batch, 10, 4))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "embed_batch",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                0
+              ]
+            ],
+            5,
+            3
+          ],
+          "returns": [
+            [
+              1,
+              2,
+              3
+            ],
+            1,
+            15
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                2,
+                3
+              ],
+              [
+                4,
+                0
+              ]
+            ],
+            6,
+            2
+          ],
+          "returns": [
+            [
+              2,
+              2,
+              2
+            ],
+            1,
+            12
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[2, 4, 4], 3, 40]"
+    }
+  ]
+}

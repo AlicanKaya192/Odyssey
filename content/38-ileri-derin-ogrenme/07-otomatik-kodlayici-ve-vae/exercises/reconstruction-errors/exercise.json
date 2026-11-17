@@ -1,0 +1,78 @@
+{
+  "id": "reconstruction-errors",
+  "title": {
+    "tr": "Yeniden kurma hataları",
+    "en": "Reconstruction errors"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`((a - b) ** 2).mean(dim=1)`.",
+      "en": "`((a - b) ** 2).mean(dim=1)`."
+    },
+    {
+      "tr": "Her değeri `round(v, 3)` ile yuvarla.",
+      "en": "Round every value with `round(v, 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef reconstruction_errors(original, rebuilt):\n    a, b = torch.tensor(original), torch.tensor(rebuilt)\n    return [round(v, 3) for v in ((a - b) ** 2).mean(dim=1).tolist()]\n\noriginal = [[1.0, 0.0, 1.0, 0.0], [0.5, 0.5, 0.5, 0.5]]\nrebuilt = [[1.0, 0.0, 0.0, 0.0], [0.5, 0.5, 0.5, 0.5]]\nprint(reconstruction_errors(original, rebuilt))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef reconstruction_errors(original, rebuilt):\n    a, b = torch.tensor(original), torch.tensor(rebuilt)\n    return [round(v, 3) for v in ((a - b) ** 2).mean(dim=1).tolist()]\n\noriginal = [[1.0, 0.0, 1.0, 0.0], [0.5, 0.5, 0.5, 0.5]]\nrebuilt = [[1.0, 0.0, 0.0, 0.0], [0.5, 0.5, 0.5, 0.5]]\nprint(reconstruction_errors(original, rebuilt))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "reconstruction_errors",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                1.0
+              ]
+            ]
+          ],
+          "returns": [
+            1.0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                2.0
+              ]
+            ],
+            [
+              [
+                0.0
+              ]
+            ]
+          ],
+          "returns": [
+            4.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.25, 0.0]"
+    }
+  ]
+}

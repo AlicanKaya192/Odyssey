@@ -1,0 +1,81 @@
+{
+  "id": "compare-final-states",
+  "title": {
+    "tr": "Paketlemenin farkı",
+    "en": "What packing changes"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Önce `out, (h, c) = lstm(x)`; sonra paketli girdiyle ikinci kez çalıştır.",
+      "en": "First `out, (h, c) = lstm(x)`; then run it a second time with packed input."
+    },
+    {
+      "tr": "Paketlerken uzunlukları `torch.tensor(lengths)` ver.",
+      "en": "Give the lengths as `torch.tensor(lengths)` when packing."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.nn.utils.rnn import pack_padded_sequence\n\n\ndef compare_final_states(lengths):\n    torch.manual_seed(0)\n    lstm = nn.LSTM(2, 3, batch_first=True)\n    x = torch.randn(len(lengths), max(lengths), 2)\n    for i, n in enumerate(lengths):\n        x[i, n:] = 0\n    out, (h, c) = lstm(x)\n    packed = pack_padded_sequence(x, torch.tensor(lengths), batch_first=True,\n                                  enforce_sorted=False)\n    _, (h_p, c_p) = lstm(packed)\n    plain, with_pack = [], []\n    for i, n in enumerate(lengths):\n        plain.append(torch.allclose(h[0, i], out[i, n - 1]))\n        with_pack.append(torch.allclose(h_p[0, i], out[i, n - 1]))\n    return [plain, with_pack]\n\nprint(compare_final_states([4, 4, 2]))\nprint(compare_final_states([3, 1]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.nn.utils.rnn import pack_padded_sequence\n\n\ndef compare_final_states(lengths):\n    torch.manual_seed(0)\n    lstm = nn.LSTM(2, 3, batch_first=True)\n    x = torch.randn(len(lengths), max(lengths), 2)\n    for i, n in enumerate(lengths):\n        x[i, n:] = 0\n    out, (h, c) = lstm(x)\n    packed = pack_padded_sequence(x, torch.tensor(lengths), batch_first=True,\n                                  enforce_sorted=False)\n    _, (h_p, c_p) = lstm(packed)\n    plain, with_pack = [], []\n    for i, n in enumerate(lengths):\n        plain.append(torch.allclose(h[0, i], out[i, n - 1]))\n        with_pack.append(torch.allclose(h_p[0, i], out[i, n - 1]))\n    return [plain, with_pack]\n\nprint(compare_final_states([4, 4, 2]))\nprint(compare_final_states([3, 1]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "compare_final_states",
+      "cases": [
+        {
+          "args": [
+            [
+              2,
+              2
+            ]
+          ],
+          "returns": [
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              3,
+              1
+            ]
+          ],
+          "returns": [
+            [
+              true,
+              false,
+              false
+            ],
+            [
+              true,
+              true,
+              true
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[True, True, False], [True, True, True]]\n[[True, False], [True, True]]"
+    }
+  ]
+}

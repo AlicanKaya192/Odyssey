@@ -1,0 +1,96 @@
+{
+  "id": "lstm-shapes",
+  "title": {
+    "tr": "LSTM'in çıkış şekilleri",
+    "en": "The LSTM's output shapes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`nn.LSTM(input_size, hidden, num_layers=layers, bidirectional=..., batch_first=True)`.",
+      "en": "`nn.LSTM(input_size, hidden, num_layers=layers, bidirectional=..., batch_first=True)`."
+    },
+    {
+      "tr": "İkinci çıkış demet: `out, (h, c) = lstm(x)`; şekil `list(t.shape)`.",
+      "en": "The second output is a tuple: `out, (h, c) = lstm(x)`; shape `list(t.shape)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef lstm_shapes(input_size, hidden, layers, bidirectional, batch, steps):\n    lstm = nn.LSTM(input_size, hidden, num_layers=layers,\n                   bidirectional=bidirectional, batch_first=True)\n    x = torch.zeros(batch, steps, input_size)\n    out, (h, c) = lstm(x)\n    return [list(out.shape), list(h.shape), list(c.shape)]\n\nprint(lstm_shapes(4, 3, 1, False, 2, 5))\nprint(lstm_shapes(4, 3, 2, True, 2, 5))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef lstm_shapes(input_size, hidden, layers, bidirectional, batch, steps):\n    lstm = nn.LSTM(input_size, hidden, num_layers=layers,\n                   bidirectional=bidirectional, batch_first=True)\n    x = torch.zeros(batch, steps, input_size)\n    out, (h, c) = lstm(x)\n    return [list(out.shape), list(h.shape), list(c.shape)]\n\nprint(lstm_shapes(4, 3, 1, False, 2, 5))\nprint(lstm_shapes(4, 3, 2, True, 2, 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lstm_shapes",
+      "cases": [
+        {
+          "args": [
+            1,
+            2,
+            3,
+            false,
+            1,
+            4
+          ],
+          "returns": [
+            [
+              1,
+              4,
+              2
+            ],
+            [
+              3,
+              1,
+              2
+            ],
+            [
+              3,
+              1,
+              2
+            ]
+          ]
+        },
+        {
+          "args": [
+            3,
+            5,
+            1,
+            true,
+            4,
+            2
+          ],
+          "returns": [
+            [
+              4,
+              2,
+              10
+            ],
+            [
+              2,
+              4,
+              5
+            ],
+            [
+              2,
+              4,
+              5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[2, 5, 3], [1, 2, 3], [1, 2, 3]]\n[[2, 5, 6], [4, 2, 3], [4, 2, 3]]"
+    }
+  ]
+}

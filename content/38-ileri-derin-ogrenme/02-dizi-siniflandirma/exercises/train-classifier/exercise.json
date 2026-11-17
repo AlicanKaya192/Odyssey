@@ -1,0 +1,54 @@
+{
+  "id": "train-classifier",
+  "title": {
+    "tr": "Sınıflandırıcıyı eğitmek",
+    "en": "Training the classifier"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Dış döngü `for epoch in range(10):`, iç döngü `for xb, yb in loader:`.",
+      "en": "Outer loop `for epoch in range(10):`, inner loop `for xb, yb in loader:`."
+    },
+    {
+      "tr": "Sıra: `opt.zero_grad()`, `loss_fn(model(xb), yb)`, `loss.backward()`, `opt.step()`.",
+      "en": "Order: `opt.zero_grad()`, `loss_fn(model(xb), yb)`, `loss.backward()`, `opt.step()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass SeqClassifier(nn.Module):\n    def __init__(self, vocab=10, dim=8, hidden=16):\n        super().__init__()\n        self.emb = nn.Embedding(vocab, dim)\n        self.lstm = nn.LSTM(dim, hidden, batch_first=True)\n        self.head = nn.Linear(hidden, 2)\n\n    def forward(self, x):\n        out, (h, c) = self.lstm(self.emb(x))\n        return self.head(h[-1])\nfrom torch.utils.data import TensorDataset, DataLoader\nfrom dl_data import make_sequences\n\nx, y = make_sequences(600, length=12, seed=3)\nx, y = torch.from_numpy(x), torch.from_numpy(y)\nloader = DataLoader(TensorDataset(x[:500], y[:500]), batch_size=32, shuffle=True,\n                    generator=torch.Generator().manual_seed(0))\n\ntorch.manual_seed(0)\nmodel = SeqClassifier()\nopt = torch.optim.Adam(model.parameters(), lr=0.01)\nloss_fn = nn.CrossEntropyLoss()\n\nfor epoch in range(10):\n    model.train()\n    for xb, yb in loader:\n        opt.zero_grad()\n        loss = loss_fn(model(xb), yb)\n        loss.backward()\n        opt.step()\n\nmodel.eval()\nwith torch.no_grad():\n    acc = (model(x[500:]).argmax(dim=1) == y[500:]).float().mean().item()\nprint(acc > 0.5, acc > 0.9)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass SeqClassifier(nn.Module):\n    def __init__(self, vocab=10, dim=8, hidden=16):\n        super().__init__()\n        self.emb = nn.Embedding(vocab, dim)\n        self.lstm = nn.LSTM(dim, hidden, batch_first=True)\n        self.head = nn.Linear(hidden, 2)\n\n    def forward(self, x):\n        out, (h, c) = self.lstm(self.emb(x))\n        return self.head(h[-1])\nfrom torch.utils.data import TensorDataset, DataLoader\nfrom dl_data import make_sequences\n\nx, y = make_sequences(600, length=12, seed=3)\nx, y = torch.from_numpy(x), torch.from_numpy(y)\nloader = DataLoader(TensorDataset(x[:500], y[:500]), batch_size=32, shuffle=True,\n                    generator=torch.Generator().manual_seed(0))\n\ntorch.manual_seed(0)\nmodel = SeqClassifier()\nopt = torch.optim.Adam(model.parameters(), lr=0.01)\nloss_fn = nn.CrossEntropyLoss()\n\nfor epoch in range(10):\n    model.train()\n    for xb, yb in loader:\n        opt.zero_grad()\n        loss = loss_fn(model(xb), yb)\n        loss.backward()\n        opt.step()\n\nmodel.eval()\nwith torch.no_grad():\n    acc = (model(x[500:]).argmax(dim=1) == y[500:]).float().mean().item()\nprint(acc > 0.5, acc > 0.9)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True True"
+    },
+    {
+      "type": "ast_require",
+      "node": "For",
+      "hint": {
+        "tr": "Eğitim bir `for` döngüsüyle yapılmalı.",
+        "en": "Training should be done with a `for` loop."
+      }
+    }
+  ]
+}

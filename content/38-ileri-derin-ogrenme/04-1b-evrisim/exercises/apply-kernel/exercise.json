@@ -1,0 +1,78 @@
+{
+  "id": "apply-kernel",
+  "title": {
+    "tr": "Elle çekirdek",
+    "en": "A kernel by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Ağırlığı `torch.no_grad()` içinde ata: `conv.weight[:] = ...reshape(1, 1, -1)`.",
+      "en": "Set the weight inside `torch.no_grad()`: `conv.weight[:] = ...reshape(1, 1, -1)`."
+    },
+    {
+      "tr": "Sonuç `conv(x)[0, 0].tolist()`.",
+      "en": "The result is `conv(x)[0, 0].tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef apply_kernel(signal, kernel):\n    conv = nn.Conv1d(1, 1, kernel_size=len(kernel), bias=False)\n    with torch.no_grad():\n        conv.weight[:] = torch.tensor(kernel, dtype=torch.float32).reshape(1, 1, -1)\n        x = torch.tensor(signal, dtype=torch.float32).reshape(1, 1, -1)\n        return conv(x)[0, 0].tolist()\n\nprint(apply_kernel([0, 0, 1, 3, 3, 1, 0], [-1, 1]))\nprint(apply_kernel([1, 2, 3, 4], [1, 1, 1]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef apply_kernel(signal, kernel):\n    conv = nn.Conv1d(1, 1, kernel_size=len(kernel), bias=False)\n    with torch.no_grad():\n        conv.weight[:] = torch.tensor(kernel, dtype=torch.float32).reshape(1, 1, -1)\n        x = torch.tensor(signal, dtype=torch.float32).reshape(1, 1, -1)\n        return conv(x)[0, 0].tolist()\n\nprint(apply_kernel([0, 0, 1, 3, 3, 1, 0], [-1, 1]))\nprint(apply_kernel([1, 2, 3, 4], [1, 1, 1]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "apply_kernel",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              1,
+              1,
+              1
+            ],
+            [
+              2
+            ]
+          ],
+          "returns": [
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              1,
+              5
+            ],
+            [
+              1,
+              -1
+            ]
+          ],
+          "returns": [
+            4.0,
+            -4.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0, 1.0, 2.0, 0.0, -2.0, -1.0]\n[6.0, 9.0]"
+    }
+  ]
+}

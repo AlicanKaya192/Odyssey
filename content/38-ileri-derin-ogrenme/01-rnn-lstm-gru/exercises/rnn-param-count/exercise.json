@@ -1,0 +1,66 @@
+{
+  "id": "rnn-param-count",
+  "title": {
+    "tr": "Parametre sayısı",
+    "en": "Parameter count"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Bir sözlük kur: `{\"rnn\": nn.RNN, ...}` ve sınıfı ondan seç.",
+      "en": "Build a dict: `{\"rnn\": nn.RNN, ...}` and pick the class from it."
+    },
+    {
+      "tr": "`sum(p.numel() for p in model.parameters())`.",
+      "en": "`sum(p.numel() for p in model.parameters())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom torch import nn\n\n\ndef rnn_param_count(kind, input_size, hidden_size):\n    layers = {\"rnn\": nn.RNN, \"gru\": nn.GRU, \"lstm\": nn.LSTM}\n    model = layers[kind](input_size, hidden_size, batch_first=True)\n    return sum(p.numel() for p in model.parameters())\n\nprint(rnn_param_count(\"rnn\", 4, 3))\nprint(rnn_param_count(\"gru\", 4, 3))\nprint(rnn_param_count(\"lstm\", 10, 8))\n```",
+      "en": "The full solution:\n\n```python\nfrom torch import nn\n\n\ndef rnn_param_count(kind, input_size, hidden_size):\n    layers = {\"rnn\": nn.RNN, \"gru\": nn.GRU, \"lstm\": nn.LSTM}\n    model = layers[kind](input_size, hidden_size, batch_first=True)\n    return sum(p.numel() for p in model.parameters())\n\nprint(rnn_param_count(\"rnn\", 4, 3))\nprint(rnn_param_count(\"gru\", 4, 3))\nprint(rnn_param_count(\"lstm\", 10, 8))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rnn_param_count",
+      "cases": [
+        {
+          "args": [
+            "rnn",
+            2,
+            2
+          ],
+          "returns": 12
+        },
+        {
+          "args": [
+            "gru",
+            5,
+            1
+          ],
+          "returns": 24
+        },
+        {
+          "args": [
+            "lstm",
+            1,
+            4
+          ],
+          "returns": 112
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "27\n81\n640"
+    }
+  ]
+}
