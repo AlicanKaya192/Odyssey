@@ -18,9 +18,24 @@ import re
 from dataclasses import replace
 from datetime import date
 
-from PySide6.QtCore import Property, QEvent, QPointF, QRect, QRectF, QSize, Qt, QTimer, Signal
+from PySide6.QtCore import (
+    Property,
+    QElapsedTimer,
+    QEvent,
+    QObject,
+    QPoint,
+    QPointF,
+    QRect,
+    QRectF,
+    QSize,
+    Qt,
+    QTimer,
+    Signal,
+)
 from PySide6.QtGui import (
+    QBrush,
     QColor,
+    QConicalGradient,
     QFont,
     QIcon,
     QLinearGradient,
@@ -57,12 +72,12 @@ from ..core.completion import is_completed
 from ..core.language import LanguageManager
 from ..core.progress import ProgressStore
 from ..core.unlock import blocking_section
-from ..core import review_box, weekly_goal
+from ..core import for_you, new_tracks, review_box, weekly_goal
 from ..resources.icons import icon, pixmap
 from ..resources.theme.tokens import CONTENT_WIDTH, FONTS, PALETTES, RADIUS, SPACING, mix
 from ..widgets.common import StatBlock, horizontal_rule, section_label
 from ..widgets.streak_flame import FlickerFlame, hero_flame_pixmap, next_tier, tier_for
-from ..widgets.effects import apply_shadow, refresh_shadow
+from ..widgets.effects import ShadowLayer, apply_shadow, refresh_shadow, repolish
 
 # Qt iki harf arasındaki eğik çizgiden sonra satırı kırabiliyor ("(CI/" + "CD).",
 # "A/" + "B"); arkasına konan görünmez birleştirici (word joiner) bunu önlüyor.
@@ -108,9 +123,8 @@ PLANNED_OPACITY = 0.45
 LOCKED_OPACITY = 0.5
 
 
-# Prototip ölçüleri: sayfa sütunu (`.wrapc`) ve karşılama kartı (`.hero`).
+# Prototip ölçüsü: sayfa sütunu (`.wrapc`). Ana ekranınki `JOURNEY_WIDTH`.
 PAGE_WIDTH = 1180
-HERO_WIDTH = 1030
 
 
 def scroll_page(widget: QWidget) -> QScrollArea:
@@ -914,31 +928,228 @@ class ModuleCard(GlowCard):
 # Kilitli patikada logonun köşesindeki kilit rozetinin çapı.
 LOCK_BADGE = 22
 
-# Ana ekranın süzgeçleri: hepsi, başlanmışlar, sonra her grup (`tracks.json`).
-FILTER_ALL = "all"
-FILTER_STARTED = "started"
-FILTER_SETTING = "journey_filter"
 # Kart gölgesinin (bulanıklık 24) grup bileşeninin içinde kalan payı. Gölge
 # kartı taşıyan bileşenin sınırında kesiliyor; pay yokken açık temada
 # ızgaranın iki yanında düz kenarlı gri bir dikdörtgen görünüyordu.
 SHADOW_ROOM = 24
 
+# Ana ekranın sütunu (taslak 1, `.page`: 1436 px'te iki yanda 98 px).
+JOURNEY_WIDTH = 1240
+
+# "Senin için" şeridinin atlama düğmesindeki anahtarı; öteki düğmeler grup kimliği.
+FOR_YOU = "for_you"
+
+
+class ElidedLabel(QLabel):
+    """Tek satırlık etiket: sığmazsa sonu "…" ile kesilir, tamamı `full_text`.
+
+    Önerdiği genişlik metnin tamamı, en küçüğü 0: yer varsa metin bütün
+    görünüyor, yoksa yanındakileri itmeden kısalıyor.
+    """
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._full = ""
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+
+    def full_text(self) -> str:
+        return self._full
+
+    def setText(self, text: str) -> None:  # noqa: N802 (Qt adlandırması)
+        self._full = text
+        self._elide()
+        self.updateGeometry()
+
+    def _elide(self) -> None:
+        kisa = self.fontMetrics().elidedText(self._full, Qt.TextElideMode.ElideRight, max(0, self.width()))
+        if kisa != super().text():
+            super().setText(kisa)
+
+    def sizeHint(self) -> QSize:  # noqa: N802
+        return QSize(self.fontMetrics().horizontalAdvance(self._full) + 2, super().sizeHint().height())
+
+    def minimumSizeHint(self) -> QSize:  # noqa: N802
+        return QSize(0, super().minimumSizeHint().height())
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._elide()
+
+    def changeEvent(self, event) -> None:  # noqa: N802
+        super().changeEvent(event)
+        if event.type() == QEvent.Type.FontChange:
+            self._elide()
+
+
+class RingSpin(QObject):
+    """Yeni patika kartının kenarında dönen ışık yayının saati.
+
+    Tur 5 sn, doğrusal; açılışta 3 tur (ilk %4'te belirip son %8'de sönüyor),
+    üzerine gelince 1 tur (%10 / %85). Zamanlayıcı yalnızca dönerken **ve**
+    izin varken (ekran görünür, pencere etkin, kart görünür alanda) çalışıyor;
+    izin kalkınca duruyor, gelince kaldığı yerden sürüyor. Animasyonlar
+    kapalıysa (Ayarlar; varsayılanı Windows'un "animasyon efektleri") hiç
+    dönmüyor.
+    """
+
+    TURN_MS = 5000
+    TICK_MS = 16
+
+    def __init__(self, target: QWidget) -> None:
+        super().__init__(target)
+        self._target = target
+        self._timer = QTimer(self)
+        self._timer.setInterval(self.TICK_MS)
+        self._timer.timeout.connect(self._tick)
+        self._clock = QElapsedTimer()
+        self._elapsed = 0
+        self._duration = 0
+        self._fade = (0.0, 1.0)
+        self._allowed = False
+        self.ticks = 0  # ölçüm için: kaç kez tetiklendi
+
+    @property
+    def spinning(self) -> bool:
+        return self._duration > 0
+
+    @property
+    def running(self) -> bool:
+        return self._timer.isActive()
+
+    def start(self, turns: int, fade_in: float, fade_out: float) -> None:
+        """`turns` tur döndürür; zaten dönüyorsa dokunmaz."""
+        if self.spinning or not motion.enabled():
+            return
+        self._duration = turns * self.TURN_MS
+        self._elapsed = 0
+        self._fade = (fade_in, fade_out)
+        self._sync()
+
+    def stop(self) -> None:
+        self._duration = 0
+        self._elapsed = 0
+        self._sync()
+        self._target.update()
+
+    def set_allowed(self, allowed: bool) -> None:
+        self._allowed = allowed
+        self._sync()
+
+    def _sync(self) -> None:
+        calissin = self._allowed and self.spinning
+        if calissin and not self._timer.isActive():
+            self._clock.start()
+            self._timer.start()
+        elif not calissin and self._timer.isActive():
+            self._timer.stop()
+
+    def _tick(self) -> None:
+        self.ticks += 1
+        self._elapsed += self._clock.restart()
+        if self._elapsed >= self._duration:
+            self.stop()
+            return
+        self._target.update()
+
+    @property
+    def angle(self) -> float:
+        """Işığın açısı: üstten saat yönünde, derece."""
+        return 360.0 * (self._elapsed % self.TURN_MS) / self.TURN_MS
+
+    @property
+    def opacity(self) -> float:
+        if not self.spinning:
+            return 0.0
+        k = self._elapsed / self._duration
+        giris, cikis = self._fade
+        if k < giris:
+            return k / giris
+        if k > cikis:
+            return max(0.0, (1.0 - k) / (1.0 - cikis))
+        return 1.0
+
+
+def _ring_gradient(rect: QRectF, angle: float, accent: str, mode: str, opacity: float) -> QConicalGradient:
+    """Prototipteki `conic-gradient`: 290°'ye kadar saydam, sonra patika
+    renginden açık mora, uçta beyaz (açık temada beyaz yok, alfa düşük).
+
+    CSS konik geçişi üstten saat yönünde, Qt'ninki sağdan saat tersine
+    ilerliyor: açı `90 - a`, konumlar `1 - p`.
+    """
+    renk = QColor(mix(accent, "#B7A8FF", 0.3))
+    gecis = QConicalGradient(rect.center(), 90.0 - angle)
+    saydam = QColor(renk)
+    saydam.setAlpha(0)
+
+    def alfa(c: QColor, a: float) -> QColor:
+        c = QColor(c)
+        c.setAlphaF(max(0.0, min(1.0, a * opacity)))
+        return c
+
+    koyu = mode == "dark"
+    uc = alfa(QColor("#FFFFFF"), 0.9) if koyu else alfa(renk, 0.75)
+    gecis.setColorAt(0.0, saydam)
+    gecis.setColorAt(8 / 360, uc)
+    gecis.setColorAt(35 / 360, alfa(renk, 1.0 if koyu else 0.55))
+    gecis.setColorAt(70 / 360, saydam)
+    gecis.setColorAt(1.0, saydam)
+    return gecis
+
+
+class PrereqChip(QFrame):
+    """Önerilen ön koşul hapı: tabela simgesi ve "Önce: Python".
+
+    Düz soluk yazıyken sayaçla aynı satırda kaybolup gidiyordu (Alican 17
+    Kasım). Ön koşul bir öneri; ne kilit ne uyarı. Bu yüzden renk nötr:
+    "Devam ediyor"un vurgu renginden ve uyarı turuncusundan ayrı, çerçeveli
+    gri bir hap, yazı tam metin renginde ve orta kalınlıkta.
+    """
+
+    ICON = 12
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setProperty("role", "pre-chip")
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        satir = QHBoxLayout(self)
+        satir.setContentsMargins(7, 2, 9, 2)
+        satir.setSpacing(5)
+        self._icon = QLabel()
+        self._icon.setFixedSize(self.ICON, self.ICON)
+        self._text = QLabel()
+        self._text.setProperty("role", "pre-chip-text")
+        satir.addWidget(self._icon, 0, Qt.AlignmentFlag.AlignVCenter)
+        satir.addWidget(self._text, 0, Qt.AlignmentFlag.AlignVCenter)
+
+    def text(self) -> str:
+        return self._text.text()
+
+    def set_text(self, text: str) -> None:
+        self._text.setText(text)
+
+    def set_mode(self, mode: str) -> None:
+        p = PALETTES.get(mode, PALETTES["dark"])
+        self._icon.setPixmap(pixmap("signpost", p["text_muted"], self.ICON))
+
 
 class TrackCard(GlowCard):
-    """Bir öğrenme patikasının kartı (27 Ekim taslağı A, `Plan/tasarim/ana-ekran`).
+    """Bir öğrenme patikasının büyük kartı ("Senin için" şeridi; taslak 1).
 
-    Solda logo, sağda başlık (başlanmışsa yanında "Devam ediyor"), açıklamanın
-    tamamı ve en altta ilerleme çubuğu ile "3 / 19 bölüm · %16". Başlanmamış
-    patikada çubuk 0'da, sağda yüzde yerine önerilen ön koşul ("Önce:
-    Python"). Önce açıklamalar iki satırda kesiliyordu (Alican: daha
-    okunabilir, daha ferah). Boyu grup veriyor: aynı sıradaki iki kart aynı
-    boyda (`TrackGroupSection`).
+    Solda logo, sağda başlık ve etiketler ("Devam ediyor", "YENİ", "Rotanda
+    sıradaki"), açıklamanın tamamı, en altta ilerleme çubuğu ile "3 / 19
+    bölüm · ~13 saat" ve sağda yüzde ya da önerilen ön koşul ("Önce:
+    Python"). Boyu şerit veriyor: yan yana kartlar aynı boyda.
+
+    Yeni patikada (`set_marks(new=True)`) kenar patika renginde, arkasında
+    hâle ve kenarda dönen bir ışık yayı var (`RingSpin`).
     """
 
     clicked = Signal()
 
     PAD = 20
     LOGO = 44
+    CHIP_GAP = 10
+    META_GAP = 12
 
     def __init__(self, track: Track, language: LanguageManager, mode: str,
                  prerequisite: Track | None = None, parent: QWidget | None = None) -> None:
@@ -952,8 +1163,13 @@ class TrackCard(GlowCard):
         minutes = sum(s.estimated_minutes for chapter in track.chapters for s in chapter.sections)
         self._hours = max(1, round(minutes / 60)) if minutes else 0
         self._started = False
+        self._prerequisite_done = False
+        self._new = False
+        self._route = ""
+        self._halo: ShadowLayer | None = None
         self._mode = mode
         self._radius = 18
+        self._spin = RingSpin(self)
         self.set_accent(track.color)
         self.set_card_mode(mode)
         self.setProperty("variant", "track")
@@ -973,15 +1189,21 @@ class TrackCard(GlowCard):
         body = QVBoxLayout()
         body.setSpacing(0)
         baslik = QHBoxLayout()
-        baslik.setSpacing(10)
+        baslik.setSpacing(self.CHIP_GAP)
         self._title = QLabel()
         self._title.setWordWrap(True)
         self._title.setProperty("role", "track-title")
         baslik.addWidget(self._title)
-        self._chip = QLabel()
-        self._chip.setProperty("role", "track-chip")
-        self._chip.hide()
-        baslik.addWidget(self._chip, 0, Qt.AlignmentFlag.AlignVCenter)
+        # Etiketler: "Devam ediyor", "YENİ", "Rotanda sıradaki".
+        self._chips = []
+        for role in ("track-chip", "track-chip-new", "track-chip-next"):
+            chip = QLabel()
+            chip.setProperty("role", role)
+            chip.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            chip.hide()
+            baslik.addWidget(chip, 0, Qt.AlignmentFlag.AlignVCenter)
+            self._chips.append(chip)
+        self._chip, self._new_chip, self._route_chip = self._chips
         baslik.addStretch(1)
         body.addLayout(baslik)
         body.addSpacing(6)
@@ -999,64 +1221,67 @@ class TrackCard(GlowCard):
         body.addWidget(self._bar)
         meta = QHBoxLayout()
         meta.setContentsMargins(0, 0, 0, 0)
-        meta.setSpacing(12)
+        meta.setSpacing(self.META_GAP)
+        self._meta = meta
         self._meta_left = QLabel()
         self._meta_left.setProperty("role", "track-meta")
         self._meta_right = QLabel()
         self._meta_right.setProperty("role", "track-meta")
-        self._pre = QLabel()
-        self._pre.setProperty("role", "track-meta")
+        self._pre = PrereqChip()
+        self._pre.set_mode(mode)
         meta.addWidget(self._meta_left)
         meta.addStretch(1)
-        for parca in (self._meta_right, self._pre):
-            meta.addWidget(parca)
+        meta.addWidget(self._meta_right)
+        meta.addWidget(self._pre, 0, Qt.AlignmentFlag.AlignVCenter)
         self._meta_space = QWidget()
         self._meta_space.setProperty("role", "bare")
         self._meta_space.setFixedHeight(8)
         body.addWidget(self._meta_space)
         body.addLayout(meta)
-
-        # Kilitli patika (içeriği yazılmamış): bilgi simgeli satır, kilit rozeti.
-        self._why_row = QWidget()
-        self._why_row.setProperty("role", "bare")
-        why = QHBoxLayout(self._why_row)
-        why.setContentsMargins(0, 0, 0, 0)
-        why.setSpacing(6)
-        self._why_icon = QLabel()
-        self._why_icon.setFixedWidth(16)
-        why.addWidget(self._why_icon, 0, Qt.AlignmentFlag.AlignTop)
-        self._caption = QLabel()
-        self._caption.setWordWrap(True)
-        self._caption.setProperty("role", "track-why")
-        why.addWidget(self._caption, 1)
-        self._why_row.setVisible(track.locked)
-        body.addWidget(self._why_row)
         layout.addLayout(body, 1)
-
-        self._lock: QLabel | None = None
-        if track.locked:
-            # Tıklanınca sallanıyor: neden açılmadığını anlatıyor (C2).
-            self._lock = QLabel(self)
-            self._lock.setProperty("role", "lock-chip")
-            self._lock.setFixedSize(LOCK_BADGE, LOCK_BADGE)
-            self._lock.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self._lock.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self._show_progress()
-        self._paint_icons()
-
-    def _paint_icons(self) -> None:
-        p = PALETTES.get(self._mode, PALETTES["dark"])
-        if self._lock is not None:
-            self._lock.setPixmap(pixmap("lock", p["text_muted"], 12))
-        self._why_icon.setPixmap(pixmap("info", p["text_muted"], 14))
 
     def height_for(self, width: int) -> int:
         """Bu genişlikte içeriğin sığdığı en küçük boy."""
         self.ensurePolished()
-        for label in (self._title, self._description, self._chip, self._pre, self._meta_left, self._meta_right, self._caption):
+        for label in (self._title, self._description, self._pre, self._pre._text, self._meta_left,
+                      self._meta_right, *self._chips):
             label.ensurePolished()
-        self._fit_title(width)
+        self._fit(width)
         return self.layout().totalHeightForWidth(width)
+
+    def _body_width(self, width: int) -> int:
+        """Logonun sağındaki sütunun genişliği. Logo bileşeni döndürülünce
+        köşeleri taşmasın diye `LOGO`'dan geniş (`LogoMark` payı)."""
+        return width - 2 * self.PAD - self._icon.sizeHint().width() - self.layout().spacing()
+
+    def _fit(self, width: int) -> None:
+        self._fit_title(width)
+        self._fit_meta(width)
+
+    def _fit_meta(self, width: int) -> None:
+        """Alt satır sığmazsa ön koşul ("Önce: Makine Öğrenmesi") alta iner.
+
+        Üç sütunlu şeritte dar pencerede (1280 px) "0 / 51 bölüm · ~50 saat"
+        ile ön koşul yan yana sığmıyor, kartı taşırıyordu.
+        """
+        yer = self._body_width(width)
+        sag = self._pre if self._pre.isVisibleTo(self) else self._meta_right
+        gereken = self._meta_left.sizeHint().width() + self.META_GAP + sag.sizeHint().width()
+        yon = QHBoxLayout.Direction.LeftToRight if gereken <= yer else QHBoxLayout.Direction.TopToBottom
+        if self._meta.direction() != yon:
+            yatay = yon == QHBoxLayout.Direction.LeftToRight
+            self._meta.setDirection(yon)
+            self._meta.setSpacing(self.META_GAP if yatay else 2)
+            # Aradaki esneyen boşluk yalnızca yan yanayken; alt altayken satırları ayırmasın.
+            bosluk = self._meta.itemAt(1).spacerItem()
+            esnek = QSizePolicy.Policy.Expanding if yatay else QSizePolicy.Policy.Minimum
+            bosluk.changeSize(0, 0, esnek, QSizePolicy.Policy.Minimum)
+            # Üstteki yerleşimlerin boy önbelleği de eskidi (`height_for` hemen soruyor).
+            yerlesim = self._meta
+            while isinstance(yerlesim, QLayout):
+                yerlesim.invalidate()
+                yerlesim = yerlesim.parent()
 
     def _fit_title(self, width: int) -> None:
         """Başlık yer varken tek satırda kalır.
@@ -1066,15 +1291,12 @@ class TrackCard(GlowCard):
         hâlde "(CI/" diye bölünüyordu (Alican 3 Kasım). En küçük genişlik
         başlığın tek satırlık boyu; kartta o kadar yer yoksa kalan yer.
         """
-        yer = width - 2 * self.PAD - self.LOGO - self.layout().spacing()
-        if self._chip.isVisibleTo(self):
-            yer -= self._chip.sizeHint().width() + 10
+        yer = self._body_width(width)
+        for chip in self._chips:
+            if chip.isVisibleTo(self):
+                yer -= chip.sizeHint().width() + self.CHIP_GAP
         gereken = self._title.fontMetrics().horizontalAdvance(self._title.text()) + 1
         self._title.setMinimumWidth(max(0, min(gereken, yer)))
-
-    def showEvent(self, event) -> None:  # noqa: N802 (Qt adlandırması)
-        super().showEvent(event)
-        QTimer.singleShot(0, self._place_lock)
 
     @property
     def track_id(self) -> str:
@@ -1083,6 +1305,14 @@ class TrackCard(GlowCard):
     @property
     def started(self) -> bool:
         return self._started
+
+    @property
+    def is_new(self) -> bool:
+        return self._new
+
+    @property
+    def spin(self) -> RingSpin:
+        return self._spin
 
     def update_progress(self, completed: int, total: int, started: bool) -> None:
         """Patikanın toplam ilerlemesi; `started`: bir bölümünde etkinlik var."""
@@ -1094,19 +1324,48 @@ class TrackCard(GlowCard):
         self._show_progress()
         self._render_meta()
 
+    def set_prerequisite_done(self, done: bool) -> None:
+        """Ön koşul patikası bitmişse önerisi gösterilmez."""
+        if done != self._prerequisite_done:
+            self._prerequisite_done = done
+            self._show_progress()
+
+    def set_marks(self, new: bool, route: str) -> None:
+        """Etiketler: yeni patika ve rota (`for_you.ROUTE_NEXT` / `ROUTE_LATER` / "")."""
+        self._route = route
+        if new != self._new:
+            self._new = new
+            if not new:
+                self._spin.stop()
+            self._build_halo()
+            self.update()
+        self._render_chips()
+        self._show_chips()
+
+    def _show_chips(self) -> None:
+        """Tek etiket, önem sırasıyla: devam ediyor, yeni, rotada.
+
+        Dar kartta iki etiket başlığı ikiye bölüp etiketi kırpıyordu; başladığın
+        patika zaten rotandaysa "Devam ediyor" yeterince söylüyor.
+        """
+        devam = self._started and not self._track.locked
+        self._chip.setVisible(devam)
+        self._new_chip.setVisible(self._new and not devam)
+        self._route_chip.setVisible(bool(self._route) and not devam and not self._new)
+        self._fit(self.width())
+
     def _show_progress(self) -> None:
         acik = not self._track.locked
         devam = acik and self._started
         # Başlanmamış patikada da çubuk 0'da duruyor (Alican 27 Ekim); sağda
         # yüzde yerine önerilen ön koşul.
-        on_kosul = acik and not devam and self._prerequisite is not None
+        on_kosul = acik and not devam and self._prerequisite is not None and not self._prerequisite_done
         self._bar.setVisible(acik)
-        self._chip.setVisible(devam)
         self._meta_left.setVisible(acik)
         self._meta_right.setVisible(acik and not on_kosul)
         self._pre.setVisible(on_kosul)
         self._meta_space.setVisible(acik)
-        self._fit_title(self.width())
+        self._show_chips()
 
     def _render_meta(self) -> None:
         t = self._language.t
@@ -1118,10 +1377,265 @@ class TrackCard(GlowCard):
             + (t("track.meta_hours", hours=self._hours) if self._hours else ""))
         self._meta_right.setText(t("home.percent", value=percent))
         if self._prerequisite is not None:
-            self._pre.setText(t("track.before", name=self._language.pick(self._prerequisite.title)))
+            self._pre.set_text(t("track.before", name=self._language.pick(self._prerequisite.title)))
+
+    def _render_chips(self) -> None:
+        t = self._language.t
+        self._chip.setText(t("track.in_progress"))
+        self._new_chip.setText(t("track.new"))
+        self._route_chip.setText(t("track.route_next" if self._route == for_you.ROUTE_NEXT
+                                   else "track.route_later"))
+
+    # --- yeni patika: hâle ve dönen ışık -----------------------------------------
+
+    def _build_halo(self) -> None:
+        """Hâle bir kez yumuşak bir resme çiziliyor (`ShadowLayer`), kartın arkasında."""
+        if self._halo is not None:
+            self._halo.detach()
+            self._halo = None
+        yuva = self.parentWidget()
+        host = yuva.parentWidget() if isinstance(yuva, LiftSlot) else yuva
+        if not self._new or host is None:
+            return
+        renk = QColor(self._track.color)
+        alfa = 0.28 if self._mode == "dark" else 0.18
+        self._halo = ShadowLayer(self, host, self._mode, False, blur=22, offset_y=0, radius=self._radius,
+                                 color=(renk.red(), renk.green(), renk.blue(), round(255 * alfa)))
+
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        if self._new and (self._halo is None or self._halo.parentWidget() is None):
+            self._build_halo()
+
+    def enterEvent(self, event) -> None:  # noqa: N802
+        super().enterEvent(event)
+        if self._new:
+            self._spin.start(1, 0.10, 0.85)
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        super().paintEvent(event)
+        if not self._new:
+            return
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        p = PALETTES.get(self._mode, PALETTES["dark"])
+        kenar = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        g.setBrush(Qt.BrushStyle.NoBrush)
+        g.setPen(QPen(QColor(mix(p["border"], self._track.color, 0.55)), 1))
+        g.drawRoundedRect(kenar, self._radius, self._radius)
+        gorunurluk = self._spin.opacity
+        if gorunurluk <= 0.0:
+            return
+        halka = QRectF(self.rect()).adjusted(1, 1, -1, -1)
+        gecis = _ring_gradient(halka, self._spin.angle, self._track.color, self._mode, gorunurluk)
+        g.setPen(QPen(QBrush(gecis), 2))
+        g.drawRoundedRect(halka, self._radius - 1, self._radius - 1)
+
+    def mouseReleaseEvent(self, event) -> None:  # noqa: N802
+        if event.button() == Qt.MouseButton.LeftButton and self.rect().contains(event.pos()):
+            self.clicked.emit()
+        super().mouseReleaseEvent(event)
+
+    def set_mode(self, mode: str) -> None:
+        self._mode = mode
+        self.set_card_mode(mode)
+        self._bar.set_mode(mode)
+        self._pre.set_mode(mode)
+        self._render_meta()
+        if not self._track.locked:
+            refresh_shadow(self, mode)
+        if self._new:
+            self._build_halo()
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        self._fit(self.width())
+
+    def retranslate(self) -> None:
+        self._title.setText(keep_slash_words(self._language.pick(self._track.title)))
+        self._description.setText(keep_slash_words(self._language.pick(self._track.description)))
+        self._render_chips()
+        self._render_meta()
+        self._fit(self.width())
+
+
+class TrackTile(GlowCard):
+    """Bütün patikalar listesindeki sıkı karo (taslak 1, `.tile`).
+
+    Logo, ad (yanında "Devam ediyor" / "YENİ"), sağda "3 / 19 · %16", tek
+    satırlık açıklama (sığmazsa "…"; tamamı ipucunda) ve ince çubuk.
+    Başlanmamış, ön koşullu patikada açıklama satırının sağında ön koşul hapı;
+    yer dar kalırsa kısalan açıklama, hap tam kalır. Kilitli patikada
+    açıklamanın yerinde neden açılmadığı; tıklayınca kilit sallanıyor.
+    """
+
+    clicked = Signal()
+
+    PAD_X = 16
+    PAD_Y = 13
+    LOGO = 36
+    BAR = 4
+
+    def __init__(self, track: Track, language: LanguageManager, mode: str,
+                 prerequisite: Track | None = None, parent: QWidget | None = None) -> None:
+        super().__init__(parent, interactive=not track.locked)
+        self._track = track
+        self._prerequisite = prerequisite
+        self._language = language
+        self._mode = mode
+        self._completed = 0
+        self._total = sum(len(chapter.sections) for chapter in track.chapters)
+        self._started = False
+        self._prerequisite_done = False
+        self._new = False
+        self._radius = 14
+        self.set_accent(track.color)
+        self.set_card_mode(mode)
+        self.setProperty("variant", "track-tile")
+        self.setProperty("locked", "true" if track.locked else "false")
+        self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        if not track.locked:
+            self.setCursor(Qt.CursorShape.PointingHandCursor)
+            apply_shadow(self, mode, radius=14)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(self.PAD_X, self.PAD_Y, self.PAD_X, self.PAD_Y)
+        layout.setSpacing(12)
+        self._icon = LogoMark(logo_key(track.icon, track.id), track.color, self.LOGO, locked=track.locked)
+        self.hovered.connect(self._icon.set_hovered)
+        layout.addWidget(self._icon, 0, Qt.AlignmentFlag.AlignVCenter)
+
+        body = QVBoxLayout()
+        body.setSpacing(0)
+        ust = QHBoxLayout()
+        ust.setSpacing(10)
+        self._title = ElidedLabel()
+        self._title.setProperty("role", "tile-title")
+        ust.addWidget(self._title)
+        self._chip = QLabel()
+        self._chip.setProperty("role", "track-chip")
+        self._chip.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._chip.hide()
+        ust.addWidget(self._chip, 0, Qt.AlignmentFlag.AlignVCenter)
+        self._new_chip = QLabel()
+        self._new_chip.setProperty("role", "track-chip-new")
+        self._new_chip.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._new_chip.hide()
+        ust.addWidget(self._new_chip, 0, Qt.AlignmentFlag.AlignVCenter)
+        ust.addStretch(1)
+        self._count = QLabel()
+        self._count.setProperty("role", "tile-count")
+        ust.addWidget(self._count, 0, Qt.AlignmentFlag.AlignVCenter)
+        body.addLayout(ust)
+        body.addSpacing(2)
+        alt = QHBoxLayout()
+        alt.setSpacing(8)
+        self._line = ElidedLabel()
+        self._line.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self._line.setProperty("role", "tile-desc")
+        alt.addWidget(self._line, 1)
+        self._pre = PrereqChip()
+        self._pre.set_mode(mode)
+        self._pre.hide()
+        alt.addWidget(self._pre, 0, Qt.AlignmentFlag.AlignVCenter)
+        body.addLayout(alt)
+        body.addSpacing(9)
+        self._bar = ProgressBar(f"tile:{track.id}")
+        self._bar.setFixedHeight(self.BAR)
+        self._bar.set_color(track.color)
+        self._bar.set_mode(mode)
+        self._bar.setVisible(not track.locked)
+        body.addWidget(self._bar)
+        layout.addLayout(body, 1)
+
+        self._lock: QLabel | None = None
+        if track.locked:
+            self._lock = QLabel(self)
+            self._lock.setProperty("role", "lock-chip")
+            self._lock.setFixedSize(LOCK_BADGE, LOCK_BADGE)
+            self._lock.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self._lock.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            self._count.hide()
+        self._paint_icons()
+
+    @property
+    def track_id(self) -> str:
+        return self._track.id
+
+    @property
+    def started(self) -> bool:
+        return self._started
+
+    def height_for(self, width: int) -> int:
+        self.ensurePolished()
+        for label in (self._title, self._line, self._chip, self._new_chip, self._count, self._pre, self._pre._text):
+            label.ensurePolished()
+        # Satırlar hap kadar yüksek: etiketli, haplı ve yalın karolar aynı boyda.
+        self._line.setMinimumHeight(self._pre.sizeHint().height())
+        self._title.setMinimumHeight(max(self._chip.sizeHint().height(), self._new_chip.sizeHint().height()))
+        # Sarılan etiket yok: boy genişliğe bağlı değil.
+        return self.layout().totalSizeHint().height()
+
+    def update_progress(self, completed: int, total: int, started: bool) -> None:
+        self._completed = completed
+        self._total = total
+        self._started = started
+        self._bar.set_percent(round(completed * 100 / total) if total else 0)
+        self._chip.setVisible(started and not self._track.locked)
+        self._render()
+
+    def set_prerequisite_done(self, done: bool) -> None:
+        """Ön koşul patikası bitmişse önerisi gösterilmez."""
+        self._prerequisite_done = done
+        self._render()
+
+    def _shows_prerequisite(self) -> bool:
+        return (self._prerequisite is not None and not self._track.locked
+                and not self._started and not self._prerequisite_done)
+
+    def set_new(self, new: bool) -> None:
+        self._new = new
+        self._new_chip.setVisible(new)
+
+    def _paint_icons(self) -> None:
+        if self._lock is not None:
+            p = PALETTES.get(self._mode, PALETTES["dark"])
+            self._lock.setPixmap(pixmap("lock", p["text_muted"], 12))
+
+    def _reason(self) -> str:
+        t = self._language.t
+        if self._track.unavailable:
+            return t("track.unavailable")
+        return t("track.prerequisite") if self._track.prerequisite else t("track.locked")
+
+    def _render(self) -> None:
+        t = self._language.t
+        pick = self._language.pick
+        p = PALETTES.get(self._mode, PALETTES["dark"])
+        percent = round(self._completed * 100 / self._total) if self._total else 0
+        yuzde = t("home.percent", value=percent)
+        self._count.setText(f"<span style='color:{p['text']};font-weight:700'>{self._completed}</span>"
+                            f" / {self._total} · {yuzde}")
+        aciklama = keep_slash_words(pick(self._track.description))
+        self._line.setText(self._reason() if self._track.locked else aciklama)
+        # İpucu: adın ve açıklamanın tamamı; durum satırında ön koşul ya da neden.
+        if self._track.locked:
+            durum, ton = self._reason(), "warning"
+        elif self._shows_prerequisite():
+            durum, ton = t("track.before", name=pick(self._prerequisite.title)), "muted"
+        else:
+            durum, ton = "", "muted"
+        self._pre.setVisible(self._shows_prerequisite())
+        if self._prerequisite is not None:
+            self._pre.set_text(t("track.before", name=pick(self._prerequisite.title)))
+        from ..widgets import tips
+
+        self.setToolTip(tips.rich(pick(self._track.title), aciklama, durum, ton))
 
     def _shake_lock(self) -> None:
-        """Kilit ±4 px üç kez sallanır, alttaki açıklama bir an vurgulanır."""
+        """Kilit ±4 px üç kez sallanır, açıklama satırı bir an vurgulanır."""
+        import math
+
         from ..resources.theme.motion import DISTANCE
 
         kilit = self._lock
@@ -1130,15 +1644,14 @@ class TrackCard(GlowCard):
         genlik = DISTANCE["shake"]
 
         def adim(t: float) -> None:
-            import math
             x = round(genlik * math.sin(t * math.pi * 6) * (1 - t))
             kilit.setContentsMargins(x, 0, -x, 0)
 
         motion.animate(kilit, "shake", 0.0, 1.0, adim, 300, "linear",
                        on_done=lambda: kilit.setContentsMargins(0, 0, 0, 0))
         vurgu = PALETTES.get(self._mode, PALETTES["dark"])["accent"]
-        self._caption.setStyleSheet(f"color: {vurgu};")
-        QTimer.singleShot(1100, lambda: self._caption.setStyleSheet(""))
+        self._line.setStyleSheet(f"color: {vurgu};")
+        QTimer.singleShot(1100, lambda: self._line.setStyleSheet(""))
 
     def mouseReleaseEvent(self, event) -> None:  # noqa: N802
         if self._track.locked:
@@ -1149,18 +1662,12 @@ class TrackCard(GlowCard):
             self.clicked.emit()
         super().mouseReleaseEvent(event)
 
-    def set_mode(self, mode: str) -> None:
-        self._mode = mode
-        self.set_card_mode(mode)
-        self._bar.set_mode(mode)
-        self._paint_icons()
-        self._render_meta()
-        if not self._track.locked:
-            refresh_shadow(self, mode)
+    def showEvent(self, event) -> None:  # noqa: N802
+        super().showEvent(event)
+        QTimer.singleShot(0, self._place_lock)
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
-        self._fit_title(self.width())
         self._place_lock()
 
     def _place_lock(self) -> None:
@@ -1168,37 +1675,42 @@ class TrackCard(GlowCard):
         if self._lock is None:
             return
         logo = self._icon.geometry()
-        if logo.isEmpty():
-            logo = self._icon.rect().translated(self.PAD, self.PAD)
         self._lock.move(logo.right() - LOCK_BADGE + 6, logo.bottom() - LOCK_BADGE + 6)
         self._lock.raise_()
 
+    def set_mode(self, mode: str) -> None:
+        self._mode = mode
+        self.set_card_mode(mode)
+        self._bar.set_mode(mode)
+        self._pre.set_mode(mode)
+        self._paint_icons()
+        self._render()
+        if not self._track.locked:
+            refresh_shadow(self, mode)
+
     def retranslate(self) -> None:
-        t = self._language.t
         self._title.setText(keep_slash_words(self._language.pick(self._track.title)))
-        self._description.setText(keep_slash_words(self._language.pick(self._track.description)))
-        self._chip.setText(t("track.in_progress"))
-        if self._track.unavailable:
-            self._caption.setText(t("track.unavailable"))
-        elif self._track.locked:
-            self._caption.setText(
-                t("track.prerequisite") if self._track.prerequisite else t("track.locked"))
-        self._render_meta()
-        self._fit_title(self.width())
+        self._chip.setText(self._language.t("track.in_progress"))
+        self._new_chip.setText(self._language.t("track.new"))
+        self._render()
 
 
 class TrackGroupSection(QWidget):
-    """Bir grup başlığı ("Temeller" + kısa açıklama) ve altında iki sütun kart."""
+    """Başlık ("Temeller" + kısa açıklama + sağda "6 patika") ve altında üç sütun.
 
-    COLUMNS = 2
+    `group` yoksa "Senin için" şeridi: başlık sabit metin, sayı yok, kartlar
+    her yenilemede seçime göre diziliyor (`show_cards`).
+    """
 
-    def __init__(self, group: TrackGroup, language: LanguageManager, parent: QWidget | None = None) -> None:
+    COLUMNS = 3
+
+    def __init__(self, group: TrackGroup | None, language: LanguageManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setProperty("role", "bare")
         self._group = group
         self._language = language
-        self.cards: list[TrackCard] = []
-        self._shown: list[TrackCard] = []
+        self.cards: list = []
+        self._shown: list = []
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -1210,11 +1722,16 @@ class TrackGroupSection(QWidget):
         baslik.setSpacing(12)
         self._title = QLabel()
         self._title.setProperty("role", "group-title")
-        self._description = QLabel()
+        self._description = ElidedLabel()
         self._description.setProperty("role", "group-desc")
+        self._count = QLabel()
+        self._count.setProperty("role", "group-count")
         baslik.addWidget(self._title, 0, Qt.AlignmentFlag.AlignBaseline)
-        baslik.addWidget(self._description, 1, Qt.AlignmentFlag.AlignBaseline)
-        self._header.setVisible(bool(group.title))
+        baslik.addWidget(self._description, 0, Qt.AlignmentFlag.AlignBaseline)
+        baslik.addStretch(1)
+        baslik.addWidget(self._count, 0, Qt.AlignmentFlag.AlignBaseline)
+        self._count.setVisible(group is not None)
+        self._header.setVisible(group is None or bool(group.title))
         layout.addWidget(self._header)
 
         self._body = QWidget()
@@ -1227,34 +1744,45 @@ class TrackGroupSection(QWidget):
             self._grid.setColumnStretch(column, 1)
         layout.addWidget(self._body)
 
+    @property
+    def group(self) -> TrackGroup | None:
+        return self._group
+
+    @property
+    def group_id(self) -> str:
+        return self._group.id if self._group is not None else FOR_YOU
+
     def header_text(self) -> str:
         return self._title.text()
 
-    def add_card(self, card: TrackCard) -> None:
+    def count_text(self) -> str:
+        return self._count.text()
+
+    def add_card(self, card) -> None:
         self.cards.append(card)
         LiftSlot(card, self._body)
 
-    def show_cards(self, visible: list[TrackCard]) -> None:
-        """Yalnızca verilen kartları sırayla dizer; gizlenen kart yer tutmaz.
+    def show_cards(self, visible: list) -> None:
+        """Verilen kartları bu sırayla dizer; listede olmayan yer tutmaz.
 
         `QGridLayout` gizli widget'ın satırını çöktürüyor ve kalan kartlar
-        yanlış sütuna kayıyor; bu yüzden ızgara her süzgeçte baştan kuruluyor.
+        yanlış sütuna kayıyor; bu yüzden ızgara her seferinde baştan kuruluyor.
         """
         while self._grid.count():
             self._grid.takeAt(0)
         for card in self.cards:
             card.parentWidget().setVisible(card in visible)
-        self._shown = [card for card in self.cards if card in visible]
+        self._shown = [card for card in visible if card in self.cards]
         for index, card in enumerate(self._shown):
             self._grid.addWidget(card.parentWidget(), index // self.COLUMNS, index % self.COLUMNS)
         self.setVisible(bool(self._shown))
-        self._equalize()
+        self.equalize()
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         super().resizeEvent(event)
-        self._equalize()
+        self.equalize()
 
-    def _equalize(self) -> None:
+    def equalize(self) -> None:
         """Aynı sıradaki kartlar en uzun olanın boyunda."""
         if not self._shown:
             return
@@ -1270,15 +1798,172 @@ class TrackGroupSection(QWidget):
                     card.setFixedHeight(boy)
 
     def retranslate(self) -> None:
-        self._title.setText(self._language.pick(self._group.title))
-        self._description.setText(self._language.pick(self._group.description))
+        t = self._language.t
+        if self._group is None:
+            self._title.setText(t("track.for_you"))
+            self._description.setText(t("track.for_you_desc"))
+        else:
+            self._title.setText(self._language.pick(self._group.title))
+            self._description.setText(self._language.pick(self._group.description))
+            self._count.setText(t("track.group_count", count=len(self._group.tracks)))
         for card in self.cards:
             card.retranslate()
-        self._equalize()
+        self.equalize()
+
+
+# Yeni patika noktasının rengi (prototip `#FB7185`, "YENİ" etiketiyle aynı).
+NEW_DOT = "#FB7185"
+
+
+class JumpChip(QPushButton):
+    """Atlama düğmesi: ad, patika sayısı ve yeni patika varsa küçük nokta.
+
+    Nokta açılışta üç kez dalga yayıyor (prototip `pulse`, 2,4 sn); dalga
+    düğmenin kendi çiziminde, noktanın yerinden.
+    """
+
+    DOT = 7
+    PULSE_MS = 2400
+    PULSE_REACH = 9.0
+
+    def __init__(self, key: str, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.key = key
+        self._pulse = 0.0
+        self.setCheckable(True)
+        self.setProperty("variant", "jump-chip")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        satir = QHBoxLayout(self)
+        satir.setContentsMargins(14, 7, 14, 7)
+        satir.setSpacing(8)
+        self._name = QLabel()
+        self._name.setProperty("role", "jump-name")
+        self._count = QLabel()
+        self._count.setProperty("role", "jump-count")
+        self._dot = QWidget()
+        self._dot.setProperty("role", "bare")
+        self._dot.setFixedSize(self.DOT, self.DOT)
+        self._dot.hide()
+        for parca in (self._name, self._count, self._dot):
+            parca.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            satir.addWidget(parca, 0, Qt.AlignmentFlag.AlignVCenter)
+        self._count.hide()
+        self.toggled.connect(self._mark)
+        self._mark(False)
+
+    def set_label(self, name: str, count: int | None) -> None:
+        self._name.setText(name)
+        self._count.setVisible(count is not None)
+        self._count.setText(str(count) if count is not None else "")
+        self.updateGeometry()
+
+    def set_dot(self, on: bool) -> None:
+        self._dot.setVisible(on)
+        self.updateGeometry()
+        self.update()
+
+    @property
+    def has_dot(self) -> bool:
+        return self._dot.isVisibleTo(self)
+
+    def pulse(self) -> None:
+        """Noktanın dalgası üç kez (animasyonlar kapalıysa hiç)."""
+        if not self.has_dot or not motion.enabled():
+            return
+
+        def kez(n: int) -> None:
+            if n == 0:
+                return
+            motion.animate(self, "pulse", 0.0, 1.0, self._set_pulse, self.PULSE_MS, "out",
+                           on_done=lambda: kez(n - 1))
+
+        kez(3)
+
+    def _set_pulse(self, value: float) -> None:
+        self._pulse = 0.0 if value >= 1.0 else value
+        self.update()
+
+    def _mark(self, on: bool) -> None:
+        for etiket in (self._name, self._count):
+            etiket.setProperty("on", "true" if on else "false")
+            repolish(etiket)
+
+    def sizeHint(self) -> QSize:  # noqa: N802
+        return self.layout().sizeHint()
+
+    def minimumSizeHint(self) -> QSize:  # noqa: N802
+        return self.layout().sizeHint()
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        super().paintEvent(event)
+        if not self.has_dot:
+            return
+        g = QPainter(self)
+        g.setRenderHint(QPainter.RenderHint.Antialiasing)
+        merkez = QRectF(self._dot.geometry()).center()
+        renk = QColor(NEW_DOT)
+        g.setPen(Qt.PenStyle.NoPen)
+        if 0.0 < self._pulse < 1.0:
+            dalga = QColor(renk)
+            dalga.setAlphaF(0.6 * (1.0 - self._pulse))
+            g.setBrush(dalga)
+            yari = self.DOT / 2 + self.PULSE_REACH * self._pulse
+            g.drawEllipse(merkez, yari, yari)
+        g.setBrush(renk)
+        g.drawEllipse(merkez, self.DOT / 2, self.DOT / 2)
+
+
+
+class JumpBar(QWidget):
+    """Atlama düğmeleri şeridi. Sayfayla kayar, üste gelince orada yapışık kalır.
+
+    Kaydırma alanının içinde değil, onun üstünde duran bir katman:
+    `TracksView` onu sayfadaki yer tutucunun hizasına koyuyor (prototip
+    `position: sticky`). Üste yapışınca zemini sayfanın rengi, altından geçen
+    kartları örtüyor; yerindeyken saydam, karşılama kartının hâlesini kesmiyor.
+    """
+
+    PAD = 8
+
+    def __init__(self, keys: list[str], parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+        self.setProperty("role", "jump-bar")
+        self.setProperty("stuck", "false")
+        satir = QHBoxLayout(self)
+        satir.setContentsMargins(SHADOW_ROOM + 2, self.PAD, SHADOW_ROOM, self.PAD)
+        satir.setSpacing(SPACING["sm"])
+        self._label = QLabel()
+        self._label.setProperty("role", "filter-label")
+        satir.addWidget(self._label)
+        satir.addSpacing(4)
+        self.chips: dict[str, JumpChip] = {}
+        self._group = QButtonGroup(self)
+        self._group.setExclusive(True)
+        for key in keys:
+            chip = JumpChip(key)
+            self._group.addButton(chip)
+            self.chips[key] = chip
+            satir.addWidget(chip)
+        satir.addStretch(1)
+
+    def set_label(self, text: str) -> None:
+        self._label.setText(text)
+
+    def bar_height(self) -> int:
+        return self.layout().sizeHint().height()
+
+    def set_stuck(self, stuck: bool) -> None:
+        deger = "true" if stuck else "false"
+        if self.property("stuck") != deger:
+            self.setProperty("stuck", deger)
+            repolish(self)
 
 
 class TracksView(QWidget):
-    """Ana ekran: karşılama kartı, süzgeç şeridi ve gruplu patika kartları."""
+    """Ana ekran (taslak 1): karşılama kartı, atlama düğmeleri, "Senin için"
+    şeridi ve gruplara ayrılmış bütün patikalar (sıkı karolar)."""
 
     track_opened = Signal(str)
     resume_requested = Signal()
@@ -1296,9 +1981,15 @@ class TracksView(QWidget):
         self._language = language
         self._store = store
         self._mode = "light"
-        self._cards: list[TrackCard] = []
+        # Bütün patikaların karoları (gruplardaki sırayla); tur da bunlara bakıyor.
+        self._cards: list[TrackTile] = []
         self._groups: list[TrackGroupSection] = []
-        self._filter = store.setting(FILTER_SETTING, FILTER_ALL) or FILTER_ALL
+        # "Senin için"in büyük kartları ilk gerektiğinde kuruluyor.
+        self._big: dict[str, TrackCard] = {}
+        self._progress: dict[str, tuple[int, int, bool]] = {}
+        self._new: set[str] = set()
+        self._picks: list[for_you.Pick] = []
+        self._watched_window: QWidget | None = None
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -1313,114 +2004,202 @@ class TracksView(QWidget):
         self._page_layout.setSpacing(0)
 
         self._hero = HeroCard(language)
-        # Prototip: karşılama kartı en fazla 1030 px, ortada.
-        self._hero.setMaximumWidth(HERO_WIDTH)
         self._hero.resume.connect(self.resume_requested)
         self._hero.review.connect(self.review_requested)
         hero_satir = QHBoxLayout()
         hero_satir.setContentsMargins(SHADOW_ROOM, 0, SHADOW_ROOM, 0)
-        hero_satir.addStretch(1)
-        hero_satir.addWidget(self._hero, 1000)
-        hero_satir.addStretch(1)
+        hero_satir.addWidget(self._hero, 1)
         self._page_layout.addLayout(hero_satir)
-        self._page_layout.addSpacing(36)
+        # Prototip: şeridin üstünde 28 px, şeridin kendi iç boşluğu 8 px.
+        self._page_layout.addSpacing(28 - JumpBar.PAD)
 
-        # Süzgeç şeridi: Tümü, Başladıklarım ve her grup (seçim hatırlanıyor).
-        self._filters = QWidget()
-        self._filters.setProperty("role", "bare")
-        serit = QHBoxLayout(self._filters)
-        serit.setContentsMargins(SHADOW_ROOM, 0, SHADOW_ROOM, 0)
-        serit.setSpacing(SPACING["sm"])
-        self._filter_label = QLabel()
-        self._filter_label.setProperty("role", "filter-label")
-        serit.addWidget(self._filter_label)
-        serit.addSpacing(4)
-        self._filter_buttons: dict[str, QPushButton] = {}
-        self._filter_group = QButtonGroup(self)
-        self._filter_group.setExclusive(True)
-        keys = [FILTER_ALL, FILTER_STARTED] + [g.id for g in catalog.groups if g.title]
-        for key in keys:
-            button = QPushButton()
-            button.setCheckable(True)
-            button.setProperty("variant", "filter-chip")
-            button.setCursor(Qt.CursorShape.PointingHandCursor)
-            button.clicked.connect(lambda _=False, k=key: self.set_filter(k))
-            self._filter_group.addButton(button)
-            self._filter_buttons[key] = button
-            serit.addWidget(button)
-        serit.addStretch(1)
-        self._page_layout.addWidget(self._filters)
-        if self._filter not in self._filter_buttons:
-            self._filter = FILTER_ALL
+        keys = [FOR_YOU] + [g.id for g in catalog.groups if g.title]
+        self._jump = JumpBar(keys, self)
+        for key, chip in self._jump.chips.items():
+            chip.clicked.connect(lambda _=False, k=key: self.jump_to(k))
+        self._jump.chips[FOR_YOU].setChecked(True)
+        self._jump_slot = QWidget()
+        self._jump_slot.setProperty("role", "bare")
+        self._jump_slot.installEventFilter(self)
+        self._page_layout.addWidget(self._jump_slot)
 
-        self._empty = QLabel()
-        self._empty.setProperty("role", "filter-empty")
-        self._empty.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self._empty.setWordWrap(True)
-        self._empty.hide()
-        self._page_layout.addSpacing(8)
-        self._page_layout.addWidget(self._empty)
-
-        self._build_cards()
+        self._for_you = TrackGroupSection(None, language)
+        self._page_layout.addSpacing(28 - JumpBar.PAD)
+        self._page_layout.addWidget(self._for_you)
+        self._build_tiles()
         self._page_layout.addStretch(1)
 
-        # Sütun karşılama kartı genişliğinde: patika kartları kartla aynı
-        # kenarlardan başlayıp bitiyor (Alican: sayfa hizalı olsun).
-        outer.addWidget(scroll_page(centered_column(column, max_width=HERO_WIDTH + 2 * SPACING["xl"])))
-        self._apply_filter()
+        # Sütun prototipin sayfa genişliğinde (karşılama kartı da onunla).
+        self._scroll = scroll_page(centered_column(column, max_width=JOURNEY_WIDTH + 2 * SPACING["xl"]))
+        self._scroll.verticalScrollBar().valueChanged.connect(self._on_scroll)
+        outer.addWidget(self._scroll)
+        self._jump.raise_()
+        self._entered = False
 
-    def _build_cards(self) -> None:
+    # --- kurulum ------------------------------------------------------------------
+
+    def _build_tiles(self) -> None:
         by_id = {track.id: track for track in self._catalog.tracks}
         for group in self._catalog.groups:
             section = TrackGroupSection(group, self._language)
             for track in group.tracks:
-                card = TrackCard(track, self._language, self._mode,
+                tile = TrackTile(track, self._language, self._mode,
                                  prerequisite=by_id.get(track.prerequisite))
-                card.clicked.connect(lambda t=track.id: self.track_opened.emit(t))
-                section.add_card(card)
-                self._cards.append(card)
-            # Gruplar arası 28 px; önceki grubun alttaki gölge payı da sayılıyor.
-            self._page_layout.addSpacing(28 if not self._groups else 28 - SHADOW_ROOM)
+                tile.clicked.connect(lambda t=track.id: self.track_opened.emit(t))
+                section.add_card(tile)
+                self._cards.append(tile)
+            # Gruplar arası 28 px; önceki ızgaranın alttaki gölge payı da sayılıyor.
+            self._page_layout.addSpacing(28 - SHADOW_ROOM)
             self._page_layout.addWidget(section)
+            section.show_cards(section.cards)
             self._groups.append(section)
-        self._entered = False
 
-    def set_filter(self, key: str) -> None:
-        """Süzgeci seçer ve hatırlar (`journey_filter` ayarı)."""
-        if key not in self._filter_buttons:
-            key = FILTER_ALL
-        self._filter = key
-        self._store.set_setting(FILTER_SETTING, key)
-        self._apply_filter()
+    def _big_card(self, track_id: str) -> TrackCard:
+        kart = self._big.get(track_id)
+        if kart is None:
+            track = self._catalog.track(track_id)
+            kart = TrackCard(track, self._language, self._mode,
+                             prerequisite=self._catalog.track(track.prerequisite))
+            kart.clicked.connect(lambda t=track_id: self.track_opened.emit(t))
+            self._for_you.add_card(kart)
+            kart.retranslate()
+            self._big[track_id] = kart
+        return kart
 
-    def _apply_filter(self) -> None:
-        self._filter_buttons[self._filter].setChecked(True)
-        toplam = 0
-        for section in self._groups:
-            if self._filter == FILTER_STARTED:
-                visible = [card for card in section.cards if card.started]
-            elif self._filter == FILTER_ALL or self._filter == section._group.id:
-                visible = list(section.cards)
-            else:
-                visible = []
-            section.show_cards(visible)
-            toplam += len(visible)
-        self._empty.setVisible(toplam == 0)
+    # --- atlama şeridi ------------------------------------------------------------
+
+    def _anchor(self, key: str) -> QWidget | None:
+        if key == FOR_YOU:
+            return self._for_you if self._for_you.isVisibleTo(self) else (self._groups[0] if self._groups else None)
+        return next((g for g in self._groups if g.group_id == key), None)
+
+    def scroll_target(self, key: str) -> int:
+        """Grubun başlığı yapışık şeridin hemen altına gelecek kaydırma değeri."""
+        hedef = self._anchor(key)
+        cubuk = self._scroll.verticalScrollBar()
+        if hedef is None:
+            return cubuk.value()
+        y = hedef.mapTo(self._scroll.widget(), QPoint(0, 0)).y()
+        return max(0, min(cubuk.maximum(), y - self._jump.bar_height() - 4))
+
+    def jump_to(self, key: str, animate: bool = True) -> None:
+        """Atlama düğmesi: süzmüyor, sayfayı o bölüme (yumuşakça) kaydırıyor."""
+        chip = self._jump.chips.get(key)
+        if chip is not None:
+            chip.setChecked(True)
+        cubuk = self._scroll.verticalScrollBar()
+        hedef = self.scroll_target(key)
+        if not animate:
+            motion.stop(self, "jump")
+            cubuk.setValue(hedef)
+            return
+        motion.animate(self, "jump", float(cubuk.value()), float(hedef),
+                       lambda v: cubuk.setValue(round(v)), "long", "out")
+
+    def scroll_to_top(self) -> None:
+        self.jump_to(FOR_YOU, animate=False)
+        self._scroll.verticalScrollBar().setValue(0)
+
+    def reveal(self, widget: QWidget) -> None:
+        """Parçayı (tur için) yapışık şeridin altında görünür yapar."""
+        cubuk = self._scroll.verticalScrollBar()
+        y = widget.mapTo(self._scroll.widget(), QPoint(0, 0)).y()
+        alt = y + widget.height() - self._scroll.viewport().height() + SPACING["lg"]
+        ust = y - self._jump.bar_height() - SPACING["lg"]
+        if cubuk.value() > ust:
+            cubuk.setValue(max(0, ust))
+        elif cubuk.value() < alt:
+            cubuk.setValue(min(cubuk.maximum(), alt))
+
+    def _place_jump(self) -> None:
+        """Şeridi yer tutucunun hizasına koyar; yukarı kayınca üstte durur."""
+        self._jump_slot.setFixedHeight(self._jump.bar_height())
+        yer = self._jump_slot.mapTo(self, QPoint(0, 0))
+        self._jump.setGeometry(yer.x(), max(0, yer.y()), self._jump_slot.width(), self._jump.bar_height())
+        self._jump.set_stuck(yer.y() < 0)
+        self._jump.raise_()
+
+    def _on_scroll(self, _value: int = 0) -> None:
+        self._place_jump()
+        self._update_glow()
+
+    def eventFilter(self, obj, event) -> bool:  # noqa: N802
+        if obj is self._jump_slot and event.type() in (QEvent.Type.Move, QEvent.Type.Resize):
+            self._place_jump()
+        elif obj is self._watched_window and event.type() == QEvent.Type.ActivationChange:
+            self._update_glow()
+        return False
+
+    # --- yeni patikanın parlaması ---------------------------------------------------
+
+    def _card_on_screen(self, card: QWidget) -> bool:
+        if not card.isVisibleTo(self):
+            return False
+        viewport = self._scroll.viewport()
+        yer = card.mapTo(viewport, QPoint(0, 0))
+        return viewport.rect().intersects(QRect(yer, card.size()))
+
+    def _update_glow(self) -> None:
+        """Işık yalnızca ekran görünür, pencere etkin ve kart görünür alandayken döner."""
+        acik = self.isVisible() and self.window().isActiveWindow()
+        for kart in self._big.values():
+            if kart.is_new:
+                kart.spin.set_allowed(acik and self._card_on_screen(kart))
+
+    def _start_glow(self) -> None:
+        for kart in self._big.values():
+            if kart.is_new and kart.isVisibleTo(self):
+                kart.spin.start(3, 0.04, 0.92)
+        for chip in self._jump.chips.values():
+            chip.pulse()
+        self._update_glow()
+
+    def glow_ticks(self) -> int:
+        """Ölçüm için: dönen ışığın zamanlayıcısı toplam kaç kez tetiklendi."""
+        return sum(kart.spin.ticks for kart in self._big.values())
+
+    def note_opened(self, track_id: str) -> None:
+        """Patika açıldı: yeni işareti kalıcı olarak söner."""
+        if new_tracks.mark_opened(self._store, track_id) and track_id in self._new:
+            self._new.discard(track_id)
+            self._apply_marks()
+
+    # --- gösterim -----------------------------------------------------------------
 
     def showEvent(self, event) -> None:  # noqa: N802
         super().showEvent(event)
+        pencere = self.window()
+        if pencere is not self._watched_window:
+            if self._watched_window is not None:
+                self._watched_window.removeEventFilter(self)
+            pencere.installEventFilter(self)
+            self._watched_window = pencere
+        QTimer.singleShot(0, self, self._place_jump)
+        # Ekran her açılışında yeni patikanın ışığı üç tur döner.
+        QTimer.singleShot(0, self, self._start_glow)
         # Oturumdaki ilk gösterimde prototipteki gibi: karşılama kartı ve
-        # süzgeç 16 px aşağıdan (ekranın `pgIn`'i), kartlar sırayla (`sIn`).
+        # şerit 16 px aşağıdan (ekranın `pgIn`'i), kartlar sırayla (`sIn`).
         if not self._entered:
             self._entered = True
             from ..widgets.pop_effect import enter
             hepsi = [enter(self._hero, 16, "spring", hold=True),
-                     enter(self._filters, 16, "spring", hold=True)]
-            hepsi += stagger_cards([card for card in self._cards if card.isVisibleTo(self)])
+                     enter(self._jump, 16, "spring", hold=True)]
+            kartlar = [k for k in self._big.values() if k.isVisibleTo(self)] + self._cards
+            hepsi += stagger_cards(kartlar)
             hepsi = [b for b in hepsi if b]
             # İlk çizim bittikten sonra başlasın (bkz. `enter`, `hold`).
             QTimer.singleShot(0, self, lambda: QTimer.singleShot(
                 16, self, lambda: [b() for b in hepsi]))
+
+    def hideEvent(self, event) -> None:  # noqa: N802
+        super().hideEvent(event)
+        self._update_glow()
+
+    def resizeEvent(self, event) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        QTimer.singleShot(0, self, self._on_scroll)
+
+    # --- veri ---------------------------------------------------------------------
 
     def _chapter_progress(self, chapter, active) -> tuple[int, int, bool]:
         """Bir modülde kaç bölüm tamamlandı, kaç bölüm var, etkinlik var mı."""
@@ -1428,13 +2207,69 @@ class TracksView(QWidget):
         basladi = any((chapter.id, section.id) in active for section in chapter.sections)
         return biten, len(chapter.sections), basladi
 
+    def _first_install(self) -> bool:
+        from .welcome import SETTING_KEY
+
+        return self._store.setting(SETTING_KEY, "") == ""
+
+    def _choose(self, active) -> list[for_you.Pick]:
+        """"Senin için"in patikaları (`core.for_you`)."""
+        from .roadmap_view import ROUTE_SETTING, load_routes
+
+        acik = [t for t in self._catalog.tracks if not t.locked]
+        basladi = [t.id for t in acik if self._progress.get(t.id, (0, 0, False))[2]]
+        son_bitirme = {
+            t.id: max((active.get((c.id, s.id)) or "" for c in t.chapters for s in c.sections), default="")
+            for t in acik
+        }
+        son = self._store.last_visited()
+        son_patika = next((t.id for t in acik if son and any(c.id == son[0] for c in t.chapters)), None)
+        sirali = for_you.order_started(basladi, son_patika, son_bitirme)
+        yeni = [t.id for g in self._catalog.groups for t in g.tracks if t.id in self._new and not t.locked]
+        rota = for_you.route_for(load_routes(), self._store.setting(ROUTE_SETTING, ""))
+        siradaki, sonraki = for_you.route_tracks(self._catalog, self._store, rota)
+        return for_you.pick(sirali, yeni, siradaki, sonraki)
+
+    def _prerequisite_done(self, track_id: str) -> bool:
+        """Patikanın önerilen ön koşulu bitirildi mi (bütün bölümleri tamam)?"""
+        track = self._catalog.track(track_id)
+        done, total, _ = self._progress.get(track.prerequisite if track else "", (0, 0, False))
+        return total > 0 and done == total
+
+    def _apply_marks(self) -> None:
+        """Seçimi ve yeni işaretlerini kartlara, karolara ve düğmelere yazar."""
+        kartlar = []
+        for secim in self._picks:
+            kart = self._big_card(secim.track_id)
+            rota = next((tag for tag in (for_you.ROUTE_NEXT, for_you.ROUTE_LATER) if tag in secim.tags), "")
+            kart.set_marks(secim.track_id in self._new, rota)
+            kartlar.append(kart)
+        for kart in self._big.values():
+            if kart not in kartlar:
+                kart.set_marks(False, "")
+            done, total, started = self._progress.get(kart.track_id, (0, 0, False))
+            kart.set_prerequisite_done(self._prerequisite_done(kart.track_id))
+            kart.update_progress(done, total, started)
+        self._for_you.show_cards(kartlar)
+        for tile in self._cards:
+            tile.set_new(tile.track_id in self._new)
+            tile.set_prerequisite_done(self._prerequisite_done(tile.track_id))
+        for section in self._groups:
+            chip = self._jump.chips.get(section.group_id)
+            if chip is not None:
+                chip.set_dot(any(tile.track_id in self._new for tile in section.cards))
+            # "YENİ" ve "Devam ediyor" etiketi satırı biraz uzatıyor.
+            section.equalize()
+        self._jump.chips[FOR_YOU].setVisible(bool(kartlar))
+        QTimer.singleShot(0, self, self._update_glow)
+
     def refresh(self) -> None:
         toplam = 0
         biten = 0
         active = self._store.active_sections()
 
-        for card in self._cards:
-            track = self._catalog.track(card.track_id)
+        for tile in self._cards:
+            track = self._catalog.track(tile.track_id)
             if track is None:
                 continue
             t_biten = t_toplam = 0
@@ -1444,9 +2279,18 @@ class TracksView(QWidget):
                 t_biten += b
                 t_toplam += s
                 t_basladi = t_basladi or basladi
-            card.update_progress(t_biten, t_toplam, t_basladi)
+            self._progress[track.id] = (t_biten, t_toplam, t_basladi)
+            tile.update_progress(t_biten, t_toplam, t_basladi)
             biten += t_biten
             toplam += t_toplam
+
+        from ..version import APP_VERSION
+
+        self._new = new_tracks.refresh(
+            self._store, [(t.id, t.since) for t in self._catalog.tracks if not t.locked],
+            APP_VERSION, date.today(), self._first_install(),
+            {kimlik for kimlik, (_, _, basladi) in self._progress.items() if basladi})
+        self._picks = self._choose(active)
 
         self._hero.update_stats(
             name=self._store.profile().get("first_name", ""),
@@ -1464,8 +2308,7 @@ class TracksView(QWidget):
             reviews=review_box.today_count(self._store),
         )
         self.retranslate()
-        # "Başladıklarım" yeni başlanan patikayı da göstersin.
-        self._apply_filter()
+        self._apply_marks()
 
     def resume_target(self) -> tuple[str, str] | None:
         """"Devam et" düğmesinin açacağı bölüm: son ziyaret ya da ilk bölüm."""
@@ -1499,27 +2342,27 @@ class TracksView(QWidget):
     def set_mode(self, mode: str) -> None:
         self._mode = mode
         self._hero.set_mode(mode)
-        for card in self._cards:
+        for card in [*self._cards, *self._big.values()]:
             card.set_mode(mode)
 
     def retranslate(self) -> None:
         t = self._language.t
-        self._filter_label.setText(t("track.filter_label"))
-        for key, button in self._filter_buttons.items():
-            if key in (FILTER_ALL, FILTER_STARTED):
-                button.setText(t(f"track.filter_{key}"))
-            else:
-                group = next(g for g in self._catalog.groups if g.id == key)
-                button.setText(self._language.pick(group.title))
-        self._empty.setText(t("track.filter_empty"))
+        self._jump.set_label(t("track.jump_label"))
+        self._jump.chips[FOR_YOU].set_label(t("track.for_you"), None)
+        for section in self._groups:
+            chip = self._jump.chips.get(section.group_id)
+            if chip is not None:
+                chip.set_label(self._language.pick(section.group.title), len(section.group.tracks))
         # "Kaldığın yer" satırı bölüm adını taşıyor ve o ad dile bağlı;
         # yeniden üretilmesi gerekiyor. **`refresh()` çağrılmıyor:** o da
         # sonunda `retranslate` çağırıyor ve ikisi birbirini sonsuza kadar
         # tetikliyor (denendi, `RecursionError`).
         self._hero.set_resume(self._resume_text())
         self._hero.retranslate()
+        self._for_you.retranslate()
         for section in self._groups:
             section.retranslate()
+        QTimer.singleShot(0, self, self._place_jump)
 
 
 class ModulesView(QWidget):
@@ -2646,6 +3489,9 @@ class JourneyView(FadeStack):
         gösteriliyor.
         """
         self._track_id = track_id
+        # Karttan da Rotalar'dan da açılınca yeni işareti söner. Bölümü doğrudan
+        # açan (arama) patikada etkinlik bırakıyor; başlanmış patika da yeni sayılmıyor.
+        self.tracks.note_opened(track_id)
         track = self._catalog.track(track_id)
         chapters = track.chapters if track else []
 

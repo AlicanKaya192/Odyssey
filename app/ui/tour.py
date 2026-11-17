@@ -481,8 +481,13 @@ def steps_for(win) -> list[Step]:  # noqa: C901 — adım listesi uzun ama düz
     def hero():
         return [journey.tracks._hero] if hasattr(journey, "tracks") else []
 
-    def kartlar():
-        return list(getattr(getattr(journey, "tracks", None), "_cards", []))[:8]
+    def patikalar():
+        # Atlama düğmeleri ve "Senin için" şeridi (taslak 1).
+        ekran = journey.tracks
+        return [ekran._jump, ekran._for_you] if ekran._for_you.isVisible() else [ekran._jump]
+
+    def sayfa_basi() -> None:
+        journey.tracks.scroll_to_top()
 
     def python_yolu() -> None:
         # Python patikasının yolu: başındaki seviye tespit kartı görünsün.
@@ -493,8 +498,12 @@ def steps_for(win) -> list[Step]:  # noqa: C901 — adım listesi uzun ama düz
             journey.open_track(track.id)
 
     def cs50_karti():
-        kartlar_ = getattr(getattr(journey, "tracks", None), "_cards", [])
-        return [k for k in kartlar_ if getattr(getattr(k, "_track", None), "id", "") == "cs50"]
+        return [k for k in journey.tracks._cards if k.track_id == "cs50"]
+
+    def cs50_goster() -> None:
+        # Karo sayfanın aşağısında olabilir: önce görünür alana.
+        for kart in cs50_karti():
+            journey.tracks.reveal(kart)
 
     def seviye_karti():
         kart = getattr(journey.path, "_placement", None)
@@ -510,8 +519,8 @@ def steps_for(win) -> list[Step]:  # noqa: C901 — adım listesi uzun ama düz
         Step("tour.s_welcome_title", "tour.s_welcome_text", prepare=nav("journey"), wait=350),
         Step("tour.s_rail_title", "tour.s_rail_text", targets=lambda: [rail]),
         Step("tour.s_hero_title", "tour.s_hero_text", targets=hero),
-        Step("tour.s_tracks_title", "tour.s_tracks_text", targets=kartlar),
-        Step("tour.s_cs50_title", "tour.s_cs50_text", targets=cs50_karti),
+        Step("tour.s_tracks_title", "tour.s_tracks_text", prepare=sayfa_basi, wait=150, targets=patikalar),
+        Step("tour.s_cs50_title", "tour.s_cs50_text", prepare=cs50_goster, wait=150, targets=cs50_karti),
         Step("tour.s_placement_title", "tour.s_placement_text", prepare=python_yolu, wait=900,
              targets=seviye_karti),
         Step("tour.s_review_card_title", "tour.s_review_card_text", targets=tekrar_karti),

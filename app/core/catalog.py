@@ -684,6 +684,11 @@ class Track:
         return self.raw.get("prerequisite", "")
 
     @property
+    def since(self) -> str:
+        """Patikanın geldiği sürüm ("1.8.0"); yoksa boş. Yeni patika işareti buna bakıyor."""
+        return self.raw.get("since", "")
+
+    @property
     def unavailable(self) -> bool:
         """Patikanın istediği kütüphane bu bilgisayarda yok mu?
 
