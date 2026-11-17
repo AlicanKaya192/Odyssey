@@ -1,0 +1,74 @@
+{
+  "id": "split-sizes",
+  "title": {
+    "tr": "Doğrulama ayırmak",
+    "en": "Holding out validation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`random_split(range(n), [n - n_val, n_val], generator=...)`.",
+      "en": "`random_split(range(n), [n - n_val, n_val], generator=...)`."
+    },
+    {
+      "tr": "Bölümün numaraları `val.indices`; `sorted(...)[:3]`.",
+      "en": "The part's numbers are `val.indices`; `sorted(...)[:3]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch.utils.data import random_split\n\n\ndef split_sizes(n, val_fraction, seed):\n    n_val = int(n * val_fraction)\n    train, val = random_split(range(n), [n - n_val, n_val],\n                              generator=torch.Generator().manual_seed(seed))\n    return [len(train), len(val), sorted(val.indices)[:3]]\n\nprint(split_sizes(60, 0.2, 0))\nprint(split_sizes(10, 0.3, 1))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch.utils.data import random_split\n\n\ndef split_sizes(n, val_fraction, seed):\n    n_val = int(n * val_fraction)\n    train, val = random_split(range(n), [n - n_val, n_val],\n                              generator=torch.Generator().manual_seed(seed))\n    return [len(train), len(val), sorted(val.indices)[:3]]\n\nprint(split_sizes(60, 0.2, 0))\nprint(split_sizes(10, 0.3, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split_sizes",
+      "cases": [
+        {
+          "args": [
+            20,
+            0.25,
+            3
+          ],
+          "returns": [
+            15,
+            5,
+            [
+              0,
+              4,
+              15
+            ]
+          ]
+        },
+        {
+          "args": [
+            8,
+            0.5,
+            0
+          ],
+          "returns": [
+            4,
+            4,
+            [
+              1,
+              2,
+              5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[48, 12, [5, 10, 13]]\n[7, 3, [3, 4, 7]]"
+    }
+  ]
+}

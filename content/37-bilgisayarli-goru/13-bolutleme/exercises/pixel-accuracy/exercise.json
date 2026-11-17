@@ -1,0 +1,125 @@
+{
+  "id": "pixel-accuracy",
+  "title": {
+    "tr": "Piksel doğruluğu",
+    "en": "Pixel accuracy"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İki listeyi `torch.tensor` ile tensöre çevir, `==` ile karşılaştır.",
+      "en": "Turn both lists into tensors with `torch.tensor` and compare with `==`."
+    },
+    {
+      "tr": "`(p == t).float().mean().item()`, sonra `round(..., 3)`.",
+      "en": "`(p == t).float().mean().item()`, then `round(..., 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef pixel_accuracy(predicted, truth):\n    p = torch.tensor(predicted)\n    t = torch.tensor(truth)\n    return round((p == t).float().mean().item(), 3)\n\ntruth = [[0, 0, 1], [0, 2, 2], [1, 1, 0]]\nprint(pixel_accuracy([[0, 0, 1], [0, 2, 0], [1, 0, 0]], truth))\nprint(pixel_accuracy([[0, 0, 0], [0, 0, 0], [0, 0, 0]], truth))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef pixel_accuracy(predicted, truth):\n    p = torch.tensor(predicted)\n    t = torch.tensor(truth)\n    return round((p == t).float().mean().item(), 3)\n\ntruth = [[0, 0, 1], [0, 2, 2], [1, 1, 0]]\nprint(pixel_accuracy([[0, 0, 1], [0, 2, 0], [1, 0, 0]], truth))\nprint(pixel_accuracy([[0, 0, 0], [0, 0, 0], [0, 0, 0]], truth))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pixel_accuracy",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          ],
+          "returns": 0.75
+        },
+        {
+          "args": [
+            [
+              [
+                2,
+                2,
+                2
+              ]
+            ],
+            [
+              [
+                2,
+                2,
+                2
+              ]
+            ]
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                2,
+                0
+              ],
+              [
+                1,
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                2,
+                2
+              ],
+              [
+                1,
+                1,
+                0
+              ]
+            ]
+          ],
+          "returns": 0.778
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.778\n0.444"
+    }
+  ]
+}

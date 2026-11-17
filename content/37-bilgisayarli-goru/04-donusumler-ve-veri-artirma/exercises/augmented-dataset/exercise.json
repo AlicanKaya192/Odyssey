@@ -1,0 +1,46 @@
+{
+  "id": "augmented-dataset",
+  "title": {
+    "tr": "Artırmalı veri seti",
+    "en": "An augmented dataset"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`__len__`: `return len(self.y)`.",
+      "en": "`__len__`: `return len(self.y)`."
+    },
+    {
+      "tr": "`__getitem__`: `image = self.x[i]`, dönüşüm varsa `image = self.transform(image)`.",
+      "en": "`__getitem__`: `image = self.x[i]`, and if there is a transform, `image = self.transform(image)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torch.utils.data import Dataset\nfrom torchvision.transforms import v2\nfrom dl_data import make_shapes\n\n\nclass Shapes(Dataset):\n    def __init__(self, x, y, transform=None):\n        self.x = torch.from_numpy(x)\n        self.y = torch.from_numpy(y)\n        self.transform = transform\n\n    def __len__(self):\n        return len(self.y)\n\n    def __getitem__(self, i):\n        image = self.x[i]\n        if self.transform is not None:\n            image = self.transform(image)\n        return image, self.y[i]\n\nx, y = make_shapes(20, seed=3)\naugment = v2.Compose([v2.RandomHorizontalFlip(), v2.RandomCrop(16, padding=3)])\ntorch.manual_seed(0)\nplain = Shapes(x, y)\naugmented = Shapes(x, y, augment)\nprint(len(plain), len(augmented))\nimage, label = augmented[0]\nprint(tuple(image.shape), label.item() == y[0])\nprint(torch.equal(plain[5][0], plain[5][0]), torch.equal(augmented[5][0], augmented[5][0]))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torch.utils.data import Dataset\nfrom torchvision.transforms import v2\nfrom dl_data import make_shapes\n\n\nclass Shapes(Dataset):\n    def __init__(self, x, y, transform=None):\n        self.x = torch.from_numpy(x)\n        self.y = torch.from_numpy(y)\n        self.transform = transform\n\n    def __len__(self):\n        return len(self.y)\n\n    def __getitem__(self, i):\n        image = self.x[i]\n        if self.transform is not None:\n            image = self.transform(image)\n        return image, self.y[i]\n\nx, y = make_shapes(20, seed=3)\naugment = v2.Compose([v2.RandomHorizontalFlip(), v2.RandomCrop(16, padding=3)])\ntorch.manual_seed(0)\nplain = Shapes(x, y)\naugmented = Shapes(x, y, augment)\nprint(len(plain), len(augmented))\nimage, label = augmented[0]\nprint(tuple(image.shape), label.item() == y[0])\nprint(torch.equal(plain[5][0], plain[5][0]), torch.equal(augmented[5][0], augmented[5][0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "20 20\n(1, 16, 16) True\nTrue False"
+    }
+  ]
+}

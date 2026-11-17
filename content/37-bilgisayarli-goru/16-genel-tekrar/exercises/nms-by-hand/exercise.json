@@ -1,0 +1,137 @@
+{
+  "id": "nms-by-hand",
+  "title": {
+    "tr": "Elle NMS",
+    "en": "NMS by hand"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Önce sıraları puana göre diz: `sorted(range(len(boxes)), key=lambda i: -scores[i])`.",
+      "en": "First order the positions by score: `sorted(range(len(boxes)), key=lambda i: -scores[i])`."
+    },
+    {
+      "tr": "Bir kutu, `all(iou(...) <= threshold for k in keep)` ise tutulur.",
+      "en": "A box is kept if `all(iou(...) <= threshold for k in keep)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef iou(a, b):\n    width = max(0, min(a[2], b[2]) - max(a[0], b[0]))\n    height = max(0, min(a[3], b[3]) - max(a[1], b[1]))\n    common = width * height\n    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - common\n    return common / union\n\n\ndef nms_by_hand(boxes, scores, threshold):\n    order = sorted(range(len(boxes)), key=lambda i: -scores[i])\n    keep = []\n    for i in order:\n        if all(iou(boxes[i], boxes[k]) <= threshold for k in keep):\n            keep.append(i)\n    return keep\n\nboxes = [[0, 0, 10, 10], [1, 1, 11, 11], [20, 20, 30, 30], [0, 0, 9, 10]]\nscores = [0.9, 0.8, 0.7, 0.95]\nprint(nms_by_hand(boxes, scores, 0.5))\nprint(nms_by_hand(boxes, scores, 0.9))\n```",
+      "en": "The full solution:\n\n```python\ndef iou(a, b):\n    width = max(0, min(a[2], b[2]) - max(a[0], b[0]))\n    height = max(0, min(a[3], b[3]) - max(a[1], b[1]))\n    common = width * height\n    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - common\n    return common / union\n\n\ndef nms_by_hand(boxes, scores, threshold):\n    order = sorted(range(len(boxes)), key=lambda i: -scores[i])\n    keep = []\n    for i in order:\n        if all(iou(boxes[i], boxes[k]) <= threshold for k in keep):\n            keep.append(i)\n    return keep\n\nboxes = [[0, 0, 10, 10], [1, 1, 11, 11], [20, 20, 30, 30], [0, 0, 9, 10]]\nscores = [0.9, 0.8, 0.7, 0.95]\nprint(nms_by_hand(boxes, scores, 0.5))\nprint(nms_by_hand(boxes, scores, 0.9))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "nms_by_hand",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                10,
+                10
+              ],
+              [
+                1,
+                1,
+                11,
+                11
+              ],
+              [
+                20,
+                20,
+                30,
+                30
+              ],
+              [
+                0,
+                0,
+                9,
+                10
+              ]
+            ],
+            [
+              0.9,
+              0.8,
+              0.7,
+              0.95
+            ],
+            0.5
+          ],
+          "returns": [
+            3,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                10,
+                10
+              ],
+              [
+                1,
+                1,
+                11,
+                11
+              ]
+            ],
+            [
+              0.5,
+              0.6
+            ],
+            0.9
+          ],
+          "returns": [
+            1,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                2,
+                2
+              ]
+            ],
+            [
+              0.1
+            ],
+            0.5
+          ],
+          "returns": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[3, 2]\n[3, 0, 1, 2]"
+    },
+    {
+      "type": "ast_forbid",
+      "call": "nms",
+      "hint": {
+        "tr": "Bu alıştırmada hazır `nms` yok.",
+        "en": "No ready-made `nms` here."
+      }
+    }
+  ]
+}

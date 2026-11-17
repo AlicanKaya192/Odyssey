@@ -1,0 +1,180 @@
+{
+  "id": "match-counts",
+  "title": {
+    "tr": "Sınıflı eşleştirme",
+    "en": "Matching with classes"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "`sorted(predicted, key=lambda b: -b[5])`; eşleşen gerçekleri bir kümede tut.",
+      "en": "`sorted(predicted, key=lambda b: -b[5])`; keep matched truths in a set."
+    },
+    {
+      "tr": "FN = gerçek kutu sayısı − eşleşen sayısı.",
+      "en": "FN = number of true boxes − number matched."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef iou(a, b):\n    width = max(0, min(a[2], b[2]) - max(a[0], b[0]))\n    height = max(0, min(a[3], b[3]) - max(a[1], b[1]))\n    common = width * height\n    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - common\n    return common / union\n\n\ndef match_counts(predicted, truth, threshold):\n    used = set()\n    tp = fp = 0\n    for box in sorted(predicted, key=lambda b: -b[5]):\n        best, best_j = 0.0, -1\n        for j, t in enumerate(truth):\n            if j in used or t[4] != box[4]:\n                continue\n            value = iou(box, t)\n            if value > best:\n                best, best_j = value, j\n        if best >= threshold:\n            tp += 1\n            used.add(best_j)\n        else:\n            fp += 1\n    return [tp, fp, len(truth) - len(used)]\n\ntruth = [[0, 0, 10, 10, 0], [20, 20, 30, 30, 1]]\npredicted = [[1, 0, 11, 10, 0, 0.9], [20, 20, 30, 30, 0, 0.8], [0, 1, 10, 11, 0, 0.7]]\nprint(match_counts(predicted, truth, 0.5))\n```",
+      "en": "The full solution:\n\n```python\ndef iou(a, b):\n    width = max(0, min(a[2], b[2]) - max(a[0], b[0]))\n    height = max(0, min(a[3], b[3]) - max(a[1], b[1]))\n    common = width * height\n    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - common\n    return common / union\n\n\ndef match_counts(predicted, truth, threshold):\n    used = set()\n    tp = fp = 0\n    for box in sorted(predicted, key=lambda b: -b[5]):\n        best, best_j = 0.0, -1\n        for j, t in enumerate(truth):\n            if j in used or t[4] != box[4]:\n                continue\n            value = iou(box, t)\n            if value > best:\n                best, best_j = value, j\n        if best >= threshold:\n            tp += 1\n            used.add(best_j)\n        else:\n            fp += 1\n    return [tp, fp, len(truth) - len(used)]\n\ntruth = [[0, 0, 10, 10, 0], [20, 20, 30, 30, 1]]\npredicted = [[1, 0, 11, 10, 0, 0.9], [20, 20, 30, 30, 0, 0.8], [0, 1, 10, 11, 0, 0.7]]\nprint(match_counts(predicted, truth, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "match_counts",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                0,
+                11,
+                10,
+                0,
+                0.9
+              ],
+              [
+                20,
+                20,
+                30,
+                30,
+                0,
+                0.8
+              ],
+              [
+                0,
+                1,
+                10,
+                11,
+                0,
+                0.7
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                10,
+                10,
+                0
+              ],
+              [
+                20,
+                20,
+                30,
+                30,
+                1
+              ]
+            ],
+            0.5
+          ],
+          "returns": [
+            1,
+            2,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                1,
+                10,
+                11,
+                1,
+                0.6
+              ],
+              [
+                0,
+                0,
+                10,
+                10,
+                1,
+                0.9
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                10,
+                10,
+                1
+              ]
+            ],
+            0.5
+          ],
+          "returns": [
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "args": [
+            [],
+            [
+              [
+                0,
+                0,
+                4,
+                4,
+                0
+              ]
+            ],
+            0.5
+          ],
+          "returns": [
+            0,
+            0,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                10,
+                10,
+                2,
+                0.5
+              ]
+            ],
+            [
+              [
+                3,
+                3,
+                13,
+                13,
+                2
+              ]
+            ],
+            0.3
+          ],
+          "returns": [
+            1,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2, 1]"
+    }
+  ]
+}

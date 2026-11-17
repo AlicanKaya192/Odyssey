@@ -1,0 +1,216 @@
+{
+  "id": "layer-shapes",
+  "title": {
+    "tr": "Kancayla katman şekilleri",
+    "en": "Layer shapes with hooks"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`layer.register_forward_hook(...)` tutamacını bir listede sakla.",
+      "en": "Keep each `layer.register_forward_hook(...)` handle in a list."
+    },
+    {
+      "tr": "Kanca: `lambda module, inputs, output: shapes.append(list(output.shape))`; sonda `remove()`.",
+      "en": "Hook: `lambda module, inputs, output: shapes.append(list(output.shape))`; `remove()` at the end."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\n\ntorch.manual_seed(0)\nmodel = nn.Sequential(\n    nn.Conv2d(1, 4, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n    nn.Conv2d(4, 8, 3), nn.ReLU(), nn.Flatten(),\n)\n\n\ndef layer_shapes(size):\n    shapes = []\n    handles = [layer.register_forward_hook(\n        lambda module, inputs, output: shapes.append(list(output.shape)))\n        for layer in model]\n    try:\n        model(torch.zeros(1, 1, size, size))\n    finally:\n        for handle in handles:\n            handle.remove()\n    return shapes\n\nfor shape in layer_shapes(8):\n    print(shape)\nprint(layer_shapes(12)[-1])\nprint(len(layer_shapes(8)))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\n\ntorch.manual_seed(0)\nmodel = nn.Sequential(\n    nn.Conv2d(1, 4, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n    nn.Conv2d(4, 8, 3), nn.ReLU(), nn.Flatten(),\n)\n\n\ndef layer_shapes(size):\n    shapes = []\n    handles = [layer.register_forward_hook(\n        lambda module, inputs, output: shapes.append(list(output.shape)))\n        for layer in model]\n    try:\n        model(torch.zeros(1, 1, size, size))\n    finally:\n        for handle in handles:\n            handle.remove()\n    return shapes\n\nfor shape in layer_shapes(8):\n    print(shape)\nprint(layer_shapes(12)[-1])\nprint(len(layer_shapes(8)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "layer_shapes",
+      "cases": [
+        {
+          "args": [
+            8
+          ],
+          "returns": [
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [
+              1,
+              4,
+              4,
+              4
+            ],
+            [
+              1,
+              8,
+              2,
+              2
+            ],
+            [
+              1,
+              8,
+              2,
+              2
+            ],
+            [
+              1,
+              32
+            ]
+          ]
+        },
+        {
+          "args": [
+            8
+          ],
+          "returns": [
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [
+              1,
+              4,
+              4,
+              4
+            ],
+            [
+              1,
+              8,
+              2,
+              2
+            ],
+            [
+              1,
+              8,
+              2,
+              2
+            ],
+            [
+              1,
+              32
+            ]
+          ]
+        },
+        {
+          "args": [
+            12
+          ],
+          "returns": [
+            [
+              1,
+              4,
+              12,
+              12
+            ],
+            [
+              1,
+              4,
+              12,
+              12
+            ],
+            [
+              1,
+              4,
+              6,
+              6
+            ],
+            [
+              1,
+              8,
+              4,
+              4
+            ],
+            [
+              1,
+              8,
+              4,
+              4
+            ],
+            [
+              1,
+              128
+            ]
+          ]
+        },
+        {
+          "args": [
+            8
+          ],
+          "returns": [
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [
+              1,
+              4,
+              8,
+              8
+            ],
+            [
+              1,
+              4,
+              4,
+              4
+            ],
+            [
+              1,
+              8,
+              2,
+              2
+            ],
+            [
+              1,
+              8,
+              2,
+              2
+            ],
+            [
+              1,
+              32
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 4, 8, 8]\n[1, 4, 8, 8]\n[1, 4, 4, 4]\n[1, 8, 2, 2]\n[1, 8, 2, 2]\n[1, 32]\n[1, 128]\n6"
+    }
+  ]
+}

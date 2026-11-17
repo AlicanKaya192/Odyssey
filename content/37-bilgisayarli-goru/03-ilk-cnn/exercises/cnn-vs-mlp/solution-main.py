@@ -1,0 +1,45 @@
+import torch
+from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
+from dl_data import make_shapes
+
+x_train, y_train = make_shapes(600, seed=1)
+x_test, y_test = make_shapes(300, seed=2)
+train_set = TensorDataset(torch.from_numpy(x_train), torch.from_numpy(y_train))
+x_test, y_test = torch.from_numpy(x_test), torch.from_numpy(y_test)
+
+
+def make_cnn():
+    return nn.Sequential(
+        nn.Conv2d(1, 8, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+        nn.Conv2d(8, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+        nn.Flatten(), nn.Linear(256, 3),
+    )
+
+
+def make_mlp():
+    return nn.Sequential(nn.Flatten(), nn.Linear(256, 64), nn.ReLU(), nn.Linear(64, 3))
+
+
+def train_and_test(make_model):
+    torch.manual_seed(0)
+    model = make_model()
+    loader = DataLoader(train_set, batch_size=32, shuffle=True,
+                        generator=torch.Generator().manual_seed(0))
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.005)
+    loss_fn = nn.CrossEntropyLoss()
+    for epoch in range(8):
+        model.train()
+        for images, labels in loader:
+            optimizer.zero_grad()
+            loss = loss_fn(model(images), labels)
+            loss.backward()
+            optimizer.step()
+    model.eval()
+    with torch.no_grad():
+        return (model(x_test).argmax(dim=1) == y_test).float().mean().item()
+
+cnn_acc = train_and_test(make_cnn)
+mlp_acc = train_and_test(make_mlp)
+print(cnn_acc > 0.85, mlp_acc < 0.85)
+print(cnn_acc > mlp_acc)

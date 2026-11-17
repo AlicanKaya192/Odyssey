@@ -1,0 +1,68 @@
+{
+  "id": "class-index",
+  "title": {
+    "tr": "Sınıf numaraları",
+    "en": "Class numbers"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`Image.fromarray(np.zeros((4, 4), dtype=np.uint8))` boş bir resim.",
+      "en": "`Image.fromarray(np.zeros((4, 4), dtype=np.uint8))` is a blank picture."
+    },
+    {
+      "tr": "`datasets.ImageFolder(root).class_to_idx`'i `with` bloğunun içinde döndür.",
+      "en": "Return `datasets.ImageFolder(root).class_to_idx` inside the `with` block."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport tempfile\nfrom pathlib import Path\n\nimport numpy as np\nfrom PIL import Image\nfrom torchvision import datasets\n\n\ndef class_index(names):\n    blank = Image.fromarray(np.zeros((4, 4), dtype=np.uint8))\n    with tempfile.TemporaryDirectory() as root:\n        for name in names:\n            (Path(root) / name).mkdir()\n            blank.save(Path(root) / name / \"a.png\")\n        return datasets.ImageFolder(root).class_to_idx\n\nprint(class_index([\"dog\", \"cat\", \"bird\"]))\nprint(class_index([\"7\", \"12\", \"3\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport tempfile\nfrom pathlib import Path\n\nimport numpy as np\nfrom PIL import Image\nfrom torchvision import datasets\n\n\ndef class_index(names):\n    blank = Image.fromarray(np.zeros((4, 4), dtype=np.uint8))\n    with tempfile.TemporaryDirectory() as root:\n        for name in names:\n            (Path(root) / name).mkdir()\n            blank.save(Path(root) / name / \"a.png\")\n        return datasets.ImageFolder(root).class_to_idx\n\nprint(class_index([\"dog\", \"cat\", \"bird\"]))\nprint(class_index([\"7\", \"12\", \"3\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "class_index",
+      "cases": [
+        {
+          "args": [
+            [
+              "b",
+              "a"
+            ]
+          ],
+          "returns": {
+            "a": 0,
+            "b": 1
+          }
+        },
+        {
+          "args": [
+            [
+              "x10",
+              "x2",
+              "x1"
+            ]
+          ],
+          "returns": {
+            "x1": 0,
+            "x10": 1,
+            "x2": 2
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "{'bird': 0, 'cat': 1, 'dog': 2}\n{'12': 0, '3': 1, '7': 2}"
+    }
+  ]
+}

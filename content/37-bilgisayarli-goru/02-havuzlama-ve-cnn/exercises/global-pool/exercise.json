@@ -1,0 +1,99 @@
+{
+  "id": "global-pool",
+  "title": {
+    "tr": "Küresel havuzlama",
+    "en": "Global pooling"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Fonksiyonlar yığın bekler: `torch.tensor(fmap)[None]`.",
+      "en": "The functions expect a batch: `torch.tensor(fmap)[None]`."
+    },
+    {
+      "tr": "Sonucu `flatten().tolist()` ile listeye çevir ve yuvarla.",
+      "en": "Turn the result into a list with `flatten().tolist()` and round."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef global_pool(fmap):\n    x = torch.tensor(fmap)[None]\n    averages = F.adaptive_avg_pool2d(x, 1).flatten().tolist()\n    maxima = F.adaptive_max_pool2d(x, 1).flatten().tolist()\n    return [round(v, 3) for v in averages], [round(v, 3) for v in maxima]\n\nfmap = [[[1.0, 2.0], [3.0, 4.0]], [[0.0, 0.0], [0.0, 8.0]]]\naverages, maxima = global_pool(fmap)\nprint(averages)\nprint(maxima)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef global_pool(fmap):\n    x = torch.tensor(fmap)[None]\n    averages = F.adaptive_avg_pool2d(x, 1).flatten().tolist()\n    maxima = F.adaptive_max_pool2d(x, 1).flatten().tolist()\n    return [round(v, 3) for v in averages], [round(v, 3) for v in maxima]\n\nfmap = [[[1.0, 2.0], [3.0, 4.0]], [[0.0, 0.0], [0.0, 8.0]]]\naverages, maxima = global_pool(fmap)\nprint(averages)\nprint(maxima)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "global_pool",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                [
+                  1.0,
+                  3.0
+                ]
+              ]
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                2.0
+              ],
+              [
+                3.0
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                [
+                  2.0
+                ]
+              ],
+              [
+                [
+                  5.0
+                ]
+              ],
+              [
+                [
+                  0.5
+                ]
+              ]
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                2.0,
+                5.0,
+                0.5
+              ],
+              [
+                2.0,
+                5.0,
+                0.5
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2.5, 2.0]\n[4.0, 8.0]"
+    }
+  ]
+}

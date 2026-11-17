@@ -1,0 +1,76 @@
+{
+  "id": "lost-share",
+  "title": {
+    "tr": "Izgara boyu ve kayıp",
+    "en": "Grid size and loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Her sahne için ayrı bir dolu hücre kümesi aç.",
+      "en": "Open a separate set of filled cells for each scene."
+    },
+    {
+      "tr": "Bütün nesneleri de say; oran `lost / objects`.",
+      "en": "Count all objects too; the share is `lost / objects`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom dl_data import make_scenes\n\n\ndef lost_share(n, seed, S):\n    images, boxes, masks = make_scenes(n, size=32, seed=seed)\n    cell = 32 / S\n    lost = 0\n    objects = 0\n    for scene in boxes:\n        taken = set()\n        for x1, y1, x2, y2, label in scene:\n            key = (int((y1 + y2) / 2 // cell), int((x1 + x2) / 2 // cell))\n            lost += key in taken\n            taken.add(key)\n            objects += 1\n    return round(lost / objects, 3)\n\nfor grid in (2, 4, 8):\n    print(grid, lost_share(200, 7, grid))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom dl_data import make_scenes\n\n\ndef lost_share(n, seed, S):\n    images, boxes, masks = make_scenes(n, size=32, seed=seed)\n    cell = 32 / S\n    lost = 0\n    objects = 0\n    for scene in boxes:\n        taken = set()\n        for x1, y1, x2, y2, label in scene:\n            key = (int((y1 + y2) / 2 // cell), int((x1 + x2) / 2 // cell))\n            lost += key in taken\n            taken.add(key)\n            objects += 1\n    return round(lost / objects, 3)\n\nfor grid in (2, 4, 8):\n    print(grid, lost_share(200, 7, grid))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lost_share",
+      "cases": [
+        {
+          "args": [
+            200,
+            7,
+            4
+          ],
+          "returns": 0.073
+        },
+        {
+          "args": [
+            100,
+            3,
+            2
+          ],
+          "returns": 0.139
+        },
+        {
+          "args": [
+            100,
+            3,
+            8
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2 0.164\n4 0.073\n8 0.015"
+    }
+  ]
+}

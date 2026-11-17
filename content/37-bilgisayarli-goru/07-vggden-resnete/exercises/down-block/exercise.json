@@ -1,0 +1,36 @@
+{
+  "id": "down-block",
+  "title": {
+    "tr": "Kanal değiştiren blok",
+    "en": "A block that changes channels"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Başlangıçtaki `nn.Identity()` şekli değiştirmediği için toplama hata veriyor.",
+      "en": "The starting `nn.Identity()` does not change the shape, so the addition fails."
+    },
+    {
+      "tr": "1 × 1 evrişimin parametresi `in_ch * out_ch`; BatchNorm'unki `2 * out_ch`.",
+      "en": "The 1 × 1 convolution has `in_ch * out_ch` parameters; the BatchNorm `2 * out_ch`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\n\n\nclass DownBlock(nn.Module):\n    def __init__(self, in_ch, out_ch):\n        super().__init__()\n        self.conv1 = nn.Conv2d(in_ch, out_ch, 3, stride=2, padding=1, bias=False)\n        self.bn1 = nn.BatchNorm2d(out_ch)\n        self.conv2 = nn.Conv2d(out_ch, out_ch, 3, padding=1, bias=False)\n        self.bn2 = nn.BatchNorm2d(out_ch)\n        self.shortcut = nn.Sequential(\n            nn.Conv2d(in_ch, out_ch, kernel_size=1, stride=2, bias=False),\n            nn.BatchNorm2d(out_ch),\n        )\n\n    def forward(self, x):\n        out = F.relu(self.bn1(self.conv1(x)))\n        out = self.bn2(self.conv2(out))\n        return F.relu(out + self.shortcut(x))\n\n\nblock = DownBlock(16, 32)\nprint(tuple(block(torch.zeros(2, 16, 8, 8)).shape))\nprint(sum(p.numel() for p in block.shortcut.parameters()))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\n\n\nclass DownBlock(nn.Module):\n    def __init__(self, in_ch, out_ch):\n        super().__init__()\n        self.conv1 = nn.Conv2d(in_ch, out_ch, 3, stride=2, padding=1, bias=False)\n        self.bn1 = nn.BatchNorm2d(out_ch)\n        self.conv2 = nn.Conv2d(out_ch, out_ch, 3, padding=1, bias=False)\n        self.bn2 = nn.BatchNorm2d(out_ch)\n        self.shortcut = nn.Sequential(\n            nn.Conv2d(in_ch, out_ch, kernel_size=1, stride=2, bias=False),\n            nn.BatchNorm2d(out_ch),\n        )\n\n    def forward(self, x):\n        out = F.relu(self.bn1(self.conv1(x)))\n        out = self.bn2(self.conv2(out))\n        return F.relu(out + self.shortcut(x))\n\n\nblock = DownBlock(16, 32)\nprint(tuple(block(torch.zeros(2, 16, 8, 8)).shape))\nprint(sum(p.numel() for p in block.shortcut.parameters()))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "(2, 32, 4, 4)\n576"
+    }
+  ]
+}

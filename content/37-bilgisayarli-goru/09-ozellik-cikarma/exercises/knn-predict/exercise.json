@@ -1,0 +1,108 @@
+{
+  "id": "knn-predict",
+  "title": {
+    "tr": "kNN tahmini",
+    "en": "kNN prediction"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İki tarafı da normalleştir: `(qs @ m.T).topk(k, dim=1).indices`.",
+      "en": "Normalise both sides: `(qs @ m.T).topk(k, dim=1).indices`."
+    },
+    {
+      "tr": "Etiket listesinde en sık değer: `max(set(row), key=row.count)`.",
+      "en": "The most frequent value in a label list: `max(set(row), key=row.count)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef knn_predict(memory, memory_labels, queries, k):\n    m = F.normalize(torch.tensor(memory), dim=1)\n    qs = F.normalize(torch.tensor(queries), dim=1)\n    nearest = (qs @ m.T).topk(k, dim=1).indices\n    labels = torch.tensor(memory_labels)[nearest]\n    return [max(set(row), key=row.count) for row in labels.tolist()]\n\nmemory = [[1.0, 0.0], [0.9, 0.2], [0.8, -0.1], [0.0, 1.0], [0.1, 0.9], [-0.2, 1.0]]\nmemory_labels = [0, 0, 0, 1, 1, 1]\nprint(knn_predict(memory, memory_labels, [[1.0, 0.1], [0.2, 1.0], [0.7, 0.6]], 3))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef knn_predict(memory, memory_labels, queries, k):\n    m = F.normalize(torch.tensor(memory), dim=1)\n    qs = F.normalize(torch.tensor(queries), dim=1)\n    nearest = (qs @ m.T).topk(k, dim=1).indices\n    labels = torch.tensor(memory_labels)[nearest]\n    return [max(set(row), key=row.count) for row in labels.tolist()]\n\nmemory = [[1.0, 0.0], [0.9, 0.2], [0.8, -0.1], [0.0, 1.0], [0.1, 0.9], [-0.2, 1.0]]\nmemory_labels = [0, 0, 0, 1, 1, 1]\nprint(knn_predict(memory, memory_labels, [[1.0, 0.1], [0.2, 1.0], [0.7, 0.6]], 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "knn_predict",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.9,
+                0.1
+              ]
+            ],
+            [
+              5,
+              7,
+              5
+            ],
+            [
+              [
+                1.0,
+                0.2
+              ]
+            ],
+            3
+          ],
+          "returns": [
+            5
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.9,
+                0.1
+              ]
+            ],
+            [
+              5,
+              7,
+              5
+            ],
+            [
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            1
+          ],
+          "returns": [
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 0]"
+    }
+  ]
+}

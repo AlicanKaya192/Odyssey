@@ -1,0 +1,70 @@
+{
+  "id": "hook-shape",
+  "title": {
+    "tr": "Kancayla şekil",
+    "en": "A shape through a hook"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`handle = model[index].register_forward_hook(save)`; `save(module, inputs, output)` listeye ekler.",
+      "en": "`handle = model[index].register_forward_hook(save)`; `save(module, inputs, output)` appends to the list."
+    },
+    {
+      "tr": "İlk çalıştırmadan sonra `handle.remove()`.",
+      "en": "After the first run, `handle.remove()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef hook_shape(index, size):\n    torch.manual_seed(0)\n    model = nn.Sequential(\n        nn.Conv2d(1, 8, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(8, 16, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Flatten(),\n    )\n    captured = []\n\n\n    def save(module, inputs, output):\n        captured.append(output.detach())\n\n    handle = model[index].register_forward_hook(save)\n    with torch.no_grad():\n        model(torch.zeros(1, 1, size, size))\n    handle.remove()\n    with torch.no_grad():\n        model(torch.zeros(1, 1, size, size))\n    return [list(captured[0].shape), len(captured)]\n\nprint(hook_shape(2, 16))\nprint(hook_shape(5, 24))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef hook_shape(index, size):\n    torch.manual_seed(0)\n    model = nn.Sequential(\n        nn.Conv2d(1, 8, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(8, 16, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Flatten(),\n    )\n    captured = []\n\n\n    def save(module, inputs, output):\n        captured.append(output.detach())\n\n    handle = model[index].register_forward_hook(save)\n    with torch.no_grad():\n        model(torch.zeros(1, 1, size, size))\n    handle.remove()\n    with torch.no_grad():\n        model(torch.zeros(1, 1, size, size))\n    return [list(captured[0].shape), len(captured)]\n\nprint(hook_shape(2, 16))\nprint(hook_shape(5, 24))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "hook_shape",
+      "cases": [
+        {
+          "args": [
+            0,
+            8
+          ],
+          "returns": [
+            [
+              1,
+              8,
+              8,
+              8
+            ],
+            1
+          ]
+        },
+        {
+          "args": [
+            6,
+            16
+          ],
+          "returns": [
+            [
+              1,
+              256
+            ],
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[1, 8, 8, 8], 1]\n[[1, 16, 6, 6], 1]"
+    }
+  ]
+}

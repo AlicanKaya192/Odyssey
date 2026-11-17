@@ -1,0 +1,66 @@
+{
+  "id": "conv-params",
+  "title": {
+    "tr": "Parametre sayısı",
+    "en": "Parameter count"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Her çıkış kanalının `in_ch * k * k` ağırlığı var.",
+      "en": "Each output channel has `in_ch * k * k` weights."
+    },
+    {
+      "tr": "Bir de her çıkış kanalı için bir sabit: `+ out_ch`.",
+      "en": "Plus one bias per output channel: `+ out_ch`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom torch import nn\n\n\ndef conv_params(in_ch, out_ch, k):\n    return out_ch * in_ch * k * k + out_ch\n\nfor in_ch, out_ch, k in [(1, 8, 3), (3, 16, 3), (16, 32, 5)]:\n    layer = nn.Conv2d(in_ch, out_ch, k)\n    real = sum(p.numel() for p in layer.parameters())\n    print(in_ch, out_ch, k, conv_params(in_ch, out_ch, k), real)\n```",
+      "en": "The full solution:\n\n```python\nfrom torch import nn\n\n\ndef conv_params(in_ch, out_ch, k):\n    return out_ch * in_ch * k * k + out_ch\n\nfor in_ch, out_ch, k in [(1, 8, 3), (3, 16, 3), (16, 32, 5)]:\n    layer = nn.Conv2d(in_ch, out_ch, k)\n    real = sum(p.numel() for p in layer.parameters())\n    print(in_ch, out_ch, k, conv_params(in_ch, out_ch, k), real)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "conv_params",
+      "cases": [
+        {
+          "args": [
+            1,
+            1,
+            1
+          ],
+          "returns": 2
+        },
+        {
+          "args": [
+            3,
+            64,
+            7
+          ],
+          "returns": 9472
+        },
+        {
+          "args": [
+            64,
+            128,
+            3
+          ],
+          "returns": 73856
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1 8 3 80 80\n3 16 3 448 448\n16 32 5 12832 12832"
+    }
+  ]
+}

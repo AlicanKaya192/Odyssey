@@ -1,0 +1,66 @@
+{
+  "id": "prepare-pixels",
+  "title": {
+    "tr": "Pikselleri hazırla",
+    "en": "Prepare the pixels"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.tensor(pixels, dtype=torch.uint8).reshape(1, 1, -1)`.",
+      "en": "`torch.tensor(pixels, dtype=torch.uint8).reshape(1, 1, -1)`."
+    },
+    {
+      "tr": "`pipeline(x).flatten().tolist()` ve her değeri yuvarla.",
+      "en": "`pipeline(x).flatten().tolist()` and round each value."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torchvision.transforms import v2\n\n\ndef prepare(pixels):\n    pipeline = v2.Compose([\n        v2.ToDtype(torch.float32, scale=True),\n        v2.Normalize([0.5], [0.25]),\n    ])\n    x = torch.tensor(pixels, dtype=torch.uint8).reshape(1, 1, -1)\n    return [round(v, 3) for v in pipeline(x).flatten().tolist()]\n\nprint(prepare([0, 64, 128, 255]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torchvision.transforms import v2\n\n\ndef prepare(pixels):\n    pipeline = v2.Compose([\n        v2.ToDtype(torch.float32, scale=True),\n        v2.Normalize([0.5], [0.25]),\n    ])\n    x = torch.tensor(pixels, dtype=torch.uint8).reshape(1, 1, -1)\n    return [round(v, 3) for v in pipeline(x).flatten().tolist()]\n\nprint(prepare([0, 64, 128, 255]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "prepare",
+      "cases": [
+        {
+          "args": [
+            [
+              255
+            ]
+          ],
+          "returns": [
+            2.0
+          ]
+        },
+        {
+          "args": [
+            [
+              0,
+              255,
+              51
+            ]
+          ],
+          "returns": [
+            -2.0,
+            2.0,
+            -1.2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[-2.0, -0.996, 0.008, 2.0]"
+    }
+  ]
+}

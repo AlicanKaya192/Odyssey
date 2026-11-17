@@ -1,0 +1,117 @@
+{
+  "id": "objectness-loss",
+  "title": {
+    "tr": "Nesnellik kaybı",
+    "en": "Objectness loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İki listeyi de `float32` tensöre çevir (hedef de ondalıklı olmalı).",
+      "en": "Turn both lists into `float32` tensors (the target must be float too)."
+    },
+    {
+      "tr": "`F.binary_cross_entropy_with_logits(a, b).item()`.",
+      "en": "`F.binary_cross_entropy_with_logits(a, b).item()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef objectness_loss(logits, target):\n    a = torch.tensor(logits, dtype=torch.float32)\n    b = torch.tensor(target, dtype=torch.float32)\n    return round(F.binary_cross_entropy_with_logits(a, b).item(), 3)\n\nprint(objectness_loss([[2.0, -2.0], [-2.0, -2.0]], [[1, 0], [0, 0]]))\nprint(objectness_loss([[0.0, 0.0], [0.0, 0.0]], [[1, 0], [0, 0]]))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef objectness_loss(logits, target):\n    a = torch.tensor(logits, dtype=torch.float32)\n    b = torch.tensor(target, dtype=torch.float32)\n    return round(F.binary_cross_entropy_with_logits(a, b).item(), 3)\n\nprint(objectness_loss([[2.0, -2.0], [-2.0, -2.0]], [[1, 0], [0, 0]]))\nprint(objectness_loss([[0.0, 0.0], [0.0, 0.0]], [[1, 0], [0, 0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "objectness_loss",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2.0,
+                -2.0
+              ],
+              [
+                -2.0,
+                -2.0
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          ],
+          "returns": 0.127
+        },
+        {
+          "args": [
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          ],
+          "returns": 0.693
+        },
+        {
+          "args": [
+            [
+              [
+                5.0
+              ]
+            ],
+            [
+              [
+                0
+              ]
+            ]
+          ],
+          "returns": 5.007
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.127\n0.693"
+    }
+  ]
+}

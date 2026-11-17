@@ -1,0 +1,58 @@
+{
+  "id": "param-groups",
+  "title": {
+    "tr": "Parametre grupları",
+    "en": "Parameter groups"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.optim.Adam([{\"params\": ..., \"lr\": ...}, {...}])`.",
+      "en": "`torch.optim.Adam([{\"params\": ..., \"lr\": ...}, {...}])`."
+    },
+    {
+      "tr": "Her grupta `group[\"params\"]` parametre listesi.",
+      "en": "In each group `group[\"params\"]` is the parameter list."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef group_summary(body_lr, head_lr):\n    body = nn.Sequential(nn.Conv2d(1, 8, 3), nn.ReLU(), nn.AdaptiveAvgPool2d(1), nn.Flatten())\n    head = nn.Linear(8, 3)\n    optimizer = torch.optim.Adam([\n        {\"params\": body.parameters(), \"lr\": body_lr},\n        {\"params\": head.parameters(), \"lr\": head_lr},\n    ])\n    return [[group[\"lr\"], sum(p.numel() for p in group[\"params\"])] for group in optimizer.param_groups]\n\nprint(group_summary(0.0001, 0.01))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef group_summary(body_lr, head_lr):\n    body = nn.Sequential(nn.Conv2d(1, 8, 3), nn.ReLU(), nn.AdaptiveAvgPool2d(1), nn.Flatten())\n    head = nn.Linear(8, 3)\n    optimizer = torch.optim.Adam([\n        {\"params\": body.parameters(), \"lr\": body_lr},\n        {\"params\": head.parameters(), \"lr\": head_lr},\n    ])\n    return [[group[\"lr\"], sum(p.numel() for p in group[\"params\"])] for group in optimizer.param_groups]\n\nprint(group_summary(0.0001, 0.01))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "group_summary",
+      "cases": [
+        {
+          "args": [
+            0.001,
+            0.1
+          ],
+          "returns": [
+            [
+              0.001,
+              80
+            ],
+            [
+              0.1,
+              27
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0.0001, 80], [0.01, 27]]"
+    }
+  ]
+}

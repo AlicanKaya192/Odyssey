@@ -1,0 +1,97 @@
+{
+  "id": "find-pattern",
+  "title": {
+    "tr": "Deseni bul",
+    "en": "Find the pattern"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`response = F.conv2d(x, w)[0, 0]`; `index = response.argmax().item()`.",
+      "en": "`response = F.conv2d(x, w)[0, 0]`; `index = response.argmax().item()`."
+    },
+    {
+      "tr": "Satır `index // genişlik`, sütun `index % genişlik`; genişlik `response.shape[1]`.",
+      "en": "Row is `index // width`, column `index % width`; width is `response.shape[1]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef find_pattern(img, pattern):\n    x = torch.tensor(img, dtype=torch.float32)[None, None]\n    w = torch.tensor(pattern, dtype=torch.float32)[None, None]\n    response = F.conv2d(x, w)[0, 0]\n    index = response.argmax().item()\n    return [index // response.shape[1], index % response.shape[1]]\n\nimg = [[0] * 7 for _ in range(6)]\nimg[3][4] = 1\nimg[2][4] = 1\nimg[4][4] = 1\nimg[3][3] = 1\nimg[3][5] = 1\ncross = [[0, 1, 0], [1, 1, 1], [0, 1, 0]]\nprint(find_pattern(img, cross))\nprint(find_pattern(img, [[1, 1]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef find_pattern(img, pattern):\n    x = torch.tensor(img, dtype=torch.float32)[None, None]\n    w = torch.tensor(pattern, dtype=torch.float32)[None, None]\n    response = F.conv2d(x, w)[0, 0]\n    index = response.argmax().item()\n    return [index // response.shape[1], index % response.shape[1]]\n\nimg = [[0] * 7 for _ in range(6)]\nimg[3][4] = 1\nimg[2][4] = 1\nimg[4][4] = 1\nimg[3][3] = 1\nimg[3][5] = 1\ncross = [[0, 1, 0], [1, 1, 1], [0, 1, 0]]\nprint(find_pattern(img, cross))\nprint(find_pattern(img, [[1, 1]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "find_pattern",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            1,
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                2
+              ]
+            ],
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            2,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2, 3]\n[3, 3]"
+    }
+  ]
+}

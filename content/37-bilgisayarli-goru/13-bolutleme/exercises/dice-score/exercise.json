@@ -1,0 +1,124 @@
+{
+  "id": "dice-score",
+  "title": {
+    "tr": "Dice",
+    "en": "Dice"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Tahmin ve gerçek piksel sayılarını topla; toplam 0 ise 1.0.",
+      "en": "Add the predicted and true pixel counts; if the total is 0, return 1.0."
+    },
+    {
+      "tr": "Ortak: `(p & t).sum().item()`.",
+      "en": "Common: `(p & t).sum().item()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef dice(predicted, truth, c):\n    p = torch.tensor(predicted) == c\n    t = torch.tensor(truth) == c\n    total = p.sum().item() + t.sum().item()\n    if total == 0:\n        return 1.0\n    return round(2 * (p & t).sum().item() / total, 3)\n\ntruth = [[0, 1, 1], [0, 1, 1], [0, 0, 0]]\nprint(dice([[0, 1, 1], [0, 1, 0], [0, 0, 0]], truth, 1))\nprint(dice([[0, 0, 0], [0, 0, 0], [0, 0, 0]], truth, 1))\nprint(dice(truth, truth, 2))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef dice(predicted, truth, c):\n    p = torch.tensor(predicted) == c\n    t = torch.tensor(truth) == c\n    total = p.sum().item() + t.sum().item()\n    if total == 0:\n        return 1.0\n    return round(2 * (p & t).sum().item() / total, 3)\n\ntruth = [[0, 1, 1], [0, 1, 1], [0, 0, 0]]\nprint(dice([[0, 1, 1], [0, 1, 0], [0, 0, 0]], truth, 1))\nprint(dice([[0, 0, 0], [0, 0, 0], [0, 0, 0]], truth, 1))\nprint(dice(truth, truth, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "dice",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            1
+          ],
+          "returns": 0.8
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0
+              ]
+            ],
+            1
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                1,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                1,
+                1
+              ]
+            ],
+            1
+          ],
+          "returns": 0.5
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                1,
+                1
+              ]
+            ],
+            1
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.857\n0.0\n1.0"
+    }
+  ]
+}

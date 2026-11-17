@@ -1,0 +1,138 @@
+{
+  "id": "upsample-cam",
+  "title": {
+    "tr": "Haritayı büyüt",
+    "en": "Enlarge the map"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`F.interpolate` dört boyut ister: `t[None, None]` ile `(1, 1, H, W)` yap.",
+      "en": "`F.interpolate` needs four dimensions: make `(1, 1, H, W)` with `t[None, None]`."
+    },
+    {
+      "tr": "Sonuçtan `[0, 0]` ile iki boyuta dön.",
+      "en": "Go back to two dimensions with `[0, 0]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef upsample_cam(cam, size):\n    t = torch.tensor(cam, dtype=torch.float32)[None, None]\n    big = F.interpolate(t, size=(size, size), mode=\"nearest\")\n    return big[0, 0].tolist()\n\nfor row in upsample_cam([[1.0, 0.0], [0.0, 2.0]], 4):\n    print(row)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef upsample_cam(cam, size):\n    t = torch.tensor(cam, dtype=torch.float32)[None, None]\n    big = F.interpolate(t, size=(size, size), mode=\"nearest\")\n    return big[0, 0].tolist()\n\nfor row in upsample_cam([[1.0, 0.0], [0.0, 2.0]], 4):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "upsample_cam",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                2.0
+              ]
+            ],
+            4
+          ],
+          "returns": [
+            [
+              1.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              2.0,
+              2.0
+            ],
+            [
+              0.0,
+              0.0,
+              2.0,
+              2.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                3.0
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            [
+              3.0,
+              3.0
+            ],
+            [
+              3.0,
+              3.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                2.0
+              ],
+              [
+                3.0,
+                4.0
+              ]
+            ],
+            2
+          ],
+          "returns": [
+            [
+              1.0,
+              2.0
+            ],
+            [
+              3.0,
+              4.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.0, 1.0, 0.0, 0.0]\n[1.0, 1.0, 0.0, 0.0]\n[0.0, 0.0, 2.0, 2.0]\n[0.0, 0.0, 2.0, 2.0]"
+    }
+  ]
+}

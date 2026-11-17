@@ -1,0 +1,46 @@
+{
+  "id": "cnn-vs-mlp",
+  "title": {
+    "tr": "CNN ile MLP",
+    "en": "CNN versus MLP"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Model, `DataLoader` ve optimizer fonksiyonun içinde kurulsun.",
+      "en": "Build the model, the `DataLoader` and the optimizer inside the function."
+    },
+    {
+      "tr": "Ölçerken `model.eval()` ve `torch.no_grad()`.",
+      "en": "When measuring, `model.eval()` and `torch.no_grad()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\nfrom dl_data import make_shapes\n\nx_train, y_train = make_shapes(600, seed=1)\nx_test, y_test = make_shapes(300, seed=2)\ntrain_set = TensorDataset(torch.from_numpy(x_train), torch.from_numpy(y_train))\nx_test, y_test = torch.from_numpy(x_test), torch.from_numpy(y_test)\n\n\ndef make_cnn():\n    return nn.Sequential(\n        nn.Conv2d(1, 8, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(8, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Flatten(), nn.Linear(256, 3),\n    )\n\n\ndef make_mlp():\n    return nn.Sequential(nn.Flatten(), nn.Linear(256, 64), nn.ReLU(), nn.Linear(64, 3))\n\n\ndef train_and_test(make_model):\n    torch.manual_seed(0)\n    model = make_model()\n    loader = DataLoader(train_set, batch_size=32, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    optimizer = torch.optim.Adam(model.parameters(), lr=0.005)\n    loss_fn = nn.CrossEntropyLoss()\n    for epoch in range(8):\n        model.train()\n        for images, labels in loader:\n            optimizer.zero_grad()\n            loss = loss_fn(model(images), labels)\n            loss.backward()\n            optimizer.step()\n    model.eval()\n    with torch.no_grad():\n        return (model(x_test).argmax(dim=1) == y_test).float().mean().item()\n\ncnn_acc = train_and_test(make_cnn)\nmlp_acc = train_and_test(make_mlp)\nprint(cnn_acc > 0.85, mlp_acc < 0.85)\nprint(cnn_acc > mlp_acc)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\nfrom dl_data import make_shapes\n\nx_train, y_train = make_shapes(600, seed=1)\nx_test, y_test = make_shapes(300, seed=2)\ntrain_set = TensorDataset(torch.from_numpy(x_train), torch.from_numpy(y_train))\nx_test, y_test = torch.from_numpy(x_test), torch.from_numpy(y_test)\n\n\ndef make_cnn():\n    return nn.Sequential(\n        nn.Conv2d(1, 8, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(8, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Flatten(), nn.Linear(256, 3),\n    )\n\n\ndef make_mlp():\n    return nn.Sequential(nn.Flatten(), nn.Linear(256, 64), nn.ReLU(), nn.Linear(64, 3))\n\n\ndef train_and_test(make_model):\n    torch.manual_seed(0)\n    model = make_model()\n    loader = DataLoader(train_set, batch_size=32, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    optimizer = torch.optim.Adam(model.parameters(), lr=0.005)\n    loss_fn = nn.CrossEntropyLoss()\n    for epoch in range(8):\n        model.train()\n        for images, labels in loader:\n            optimizer.zero_grad()\n            loss = loss_fn(model(images), labels)\n            loss.backward()\n            optimizer.step()\n    model.eval()\n    with torch.no_grad():\n        return (model(x_test).argmax(dim=1) == y_test).float().mean().item()\n\ncnn_acc = train_and_test(make_cnn)\nmlp_acc = train_and_test(make_mlp)\nprint(cnn_acc > 0.85, mlp_acc < 0.85)\nprint(cnn_acc > mlp_acc)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True True\nTrue"
+    }
+  ]
+}

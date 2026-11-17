@@ -1,0 +1,174 @@
+{
+  "id": "mask-to-boxes",
+  "title": {
+    "tr": "Maskeden kutuya",
+    "en": "From mask to boxes"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.nonzero(m == c, as_tuple=True)` satırları (y) ve sütunları (x) verir.",
+      "en": "`torch.nonzero(m == c, as_tuple=True)` gives the rows (y) and columns (x)."
+    },
+    {
+      "tr": "Kutu `xs.min()`, `ys.min()`, `xs.max() + 1`, `ys.max() + 1`.",
+      "en": "The box is `xs.min()`, `ys.min()`, `xs.max() + 1`, `ys.max() + 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef mask_boxes(mask):\n    m = torch.tensor(mask)\n    result = []\n    for c in range(1, int(m.max().item()) + 1):\n        ys, xs = torch.nonzero(m == c, as_tuple=True)\n        if len(xs) == 0:\n            continue\n        x1, y1 = xs.min().item(), ys.min().item()\n        x2, y2 = xs.max().item() + 1, ys.max().item() + 1\n        result.append([x1, y1, x2, y2, c])\n    return result\n\nmask = [[0, 0, 0, 0, 0],\n        [0, 2, 2, 0, 0],\n        [0, 2, 2, 0, 3],\n        [1, 0, 0, 0, 3],\n        [0, 0, 0, 0, 0]]\nfor box in mask_boxes(mask):\n    print(box)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef mask_boxes(mask):\n    m = torch.tensor(mask)\n    result = []\n    for c in range(1, int(m.max().item()) + 1):\n        ys, xs = torch.nonzero(m == c, as_tuple=True)\n        if len(xs) == 0:\n            continue\n        x1, y1 = xs.min().item(), ys.min().item()\n        x2, y2 = xs.max().item() + 1, ys.max().item() + 1\n        result.append([x1, y1, x2, y2, c])\n    return result\n\nmask = [[0, 0, 0, 0, 0],\n        [0, 2, 2, 0, 0],\n        [0, 2, 2, 0, 3],\n        [1, 0, 0, 0, 3],\n        [0, 0, 0, 0, 0]]\nfor box in mask_boxes(mask):\n    print(box)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mask_boxes",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0,
+              0,
+              2,
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          ],
+          "returns": []
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                2,
+                2,
+                0,
+                0
+              ],
+              [
+                0,
+                2,
+                2,
+                0,
+                3
+              ],
+              [
+                1,
+                0,
+                0,
+                0,
+                3
+              ],
+              [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0,
+              3,
+              1,
+              4,
+              1
+            ],
+            [
+              1,
+              1,
+              3,
+              3,
+              2
+            ],
+            [
+              4,
+              2,
+              5,
+              4,
+              3
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                3,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                3
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0,
+              0,
+              3,
+              3,
+              3
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 3, 1, 4, 1]\n[1, 1, 3, 3, 2]\n[4, 2, 5, 4, 3]"
+    }
+  ]
+}

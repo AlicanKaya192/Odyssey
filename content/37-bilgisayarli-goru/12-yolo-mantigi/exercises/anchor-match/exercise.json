@@ -1,0 +1,117 @@
+{
+  "id": "anchor-match",
+  "title": {
+    "tr": "Çapa seç",
+    "en": "Pick an anchor"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Ortak alan: `torch.minimum(a[:, None], b[None]).prod(dim=2)`.",
+      "en": "The common area: `torch.minimum(a[:, None], b[None]).prod(dim=2)`."
+    },
+    {
+      "tr": "Birleşim = iki alanın toplamı − ortak alan; sonra `argmax(dim=1)`.",
+      "en": "Union = the sum of the two areas − the common area; then `argmax(dim=1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\n\n\ndef anchor_match(objects, anchors):\n    a = torch.tensor(objects, dtype=torch.float32)\n    b = torch.tensor(anchors, dtype=torch.float32)\n    inter = torch.minimum(a[:, None], b[None]).prod(dim=2)\n    union = a.prod(dim=1)[:, None] + b.prod(dim=1)[None] - inter\n    return (inter / union).argmax(dim=1).tolist()\n\nanchors = [[8, 8], [8, 16], [16, 8]]\nprint(anchor_match([[6, 14], [15, 7], [10, 10], [4, 4]], anchors))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\n\n\ndef anchor_match(objects, anchors):\n    a = torch.tensor(objects, dtype=torch.float32)\n    b = torch.tensor(anchors, dtype=torch.float32)\n    inter = torch.minimum(a[:, None], b[None]).prod(dim=2)\n    union = a.prod(dim=1)[:, None] + b.prod(dim=1)[None] - inter\n    return (inter / union).argmax(dim=1).tolist()\n\nanchors = [[8, 8], [8, 16], [16, 8]]\nprint(anchor_match([[6, 14], [15, 7], [10, 10], [4, 4]], anchors))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "anchor_match",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                6,
+                14
+              ],
+              [
+                15,
+                7
+              ],
+              [
+                10,
+                10
+              ],
+              [
+                4,
+                4
+              ]
+            ],
+            [
+              [
+                8,
+                8
+              ],
+              [
+                8,
+                16
+              ],
+              [
+                16,
+                8
+              ]
+            ]
+          ],
+          "returns": [
+            1,
+            2,
+            0,
+            0
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                30,
+                10
+              ]
+            ],
+            [
+              [
+                10,
+                10
+              ],
+              [
+                30,
+                12
+              ]
+            ]
+          ],
+          "returns": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2, 0, 0]"
+    }
+  ]
+}

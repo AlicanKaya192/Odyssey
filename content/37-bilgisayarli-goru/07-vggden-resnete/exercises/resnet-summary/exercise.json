@@ -1,0 +1,60 @@
+{
+  "id": "resnet-summary",
+  "title": {
+    "tr": "ResNet-18 özeti",
+    "en": "A ResNet-18 summary"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`model.fc = nn.Linear(model.fc.in_features, num_classes)`.",
+      "en": "`model.fc = nn.Linear(model.fc.in_features, num_classes)`."
+    },
+    {
+      "tr": "Evrişimleri `model.modules()` içinde `isinstance(m, nn.Conv2d)` ile say.",
+      "en": "Count the convolutions in `model.modules()` with `isinstance(m, nn.Conv2d)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom torch import nn\nfrom torchvision import models\n\n\ndef resnet_summary(num_classes):\n    model = models.resnet18(weights=None)\n    model.fc = nn.Linear(model.fc.in_features, num_classes)\n    convs = sum(1 for m in model.modules() if isinstance(m, nn.Conv2d))\n    params = sum(p.numel() for p in model.parameters())\n    return [convs, params]\n\nprint(resnet_summary(3))\nprint(resnet_summary(10))\n```",
+      "en": "The full solution:\n\n```python\nfrom torch import nn\nfrom torchvision import models\n\n\ndef resnet_summary(num_classes):\n    model = models.resnet18(weights=None)\n    model.fc = nn.Linear(model.fc.in_features, num_classes)\n    convs = sum(1 for m in model.modules() if isinstance(m, nn.Conv2d))\n    params = sum(p.numel() for p in model.parameters())\n    return [convs, params]\n\nprint(resnet_summary(3))\nprint(resnet_summary(10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "resnet_summary",
+      "cases": [
+        {
+          "args": [
+            2
+          ],
+          "returns": [
+            20,
+            11177538
+          ]
+        },
+        {
+          "args": [
+            100
+          ],
+          "returns": [
+            20,
+            11227812
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[20, 11178051]\n[20, 11181642]"
+    }
+  ]
+}

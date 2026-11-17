@@ -1,0 +1,90 @@
+{
+  "id": "pad-crop",
+  "title": {
+    "tr": "Dolgu ve kırpma",
+    "en": "Pad and crop"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`F.pad(x, (padding, padding, padding, padding))` dört yana ekler.",
+      "en": "`F.pad(x, (padding, padding, padding, padding))` pads all four sides."
+    },
+    {
+      "tr": "Kesmek: `padded[top:top + h, left:left + w]`.",
+      "en": "Cutting: `padded[top:top + h, left:left + w]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef pad_crop(img, padding, top, left):\n    x = torch.tensor(img)\n    h, w = x.shape\n    padded = F.pad(x, (padding, padding, padding, padding))\n    return padded[top:top + h, left:left + w].tolist()\n\nimg = [[1, 2], [3, 4]]\nprint(pad_crop(img, 1, 0, 0))\nprint(pad_crop(img, 1, 1, 1))\nprint(pad_crop(img, 1, 2, 2))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef pad_crop(img, padding, top, left):\n    x = torch.tensor(img)\n    h, w = x.shape\n    padded = F.pad(x, (padding, padding, padding, padding))\n    return padded[top:top + h, left:left + w].tolist()\n\nimg = [[1, 2], [3, 4]]\nprint(pad_crop(img, 1, 0, 0))\nprint(pad_crop(img, 1, 1, 1))\nprint(pad_crop(img, 1, 2, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pad_crop",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                5,
+                6,
+                7
+              ]
+            ],
+            2,
+            2,
+            0
+          ],
+          "returns": [
+            [
+              0,
+              0,
+              5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                4
+              ]
+            ],
+            2,
+            0,
+            3
+          ],
+          "returns": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0, 0], [0, 1]]\n[[1, 2], [3, 4]]\n[[4, 0], [0, 0]]"
+    }
+  ]
+}

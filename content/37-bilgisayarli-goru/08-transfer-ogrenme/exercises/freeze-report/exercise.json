@@ -1,0 +1,60 @@
+{
+  "id": "freeze-report",
+  "title": {
+    "tr": "Dondurma raporu",
+    "en": "A freeze report"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Önce `for p in model.parameters(): p.requires_grad = False`, sonra yeni `fc`.",
+      "en": "First `for p in model.parameters(): p.requires_grad = False`, then the new `fc`."
+    },
+    {
+      "tr": "İki toplam: `requires_grad` olanlar ve olmayanlar.",
+      "en": "Two sums: with and without `requires_grad`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom torch import nn\nfrom torchvision import models\n\n\ndef freeze_report(num_classes):\n    model = models.resnet18(weights=None)\n    for p in model.parameters():\n        p.requires_grad = False\n    model.fc = nn.Linear(model.fc.in_features, num_classes)\n    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)\n    frozen = sum(p.numel() for p in model.parameters() if not p.requires_grad)\n    return [trainable, frozen]\n\nprint(freeze_report(2))\nprint(freeze_report(10))\n```",
+      "en": "The full solution:\n\n```python\nfrom torch import nn\nfrom torchvision import models\n\n\ndef freeze_report(num_classes):\n    model = models.resnet18(weights=None)\n    for p in model.parameters():\n        p.requires_grad = False\n    model.fc = nn.Linear(model.fc.in_features, num_classes)\n    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)\n    frozen = sum(p.numel() for p in model.parameters() if not p.requires_grad)\n    return [trainable, frozen]\n\nprint(freeze_report(2))\nprint(freeze_report(10))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "freeze_report",
+      "cases": [
+        {
+          "args": [
+            3
+          ],
+          "returns": [
+            1539,
+            11176512
+          ]
+        },
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            513,
+            11176512
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1026, 11176512]\n[5130, 11176512]"
+    }
+  ]
+}

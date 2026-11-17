@@ -1,0 +1,108 @@
+{
+  "id": "channel-stats",
+  "title": {
+    "tr": "Kanal istatistikleri",
+    "en": "Channel statistics"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Kanal dışındaki boyutlar: `dim=(0, 2, 3)`.",
+      "en": "The dimensions other than the channel: `dim=(0, 2, 3)`."
+    },
+    {
+      "tr": "`x.mean(dim=...)` ve `x.std(dim=...)`, sonra `tolist()` ve yuvarla.",
+      "en": "`x.mean(dim=...)` and `x.std(dim=...)`, then `tolist()` and round."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef channel_stats(batch):\n    x = torch.tensor(batch)\n    means = x.mean(dim=(0, 2, 3)).tolist()\n    stds = x.std(dim=(0, 2, 3)).tolist()\n    return [round(m, 3) for m in means], [round(s, 3) for s in stds]\n\nbatch = [[[[0.0, 1.0]], [[0.5, 0.5]]], [[[1.0, 1.0]], [[0.5, 0.5]]]]\nmeans, stds = channel_stats(batch)\nprint(means)\nprint(stds)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef channel_stats(batch):\n    x = torch.tensor(batch)\n    means = x.mean(dim=(0, 2, 3)).tolist()\n    stds = x.std(dim=(0, 2, 3)).tolist()\n    return [round(m, 3) for m in means], [round(s, 3) for s in stds]\n\nbatch = [[[[0.0, 1.0]], [[0.5, 0.5]]], [[[1.0, 1.0]], [[0.5, 0.5]]]]\nmeans, stds = channel_stats(batch)\nprint(means)\nprint(stds)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "channel_stats",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                [
+                  [
+                    1.0,
+                    3.0
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                2.0
+              ],
+              [
+                1.414
+              ]
+            ]
+          }
+        },
+        {
+          "args": [
+            [
+              [
+                [
+                  [
+                    0.0
+                  ]
+                ],
+                [
+                  [
+                    2.0
+                  ]
+                ]
+              ],
+              [
+                [
+                  [
+                    2.0
+                  ]
+                ],
+                [
+                  [
+                    2.0
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "returns": {
+            "__tuple__": [
+              [
+                1.0,
+                2.0
+              ],
+              [
+                1.414,
+                0.0
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.75, 0.5]\n[0.5, 0.0]"
+    }
+  ]
+}

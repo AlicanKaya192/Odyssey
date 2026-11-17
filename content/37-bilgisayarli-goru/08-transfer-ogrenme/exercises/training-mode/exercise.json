@@ -1,0 +1,36 @@
+{
+  "id": "training-mode",
+  "title": {
+    "tr": "Gövde eval'de",
+    "en": "Body in eval"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Önce `model.train()`: bütün alt katmanlar eğitim kipine geçer.",
+      "en": "First `model.train()`: all sublayers switch to training mode."
+    },
+    {
+      "tr": "Sonra `model[0].eval()`.",
+      "en": "Then `model[0].eval()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom torch import nn\n\n\ndef training_mode(model):\n    model.train()\n    model[0].eval()\n\nmodel = nn.Sequential(\n    nn.Sequential(nn.Conv2d(1, 4, 3), nn.BatchNorm2d(4), nn.ReLU(), nn.AdaptiveAvgPool2d(1), nn.Flatten()),\n    nn.Linear(4, 2),\n)\nmodel.eval()\ntraining_mode(model)\nprint(model.training, model[0].training, model[1].training)\nprint(model[0][1].training)\n```",
+      "en": "The full solution:\n\n```python\nfrom torch import nn\n\n\ndef training_mode(model):\n    model.train()\n    model[0].eval()\n\nmodel = nn.Sequential(\n    nn.Sequential(nn.Conv2d(1, 4, 3), nn.BatchNorm2d(4), nn.ReLU(), nn.AdaptiveAvgPool2d(1), nn.Flatten()),\n    nn.Linear(4, 2),\n)\nmodel.eval()\ntraining_mode(model)\nprint(model.training, model[0].training, model[1].training)\nprint(model[0][1].training)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True False True\nFalse"
+    }
+  ]
+}

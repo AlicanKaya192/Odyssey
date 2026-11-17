@@ -1,0 +1,82 @@
+{
+  "id": "scene-summary",
+  "title": {
+    "tr": "Sahne özeti",
+    "en": "A scene summary"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Bütün kutuları tek listede topla: `[box for scene in boxes for box in scene]`.",
+      "en": "Collect all boxes in one list: `[box for scene in boxes for box in scene]`."
+    },
+    {
+      "tr": "Sınıf `box[4]`; alanların ortalamasını yuvarla.",
+      "en": "The class is `box[4]`; round the mean of the areas."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nfrom dl_data import make_scenes\n\n\ndef scene_summary(n, seed):\n    images, boxes, masks = make_scenes(n, size=32, seed=seed)\n    objects = [box for scene in boxes for box in scene]\n    per_class = [sum(1 for box in objects if box[4] == c) for c in range(3)]\n    areas = [(x2 - x1) * (y2 - y1) for x1, y1, x2, y2, label in objects]\n    return [len(objects), per_class, round(sum(areas) / len(areas), 1)]\n\nprint(scene_summary(100, 7))\nprint(scene_summary(50, 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nfrom dl_data import make_scenes\n\n\ndef scene_summary(n, seed):\n    images, boxes, masks = make_scenes(n, size=32, seed=seed)\n    objects = [box for scene in boxes for box in scene]\n    per_class = [sum(1 for box in objects if box[4] == c) for c in range(3)]\n    areas = [(x2 - x1) * (y2 - y1) for x1, y1, x2, y2, label in objects]\n    return [len(objects), per_class, round(sum(areas) / len(areas), 1)]\n\nprint(scene_summary(100, 7))\nprint(scene_summary(50, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "scene_summary",
+      "cases": [
+        {
+          "args": [
+            10,
+            1
+          ],
+          "returns": [
+            19,
+            [
+              8,
+              7,
+              4
+            ],
+            69.6
+          ]
+        },
+        {
+          "args": [
+            5,
+            2
+          ],
+          "returns": [
+            12,
+            [
+              1,
+              4,
+              7
+            ],
+            63.4
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[197, [72, 66, 59], 72.0]\n[96, [27, 33, 36], 74.1]"
+    }
+  ]
+}

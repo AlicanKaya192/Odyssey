@@ -1,0 +1,75 @@
+{
+  "id": "vgg-config",
+  "title": {
+    "tr": "Yapılandırmadan VGG",
+    "en": "VGG from a configuration"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Son kanal sayısını bir değişkende tut: sonraki evrişimin girişi o.",
+      "en": "Keep the last channel count in a variable: it is the next convolution's input."
+    },
+    {
+      "tr": "Şekil: `list(model(torch.zeros(1, 1, 16, 16)).shape[1:])`.",
+      "en": "Shape: `list(model(torch.zeros(1, 1, 16, 16)).shape[1:])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef vgg_summary(config):\n    layers = []\n    channels = 1\n    for item in config:\n        if item == \"M\":\n            layers.append(nn.MaxPool2d(2))\n        else:\n            layers += [nn.Conv2d(channels, item, 3, padding=1), nn.ReLU()]\n            channels = item\n    model = nn.Sequential(*layers)\n    shape = list(model(torch.zeros(1, 1, 16, 16)).shape[1:])\n    return [sum(p.numel() for p in model.parameters()), shape]\n\nprint(vgg_summary([16, 16, \"M\", 32, 32, \"M\"]))\nprint(vgg_summary([8, \"M\", 8, \"M\", 8, \"M\"]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef vgg_summary(config):\n    layers = []\n    channels = 1\n    for item in config:\n        if item == \"M\":\n            layers.append(nn.MaxPool2d(2))\n        else:\n            layers += [nn.Conv2d(channels, item, 3, padding=1), nn.ReLU()]\n            channels = item\n    model = nn.Sequential(*layers)\n    shape = list(model(torch.zeros(1, 1, 16, 16)).shape[1:])\n    return [sum(p.numel() for p in model.parameters()), shape]\n\nprint(vgg_summary([16, 16, \"M\", 32, 32, \"M\"]))\nprint(vgg_summary([8, \"M\", 8, \"M\", 8, \"M\"]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "vgg_summary",
+      "cases": [
+        {
+          "args": [
+            [
+              4
+            ]
+          ],
+          "returns": [
+            40,
+            [
+              4,
+              16,
+              16
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              4,
+              "M",
+              8,
+              "M"
+            ]
+          ],
+          "returns": [
+            336,
+            [
+              8,
+              4,
+              4
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[16368, [32, 4, 4]]\n[1248, [8, 2, 2]]"
+    }
+  ]
+}

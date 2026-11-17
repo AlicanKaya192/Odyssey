@@ -1,0 +1,73 @@
+{
+  "id": "average-precision",
+  "title": {
+    "tr": "Ortalama kesinlik",
+    "en": "Average precision"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Zarfı sağdan sola gezerek kur: `envelope[i] = max(envelope[i], envelope[i + 1])`.",
+      "en": "Build the envelope going right to left: `envelope[i] = max(envelope[i], envelope[i + 1])`."
+    },
+    {
+      "tr": "Önceki duyarlılığı bir değişkende tut, farkı zarfla çarp.",
+      "en": "Keep the previous recall in a variable and multiply the difference by the envelope."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef average_precision(hits, total_truth):\n    precisions, recalls = [], []\n    tp = 0\n    for k, hit in enumerate(hits, start=1):\n        tp += hit\n        precisions.append(tp / k)\n        recalls.append(tp / total_truth)\n    envelope = precisions[:]\n    for i in range(len(envelope) - 2, -1, -1):\n        envelope[i] = max(envelope[i], envelope[i + 1])\n    ap, previous = 0.0, 0.0\n    for recall, height in zip(recalls, envelope):\n        ap += (recall - previous) * height\n        previous = recall\n    return round(ap, 3)\n\nprint(average_precision([1, 1, 0, 1, 1, 0, 0, 1, 0, 0], 6))\nprint(average_precision([1, 0, 1, 0], 2))\nprint(average_precision([0, 0, 1], 1))\n```",
+      "en": "The full solution:\n\n```python\ndef average_precision(hits, total_truth):\n    precisions, recalls = [], []\n    tp = 0\n    for k, hit in enumerate(hits, start=1):\n        tp += hit\n        precisions.append(tp / k)\n        recalls.append(tp / total_truth)\n    envelope = precisions[:]\n    for i in range(len(envelope) - 2, -1, -1):\n        envelope[i] = max(envelope[i], envelope[i + 1])\n    ap, previous = 0.0, 0.0\n    for recall, height in zip(recalls, envelope):\n        ap += (recall - previous) * height\n        previous = recall\n    return round(ap, 3)\n\nprint(average_precision([1, 1, 0, 1, 1, 0, 0, 1, 0, 0], 6))\nprint(average_precision([1, 0, 1, 0], 2))\nprint(average_precision([0, 0, 1], 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "average_precision",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              1
+            ],
+            2
+          ],
+          "returns": 1.0
+        },
+        {
+          "args": [
+            [
+              1,
+              0,
+              0,
+              1
+            ],
+            4
+          ],
+          "returns": 0.375
+        },
+        {
+          "args": [
+            [
+              0
+            ],
+            3
+          ],
+          "returns": 0.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.704\n0.833\n0.333"
+    }
+  ]
+}

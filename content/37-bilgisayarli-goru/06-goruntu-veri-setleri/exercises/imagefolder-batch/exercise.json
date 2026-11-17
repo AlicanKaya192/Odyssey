@@ -1,0 +1,46 @@
+{
+  "id": "imagefolder-batch",
+  "title": {
+    "tr": "ImageFolder'dan yığın",
+    "en": "A batch from ImageFolder"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`datasets.ImageFolder(root, transform=gray)`.",
+      "en": "`datasets.ImageFolder(root, transform=gray)`."
+    },
+    {
+      "tr": "`DataLoader(data, batch_size=8, shuffle=True, generator=...)`.",
+      "en": "`DataLoader(data, batch_size=8, shuffle=True, generator=...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport tempfile\nfrom pathlib import Path\n\nimport numpy as np\nimport torch\nfrom PIL import Image\nfrom torch.utils.data import DataLoader\nfrom torchvision import datasets\nfrom torchvision.transforms import v2\nfrom dl_data import make_shapes, SHAPES\n\nimages, labels = make_shapes(40, seed=2)\nwith tempfile.TemporaryDirectory() as root:\n    for i, (img, label) in enumerate(zip(images, labels)):\n        target = Path(root) / SHAPES[label]\n        target.mkdir(exist_ok=True)\n        Image.fromarray((img[0] * 255).round().astype(np.uint8)).save(target / f\"{i:02d}.png\")\n    gray = v2.Compose([v2.ToImage(), v2.Grayscale(), v2.ToDtype(torch.float32, scale=True)])\n    data = datasets.ImageFolder(root, transform=gray)\n    loader = DataLoader(data, batch_size=8, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    batch, batch_labels = next(iter(loader))\n    print(len(data), len(loader))\n    print(tuple(batch.shape), batch_labels.dtype)\n    print(round(batch.max().item(), 2) <= 1.0)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport tempfile\nfrom pathlib import Path\n\nimport numpy as np\nimport torch\nfrom PIL import Image\nfrom torch.utils.data import DataLoader\nfrom torchvision import datasets\nfrom torchvision.transforms import v2\nfrom dl_data import make_shapes, SHAPES\n\nimages, labels = make_shapes(40, seed=2)\nwith tempfile.TemporaryDirectory() as root:\n    for i, (img, label) in enumerate(zip(images, labels)):\n        target = Path(root) / SHAPES[label]\n        target.mkdir(exist_ok=True)\n        Image.fromarray((img[0] * 255).round().astype(np.uint8)).save(target / f\"{i:02d}.png\")\n    gray = v2.Compose([v2.ToImage(), v2.Grayscale(), v2.ToDtype(torch.float32, scale=True)])\n    data = datasets.ImageFolder(root, transform=gray)\n    loader = DataLoader(data, batch_size=8, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    batch, batch_labels = next(iter(loader))\n    print(len(data), len(loader))\n    print(tuple(batch.shape), batch_labels.dtype)\n    print(round(batch.max().item(), 2) <= 1.0)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "40 5\n(8, 1, 16, 16) torch.int64\nTrue"
+    }
+  ]
+}

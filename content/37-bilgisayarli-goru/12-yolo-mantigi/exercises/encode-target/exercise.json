@@ -1,0 +1,179 @@
+{
+  "id": "encode-target",
+  "title": {
+    "tr": "Hedef tensörü",
+    "en": "The target tensor"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.zeros(S, S, 5 + C)`; hücre `int(cy // cell), int(cx // cell)`.",
+      "en": "`torch.zeros(S, S, 5 + C)`; the cell is `int(cy // cell), int(cx // cell)`."
+    },
+    {
+      "tr": "Hücre içi x: `cx / cell - col`; sınıf `target[row, col, 5 + label] = 1`.",
+      "en": "In-cell x: `cx / cell - col`; the class is `target[row, col, 5 + label] = 1`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\n\n\ndef encode(boxes, S, size, C):\n    cell = size / S\n    target = torch.zeros(S, S, 5 + C)\n    for x1, y1, x2, y2, label in boxes:\n        cx, cy = (x1 + x2) / 2, (y1 + y2) / 2\n        row, col = int(cy // cell), int(cx // cell)\n        target[row, col, 0] = 1\n        target[row, col, 1] = cx / cell - col\n        target[row, col, 2] = cy / cell - row\n        target[row, col, 3] = (x2 - x1) / size\n        target[row, col, 4] = (y2 - y1) / size\n        target[row, col, 5 + label] = 1\n    return target.tolist()\n\ntarget = encode([[2, 4, 10, 12, 0], [8, 0, 16, 4, 1]], 2, 16, 2)\nfor row in target:\n    for cell in row:\n        print(cell)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\n\n\ndef encode(boxes, S, size, C):\n    cell = size / S\n    target = torch.zeros(S, S, 5 + C)\n    for x1, y1, x2, y2, label in boxes:\n        cx, cy = (x1 + x2) / 2, (y1 + y2) / 2\n        row, col = int(cy // cell), int(cx // cell)\n        target[row, col, 0] = 1\n        target[row, col, 1] = cx / cell - col\n        target[row, col, 2] = cy / cell - row\n        target[row, col, 3] = (x2 - x1) / size\n        target[row, col, 4] = (y2 - y1) / size\n        target[row, col, 5 + label] = 1\n    return target.tolist()\n\ntarget = encode([[2, 4, 10, 12, 0], [8, 0, 16, 4, 1]], 2, 16, 2)\nfor row in target:\n    for cell in row:\n        print(cell)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "encode",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                2,
+                4,
+                10,
+                12,
+                0
+              ],
+              [
+                8,
+                0,
+                16,
+                4,
+                1
+              ]
+            ],
+            2,
+            16,
+            2
+          ],
+          "returns": [
+            [
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.5,
+                0.25,
+                0.5,
+                0.25,
+                0.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                0.75,
+                0.0,
+                0.5,
+                0.5,
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                8,
+                8,
+                1
+              ]
+            ],
+            2,
+            8,
+            3
+          ],
+          "returns": [
+            [
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                0.0,
+                0.0,
+                1.0,
+                1.0,
+                0.0,
+                1.0,
+                0.0
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\n[1.0, 0.5, 0.25, 0.5, 0.25, 0.0, 1.0]\n[1.0, 0.75, 0.0, 0.5, 0.5, 1.0, 0.0]\n[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "augmentation-helps",
+  "title": {
+    "tr": "Artırma işe yarıyor mu?",
+    "en": "Does augmentation help?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Eğitim döngüsü önceki bölümdekinin aynısı; yalnızca veri seti `transform` alıyor.",
+      "en": "The training loop is the same as before; only the dataset takes `transform`."
+    },
+    {
+      "tr": "Eğitim doğruluğu için `torch.from_numpy(x_small)` kullan, dönüşümsüz.",
+      "en": "For training accuracy use `torch.from_numpy(x_small)`, without the transform."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom torch.utils.data import DataLoader, Dataset\nfrom torchvision.transforms import v2\nfrom dl_data import make_shapes\n\n\nclass Shapes(Dataset):\n    def __init__(self, x, y, transform=None):\n        self.x, self.y, self.transform = torch.from_numpy(x), torch.from_numpy(y), transform\n\n    def __len__(self):\n        return len(self.y)\n\n    def __getitem__(self, i):\n        image = self.x[i] if self.transform is None else self.transform(self.x[i])\n        return image, self.y[i]\n\n\nx_small, y_small = make_shapes(90, seed=1)\nx_test, y_test = make_shapes(300, seed=2)\nx_test, y_test = torch.from_numpy(x_test), torch.from_numpy(y_test)\naugment = v2.Compose([v2.RandomHorizontalFlip(), v2.RandomCrop(16, padding=3)])\n\n\ndef fit(transform):\n    torch.manual_seed(0)\n    model = nn.Sequential(\n        nn.Conv2d(1, 8, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(8, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Flatten(), nn.Linear(256, 3),\n    )\n    optimizer = torch.optim.Adam(model.parameters(), lr=0.005)\n    loader = DataLoader(Shapes(x_small, y_small, transform), batch_size=16, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    for epoch in range(25):\n        model.train()\n        for xb, yb in loader:\n            optimizer.zero_grad()\n            F.cross_entropy(model(xb), yb).backward()\n            optimizer.step()\n    model.eval()\n    with torch.no_grad():\n        train_x, train_y = torch.from_numpy(x_small), torch.from_numpy(y_small)\n        train_acc = (model(train_x).argmax(1) == train_y).float().mean().item()\n        test_acc = (model(x_test).argmax(1) == y_test).float().mean().item()\n    return train_acc, test_acc\n\nplain_train, plain_test = fit(None)\naug_train, aug_test = fit(augment)\nprint(plain_train - plain_test > 0.1)\nprint(aug_train - aug_test < 0.1)\nprint(aug_test > plain_test)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom torch.utils.data import DataLoader, Dataset\nfrom torchvision.transforms import v2\nfrom dl_data import make_shapes\n\n\nclass Shapes(Dataset):\n    def __init__(self, x, y, transform=None):\n        self.x, self.y, self.transform = torch.from_numpy(x), torch.from_numpy(y), transform\n\n    def __len__(self):\n        return len(self.y)\n\n    def __getitem__(self, i):\n        image = self.x[i] if self.transform is None else self.transform(self.x[i])\n        return image, self.y[i]\n\n\nx_small, y_small = make_shapes(90, seed=1)\nx_test, y_test = make_shapes(300, seed=2)\nx_test, y_test = torch.from_numpy(x_test), torch.from_numpy(y_test)\naugment = v2.Compose([v2.RandomHorizontalFlip(), v2.RandomCrop(16, padding=3)])\n\n\ndef fit(transform):\n    torch.manual_seed(0)\n    model = nn.Sequential(\n        nn.Conv2d(1, 8, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(8, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Flatten(), nn.Linear(256, 3),\n    )\n    optimizer = torch.optim.Adam(model.parameters(), lr=0.005)\n    loader = DataLoader(Shapes(x_small, y_small, transform), batch_size=16, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    for epoch in range(25):\n        model.train()\n        for xb, yb in loader:\n            optimizer.zero_grad()\n            F.cross_entropy(model(xb), yb).backward()\n            optimizer.step()\n    model.eval()\n    with torch.no_grad():\n        train_x, train_y = torch.from_numpy(x_small), torch.from_numpy(y_small)\n        train_acc = (model(train_x).argmax(1) == train_y).float().mean().item()\n        test_acc = (model(x_test).argmax(1) == y_test).float().mean().item()\n    return train_acc, test_acc\n\nplain_train, plain_test = fit(None)\naug_train, aug_test = fit(augment)\nprint(plain_train - plain_test > 0.1)\nprint(aug_train - aug_test < 0.1)\nprint(aug_test > plain_test)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nTrue\nTrue"
+    }
+  ]
+}

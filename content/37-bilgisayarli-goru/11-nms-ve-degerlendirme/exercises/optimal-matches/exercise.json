@@ -1,0 +1,75 @@
+{
+  "id": "optimal-matches",
+  "title": {
+    "tr": "Macar eşleştirmesi",
+    "en": "Hungarian matching"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`linear_sum_assignment(-ious.numpy())` satır ve sütun numaralarını verir.",
+      "en": "`linear_sum_assignment(-ious.numpy())` gives row and column numbers."
+    },
+    {
+      "tr": "Eşiği geçmeyen çifti atla; numaraları `int(...)` ile düz sayıya çevir.",
+      "en": "Skip pairs below the threshold; turn the numbers into plain ints with `int(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom scipy.optimize import linear_sum_assignment\nfrom torchvision.ops import box_iou\n\n\ndef optimal_matches(predicted, truth, threshold):\n    ious = box_iou(torch.tensor(predicted, dtype=torch.float32), torch.tensor(truth, dtype=torch.float32))\n    rows, cols = linear_sum_assignment(-ious.numpy())\n    pairs = [[int(r), int(c)] for r, c in zip(rows, cols) if ious[r, c] >= threshold]\n    return sorted(pairs)\n\ntruth = [[0, 0, 10, 10], [4, 0, 14, 10]]\npredicted = [[3, 0, 13, 10], [5, 0, 15, 10]]\nprint(optimal_matches(predicted, truth, 0.5))\nprint(optimal_matches([[40, 40, 50, 50]] + predicted, truth, 0.5))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom scipy.optimize import linear_sum_assignment\nfrom torchvision.ops import box_iou\n\n\ndef optimal_matches(predicted, truth, threshold):\n    ious = box_iou(torch.tensor(predicted, dtype=torch.float32), torch.tensor(truth, dtype=torch.float32))\n    rows, cols = linear_sum_assignment(-ious.numpy())\n    pairs = [[int(r), int(c)] for r, c in zip(rows, cols) if ious[r, c] >= threshold]\n    return sorted(pairs)\n\ntruth = [[0, 0, 10, 10], [4, 0, 14, 10]]\npredicted = [[3, 0, 13, 10], [5, 0, 15, 10]]\nprint(optimal_matches(predicted, truth, 0.5))\nprint(optimal_matches([[40, 40, 50, 50]] + predicted, truth, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "optimal_matches",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                10,
+                10
+              ]
+            ],
+            [
+              [
+                1,
+                0,
+                11,
+                10
+              ],
+              [
+                0,
+                0,
+                10,
+                10
+              ]
+            ],
+            0.5
+          ],
+          "returns": [
+            [
+              0,
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0, 0], [1, 1]]\n[[1, 0], [2, 1]]"
+    }
+  ]
+}

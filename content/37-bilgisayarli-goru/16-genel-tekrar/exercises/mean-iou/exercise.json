@@ -1,0 +1,150 @@
+{
+  "id": "mean-iou",
+  "title": {
+    "tr": "mIoU",
+    "en": "mIoU"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Birleşimi 0 olan sınıfta `continue`.",
+      "en": "`continue` for a class whose union is 0."
+    },
+    {
+      "tr": "Ortalama, kalan IoU'ların toplamı / sayısı.",
+      "en": "The mean is the sum of the remaining IoUs / their count."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\n\n\ndef mean_iou(predicted, truth, num_classes):\n    p = torch.tensor(predicted)\n    t = torch.tensor(truth)\n    scores = []\n    for c in range(num_classes):\n        union = ((p == c) | (t == c)).sum().item()\n        if union == 0:\n            continue\n        scores.append(((p == c) & (t == c)).sum().item() / union)\n    return round(sum(scores) / len(scores), 3)\n\ntruth = [[0, 0, 1], [0, 1, 1], [2, 2, 0]]\npredicted = [[0, 0, 1], [0, 0, 1], [2, 0, 0]]\nprint(mean_iou(predicted, truth, 3))\nprint(mean_iou(predicted, truth, 5))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\n\n\ndef mean_iou(predicted, truth, num_classes):\n    p = torch.tensor(predicted)\n    t = torch.tensor(truth)\n    scores = []\n    for c in range(num_classes):\n        union = ((p == c) | (t == c)).sum().item()\n        if union == 0:\n            continue\n        scores.append(((p == c) & (t == c)).sum().item() / union)\n    return round(sum(scores) / len(scores), 3)\n\ntruth = [[0, 0, 1], [0, 1, 1], [2, 2, 0]]\npredicted = [[0, 0, 1], [0, 0, 1], [2, 0, 0]]\nprint(mean_iou(predicted, truth, 3))\nprint(mean_iou(predicted, truth, 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "mean_iou",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                2,
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                1,
+                1
+              ],
+              [
+                2,
+                2,
+                0
+              ]
+            ],
+            3
+          ],
+          "returns": 0.611
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                2,
+                0,
+                0
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                1,
+                1
+              ],
+              [
+                2,
+                2,
+                0
+              ]
+            ],
+            5
+          ],
+          "returns": 0.611
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                1
+              ]
+            ],
+            [
+              [
+                1,
+                1
+              ]
+            ],
+            2
+          ],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.611\n0.611"
+    }
+  ]
+}

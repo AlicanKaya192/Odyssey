@@ -1,0 +1,83 @@
+{
+  "id": "cnn-params",
+  "title": {
+    "tr": "Evrişimlerin parametreleri",
+    "en": "Parameters of convolutions"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Komşu çiftler: `zip(channels, channels[1:])`.",
+      "en": "Neighbouring pairs: `zip(channels, channels[1:])`."
+    },
+    {
+      "tr": "`sum(p.numel() for ... in layer.parameters())`.",
+      "en": "`sum(p.numel() for ... in layer.parameters())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef cnn_params(channels, kernel):\n    layers = [nn.Conv2d(a, b, kernel) for a, b in zip(channels, channels[1:])]\n    return sum(p.numel() for layer in layers for p in layer.parameters())\n\nprint(cnn_params([1, 8, 16], 3))\nprint(cnn_params([3, 16], 5))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef cnn_params(channels, kernel):\n    layers = [nn.Conv2d(a, b, kernel) for a, b in zip(channels, channels[1:])]\n    return sum(p.numel() for layer in layers for p in layer.parameters())\n\nprint(cnn_params([1, 8, 16], 3))\nprint(cnn_params([3, 16], 5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cnn_params",
+      "cases": [
+        {
+          "args": [
+            [
+              1,
+              8,
+              16
+            ],
+            3
+          ],
+          "returns": 1248
+        },
+        {
+          "args": [
+            [
+              3,
+              16
+            ],
+            5
+          ],
+          "returns": 1216
+        },
+        {
+          "args": [
+            [
+              1,
+              1
+            ],
+            1
+          ],
+          "returns": 2
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1248\n1216"
+    }
+  ]
+}

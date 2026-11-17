@@ -1,0 +1,126 @@
+{
+  "id": "same-size",
+  "title": {
+    "tr": "Boyu korumak",
+    "en": "Keeping the size"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Girdiyi `[None, None]` ile `(1, 1, H, W)` yap; çekirdeği de.",
+      "en": "Make the input `(1, 1, H, W)` with `[None, None]`; the kernel too."
+    },
+    {
+      "tr": "Dolgu `len(kernel) // 2`; sonucu `[0, 0].int().tolist()`.",
+      "en": "The padding is `len(kernel) // 2`; then `[0, 0].int().tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef same_size(img, kernel):\n    x = torch.tensor(img, dtype=torch.float32)[None, None]\n    w = torch.tensor(kernel, dtype=torch.float32)[None, None]\n    out = F.conv2d(x, w, padding=len(kernel) // 2)\n    return out[0, 0].int().tolist()\n\nimg = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]]\nfor row in same_size(img, [[1, 1, 1], [1, 1, 1], [1, 1, 1]]):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef same_size(img, kernel):\n    x = torch.tensor(img, dtype=torch.float32)[None, None]\n    w = torch.tensor(kernel, dtype=torch.float32)[None, None]\n    out = F.conv2d(x, w, padding=len(kernel) // 2)\n    return out[0, 0].int().tolist()\n\nimg = [[0, 0, 0, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0]]\nfor row in same_size(img, [[1, 1, 1], [1, 1, 1], [1, 1, 1]]):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "same_size",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                4
+              ]
+            ],
+            [
+              [
+                1
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1,
+                0,
+                2
+              ],
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                3,
+                0,
+                1
+              ]
+            ],
+            [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                2,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              2,
+              0,
+              4
+            ],
+            [
+              0,
+              2,
+              0
+            ],
+            [
+              6,
+              0,
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2, 2, 1]\n[2, 4, 4, 2]\n[2, 4, 4, 2]\n[1, 2, 2, 1]"
+    }
+  ]
+}

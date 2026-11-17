@@ -1,0 +1,67 @@
+{
+  "id": "precision-at-k",
+  "title": {
+    "tr": "precision@k",
+    "en": "precision@k"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Benzerlik matrisinin köşegenini en küçük yap: `fill_diagonal_(-2)`.",
+      "en": "Make the diagonal the smallest: `fill_diagonal_(-2)`."
+    },
+    {
+      "tr": "`(y[nearest] == y[:, None]).float().mean()`.",
+      "en": "`(y[nearest] == y[:, None]).float().mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef precision_at_k(vectors, labels, k):\n    unit = F.normalize(torch.tensor(vectors), dim=1)\n    scores = unit @ unit.T\n    scores.fill_diagonal_(-2)\n    nearest = scores.topk(k, dim=1).indices\n    y = torch.tensor(labels)\n    return round((y[nearest] == y[:, None]).float().mean().item(), 3)\n\nvectors = [[1.0, 0.0], [0.9, 0.1], [0.0, 1.0], [0.1, 0.9], [0.8, 0.6]]\nlabels = [0, 0, 1, 1, 0]\nprint(precision_at_k(vectors, labels, 1))\nprint(precision_at_k(vectors, labels, 2))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef precision_at_k(vectors, labels, k):\n    unit = F.normalize(torch.tensor(vectors), dim=1)\n    scores = unit @ unit.T\n    scores.fill_diagonal_(-2)\n    nearest = scores.topk(k, dim=1).indices\n    y = torch.tensor(labels)\n    return round((y[nearest] == y[:, None]).float().mean().item(), 3)\n\nvectors = [[1.0, 0.0], [0.9, 0.1], [0.0, 1.0], [0.1, 0.9], [0.8, 0.6]]\nlabels = [0, 0, 1, 1, 0]\nprint(precision_at_k(vectors, labels, 1))\nprint(precision_at_k(vectors, labels, 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "precision_at_k",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.9,
+                0.1
+              ],
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            [
+              0,
+              0,
+              1
+            ],
+            1
+          ],
+          "returns": 0.667
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.0\n0.8"
+    }
+  ]
+}

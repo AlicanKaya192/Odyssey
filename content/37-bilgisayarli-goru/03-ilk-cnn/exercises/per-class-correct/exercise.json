@@ -1,0 +1,81 @@
+{
+  "id": "per-class-correct",
+  "title": {
+    "tr": "Sınıf başına doğru",
+    "en": "Right answers per class"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sınıf `c` için iki şart: etiket `c` ve tahmin `c`.",
+      "en": "For class `c`, two conditions: label `c` and prediction `c`."
+    },
+    {
+      "tr": "`((y == c) & (p == c)).sum().item()`.",
+      "en": "`((y == c) & (p == c)).sum().item()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef per_class_correct(predictions, labels, num_classes):\n    p = torch.tensor(predictions)\n    y = torch.tensor(labels)\n    return [((y == c) & (p == c)).sum().item() for c in range(num_classes)]\n\npredictions = [0, 1, 1, 2, 2, 0, 1]\nlabels = [0, 1, 2, 2, 2, 1, 1]\nprint(per_class_correct(predictions, labels, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef per_class_correct(predictions, labels, num_classes):\n    p = torch.tensor(predictions)\n    y = torch.tensor(labels)\n    return [((y == c) & (p == c)).sum().item() for c in range(num_classes)]\n\npredictions = [0, 1, 1, 2, 2, 0, 1]\nlabels = [0, 1, 2, 2, 2, 1, 1]\nprint(per_class_correct(predictions, labels, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "per_class_correct",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              0,
+              1,
+              1
+            ],
+            2
+          ],
+          "returns": [
+            1,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              2,
+              2,
+              2
+            ],
+            [
+              2,
+              2,
+              0
+            ],
+            3
+          ],
+          "returns": [
+            0,
+            0,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 2, 2]"
+    }
+  ]
+}

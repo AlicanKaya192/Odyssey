@@ -1,0 +1,46 @@
+{
+  "id": "complete-the-loop",
+  "title": {
+    "tr": "Döngüyü tamamla",
+    "en": "Complete the loop"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`optimizer.zero_grad()` kaybı hesaplamadan önce.",
+      "en": "`optimizer.zero_grad()` before computing the loss."
+    },
+    {
+      "tr": "Kayıptan sonra `loss.backward()`, en son `optimizer.step()`.",
+      "en": "After the loss, `loss.backward()`, and last `optimizer.step()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\nfrom dl_data import make_shapes\n\nx_train, y_train = make_shapes(600, seed=1)\nx_test, y_test = make_shapes(300, seed=2)\ntrain_set = TensorDataset(torch.from_numpy(x_train), torch.from_numpy(y_train))\nx_test, y_test = torch.from_numpy(x_test), torch.from_numpy(y_test)\nloader = DataLoader(train_set, batch_size=32, shuffle=True,\n                    generator=torch.Generator().manual_seed(0))\n\ntorch.manual_seed(0)\nmodel = nn.Sequential(\n    nn.Conv2d(1, 8, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n    nn.Conv2d(8, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n    nn.Flatten(), nn.Linear(256, 3),\n)\nloss_fn = nn.CrossEntropyLoss()\noptimizer = torch.optim.Adam(model.parameters(), lr=0.005)\n\nfor epoch in range(8):\n    model.train()\n    for images, labels in loader:\n        optimizer.zero_grad()\n        loss = loss_fn(model(images), labels)\n        loss.backward()\n        optimizer.step()\n\nmodel.eval()\nwith torch.no_grad():\n    acc = (model(x_test).argmax(dim=1) == y_test).float().mean().item()\nprint(len(loader))\nprint(acc > 0.85)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\nfrom dl_data import make_shapes\n\nx_train, y_train = make_shapes(600, seed=1)\nx_test, y_test = make_shapes(300, seed=2)\ntrain_set = TensorDataset(torch.from_numpy(x_train), torch.from_numpy(y_train))\nx_test, y_test = torch.from_numpy(x_test), torch.from_numpy(y_test)\nloader = DataLoader(train_set, batch_size=32, shuffle=True,\n                    generator=torch.Generator().manual_seed(0))\n\ntorch.manual_seed(0)\nmodel = nn.Sequential(\n    nn.Conv2d(1, 8, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n    nn.Conv2d(8, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),\n    nn.Flatten(), nn.Linear(256, 3),\n)\nloss_fn = nn.CrossEntropyLoss()\noptimizer = torch.optim.Adam(model.parameters(), lr=0.005)\n\nfor epoch in range(8):\n    model.train()\n    for images, labels in loader:\n        optimizer.zero_grad()\n        loss = loss_fn(model(images), labels)\n        loss.backward()\n        optimizer.step()\n\nmodel.eval()\nwith torch.no_grad():\n    acc = (model(x_test).argmax(dim=1) == y_test).float().mean().item()\nprint(len(loader))\nprint(acc > 0.85)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "19\nTrue"
+    }
+  ]
+}

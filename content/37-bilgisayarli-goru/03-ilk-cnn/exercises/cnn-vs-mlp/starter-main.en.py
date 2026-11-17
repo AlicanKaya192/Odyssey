@@ -1,0 +1,30 @@
+import torch
+from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
+from dl_data import make_shapes
+
+x_train, y_train = make_shapes(600, seed=1)
+x_test, y_test = make_shapes(300, seed=2)
+train_set = TensorDataset(torch.from_numpy(x_train), torch.from_numpy(y_train))
+x_test, y_test = torch.from_numpy(x_test), torch.from_numpy(y_test)
+
+
+def make_cnn():
+    return nn.Sequential(
+        nn.Conv2d(1, 8, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+        nn.Conv2d(8, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+        nn.Flatten(), nn.Linear(256, 3),
+    )
+
+
+def make_mlp():
+    return nn.Sequential(nn.Flatten(), nn.Linear(256, 64), nn.ReLU(), nn.Linear(64, 3))
+
+
+def train_and_test(make_model):
+    return 0.0
+
+cnn_acc = train_and_test(make_cnn)
+mlp_acc = train_and_test(make_mlp)
+print(cnn_acc > 0.85, mlp_acc < 0.85)
+print(cnn_acc > mlp_acc)

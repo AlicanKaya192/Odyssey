@@ -1,0 +1,46 @@
+{
+  "id": "fine-tune-numerals",
+  "title": {
+    "tr": "Rakamlara ince ayar",
+    "en": "Fine-tuning on digits"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İki durumda değişen yalnızca parametreler ve öğrenme oranı.",
+      "en": "Only the parameters and the learning rate differ between the two cases."
+    },
+    {
+      "tr": "Dondururken gövdenin parametrelerinde `requires_grad = False`, optimizer'a `model[1].parameters()`.",
+      "en": "When freezing, `requires_grad = False` on the body's parameters, `model[1].parameters()` to the optimizer."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\nfrom dl_data import make_shapes\n\n\ndef make_features():\n    return nn.Sequential(\n        nn.Conv2d(1, 16, 3, padding=1), nn.BatchNorm2d(16), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(16, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(32, 64, 3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),\n        nn.AdaptiveAvgPool2d(1), nn.Flatten(),\n    )\n\n\ndef accuracy(model, x, y):\n    model.eval()\n    with torch.no_grad():\n        return (model(x).argmax(dim=1) == y).float().mean().item()\n\n\nx_src, y_src = map(torch.from_numpy, make_shapes(600, seed=1))\ntorch.manual_seed(0)\nsource = nn.Sequential(make_features(), nn.Linear(64, 3))\noptimizer = torch.optim.Adam(source.parameters(), lr=0.005)\nloader = DataLoader(TensorDataset(x_src, y_src), batch_size=32, shuffle=True,\n                    generator=torch.Generator().manual_seed(0))\nfor epoch in range(5):\n    source.train()\n    for xb, yb in loader:\n        optimizer.zero_grad()\n        F.cross_entropy(source(xb), yb).backward()\n        optimizer.step()\n\n\ndef transfer(state, x, y, x_test, y_test, fine_tune):\n    torch.manual_seed(0)\n    features = make_features()\n    features.load_state_dict(state)\n    model = nn.Sequential(features, nn.Linear(64, 10))\n    if fine_tune:\n        params, lr = model.parameters(), 0.002\n    else:\n        for p in features.parameters():\n            p.requires_grad = False\n        params, lr = model[1].parameters(), 0.005\n    optimizer = torch.optim.Adam(params, lr=lr)\n    loader = DataLoader(TensorDataset(x, y), batch_size=8, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    for epoch in range(30):\n        model.train()\n        for xb, yb in loader:\n            optimizer.zero_grad()\n            F.cross_entropy(model(xb), yb).backward()\n            optimizer.step()\n    return accuracy(model, x_test, y_test)\n\n\nfrom sklearn.datasets import load_digits\n\ndigits = load_digits()\nx_all = F.interpolate(torch.tensor(digits.images, dtype=torch.float32).unsqueeze(1) / 16,\n                      size=16, mode=\"bilinear\")\ny_all = torch.tensor(digits.target)\norder = torch.randperm(len(y_all), generator=torch.Generator().manual_seed(0))\ntrain_idx = torch.cat([order[y_all[order] == d][:5] for d in range(10)])\ntest_mask = torch.ones(len(y_all), dtype=torch.bool)\ntest_mask[train_idx] = False\nstate = {k: v.clone() for k, v in source[0].state_dict().items()}\n\nfrozen_acc = transfer(state, x_all[train_idx], y_all[train_idx], x_all[test_mask], y_all[test_mask], False)\ntuned_acc = transfer(state, x_all[train_idx], y_all[train_idx], x_all[test_mask], y_all[test_mask], True)\nprint(frozen_acc < 0.6, tuned_acc > 0.7)\nprint(tuned_acc > frozen_acc)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\nfrom dl_data import make_shapes\n\n\ndef make_features():\n    return nn.Sequential(\n        nn.Conv2d(1, 16, 3, padding=1), nn.BatchNorm2d(16), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(16, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(32, 64, 3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),\n        nn.AdaptiveAvgPool2d(1), nn.Flatten(),\n    )\n\n\ndef accuracy(model, x, y):\n    model.eval()\n    with torch.no_grad():\n        return (model(x).argmax(dim=1) == y).float().mean().item()\n\n\nx_src, y_src = map(torch.from_numpy, make_shapes(600, seed=1))\ntorch.manual_seed(0)\nsource = nn.Sequential(make_features(), nn.Linear(64, 3))\noptimizer = torch.optim.Adam(source.parameters(), lr=0.005)\nloader = DataLoader(TensorDataset(x_src, y_src), batch_size=32, shuffle=True,\n                    generator=torch.Generator().manual_seed(0))\nfor epoch in range(5):\n    source.train()\n    for xb, yb in loader:\n        optimizer.zero_grad()\n        F.cross_entropy(source(xb), yb).backward()\n        optimizer.step()\n\n\ndef transfer(state, x, y, x_test, y_test, fine_tune):\n    torch.manual_seed(0)\n    features = make_features()\n    features.load_state_dict(state)\n    model = nn.Sequential(features, nn.Linear(64, 10))\n    if fine_tune:\n        params, lr = model.parameters(), 0.002\n    else:\n        for p in features.parameters():\n            p.requires_grad = False\n        params, lr = model[1].parameters(), 0.005\n    optimizer = torch.optim.Adam(params, lr=lr)\n    loader = DataLoader(TensorDataset(x, y), batch_size=8, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    for epoch in range(30):\n        model.train()\n        for xb, yb in loader:\n            optimizer.zero_grad()\n            F.cross_entropy(model(xb), yb).backward()\n            optimizer.step()\n    return accuracy(model, x_test, y_test)\n\n\nfrom sklearn.datasets import load_digits\n\ndigits = load_digits()\nx_all = F.interpolate(torch.tensor(digits.images, dtype=torch.float32).unsqueeze(1) / 16,\n                      size=16, mode=\"bilinear\")\ny_all = torch.tensor(digits.target)\norder = torch.randperm(len(y_all), generator=torch.Generator().manual_seed(0))\ntrain_idx = torch.cat([order[y_all[order] == d][:5] for d in range(10)])\ntest_mask = torch.ones(len(y_all), dtype=torch.bool)\ntest_mask[train_idx] = False\nstate = {k: v.clone() for k, v in source[0].state_dict().items()}\n\nfrozen_acc = transfer(state, x_all[train_idx], y_all[train_idx], x_all[test_mask], y_all[test_mask], False)\ntuned_acc = transfer(state, x_all[train_idx], y_all[train_idx], x_all[test_mask], y_all[test_mask], True)\nprint(frozen_acc < 0.6, tuned_acc > 0.7)\nprint(tuned_acc > frozen_acc)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True True\nTrue"
+    }
+  ]
+}

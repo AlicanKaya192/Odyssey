@@ -1,0 +1,122 @@
+{
+  "id": "layer-shapes",
+  "title": {
+    "tr": "Şekil izleme",
+    "en": "Tracing shapes"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for layer in model: x = layer(x)`.",
+      "en": "`for layer in model: x = layer(x)`."
+    },
+    {
+      "tr": "Yığın boyutunu at: `list(x.shape[1:])`.",
+      "en": "Drop the batch dimension: `list(x.shape[1:])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef layer_shapes(size):\n    model = nn.Sequential(\n        nn.Conv2d(1, 8, kernel_size=3, padding=1),\n        nn.ReLU(),\n        nn.MaxPool2d(2),\n        nn.Conv2d(8, 16, kernel_size=3, padding=1),\n        nn.ReLU(),\n        nn.MaxPool2d(2),\n        nn.Flatten(),\n    )\n    x = torch.zeros(1, 1, size, size)\n    shapes = []\n    for layer in model:\n        x = layer(x)\n        shapes.append(list(x.shape[1:]))\n    return shapes\n\nfor shape in layer_shapes(16):\n    print(shape)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef layer_shapes(size):\n    model = nn.Sequential(\n        nn.Conv2d(1, 8, kernel_size=3, padding=1),\n        nn.ReLU(),\n        nn.MaxPool2d(2),\n        nn.Conv2d(8, 16, kernel_size=3, padding=1),\n        nn.ReLU(),\n        nn.MaxPool2d(2),\n        nn.Flatten(),\n    )\n    x = torch.zeros(1, 1, size, size)\n    shapes = []\n    for layer in model:\n        x = layer(x)\n        shapes.append(list(x.shape[1:]))\n    return shapes\n\nfor shape in layer_shapes(16):\n    print(shape)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "layer_shapes",
+      "cases": [
+        {
+          "args": [
+            8
+          ],
+          "returns": [
+            [
+              8,
+              8,
+              8
+            ],
+            [
+              8,
+              8,
+              8
+            ],
+            [
+              8,
+              4,
+              4
+            ],
+            [
+              16,
+              4,
+              4
+            ],
+            [
+              16,
+              4,
+              4
+            ],
+            [
+              16,
+              2,
+              2
+            ],
+            [
+              64
+            ]
+          ]
+        },
+        {
+          "args": [
+            12
+          ],
+          "returns": [
+            [
+              8,
+              12,
+              12
+            ],
+            [
+              8,
+              12,
+              12
+            ],
+            [
+              8,
+              6,
+              6
+            ],
+            [
+              16,
+              6,
+              6
+            ],
+            [
+              16,
+              6,
+              6
+            ],
+            [
+              16,
+              3,
+              3
+            ],
+            [
+              144
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[8, 16, 16]\n[8, 16, 16]\n[8, 8, 8]\n[16, 8, 8]\n[16, 8, 8]\n[16, 4, 4]\n[256]"
+    }
+  ]
+}

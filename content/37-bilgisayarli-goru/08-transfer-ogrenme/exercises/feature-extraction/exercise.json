@@ -1,0 +1,46 @@
+{
+  "id": "feature-extraction",
+  "title": {
+    "tr": "Özellik çıkarma",
+    "en": "Feature extraction"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for p in model[0].parameters(): p.requires_grad = False`; optimizer'a `model[1].parameters()`.",
+      "en": "`for p in model[0].parameters(): p.requires_grad = False`; give the optimizer `model[1].parameters()`."
+    },
+    {
+      "tr": "Döngüde: `model.train()` sonra `model[0].eval()`.",
+      "en": "In the loop: `model.train()` then `model[0].eval()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\nfrom dl_data import make_shapes\n\n\ndef make_features():\n    return nn.Sequential(\n        nn.Conv2d(1, 16, 3, padding=1), nn.BatchNorm2d(16), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(16, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(32, 64, 3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),\n        nn.AdaptiveAvgPool2d(1), nn.Flatten(),\n    )\n\n\ndef accuracy(model, x, y):\n    model.eval()\n    with torch.no_grad():\n        return (model(x).argmax(dim=1) == y).float().mean().item()\n\n\nx_src, y_src = map(torch.from_numpy, make_shapes(600, seed=1))\ntorch.manual_seed(0)\nsource = nn.Sequential(make_features(), nn.Linear(64, 3))\noptimizer = torch.optim.Adam(source.parameters(), lr=0.005)\nloader = DataLoader(TensorDataset(x_src, y_src), batch_size=32, shuffle=True,\n                    generator=torch.Generator().manual_seed(0))\nfor epoch in range(5):\n    source.train()\n    for xb, yb in loader:\n        optimizer.zero_grad()\n        F.cross_entropy(source(xb), yb).backward()\n        optimizer.step()\n\n\ndef train_head(model, x, y):\n    for p in model[0].parameters():\n        p.requires_grad = False\n    optimizer = torch.optim.Adam(model[1].parameters(), lr=0.005)\n    loader = DataLoader(TensorDataset(x, y), batch_size=8, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    for epoch in range(20):\n        model.train()\n        model[0].eval()\n        for xb, yb in loader:\n            optimizer.zero_grad()\n            F.cross_entropy(model(xb), yb).backward()\n            optimizer.step()\n\n\nx_a, y_a = map(torch.from_numpy, make_shapes(24, seed=5))\nx_at, y_at = map(torch.from_numpy, make_shapes(300, seed=6))\ny_a, y_at = (y_a != 0).long(), (y_at != 0).long()\ntorch.manual_seed(0)\nmodel = nn.Sequential(source[0], nn.Linear(64, 2))\nweight_before = model[0][0].weight.clone()\nstats_before = model[0][1].running_mean.clone()\ntrain_head(model, x_a, y_a)\nprint(torch.equal(model[0][0].weight, weight_before))\nprint(torch.equal(model[0][1].running_mean, stats_before))\nprint(accuracy(model, x_at, y_at) > 0.9)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\nfrom dl_data import make_shapes\n\n\ndef make_features():\n    return nn.Sequential(\n        nn.Conv2d(1, 16, 3, padding=1), nn.BatchNorm2d(16), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(16, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(), nn.MaxPool2d(2),\n        nn.Conv2d(32, 64, 3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),\n        nn.AdaptiveAvgPool2d(1), nn.Flatten(),\n    )\n\n\ndef accuracy(model, x, y):\n    model.eval()\n    with torch.no_grad():\n        return (model(x).argmax(dim=1) == y).float().mean().item()\n\n\nx_src, y_src = map(torch.from_numpy, make_shapes(600, seed=1))\ntorch.manual_seed(0)\nsource = nn.Sequential(make_features(), nn.Linear(64, 3))\noptimizer = torch.optim.Adam(source.parameters(), lr=0.005)\nloader = DataLoader(TensorDataset(x_src, y_src), batch_size=32, shuffle=True,\n                    generator=torch.Generator().manual_seed(0))\nfor epoch in range(5):\n    source.train()\n    for xb, yb in loader:\n        optimizer.zero_grad()\n        F.cross_entropy(source(xb), yb).backward()\n        optimizer.step()\n\n\ndef train_head(model, x, y):\n    for p in model[0].parameters():\n        p.requires_grad = False\n    optimizer = torch.optim.Adam(model[1].parameters(), lr=0.005)\n    loader = DataLoader(TensorDataset(x, y), batch_size=8, shuffle=True,\n                        generator=torch.Generator().manual_seed(0))\n    for epoch in range(20):\n        model.train()\n        model[0].eval()\n        for xb, yb in loader:\n            optimizer.zero_grad()\n            F.cross_entropy(model(xb), yb).backward()\n            optimizer.step()\n\n\nx_a, y_a = map(torch.from_numpy, make_shapes(24, seed=5))\nx_at, y_at = map(torch.from_numpy, make_shapes(300, seed=6))\ny_a, y_at = (y_a != 0).long(), (y_at != 0).long()\ntorch.manual_seed(0)\nmodel = nn.Sequential(source[0], nn.Linear(64, 2))\nweight_before = model[0][0].weight.clone()\nstats_before = model[0][1].running_mean.clone()\ntrain_head(model, x_a, y_a)\nprint(torch.equal(model[0][0].weight, weight_before))\nprint(torch.equal(model[0][1].running_mean, stats_before))\nprint(accuracy(model, x_at, y_at) > 0.9)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nTrue\nTrue"
+    }
+  ]
+}

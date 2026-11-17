@@ -1,0 +1,170 @@
+{
+  "id": "filter-detections",
+  "title": {
+    "tr": "Algılamaları süz",
+    "en": "Filter detections"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Maske: `(torch.tensor(cls) == wanted) & (scores >= min_conf)`.",
+      "en": "The mask: `(torch.tensor(cls) == wanted) & (scores >= min_conf)`."
+    },
+    {
+      "tr": "`nms(boxes, scores, iou)` sıraları döndürür: `boxes[...]`.",
+      "en": "`nms(boxes, scores, iou)` returns positions: `boxes[...]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torchvision.ops import nms\n\n\ndef filter_detections(xyxy, conf, cls, wanted, min_conf, iou):\n    boxes = torch.tensor(xyxy, dtype=torch.float32)\n    scores = torch.tensor(conf)\n    keep = (torch.tensor(cls) == wanted) & (scores >= min_conf)\n    boxes, scores = boxes[keep], scores[keep]\n    return boxes[nms(boxes, scores, iou)].tolist()\n\nxyxy = [[10, 10, 30, 60], [12, 11, 31, 62], [50, 20, 90, 45], [100, 5, 120, 55]]\nconf = [0.91, 0.62, 0.88, 0.35]\ncls = [0, 0, 2, 0]\nfor wanted, min_conf in ((0, 0.5), (0, 0.3), (2, 0.5)):\n    kept = filter_detections(xyxy, conf, cls, wanted, min_conf, 0.5)\n    print(wanted, min_conf, len(kept))\n    for box in kept:\n        print(box)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torchvision.ops import nms\n\n\ndef filter_detections(xyxy, conf, cls, wanted, min_conf, iou):\n    boxes = torch.tensor(xyxy, dtype=torch.float32)\n    scores = torch.tensor(conf)\n    keep = (torch.tensor(cls) == wanted) & (scores >= min_conf)\n    boxes, scores = boxes[keep], scores[keep]\n    return boxes[nms(boxes, scores, iou)].tolist()\n\nxyxy = [[10, 10, 30, 60], [12, 11, 31, 62], [50, 20, 90, 45], [100, 5, 120, 55]]\nconf = [0.91, 0.62, 0.88, 0.35]\ncls = [0, 0, 2, 0]\nfor wanted, min_conf in ((0, 0.5), (0, 0.3), (2, 0.5)):\n    kept = filter_detections(xyxy, conf, cls, wanted, min_conf, 0.5)\n    print(wanted, min_conf, len(kept))\n    for box in kept:\n        print(box)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "filter_detections",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                10,
+                10,
+                30,
+                60
+              ],
+              [
+                12,
+                11,
+                31,
+                62
+              ],
+              [
+                50,
+                20,
+                90,
+                45
+              ]
+            ],
+            [
+              0.91,
+              0.62,
+              0.88
+            ],
+            [
+              0,
+              0,
+              2
+            ],
+            0,
+            0.5,
+            0.5
+          ],
+          "returns": [
+            [
+              10.0,
+              10.0,
+              30.0,
+              60.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                10,
+                10
+              ],
+              [
+                1,
+                1,
+                11,
+                11
+              ],
+              [
+                20,
+                0,
+                30,
+                10
+              ]
+            ],
+            [
+              0.6,
+              0.9,
+              0.7
+            ],
+            [
+              1,
+              1,
+              1
+            ],
+            1,
+            0.65,
+            0.5
+          ],
+          "returns": [
+            [
+              1.0,
+              1.0,
+              11.0,
+              11.0
+            ],
+            [
+              20.0,
+              0.0,
+              30.0,
+              10.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0,
+                0,
+                10,
+                10
+              ]
+            ],
+            [
+              0.2
+            ],
+            [
+              0
+            ],
+            0,
+            0.5,
+            0.5
+          ],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0 0.5 1\n[10.0, 10.0, 30.0, 60.0]\n0 0.3 2\n[10.0, 10.0, 30.0, 60.0]\n[100.0, 5.0, 120.0, 55.0]\n2 0.5 1\n[50.0, 20.0, 90.0, 45.0]"
+    }
+  ]
+}

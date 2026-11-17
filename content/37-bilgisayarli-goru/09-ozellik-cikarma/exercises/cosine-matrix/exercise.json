@@ -1,0 +1,90 @@
+{
+  "id": "cosine-matrix",
+  "title": {
+    "tr": "Benzerlik matrisi",
+    "en": "A similarity matrix"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`unit = F.normalize(torch.tensor(vectors), dim=1)`.",
+      "en": "`unit = F.normalize(torch.tensor(vectors), dim=1)`."
+    },
+    {
+      "tr": "`(unit @ unit.T).tolist()` ve her değeri yuvarla.",
+      "en": "`(unit @ unit.T).tolist()` and round each value."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef cosine_matrix(vectors):\n    unit = F.normalize(torch.tensor(vectors), dim=1)\n    return [[round(v, 3) for v in row] for row in (unit @ unit.T).tolist()]\n\nfor row in cosine_matrix([[1.0, 0.0], [1.0, 1.0], [0.0, 2.0]]):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef cosine_matrix(vectors):\n    unit = F.normalize(torch.tensor(vectors), dim=1)\n    return [[round(v, 3) for v in row] for row in (unit @ unit.T).tolist()]\n\nfor row in cosine_matrix([[1.0, 0.0], [1.0, 1.0], [0.0, 2.0]]):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cosine_matrix",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                3.0,
+                4.0
+              ],
+              [
+                4.0,
+                -3.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                1.0
+              ],
+              [
+                2.0,
+                2.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.0, 0.707, 0.0]\n[0.707, 1.0, 0.707]\n[0.0, 0.707, 1.0]"
+    }
+  ]
+}

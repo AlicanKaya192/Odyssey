@@ -1,0 +1,89 @@
+{
+  "id": "nearest-neighbours",
+  "title": {
+    "tr": "En yakın komşular",
+    "en": "Nearest neighbours"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sorgunun skorunu her skordan küçük bir sayı yap (ör. −2).",
+      "en": "Set the query's own score below every score (e.g. −2)."
+    },
+    {
+      "tr": "`scores.topk(k).indices.tolist()`.",
+      "en": "`scores.topk(k).indices.tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef nearest(vectors, query, k):\n    unit = F.normalize(torch.tensor(vectors), dim=1)\n    scores = unit @ unit[query]\n    scores[query] = -2\n    return scores.topk(k).indices.tolist()\n\nvectors = [[1.0, 0.0], [0.9, 0.1], [0.0, 1.0], [0.6, 0.8], [-1.0, -0.2]]\nprint(nearest(vectors, 0, 2))\nprint(nearest(vectors, 2, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.functional as F\n\n\ndef nearest(vectors, query, k):\n    unit = F.normalize(torch.tensor(vectors), dim=1)\n    scores = unit @ unit[query]\n    scores[query] = -2\n    return scores.topk(k).indices.tolist()\n\nvectors = [[1.0, 0.0], [0.9, 0.1], [0.0, 1.0], [0.6, 0.8], [-1.0, -0.2]]\nprint(nearest(vectors, 0, 2))\nprint(nearest(vectors, 2, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "nearest",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.8,
+                0.3
+              ]
+            ],
+            0,
+            1
+          ],
+          "returns": [
+            2
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ],
+              [
+                0.8,
+                0.3
+              ]
+            ],
+            1,
+            2
+          ],
+          "returns": [
+            2,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1, 3]\n[3, 1, 0]"
+    }
+  ]
+}

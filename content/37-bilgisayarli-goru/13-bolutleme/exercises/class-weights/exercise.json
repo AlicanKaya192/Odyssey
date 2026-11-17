@@ -1,0 +1,88 @@
+{
+  "id": "class-weights",
+  "title": {
+    "tr": "Sınıf ağırlıkları",
+    "en": "Class weights"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.bincount(torch.tensor(masks).flatten(), minlength=4)` sınıf başına piksel sayısı.",
+      "en": "`torch.bincount(torch.tensor(masks).flatten(), minlength=4)` gives pixels per class."
+    },
+    {
+      "tr": "Ağırlık `counts.sum() / (4 * counts)`; önce `.float()`.",
+      "en": "The weight is `counts.sum() / (4 * counts)`; `.float()` first."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom dl_data import make_scenes\n\n\ndef class_weights(n, seed):\n    images, boxes, masks = make_scenes(n, size=32, seed=seed)\n    counts = torch.bincount(torch.tensor(masks).flatten(), minlength=4).float()\n    weight = counts.sum() / (4 * counts)\n    return [round(v, 2) for v in weight.tolist()]\n\nprint(class_weights(100, 7))\nprint(class_weights(50, 3))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom dl_data import make_scenes\n\n\ndef class_weights(n, seed):\n    images, boxes, masks = make_scenes(n, size=32, seed=seed)\n    counts = torch.bincount(torch.tensor(masks).flatten(), minlength=4).float()\n    weight = counts.sum() / (4 * counts)\n    return [round(v, 2) for v in weight.tolist()]\n\nprint(class_weights(100, 7))\nprint(class_weights(50, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "class_weights",
+      "cases": [
+        {
+          "args": [
+            100,
+            7
+          ],
+          "returns": [
+            0.28,
+            5.87,
+            7.12,
+            12.0
+          ]
+        },
+        {
+          "args": [
+            50,
+            3
+          ],
+          "returns": [
+            0.28,
+            7.23,
+            6.33,
+            9.23
+          ]
+        },
+        {
+          "args": [
+            20,
+            11
+          ],
+          "returns": [
+            0.28,
+            4.52,
+            9.16,
+            13.26
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.28, 5.87, 7.12, 12.0]\n[0.28, 7.23, 6.33, 9.23]"
+    }
+  ]
+}

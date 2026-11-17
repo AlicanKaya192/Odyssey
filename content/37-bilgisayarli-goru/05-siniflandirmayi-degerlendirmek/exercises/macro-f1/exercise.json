@@ -1,0 +1,78 @@
+{
+  "id": "macro-f1",
+  "title": {
+    "tr": "Makro F1",
+    "en": "Macro F1"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Her sınıf için doğru (tp), tahmin edilen ve gerçek sayılarını say.",
+      "en": "For each class count the right ones (tp), the predicted and the actual."
+    },
+    {
+      "tr": "`2 * p * r / (p + r)`; `p + r` 0 ise F1 0.",
+      "en": "`2 * p * r / (p + r)`; if `p + r` is 0, F1 is 0."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom sklearn.metrics import f1_score\n\n\ndef macro_f1(y_true, y_pred, k):\n    scores = []\n    for c in range(k):\n        tp = sum(1 for t, p in zip(y_true, y_pred) if t == c and p == c)\n        predicted = sum(1 for p in y_pred if p == c)\n        actual = sum(1 for t in y_true if t == c)\n        precision = tp / predicted if predicted else 0.0\n        recall = tp / actual if actual else 0.0\n        both = precision + recall\n        scores.append(2 * precision * recall / both if both else 0.0)\n    return round(sum(scores) / k, 3)\n\ny_true = [0, 0, 0, 0, 0, 0, 1, 1, 2, 2]\ny_pred = [0, 0, 0, 0, 0, 1, 1, 0, 2, 1]\nprint(macro_f1(y_true, y_pred, 3))\nprint(round(f1_score(y_true, y_pred, average=\"macro\"), 3))\n```",
+      "en": "The full solution:\n\n```python\nfrom sklearn.metrics import f1_score\n\n\ndef macro_f1(y_true, y_pred, k):\n    scores = []\n    for c in range(k):\n        tp = sum(1 for t, p in zip(y_true, y_pred) if t == c and p == c)\n        predicted = sum(1 for p in y_pred if p == c)\n        actual = sum(1 for t in y_true if t == c)\n        precision = tp / predicted if predicted else 0.0\n        recall = tp / actual if actual else 0.0\n        both = precision + recall\n        scores.append(2 * precision * recall / both if both else 0.0)\n    return round(sum(scores) / k, 3)\n\ny_true = [0, 0, 0, 0, 0, 0, 1, 1, 2, 2]\ny_pred = [0, 0, 0, 0, 0, 1, 1, 0, 2, 1]\nprint(macro_f1(y_true, y_pred, 3))\nprint(round(f1_score(y_true, y_pred, average=\"macro\"), 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "macro_f1",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              1,
+              0,
+              0
+            ],
+            2
+          ],
+          "returns": 0.733
+        },
+        {
+          "args": [
+            [
+              0,
+              0,
+              1,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ],
+            3
+          ],
+          "returns": 0.222
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.633\n0.633"
+    }
+  ]
+}

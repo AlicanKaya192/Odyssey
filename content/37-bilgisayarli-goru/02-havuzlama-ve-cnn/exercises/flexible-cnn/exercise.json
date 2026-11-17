@@ -1,0 +1,54 @@
+{
+  "id": "flexible-cnn",
+  "title": {
+    "tr": "Her boyda CNN",
+    "en": "A CNN for any size"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Katmanları sırayla `nn.Sequential(...)` içine yaz.",
+      "en": "Write the layers in order inside `nn.Sequential(...)`."
+    },
+    {
+      "tr": "`sum(p.numel() for p in model.parameters())`.",
+      "en": "`sum(p.numel() for p in model.parameters())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef build_cnn(num_classes):\n    return nn.Sequential(\n        nn.Conv2d(1, 16, kernel_size=3, padding=1),\n        nn.ReLU(),\n        nn.MaxPool2d(2),\n        nn.Conv2d(16, 32, kernel_size=3, padding=1),\n        nn.ReLU(),\n        nn.AdaptiveAvgPool2d(1),\n        nn.Flatten(),\n        nn.Linear(32, num_classes),\n    )\n\n\ndef param_count(num_classes):\n    return sum(p.numel() for p in build_cnn(num_classes).parameters())\n\nmodel = build_cnn(5)\nfor size in (16, 40):\n    print(size, tuple(model(torch.zeros(2, 1, size, size)).shape))\nprint(param_count(5))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef build_cnn(num_classes):\n    return nn.Sequential(\n        nn.Conv2d(1, 16, kernel_size=3, padding=1),\n        nn.ReLU(),\n        nn.MaxPool2d(2),\n        nn.Conv2d(16, 32, kernel_size=3, padding=1),\n        nn.ReLU(),\n        nn.AdaptiveAvgPool2d(1),\n        nn.Flatten(),\n        nn.Linear(32, num_classes),\n    )\n\n\ndef param_count(num_classes):\n    return sum(p.numel() for p in build_cnn(num_classes).parameters())\n\nmodel = build_cnn(5)\nfor size in (16, 40):\n    print(size, tuple(model(torch.zeros(2, 1, size, size)).shape))\nprint(param_count(5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "param_count",
+      "cases": [
+        {
+          "args": [
+            2
+          ],
+          "returns": 4866
+        },
+        {
+          "args": [
+            10
+          ],
+          "returns": 5130
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "16 (2, 5)\n40 (2, 5)\n4965"
+    }
+  ]
+}

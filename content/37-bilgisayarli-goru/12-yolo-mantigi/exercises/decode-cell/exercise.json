@@ -1,0 +1,119 @@
+{
+  "id": "decode-cell",
+  "title": {
+    "tr": "Bir hücreyi çöz",
+    "en": "Decode one cell"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Merkez `(col + kx) * cell`; genişlik `w * size`.",
+      "en": "The centre is `(col + ox) * cell`; the width is `w * size`."
+    },
+    {
+      "tr": "Olasılıklar `values[5:]`; `probs.index(max(probs))`.",
+      "en": "The probabilities are `values[5:]`; `probs.index(max(probs))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\ndef decode_cell(row, col, values, S, size):\n    cell = size / S\n    probs = values[5:]\n    label = probs.index(max(probs))\n    cx = (col + values[1]) * cell\n    cy = (row + values[2]) * cell\n    w = values[3] * size\n    h = values[4] * size\n    score = round(values[0] * probs[label], 2)\n    return [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2, label, score]\n\nprint(decode_cell(1, 2, [1.0, 0.5, 0.5, 0.25, 0.5, 0.1, 0.8, 0.1], 4, 32))\nprint(decode_cell(0, 0, [0.5, 0.25, 0.75, 0.125, 0.125, 0.0, 0.0, 1.0], 4, 32))\n```",
+      "en": "The full solution:\n\n```python\ndef decode_cell(row, col, values, S, size):\n    cell = size / S\n    probs = values[5:]\n    label = probs.index(max(probs))\n    cx = (col + values[1]) * cell\n    cy = (row + values[2]) * cell\n    w = values[3] * size\n    h = values[4] * size\n    score = round(values[0] * probs[label], 2)\n    return [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2, label, score]\n\nprint(decode_cell(1, 2, [1.0, 0.5, 0.5, 0.25, 0.5, 0.1, 0.8, 0.1], 4, 32))\nprint(decode_cell(0, 0, [0.5, 0.25, 0.75, 0.125, 0.125, 0.0, 0.0, 1.0], 4, 32))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "decode_cell",
+      "cases": [
+        {
+          "args": [
+            1,
+            2,
+            [
+              1.0,
+              0.5,
+              0.5,
+              0.25,
+              0.5,
+              0.1,
+              0.8,
+              0.1
+            ],
+            4,
+            32
+          ],
+          "returns": [
+            16.0,
+            4.0,
+            24.0,
+            20.0,
+            1,
+            0.8
+          ]
+        },
+        {
+          "args": [
+            0,
+            0,
+            [
+              0.5,
+              0.25,
+              0.75,
+              0.125,
+              0.125,
+              0.0,
+              0.0,
+              1.0
+            ],
+            4,
+            32
+          ],
+          "returns": [
+            0.0,
+            4.0,
+            4.0,
+            8.0,
+            2,
+            0.5
+          ]
+        },
+        {
+          "args": [
+            3,
+            1,
+            [
+              0.9,
+              0.0,
+              1.0,
+              0.5,
+              0.25,
+              0.3,
+              0.7
+            ],
+            4,
+            16
+          ],
+          "returns": [
+            0.0,
+            14.0,
+            8.0,
+            18.0,
+            1,
+            0.63
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[16.0, 4.0, 24.0, 20.0, 1, 0.8]\n[0.0, 4.0, 4.0, 8.0, 2, 0.5]"
+    }
+  ]
+}

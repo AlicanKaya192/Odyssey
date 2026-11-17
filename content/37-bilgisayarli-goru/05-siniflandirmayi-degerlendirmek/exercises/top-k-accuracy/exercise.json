@@ -1,0 +1,82 @@
+{
+  "id": "top-k-accuracy",
+  "title": {
+    "tr": "Top-k doğruluk",
+    "en": "Top-k accuracy"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.tensor(logits).topk(k, dim=1).indices` her satırın ilk k sınıfı.",
+      "en": "`torch.tensor(logits).topk(k, dim=1).indices` gives each row's top k classes."
+    },
+    {
+      "tr": "Etiketi `[:, None]` ile sütuna çevirip karşılaştır, `any(dim=1)`.",
+      "en": "Turn the labels into a column with `[:, None]`, compare, `any(dim=1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef top_k_accuracy(logits, labels, k):\n    top = torch.tensor(logits).topk(k, dim=1).indices\n    hit = (top == torch.tensor(labels)[:, None]).any(dim=1)\n    return round(hit.float().mean().item(), 3)\n\nlogits = [[0.1, 0.5, 0.4], [0.7, 0.2, 0.1], [0.3, 0.35, 0.4], [0.2, 0.5, 0.3]]\nlabels = [2, 0, 1, 0]\nprint(top_k_accuracy(logits, labels, 1))\nprint(top_k_accuracy(logits, labels, 2))\nprint(top_k_accuracy(logits, labels, 3))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef top_k_accuracy(logits, labels, k):\n    top = torch.tensor(logits).topk(k, dim=1).indices\n    hit = (top == torch.tensor(labels)[:, None]).any(dim=1)\n    return round(hit.float().mean().item(), 3)\n\nlogits = [[0.1, 0.5, 0.4], [0.7, 0.2, 0.1], [0.3, 0.35, 0.4], [0.2, 0.5, 0.3]]\nlabels = [2, 0, 1, 0]\nprint(top_k_accuracy(logits, labels, 1))\nprint(top_k_accuracy(logits, labels, 2))\nprint(top_k_accuracy(logits, labels, 3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "top_k_accuracy",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.1,
+                0.9
+              ],
+              [
+                0.8,
+                0.2
+              ]
+            ],
+            [
+              0,
+              0
+            ],
+            1
+          ],
+          "returns": 0.5
+        },
+        {
+          "args": [
+            [
+              [
+                0.1,
+                0.9
+              ],
+              [
+                0.8,
+                0.2
+              ]
+            ],
+            [
+              0,
+              0
+            ],
+            2
+          ],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.25\n0.75\n1.0"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "id": "normalize-cam",
+  "title": {
+    "tr": "Haritayı 0–1'e getir",
+    "en": "Scale the map to 0–1"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.relu(torch.tensor(cam, dtype=torch.float32))`.",
+      "en": "`torch.relu(torch.tensor(cam, dtype=torch.float32))`."
+    },
+    {
+      "tr": "En büyük değer 0'dan büyükse ona böl.",
+      "en": "Divide by the largest value if it is above 0."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef normalize_cam(cam):\n    t = torch.relu(torch.tensor(cam, dtype=torch.float32))\n    peak = t.max().item()\n    if peak > 0:\n        t = t / peak\n    return [[round(v, 2) for v in row] for row in t.tolist()]\n\nprint(normalize_cam([[0.0, -1.0], [2.0, 4.0]]))\nprint(normalize_cam([[-1.0, -2.0], [0.0, -3.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef normalize_cam(cam):\n    t = torch.relu(torch.tensor(cam, dtype=torch.float32))\n    peak = t.max().item()\n    if peak > 0:\n        t = t / peak\n    return [[round(v, 2) for v in row] for row in t.tolist()]\n\nprint(normalize_cam([[0.0, -1.0], [2.0, 4.0]]))\nprint(normalize_cam([[-1.0, -2.0], [0.0, -3.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "normalize_cam",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0,
+                -1.0
+              ],
+              [
+                2.0,
+                4.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.5,
+              1.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                -1.0,
+                -2.0
+              ],
+              [
+                0.0,
+                -3.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                3.0,
+                1.5,
+                0.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              1.0,
+              0.5,
+              0.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0.0, 0.0], [0.5, 1.0]]\n[[0.0, 0.0], [0.0, 0.0]]"
+    }
+  ]
+}
