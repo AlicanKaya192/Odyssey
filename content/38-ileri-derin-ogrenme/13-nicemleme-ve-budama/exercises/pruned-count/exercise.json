@@ -1,0 +1,54 @@
+{
+  "id": "pruned-count",
+  "title": {
+    "tr": "Kaç ağırlık sıfırlandı?",
+    "en": "How many weights were zeroed?"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`prune.l1_unstructured(layer, \"weight\", amount=amount)`.",
+      "en": "`prune.l1_unstructured(layer, \"weight\", amount=amount)`."
+    },
+    {
+      "tr": "`int((layer.weight == 0).sum())`.",
+      "en": "`int((layer.weight == 0).sum())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nimport torch.nn.utils.prune as prune\nfrom torch import nn\n\n\ndef pruned_count(amount):\n    torch.manual_seed(0)\n    layer = nn.Linear(10, 10)\n    prune.l1_unstructured(layer, \"weight\", amount=amount)\n    return int((layer.weight == 0).sum())\n\nprint(pruned_count(0.5))\nprint(pruned_count(0.3))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nimport torch.nn.utils.prune as prune\nfrom torch import nn\n\n\ndef pruned_count(amount):\n    torch.manual_seed(0)\n    layer = nn.Linear(10, 10)\n    prune.l1_unstructured(layer, \"weight\", amount=amount)\n    return int((layer.weight == 0).sum())\n\nprint(pruned_count(0.5))\nprint(pruned_count(0.3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pruned_count",
+      "cases": [
+        {
+          "args": [
+            0.2
+          ],
+          "returns": 20
+        },
+        {
+          "args": [
+            0.9
+          ],
+          "returns": 90
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "50\n30"
+    }
+  ]
+}

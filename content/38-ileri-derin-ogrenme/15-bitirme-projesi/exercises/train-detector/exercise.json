@@ -1,0 +1,46 @@
+{
+  "id": "train-detector",
+  "title": {
+    "tr": "Algılayıcıyı eğitmek",
+    "en": "Training the detector"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Tahmin: `torch.no_grad()` içinde `model(x[500:]).argmax(dim=1)`.",
+      "en": "Prediction: `model(x[500:]).argmax(dim=1)` inside `torch.no_grad()`."
+    },
+    {
+      "tr": "Duyarlılık: doğru arızalar / testteki arızalar.",
+      "en": "Recall: true faults / faults in the test set."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom dl_data import make_sensor\n\nx_np, y_np = make_sensor(600, seed=7)\ngain = np.random.default_rng(3).uniform(0.5, 2.0, (600, 1)).astype(np.float32)\nx = torch.tensor(x_np * gain).unsqueeze(1)\ny = torch.tensor(y_np)\ntorch.manual_seed(0)\nmodel = nn.Sequential(\n    nn.Conv1d(1, 16, 5, padding=2), nn.ReLU(), nn.MaxPool1d(2),\n    nn.Conv1d(16, 32, 5, padding=2), nn.ReLU(), nn.AdaptiveMaxPool1d(1),\n    nn.Flatten(), nn.Linear(32, 2))\nopt = torch.optim.Adam(model.parameters(), lr=0.003)\nloader = torch.utils.data.DataLoader(\n    torch.utils.data.TensorDataset(x[:400], y[:400]), batch_size=32, shuffle=True,\n    generator=torch.Generator().manual_seed(1))\nfor epoch in range(10):\n    model.train()\n    for xb, yb in loader:\n        opt.zero_grad()\n        F.cross_entropy(model(xb), yb).backward()\n        opt.step()\nmodel.eval()\nwith torch.no_grad():\n    pred = model(x[500:]).argmax(dim=1)\nacc = (pred == y[500:]).float().mean().item()\nrecall = ((pred == 1) & (y[500:] == 1)).sum().item() / (y[500:] == 1).sum().item()\n\nprint(acc > 0.9, recall > 0.8)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom dl_data import make_sensor\n\nx_np, y_np = make_sensor(600, seed=7)\ngain = np.random.default_rng(3).uniform(0.5, 2.0, (600, 1)).astype(np.float32)\nx = torch.tensor(x_np * gain).unsqueeze(1)\ny = torch.tensor(y_np)\ntorch.manual_seed(0)\nmodel = nn.Sequential(\n    nn.Conv1d(1, 16, 5, padding=2), nn.ReLU(), nn.MaxPool1d(2),\n    nn.Conv1d(16, 32, 5, padding=2), nn.ReLU(), nn.AdaptiveMaxPool1d(1),\n    nn.Flatten(), nn.Linear(32, 2))\nopt = torch.optim.Adam(model.parameters(), lr=0.003)\nloader = torch.utils.data.DataLoader(\n    torch.utils.data.TensorDataset(x[:400], y[:400]), batch_size=32, shuffle=True,\n    generator=torch.Generator().manual_seed(1))\nfor epoch in range(10):\n    model.train()\n    for xb, yb in loader:\n        opt.zero_grad()\n        F.cross_entropy(model(xb), yb).backward()\n        opt.step()\nmodel.eval()\nwith torch.no_grad():\n    pred = model(x[500:]).argmax(dim=1)\nacc = (pred == y[500:]).float().mean().item()\nrecall = ((pred == 1) & (y[500:] == 1)).sum().item() / (y[500:] == 1).sum().item()\n\nprint(acc > 0.9, recall > 0.8)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True True"
+    }
+  ]
+}

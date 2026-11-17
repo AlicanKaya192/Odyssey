@@ -1,0 +1,74 @@
+{
+  "id": "data-hash",
+  "title": {
+    "tr": "Verinin özeti",
+    "en": "The data's hash"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`np.array(values, dtype=np.float32)`.",
+      "en": "`np.array(values, dtype=np.float32)`."
+    },
+    {
+      "tr": "`hashlib.sha256(array.tobytes()).hexdigest()`.",
+      "en": "`hashlib.sha256(array.tobytes()).hexdigest()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport hashlib\nimport numpy as np\n\n\ndef data_hash(values):\n    array = np.ascontiguousarray(np.array(values, dtype=np.float32))\n    return hashlib.sha256(array.tobytes()).hexdigest()\n\n\ndef same_data(a, b):\n    return data_hash(a) == data_hash(b)\n\nprint(same_data([[1.0, 2.0]], [[1.0, 2.0]]))\nprint(same_data([[1.0, 2.0]], [[1.0, 2.001]]))\n```",
+      "en": "The full solution:\n\n```python\nimport hashlib\nimport numpy as np\n\n\ndef data_hash(values):\n    array = np.ascontiguousarray(np.array(values, dtype=np.float32))\n    return hashlib.sha256(array.tobytes()).hexdigest()\n\n\ndef same_data(a, b):\n    return data_hash(a) == data_hash(b)\n\nprint(same_data([[1.0, 2.0]], [[1.0, 2.0]]))\nprint(same_data([[1.0, 2.0]], [[1.0, 2.001]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "same_data",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.5
+              ]
+            ],
+            [
+              [
+                0.5
+              ]
+            ]
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            [
+              [
+                0.5,
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                0.5
+              ]
+            ]
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nFalse"
+    }
+  ]
+}

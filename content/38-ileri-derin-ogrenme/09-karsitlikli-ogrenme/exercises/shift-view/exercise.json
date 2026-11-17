@@ -1,0 +1,90 @@
+{
+  "id": "shift-view",
+  "title": {
+    "tr": "Bir görünüm üretmek",
+    "en": "Making a view"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.roll(t, (dy, dx), dims=(0, 1))`.",
+      "en": "`torch.roll(t, (dy, dx), dims=(0, 1))`."
+    },
+    {
+      "tr": "Çevirme kaydırmadan sonra.",
+      "en": "Flip after the shift."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef shift_view(image, dx, dy, flip):\n    t = torch.roll(torch.tensor(image), (dy, dx), dims=(0, 1))\n    if flip:\n        t = t.flip(-1)\n    return t.tolist()\n\nimage = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]\nprint(shift_view(image, 1, 0, False))\nprint(shift_view(image, 0, 1, True))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef shift_view(image, dx, dy, flip):\n    t = torch.roll(torch.tensor(image), (dy, dx), dims=(0, 1))\n    if flip:\n        t = t.flip(-1)\n    return t.tolist()\n\nimage = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]\nprint(shift_view(image, 1, 0, False))\nprint(shift_view(image, 0, 1, True))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "shift_view",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                2.0
+              ],
+              [
+                3.0,
+                4.0
+              ]
+            ],
+            1,
+            1,
+            false
+          ],
+          "returns": [
+            [
+              4.0,
+              3.0
+            ],
+            [
+              2.0,
+              1.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                2.0,
+                3.0
+              ]
+            ],
+            0,
+            0,
+            true
+          ],
+          "returns": [
+            [
+              3.0,
+              2.0,
+              1.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[3.0, 1.0, 2.0], [6.0, 4.0, 5.0]]\n[[6.0, 5.0, 4.0], [3.0, 2.0, 1.0]]"
+    }
+  ]
+}

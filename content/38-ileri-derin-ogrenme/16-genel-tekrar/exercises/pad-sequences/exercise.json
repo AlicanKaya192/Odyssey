@@ -1,0 +1,95 @@
+{
+  "id": "pad-sequences",
+  "title": {
+    "tr": "Dizileri dolgulamak",
+    "en": "Padding sequences"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.full((len(seqs), longest), pad)`.",
+      "en": "`torch.full((len(seqs), longest), pad)`."
+    },
+    {
+      "tr": "Her satırın başına diziyi yaz: `padded[i, :len(s)]`.",
+      "en": "Write each sequence at the row's start: `padded[i, :len(s)]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef pad_sequences(seqs, pad=0):\n    longest = max(len(s) for s in seqs)\n    padded = torch.full((len(seqs), longest), pad)\n    for i, s in enumerate(seqs):\n        padded[i, :len(s)] = torch.tensor(s)\n    return [padded.tolist(), [len(s) for s in seqs]]\n\npadded, lengths = pad_sequences([[5, 3], [7], [1, 2, 4]])\nfor row in padded:\n    print(row)\nprint(lengths)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef pad_sequences(seqs, pad=0):\n    longest = max(len(s) for s in seqs)\n    padded = torch.full((len(seqs), longest), pad)\n    for i, s in enumerate(seqs):\n        padded[i, :len(s)] = torch.tensor(s)\n    return [padded.tolist(), [len(s) for s in seqs]]\n\npadded, lengths = pad_sequences([[5, 3], [7], [1, 2, 4]])\nfor row in padded:\n    print(row)\nprint(lengths)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pad_sequences",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1
+              ],
+              [
+                2,
+                3
+              ]
+            ],
+            9
+          ],
+          "returns": [
+            [
+              [
+                1,
+                9
+              ],
+              [
+                2,
+                3
+              ]
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                4,
+                4,
+                4
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              [
+                4,
+                4,
+                4
+              ]
+            ],
+            [
+              3
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[5, 3, 0]\n[7, 0, 0]\n[1, 2, 4]\n[2, 1, 3]"
+    }
+  ]
+}

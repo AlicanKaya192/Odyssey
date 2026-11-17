@@ -1,0 +1,59 @@
+{
+  "id": "g-loss",
+  "title": {
+    "tr": "Üreticinin kaybı",
+    "en": "The generator's loss"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.ones_like(fake)` hedef.",
+      "en": "`torch.ones_like(fake)` is the target."
+    },
+    {
+      "tr": "`round(..., 3)`.",
+      "en": "`round(..., 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef g_loss(fake_logits):\n    fake = torch.tensor(fake_logits)\n    return round(nn.BCEWithLogitsLoss()(fake, torch.ones_like(fake)).item(), 3)\n\nprint(g_loss([0.0]))\nprint(g_loss([2.0, -2.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef g_loss(fake_logits):\n    fake = torch.tensor(fake_logits)\n    return round(nn.BCEWithLogitsLoss()(fake, torch.ones_like(fake)).item(), 3)\n\nprint(g_loss([0.0]))\nprint(g_loss([2.0, -2.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "g_loss",
+      "cases": [
+        {
+          "args": [
+            [
+              5.0
+            ]
+          ],
+          "returns": 0.007
+        },
+        {
+          "args": [
+            [
+              -1.0,
+              -1.0
+            ]
+          ],
+          "returns": 1.313
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.693\n1.127"
+    }
+  ]
+}

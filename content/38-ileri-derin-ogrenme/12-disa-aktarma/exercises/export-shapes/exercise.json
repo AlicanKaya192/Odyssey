@@ -1,0 +1,73 @@
+{
+  "id": "export-shapes",
+  "title": {
+    "tr": "Serbest grup boyu",
+    "en": "A free batch size"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`batch = torch.export.Dim(\"batch\")`.",
+      "en": "`batch = torch.export.Dim(\"batch\")`."
+    },
+    {
+      "tr": "`dynamic_shapes=({0: batch},)` (sırayla).",
+      "en": "`dynamic_shapes=({0: batch},)` (by position)."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef export_shapes(batches):\n    torch.manual_seed(0)\n    model = nn.Sequential(nn.Linear(8, 16), nn.ReLU(), nn.Linear(16, 2)).eval()\n    x = torch.randn(4, 8)\n    batch = torch.export.Dim(\"batch\")\n    ep = torch.export.export(model, (x,), dynamic_shapes=({0: batch},))\n    return [list(ep.module()(torch.randn(b, 8)).shape) for b in batches]\n\nprint(export_shapes([3, 7]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef export_shapes(batches):\n    torch.manual_seed(0)\n    model = nn.Sequential(nn.Linear(8, 16), nn.ReLU(), nn.Linear(16, 2)).eval()\n    x = torch.randn(4, 8)\n    batch = torch.export.Dim(\"batch\")\n    ep = torch.export.export(model, (x,), dynamic_shapes=({0: batch},))\n    return [list(ep.module()(torch.randn(b, 8)).shape) for b in batches]\n\nprint(export_shapes([3, 7]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "export_shapes",
+      "cases": [
+        {
+          "args": [
+            [
+              2
+            ]
+          ],
+          "returns": [
+            [
+              2,
+              2
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              5,
+              1
+            ]
+          ],
+          "returns": [
+            [
+              5,
+              2
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[3, 2], [7, 2]]"
+    }
+  ]
+}

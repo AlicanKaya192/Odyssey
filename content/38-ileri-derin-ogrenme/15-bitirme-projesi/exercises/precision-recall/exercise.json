@@ -1,0 +1,76 @@
+{
+  "id": "precision-recall",
+  "title": {
+    "tr": "Kesinlik ve duyarlılık",
+    "en": "Precision and recall"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`tp = ((pred == 1) & (labels == 1)).sum().item()`.",
+      "en": "`tp = ((pred == 1) & (labels == 1)).sum().item()`."
+    },
+    {
+      "tr": "`max(1, ...)` sıfıra bölmeyi önler.",
+      "en": "`max(1, ...)` avoids dividing by zero."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef precision_recall(pred, labels):\n    pred, labels = torch.tensor(pred), torch.tensor(labels)\n    tp = ((pred == 1) & (labels == 1)).sum().item()\n    precision = tp / max(1, (pred == 1).sum().item())\n    recall = tp / max(1, (labels == 1).sum().item())\n    return [round(precision, 2), round(recall, 2)]\n\nprint(precision_recall([1, 1, 0, 0, 1], [1, 0, 0, 1, 1]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef precision_recall(pred, labels):\n    pred, labels = torch.tensor(pred), torch.tensor(labels)\n    tp = ((pred == 1) & (labels == 1)).sum().item()\n    precision = tp / max(1, (pred == 1).sum().item())\n    recall = tp / max(1, (labels == 1).sum().item())\n    return [round(precision, 2), round(recall, 2)]\n\nprint(precision_recall([1, 1, 0, 0, 1], [1, 0, 0, 1, 1]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "precision_recall",
+      "cases": [
+        {
+          "args": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "returns": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "args": [
+            [
+              1,
+              1,
+              1
+            ],
+            [
+              1,
+              0,
+              1
+            ]
+          ],
+          "returns": [
+            0.67,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.67, 0.67]"
+    }
+  ]
+}

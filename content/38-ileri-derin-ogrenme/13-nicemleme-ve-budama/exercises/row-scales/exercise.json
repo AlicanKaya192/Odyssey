@@ -1,0 +1,65 @@
+{
+  "id": "row-scales",
+  "title": {
+    "tr": "Satır başına ölçek",
+    "en": "A scale per row"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`w.abs().amax(dim=1)`.",
+      "en": "`w.abs().amax(dim=1)`."
+    },
+    {
+      "tr": "127'ye böl.",
+      "en": "Divide by 127."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef row_scales(weight):\n    w = torch.tensor(weight)\n    return [round(v, 4) for v in (w.abs().amax(dim=1) / 127).tolist()]\n\nprint(row_scales([[0.127, -0.0635], [12.7, 1.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef row_scales(weight):\n    w = torch.tensor(weight)\n    return [round(v, 4) for v in (w.abs().amax(dim=1) / 127).tolist()]\n\nprint(row_scales([[0.127, -0.0635], [12.7, 1.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "row_scales",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.27,
+                0.0
+              ],
+              [
+                0.0,
+                -2.54
+              ],
+              [
+                0.5,
+                0.5
+              ]
+            ]
+          ],
+          "returns": [
+            0.01,
+            0.02,
+            0.0039
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.001, 0.1]"
+    }
+  ]
+}

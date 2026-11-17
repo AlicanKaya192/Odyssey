@@ -1,0 +1,70 @@
+{
+  "id": "best-threshold",
+  "title": {
+    "tr": "Eşiği doğrulamada seçmek",
+    "en": "Choosing the threshold on validation"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Bir eşik için doğrulama doğruluğunu veren küçük bir fonksiyon yaz.",
+      "en": "Write a small function giving the validation accuracy for one threshold."
+    },
+    {
+      "tr": "`max(candidates, key=...)`.",
+      "en": "`max(candidates, key=...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nimport torch\nfrom dl_data import make_sensor\n\nx_np, y_np = make_sensor(600, seed=7)\ngain = np.random.default_rng(3).uniform(0.5, 2.0, (600, 1)).astype(np.float32)\nx = torch.tensor(x_np * gain).unsqueeze(1)\ny = torch.tensor(y_np)\n\n\ndef best_threshold(candidates):\n    def val_accuracy(t):\n        pred = (x[400:500].abs().amax(dim=(1, 2)) > t).long()\n        return (pred == y[400:500]).float().mean().item()\n\n    return max(candidates, key=val_accuracy)\n\nprint(best_threshold([1.5, 2.0, 2.5, 3.0]))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nimport torch\nfrom dl_data import make_sensor\n\nx_np, y_np = make_sensor(600, seed=7)\ngain = np.random.default_rng(3).uniform(0.5, 2.0, (600, 1)).astype(np.float32)\nx = torch.tensor(x_np * gain).unsqueeze(1)\ny = torch.tensor(y_np)\n\n\ndef best_threshold(candidates):\n    def val_accuracy(t):\n        pred = (x[400:500].abs().amax(dim=(1, 2)) > t).long()\n        return (pred == y[400:500]).float().mean().item()\n\n    return max(candidates, key=val_accuracy)\n\nprint(best_threshold([1.5, 2.0, 2.5, 3.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "best_threshold",
+      "cases": [
+        {
+          "args": [
+            [
+              3.5,
+              4.0
+            ]
+          ],
+          "returns": 3.5
+        },
+        {
+          "args": [
+            [
+              2.0,
+              2.5
+            ]
+          ],
+          "returns": 2.5
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3.0"
+    }
+  ]
+}

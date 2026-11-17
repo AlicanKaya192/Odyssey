@@ -1,0 +1,54 @@
+{
+  "id": "generator-gets-grad",
+  "title": {
+    "tr": "Türev nereye gidiyor?",
+    "en": "Where does the derivative go?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`if use_detach: fake = fake.detach()`.",
+      "en": "`if use_detach: fake = fake.detach()`."
+    },
+    {
+      "tr": "`nn.BCEWithLogitsLoss()(D(fake), torch.zeros(8, 1)).backward()`.",
+      "en": "`nn.BCEWithLogitsLoss()(D(fake), torch.zeros(8, 1)).backward()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef generator_gets_grad(use_detach):\n    torch.manual_seed(0)\n    G = nn.Linear(2, 1)\n    D = nn.Linear(1, 1)\n    fake = G(torch.randn(8, 2))\n    if use_detach:\n        fake = fake.detach()\n    nn.BCEWithLogitsLoss()(D(fake), torch.zeros(8, 1)).backward()\n    return G.weight.grad is not None\n\nprint(generator_gets_grad(True))\nprint(generator_gets_grad(False))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef generator_gets_grad(use_detach):\n    torch.manual_seed(0)\n    G = nn.Linear(2, 1)\n    D = nn.Linear(1, 1)\n    fake = G(torch.randn(8, 2))\n    if use_detach:\n        fake = fake.detach()\n    nn.BCEWithLogitsLoss()(D(fake), torch.zeros(8, 1)).backward()\n    return G.weight.grad is not None\n\nprint(generator_gets_grad(True))\nprint(generator_gets_grad(False))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "generator_gets_grad",
+      "cases": [
+        {
+          "args": [
+            true
+          ],
+          "returns": false
+        },
+        {
+          "args": [
+            false
+          ],
+          "returns": true
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "False\nTrue"
+    }
+  ]
+}

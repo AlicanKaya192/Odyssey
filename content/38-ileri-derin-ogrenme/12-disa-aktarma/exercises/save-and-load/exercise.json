@@ -1,0 +1,36 @@
+{
+  "id": "save-and-load",
+  "title": {
+    "tr": "Kaydet ve yükle",
+    "en": "Save and load"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.export.save(ep, \"model.pt2\")`.",
+      "en": "`torch.export.save(ep, \"model.pt2\")`."
+    },
+    {
+      "tr": "`torch.export.load(\"model.pt2\").module()`.",
+      "en": "`torch.export.load(\"model.pt2\").module()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\ntorch.manual_seed(0)\nmodel = nn.Sequential(nn.Linear(8, 16), nn.ReLU(), nn.Linear(16, 2)).eval()\nx = torch.randn(4, 8)\nep = torch.export.export(model, (x,))\ntorch.export.save(ep, \"model.pt2\")\nloaded = torch.export.load(\"model.pt2\").module()\nprint(loaded(x).shape, torch.allclose(loaded(x), model(x)))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\ntorch.manual_seed(0)\nmodel = nn.Sequential(nn.Linear(8, 16), nn.ReLU(), nn.Linear(16, 2)).eval()\nx = torch.randn(4, 8)\nep = torch.export.export(model, (x,))\ntorch.export.save(ep, \"model.pt2\")\nloaded = torch.export.load(\"model.pt2\").module()\nprint(loaded(x).shape, torch.allclose(loaded(x), model(x)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "torch.Size([4, 2]) True"
+    }
+  ]
+}

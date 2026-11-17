@@ -1,0 +1,68 @@
+{
+  "id": "int8-roundtrip",
+  "title": {
+    "tr": "int8'e gidip gelmek",
+    "en": "To int8 and back"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`q = torch.round(w / scale).clamp(-127, 127).to(torch.int8)`.",
+      "en": "`q = torch.round(w / scale).clamp(-127, 127).to(torch.int8)`."
+    },
+    {
+      "tr": "Geri açmak: `q.float() * scale`.",
+      "en": "Restoring: `q.float() * scale`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef int8_roundtrip(values):\n    w = torch.tensor(values)\n    scale = w.abs().max() / 127\n    q = torch.round(w / scale).clamp(-127, 127).to(torch.int8)\n    return [round(v, 3) for v in (q.float() * scale).tolist()]\n\nprint(int8_roundtrip([1.27, -0.5, 0.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef int8_roundtrip(values):\n    w = torch.tensor(values)\n    scale = w.abs().max() / 127\n    q = torch.round(w / scale).clamp(-127, 127).to(torch.int8)\n    return [round(v, 3) for v in (q.float() * scale).tolist()]\n\nprint(int8_roundtrip([1.27, -0.5, 0.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "int8_roundtrip",
+      "cases": [
+        {
+          "args": [
+            [
+              0.3,
+              0.7,
+              -0.1
+            ]
+          ],
+          "returns": [
+            0.298,
+            0.7,
+            -0.099
+          ]
+        },
+        {
+          "args": [
+            [
+              12.7,
+              0.06
+            ]
+          ],
+          "returns": [
+            12.7,
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.27, -0.5, 0.0]"
+    }
+  ]
+}

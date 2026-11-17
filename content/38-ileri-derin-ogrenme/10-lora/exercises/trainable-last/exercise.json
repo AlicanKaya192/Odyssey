@@ -1,0 +1,54 @@
+{
+  "id": "trainable-last",
+  "title": {
+    "tr": "Yalnızca son katman",
+    "en": "Only the last layer"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`net[-1].requires_grad_(True)`.",
+      "en": "`net[-1].requires_grad_(True)`."
+    },
+    {
+      "tr": "Sayarken `if p.requires_grad`.",
+      "en": "Count with `if p.requires_grad`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom torch import nn\n\n\ndef trainable_last(hidden):\n    net = nn.Sequential(nn.Linear(6, hidden), nn.ReLU(), nn.Linear(hidden, 3))\n    net.requires_grad_(False)\n    net[-1].requires_grad_(True)\n    return sum(p.numel() for p in net.parameters() if p.requires_grad)\n\nprint(trainable_last(64))\nprint(trainable_last(8))\n```",
+      "en": "The full solution:\n\n```python\nfrom torch import nn\n\n\ndef trainable_last(hidden):\n    net = nn.Sequential(nn.Linear(6, hidden), nn.ReLU(), nn.Linear(hidden, 3))\n    net.requires_grad_(False)\n    net[-1].requires_grad_(True)\n    return sum(p.numel() for p in net.parameters() if p.requires_grad)\n\nprint(trainable_last(64))\nprint(trainable_last(8))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "trainable_last",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": 6
+        },
+        {
+          "args": [
+            16
+          ],
+          "returns": 51
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "195\n27"
+    }
+  ]
+}

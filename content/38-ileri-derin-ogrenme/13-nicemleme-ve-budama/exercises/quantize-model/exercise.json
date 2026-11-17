@@ -1,0 +1,46 @@
+{
+  "id": "quantize-model",
+  "title": {
+    "tr": "Bir modeli nicemlemek",
+    "en": "Quantising a model"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for m in net: if isinstance(m, nn.Linear): ...`.",
+      "en": "`for m in net: if isinstance(m, nn.Linear): ...`."
+    },
+    {
+      "tr": "`m.weight.copy_(q.float() * scale)`.",
+      "en": "`m.weight.copy_(q.float() * scale)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom dl_data import make_table\n\nx, y = map(torch.tensor, make_table(1000, seed=7))\ntorch.manual_seed(0)\nnet = nn.Sequential(nn.Linear(6, 64), nn.ReLU(), nn.Linear(64, 64), nn.ReLU(), nn.Linear(64, 3))\nopt = torch.optim.Adam(net.parameters(), lr=0.01)\ngen = torch.Generator().manual_seed(1)\nfor _ in range(30):\n    perm = torch.randperm(800, generator=gen)\n    for i in range(0, 800, 50):\n        idx = perm[i:i + 50]\n        opt.zero_grad()\n        F.cross_entropy(net(x[idx]), y[idx]).backward()\n        opt.step()\nnet.eval()\n\n\ndef accuracy(model):\n    with torch.no_grad():\n        return (model(x[800:]).argmax(1) == y[800:]).float().mean().item()\n\n\ndef quantize(w):\n    scale = w.abs().max() / 127\n    q = torch.round(w / scale).clamp(-127, 127).to(torch.int8)\n    return q, scale\n\n\nacc = accuracy(net)\nstored = []\nwith torch.no_grad():\n    for m in net:\n        if isinstance(m, nn.Linear):\n            q, scale = quantize(m.weight)\n            stored.append((q, scale))\n            m.weight.copy_(q.float() * scale)\nprint(len(stored), stored[0][0].dtype)\nprint(abs(accuracy(net) - acc) < 0.02)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom dl_data import make_table\n\nx, y = map(torch.tensor, make_table(1000, seed=7))\ntorch.manual_seed(0)\nnet = nn.Sequential(nn.Linear(6, 64), nn.ReLU(), nn.Linear(64, 64), nn.ReLU(), nn.Linear(64, 3))\nopt = torch.optim.Adam(net.parameters(), lr=0.01)\ngen = torch.Generator().manual_seed(1)\nfor _ in range(30):\n    perm = torch.randperm(800, generator=gen)\n    for i in range(0, 800, 50):\n        idx = perm[i:i + 50]\n        opt.zero_grad()\n        F.cross_entropy(net(x[idx]), y[idx]).backward()\n        opt.step()\nnet.eval()\n\n\ndef accuracy(model):\n    with torch.no_grad():\n        return (model(x[800:]).argmax(1) == y[800:]).float().mean().item()\n\n\ndef quantize(w):\n    scale = w.abs().max() / 127\n    q = torch.round(w / scale).clamp(-127, 127).to(torch.int8)\n    return q, scale\n\n\nacc = accuracy(net)\nstored = []\nwith torch.no_grad():\n    for m in net:\n        if isinstance(m, nn.Linear):\n            q, scale = quantize(m.weight)\n            stored.append((q, scale))\n            m.weight.copy_(q.float() * scale)\nprint(len(stored), stored[0][0].dtype)\nprint(abs(accuracy(net) - acc) < 0.02)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3 torch.int8\nTrue"
+    }
+  ]
+}

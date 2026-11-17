@@ -1,0 +1,70 @@
+{
+  "id": "cond-net",
+  "title": {
+    "tr": "Dışa aktarılabilir dallanma",
+    "en": "Exportable branching"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.cond(koşul, doğruysa, yanlışsa, (x,))`.",
+      "en": "`torch.cond(condition, if_true, if_false, (x,))`."
+    },
+    {
+      "tr": "Dallar fonksiyon: `lambda t: t * 2`.",
+      "en": "The branches are functions: `lambda t: t * 2`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass CondNet(nn.Module):\n    def forward(self, x):\n        return torch.cond(x.sum() > 0, lambda t: t * 2, lambda t: t * -1, (x,))\n\n\ndef cond_outputs(values):\n    ep = torch.export.export(CondNet(), (torch.ones(3),))\n    return ep.module()(torch.tensor(values)).tolist()\n\nprint(cond_outputs([1.0, 2.0, 3.0]))\nprint(cond_outputs([-1.0, -2.0, 0.5]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass CondNet(nn.Module):\n    def forward(self, x):\n        return torch.cond(x.sum() > 0, lambda t: t * 2, lambda t: t * -1, (x,))\n\n\ndef cond_outputs(values):\n    ep = torch.export.export(CondNet(), (torch.ones(3),))\n    return ep.module()(torch.tensor(values)).tolist()\n\nprint(cond_outputs([1.0, 2.0, 3.0]))\nprint(cond_outputs([-1.0, -2.0, 0.5]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "cond_outputs",
+      "cases": [
+        {
+          "args": [
+            [
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "returns": [
+            0.0,
+            0.0,
+            2.0
+          ]
+        },
+        {
+          "args": [
+            [
+              -3.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "returns": [
+            3.0,
+            -1.0,
+            -1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2.0, 4.0, 6.0]\n[1.0, 2.0, -0.5]"
+    }
+  ]
+}

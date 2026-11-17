@@ -1,0 +1,96 @@
+{
+  "id": "pairwise-sq-dist",
+  "title": {
+    "tr": "Döngüsüz uzaklıklar",
+    "en": "Distances without a loop"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`(a[:, None, :] - b[None, :, :])` şekli `(len(a), len(b), boyut)`.",
+      "en": "`(a[:, None, :] - b[None, :, :])` has the shape `(len(a), len(b), dim)`."
+    },
+    {
+      "tr": "Kareyi al, `sum(dim=-1)`.",
+      "en": "Square it, `sum(dim=-1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef pairwise_sq_dist(a, b):\n    a, b = torch.tensor(a), torch.tensor(b)\n    return ((a[:, None, :] - b[None, :, :]) ** 2).sum(dim=-1).long().tolist()\n\nprint(pairwise_sq_dist([[0.0, 0.0], [1.0, 2.0]], [[1.0, 0.0], [3.0, 2.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef pairwise_sq_dist(a, b):\n    a, b = torch.tensor(a), torch.tensor(b)\n    return ((a[:, None, :] - b[None, :, :]) ** 2).sum(dim=-1).long().tolist()\n\nprint(pairwise_sq_dist([[0.0, 0.0], [1.0, 2.0]], [[1.0, 0.0], [3.0, 2.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "pairwise_sq_dist",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0
+              ]
+            ],
+            [
+              [
+                3.0
+              ],
+              [
+                -1.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              9,
+              1
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                1.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0,
+                0.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              3
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For",
+      "hint": {
+        "tr": "Döngü kullanma; işi tek bir tensör işlemiyle yap.",
+        "en": "Do not use a loop; do the job with a single tensor operation."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[1, 13], [4, 4]]"
+    }
+  ]
+}

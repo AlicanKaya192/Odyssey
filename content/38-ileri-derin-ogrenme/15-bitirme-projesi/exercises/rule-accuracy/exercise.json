@@ -1,0 +1,64 @@
+{
+  "id": "rule-accuracy",
+  "title": {
+    "tr": "Tepe kuralının doğruluğu",
+    "en": "The peak rule's accuracy"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`x[500:].abs().amax(dim=(1, 2))` her pencerenin tepesi.",
+      "en": "`x[500:].abs().amax(dim=(1, 2))` is every window's peak."
+    },
+    {
+      "tr": "`(pred == y[500:]).float().mean()`.",
+      "en": "`(pred == y[500:]).float().mean()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport numpy as np\nimport torch\nfrom dl_data import make_sensor\n\nx_np, y_np = make_sensor(600, seed=7)\ngain = np.random.default_rng(3).uniform(0.5, 2.0, (600, 1)).astype(np.float32)\nx = torch.tensor(x_np * gain).unsqueeze(1)\ny = torch.tensor(y_np)\n\n\ndef rule_accuracy(threshold):\n    pred = (x[500:].abs().amax(dim=(1, 2)) > threshold).long()\n    return round((pred == y[500:]).float().mean().item(), 2)\n\nprint(rule_accuracy(3.0))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport numpy as np\nimport torch\nfrom dl_data import make_sensor\n\nx_np, y_np = make_sensor(600, seed=7)\ngain = np.random.default_rng(3).uniform(0.5, 2.0, (600, 1)).astype(np.float32)\nx = torch.tensor(x_np * gain).unsqueeze(1)\ny = torch.tensor(y_np)\n\n\ndef rule_accuracy(threshold):\n    pred = (x[500:].abs().amax(dim=(1, 2)) > threshold).long()\n    return round((pred == y[500:]).float().mean().item(), 2)\n\nprint(rule_accuracy(3.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "rule_accuracy",
+      "cases": [
+        {
+          "args": [
+            2.0
+          ],
+          "returns": 0.79
+        },
+        {
+          "args": [
+            4.0
+          ],
+          "returns": 0.88
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.93"
+    }
+  ]
+}

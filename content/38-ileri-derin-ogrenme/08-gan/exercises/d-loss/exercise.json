@@ -1,0 +1,78 @@
+{
+  "id": "d-loss",
+  "title": {
+    "tr": "Ayırt edicinin kaybı",
+    "en": "The discriminator's loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.full_like(real, smooth)` ve `torch.zeros_like(fake)`.",
+      "en": "`torch.full_like(real, smooth)` and `torch.zeros_like(fake)`."
+    },
+    {
+      "tr": "İki kaybı topla, `round(loss.item(), 3)`.",
+      "en": "Add the two losses, `round(loss.item(), 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef d_loss(real_logits, fake_logits, smooth=1.0):\n    loss_fn = nn.BCEWithLogitsLoss()\n    real, fake = torch.tensor(real_logits), torch.tensor(fake_logits)\n    loss = loss_fn(real, torch.full_like(real, smooth)) + loss_fn(fake, torch.zeros_like(fake))\n    return round(loss.item(), 3)\n\nprint(d_loss([0.0, 0.0], [0.0, 0.0]))\nprint(d_loss([6.0], [-6.0], 0.9))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef d_loss(real_logits, fake_logits, smooth=1.0):\n    loss_fn = nn.BCEWithLogitsLoss()\n    real, fake = torch.tensor(real_logits), torch.tensor(fake_logits)\n    loss = loss_fn(real, torch.full_like(real, smooth)) + loss_fn(fake, torch.zeros_like(fake))\n    return round(loss.item(), 3)\n\nprint(d_loss([0.0, 0.0], [0.0, 0.0]))\nprint(d_loss([6.0], [-6.0], 0.9))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "d_loss",
+      "cases": [
+        {
+          "args": [
+            [
+              3.0
+            ],
+            [
+              -3.0
+            ]
+          ],
+          "returns": 0.097
+        },
+        {
+          "args": [
+            [
+              0.0
+            ],
+            [
+              5.0
+            ]
+          ],
+          "returns": 5.7
+        },
+        {
+          "args": [
+            [
+              2.0,
+              1.0
+            ],
+            [
+              -1.0,
+              0.0
+            ],
+            0.9
+          ],
+          "returns": 0.873
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.386\n0.605"
+    }
+  ]
+}

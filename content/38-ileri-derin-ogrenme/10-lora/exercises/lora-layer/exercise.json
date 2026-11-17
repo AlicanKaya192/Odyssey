@@ -1,0 +1,62 @@
+{
+  "id": "lora-layer",
+  "title": {
+    "tr": "Bir LoRA katmanı yazmak",
+    "en": "Writing a LoRA layer"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`self.A = nn.Parameter(torch.randn(r, base.in_features) * 0.01)`.",
+      "en": "`self.A = nn.Parameter(torch.randn(r, base.in_features) * 0.01)`."
+    },
+    {
+      "tr": "`self.B = nn.Parameter(torch.zeros(base.out_features, r))`.",
+      "en": "`self.B = nn.Parameter(torch.zeros(base.out_features, r))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass LoRALinear(nn.Module):\n    def __init__(self, base, r=4, alpha=8):\n        super().__init__()\n        self.base = base.requires_grad_(False)\n        self.A = nn.Parameter(torch.randn(r, base.in_features) * 0.01)\n        self.B = nn.Parameter(torch.zeros(base.out_features, r))\n        self.scale = alpha / r\n\n    def forward(self, x):\n        return self.base(x) + (x @ self.A.T @ self.B.T) * self.scale\n\ndef lora_report(r):\n    torch.manual_seed(0)\n    layer = nn.Linear(8, 4)\n    lora = LoRALinear(layer, r=r)\n    x = torch.randn(3, 8)\n    same = torch.equal(lora(x), layer(x))\n    trainable = sum(p.numel() for p in lora.parameters() if p.requires_grad)\n    with torch.no_grad():\n        lora.B.fill_(1.0)\n    changed = not torch.equal(lora(x), layer(x))\n    return [same, trainable, changed]\n\n\nprint(lora_report(2))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass LoRALinear(nn.Module):\n    def __init__(self, base, r=4, alpha=8):\n        super().__init__()\n        self.base = base.requires_grad_(False)\n        self.A = nn.Parameter(torch.randn(r, base.in_features) * 0.01)\n        self.B = nn.Parameter(torch.zeros(base.out_features, r))\n        self.scale = alpha / r\n\n    def forward(self, x):\n        return self.base(x) + (x @ self.A.T @ self.B.T) * self.scale\n\ndef lora_report(r):\n    torch.manual_seed(0)\n    layer = nn.Linear(8, 4)\n    lora = LoRALinear(layer, r=r)\n    x = torch.randn(3, 8)\n    same = torch.equal(lora(x), layer(x))\n    trainable = sum(p.numel() for p in lora.parameters() if p.requires_grad)\n    with torch.no_grad():\n        lora.B.fill_(1.0)\n    changed = not torch.equal(lora(x), layer(x))\n    return [same, trainable, changed]\n\n\nprint(lora_report(2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lora_report",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            true,
+            12,
+            true
+          ]
+        },
+        {
+          "args": [
+            3
+          ],
+          "returns": [
+            true,
+            36,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[True, 24, True]"
+    }
+  ]
+}

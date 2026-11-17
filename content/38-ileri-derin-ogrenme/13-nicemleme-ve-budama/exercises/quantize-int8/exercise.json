@@ -1,0 +1,76 @@
+{
+  "id": "quantize-int8",
+  "title": {
+    "tr": "Sekiz bite indirmek",
+    "en": "Down to eight bits"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`scale = w.abs().max() / 127`.",
+      "en": "`scale = w.abs().max() / 127`."
+    },
+    {
+      "tr": "`torch.round(w / scale).clamp(-127, 127).to(torch.int8)`.",
+      "en": "`torch.round(w / scale).clamp(-127, 127).to(torch.int8)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef quantize_int8(values):\n    w = torch.tensor(values)\n    scale = w.abs().max() / 127\n    q = torch.round(w / scale).clamp(-127, 127).to(torch.int8)\n    return [q.tolist(), round(scale.item(), 4)]\n\nprint(quantize_int8([0.5, -1.27, 0.01]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef quantize_int8(values):\n    w = torch.tensor(values)\n    scale = w.abs().max() / 127\n    q = torch.round(w / scale).clamp(-127, 127).to(torch.int8)\n    return [q.tolist(), round(scale.item(), 4)]\n\nprint(quantize_int8([0.5, -1.27, 0.01]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "quantize_int8",
+      "cases": [
+        {
+          "args": [
+            [
+              2.54,
+              -1.27
+            ]
+          ],
+          "returns": [
+            [
+              127,
+              -64
+            ],
+            0.02
+          ]
+        },
+        {
+          "args": [
+            [
+              0.1,
+              0.25,
+              -0.3,
+              0.4
+            ]
+          ],
+          "returns": [
+            [
+              32,
+              79,
+              -95,
+              127
+            ],
+            0.0031
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[50, -127, 1], 0.01]"
+    }
+  ]
+}

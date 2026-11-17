@@ -1,0 +1,36 @@
+{
+  "id": "train-gan",
+  "title": {
+    "tr": "Bir GAN eğitmek",
+    "en": "Training a GAN"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Her adımdan önce ilgili optimizer'da `zero_grad()`.",
+      "en": "`zero_grad()` on the matching optimiser before each step."
+    },
+    {
+      "tr": "Ayırt edicinin kaybı: `loss_fn(D(xb), ones) + loss_fn(D(fake.detach()), zeros)`.",
+      "en": "The discriminator's loss: `loss_fn(D(xb), ones) + loss_fn(D(fake.detach()), zeros)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\ntorch.manual_seed(0)\nreal = -2 + 0.5 * torch.randn(2000, 1, generator=torch.Generator().manual_seed(1))\nG = nn.Sequential(nn.Linear(4, 16), nn.ReLU(), nn.Linear(16, 1))\nD = nn.Sequential(nn.Linear(1, 16), nn.LeakyReLU(0.2), nn.Linear(16, 1))\nloss_fn = nn.BCEWithLogitsLoss()\nopt_g = torch.optim.Adam(G.parameters(), lr=0.002, betas=(0.5, 0.999))\nopt_d = torch.optim.Adam(D.parameters(), lr=0.002, betas=(0.5, 0.999))\ngen = torch.Generator().manual_seed(2)\nones, zeros = torch.ones(64, 1), torch.zeros(64, 1)\n\nfor step in range(800):\n    xb = real[torch.randint(0, len(real), (64,), generator=gen)]\n    fake = G(torch.randn(64, 4, generator=gen))\n    opt_d.zero_grad()\n    d_loss = loss_fn(D(xb), ones) + loss_fn(D(fake.detach()), zeros)\n    d_loss.backward()\n    opt_d.step()\n    opt_g.zero_grad()\n    loss_fn(D(fake), ones).backward()\n    opt_g.step()\n\nwith torch.no_grad():\n    s = G(torch.randn(2000, 4, generator=torch.Generator().manual_seed(3)))\n    p = torch.sigmoid(D(s)).mean().item()\nprint(abs(s.mean().item() + 2) < 0.3)\nprint(abs(p - 0.5) < 0.05)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\ntorch.manual_seed(0)\nreal = -2 + 0.5 * torch.randn(2000, 1, generator=torch.Generator().manual_seed(1))\nG = nn.Sequential(nn.Linear(4, 16), nn.ReLU(), nn.Linear(16, 1))\nD = nn.Sequential(nn.Linear(1, 16), nn.LeakyReLU(0.2), nn.Linear(16, 1))\nloss_fn = nn.BCEWithLogitsLoss()\nopt_g = torch.optim.Adam(G.parameters(), lr=0.002, betas=(0.5, 0.999))\nopt_d = torch.optim.Adam(D.parameters(), lr=0.002, betas=(0.5, 0.999))\ngen = torch.Generator().manual_seed(2)\nones, zeros = torch.ones(64, 1), torch.zeros(64, 1)\n\nfor step in range(800):\n    xb = real[torch.randint(0, len(real), (64,), generator=gen)]\n    fake = G(torch.randn(64, 4, generator=gen))\n    opt_d.zero_grad()\n    d_loss = loss_fn(D(xb), ones) + loss_fn(D(fake.detach()), zeros)\n    d_loss.backward()\n    opt_d.step()\n    opt_g.zero_grad()\n    loss_fn(D(fake), ones).backward()\n    opt_g.step()\n\nwith torch.no_grad():\n    s = G(torch.randn(2000, 4, generator=torch.Generator().manual_seed(3)))\n    p = torch.sigmoid(D(s)).mean().item()\nprint(abs(s.mean().item() + 2) < 0.3)\nprint(abs(p - 0.5) < 0.05)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nTrue"
+    }
+  ]
+}

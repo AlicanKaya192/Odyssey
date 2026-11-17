@@ -1,0 +1,46 @@
+{
+  "id": "sequence-detector",
+  "title": {
+    "tr": "Uçtan uca dizi algılayıcı",
+    "en": "An end-to-end sequence detector"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Grup: `idx = perm[i:i + 50]`.",
+      "en": "A batch: `idx = perm[i:i + 50]`."
+    },
+    {
+      "tr": "`torch.export.export(model, (x[:4],), dynamic_shapes=({0: batch},))`.",
+      "en": "`torch.export.export(model, (x[:4],), dynamic_shapes=({0: batch},))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom dl_data import make_sequences\n\n\nclass Detector(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.embed = nn.Embedding(10, 8)\n        self.conv = nn.Conv1d(8, 16, kernel_size=2)\n        self.head = nn.Linear(16, 2)\n\n    def forward(self, ids):\n        h = self.embed(ids).transpose(1, 2)\n        return self.head(torch.relu(self.conv(h)).amax(dim=2))\n\n\nx_np, y_np = make_sequences(600, seed=7)\nx, y = torch.tensor(x_np), torch.tensor(y_np)\ntorch.manual_seed(0)\nmodel = Detector()\nopt = torch.optim.Adam(model.parameters(), lr=0.01)\ngen = torch.Generator().manual_seed(1)\nfor epoch in range(20):\n    perm = torch.randperm(500, generator=gen)\n    for i in range(0, 500, 50):\n        idx = perm[i:i + 50]\n        opt.zero_grad()\n        F.cross_entropy(model(x[idx]), y[idx]).backward()\n        opt.step()\nmodel.eval()\nbatch = torch.export.Dim(\"batch\")\nep = torch.export.export(model, (x[:4],), dynamic_shapes=({0: batch},))\ntorch.export.save(ep, \"detector.pt2\")\n\nwith torch.no_grad():\n    acc = (model(x[500:]).argmax(1) == y[500:]).float().mean().item()\n    golden = model(x[500:])\nloaded = torch.export.load(\"detector.pt2\").module()\nprint(acc > 0.95)\nprint(torch.allclose(loaded(x[500:]), golden, atol=1e-5), loaded(x[:3]).shape)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom dl_data import make_sequences\n\n\nclass Detector(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.embed = nn.Embedding(10, 8)\n        self.conv = nn.Conv1d(8, 16, kernel_size=2)\n        self.head = nn.Linear(16, 2)\n\n    def forward(self, ids):\n        h = self.embed(ids).transpose(1, 2)\n        return self.head(torch.relu(self.conv(h)).amax(dim=2))\n\n\nx_np, y_np = make_sequences(600, seed=7)\nx, y = torch.tensor(x_np), torch.tensor(y_np)\ntorch.manual_seed(0)\nmodel = Detector()\nopt = torch.optim.Adam(model.parameters(), lr=0.01)\ngen = torch.Generator().manual_seed(1)\nfor epoch in range(20):\n    perm = torch.randperm(500, generator=gen)\n    for i in range(0, 500, 50):\n        idx = perm[i:i + 50]\n        opt.zero_grad()\n        F.cross_entropy(model(x[idx]), y[idx]).backward()\n        opt.step()\nmodel.eval()\nbatch = torch.export.Dim(\"batch\")\nep = torch.export.export(model, (x[:4],), dynamic_shapes=({0: batch},))\ntorch.export.save(ep, \"detector.pt2\")\n\nwith torch.no_grad():\n    acc = (model(x[500:]).argmax(1) == y[500:]).float().mean().item()\n    golden = model(x[500:])\nloaded = torch.export.load(\"detector.pt2\").module()\nprint(acc > 0.95)\nprint(torch.allclose(loaded(x[500:]), golden, atol=1e-5), loaded(x[:3]).shape)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nTrue torch.Size([3, 2])"
+    }
+  ]
+}

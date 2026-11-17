@@ -1,0 +1,116 @@
+{
+  "id": "lora-forward",
+  "title": {
+    "tr": "LoRA katmanının çıkışı",
+    "en": "A LoRA layer's output"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`scale = alpha / A.shape[0]`.",
+      "en": "`scale = alpha / A.shape[0]`."
+    },
+    {
+      "tr": "`x @ W.T + b + (x @ A.T @ B.T) * scale`.",
+      "en": "`x @ W.T + b + (x @ A.T @ B.T) * scale`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef lora_forward(x, W, b, A, B, alpha):\n    x, W, b, A, B = (torch.tensor(v) for v in (x, W, b, A, B))\n    scale = alpha / A.shape[0]\n    out = x @ W.T + b + (x @ A.T @ B.T) * scale\n    return [[round(v, 3) for v in row] for row in out.tolist()]\n\nx = [[1.0, 2.0]]\nW = [[1.0, 0.0], [0.0, 1.0]]\nb = [0.0, 0.0]\nA = [[1.0, 1.0]]\nB = [[0.5], [0.0]]\nprint(lora_forward(x, W, b, A, B, 2.0))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef lora_forward(x, W, b, A, B, alpha):\n    x, W, b, A, B = (torch.tensor(v) for v in (x, W, b, A, B))\n    scale = alpha / A.shape[0]\n    out = x @ W.T + b + (x @ A.T @ B.T) * scale\n    return [[round(v, 3) for v in row] for row in out.tolist()]\n\nx = [[1.0, 2.0]]\nW = [[1.0, 0.0], [0.0, 1.0]]\nb = [0.0, 0.0]\nA = [[1.0, 1.0]]\nB = [[0.5], [0.0]]\nprint(lora_forward(x, W, b, A, B, 2.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "lora_forward",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0
+              ]
+            ],
+            [
+              [
+                2.0
+              ]
+            ],
+            [
+              1.0
+            ],
+            [
+              [
+                1.0
+              ]
+            ],
+            [
+              [
+                0.0
+              ]
+            ],
+            1.0
+          ],
+          "returns": [
+            [
+              3.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            [
+              0.5
+            ],
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            4.0
+          ],
+          "returns": [
+            [
+              6.5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[4.0, 2.0]]"
+    }
+  ]
+}

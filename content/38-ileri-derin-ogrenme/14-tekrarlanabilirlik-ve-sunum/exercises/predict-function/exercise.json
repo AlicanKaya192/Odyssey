@@ -1,0 +1,46 @@
+{
+  "id": "predict-function",
+  "title": {
+    "tr": "Tahmin fonksiyonu",
+    "en": "A prediction function"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`logits = model(torch.tensor([values], dtype=torch.float32))`.",
+      "en": "`logits = model(torch.tensor([values], dtype=torch.float32))`."
+    },
+    {
+      "tr": "`best = int(probs.argmax())`, `CLASSES[best]`.",
+      "en": "`best = int(probs.argmax())`, `CLASSES[best]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom dl_data import make_table\n\nx, y = map(torch.tensor, make_table(600, seed=7))\ntorch.manual_seed(0)\nmodel = nn.Sequential(nn.Linear(6, 32), nn.ReLU(), nn.Linear(32, 3))\nopt = torch.optim.Adam(model.parameters(), lr=0.01)\nfor _ in range(100):\n    opt.zero_grad()\n    F.cross_entropy(model(x[:500]), y[:500]).backward()\n    opt.step()\nmodel.eval()\nCLASSES = [\"low\", \"mid\", \"high\"]\n\n\ndef predict(values):\n    if len(values) != 6:\n        raise ValueError(f\"expected 6 values, got {len(values)}\")\n    with torch.inference_mode():\n        logits = model(torch.tensor([values], dtype=torch.float32))\n        probs = torch.softmax(logits, dim=1)[0]\n    best = int(probs.argmax())\n    return {\"label\": CLASSES[best], \"probability\": round(probs[best].item(), 2)}\n\nanswer = predict([0.0, 2.0, 0.0, 1.5, 0.0, 0.0])\nprint(answer[\"label\"], 0.5 < answer[\"probability\"] <= 1.0)\ntry:\n    predict([1.0])\nexcept ValueError as e:\n    print(e)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nimport torch.nn.functional as F\nfrom torch import nn\nfrom dl_data import make_table\n\nx, y = map(torch.tensor, make_table(600, seed=7))\ntorch.manual_seed(0)\nmodel = nn.Sequential(nn.Linear(6, 32), nn.ReLU(), nn.Linear(32, 3))\nopt = torch.optim.Adam(model.parameters(), lr=0.01)\nfor _ in range(100):\n    opt.zero_grad()\n    F.cross_entropy(model(x[:500]), y[:500]).backward()\n    opt.step()\nmodel.eval()\nCLASSES = [\"low\", \"mid\", \"high\"]\n\n\ndef predict(values):\n    if len(values) != 6:\n        raise ValueError(f\"expected 6 values, got {len(values)}\")\n    with torch.inference_mode():\n        logits = model(torch.tensor([values], dtype=torch.float32))\n        probs = torch.softmax(logits, dim=1)[0]\n    best = int(probs.argmax())\n    return {\"label\": CLASSES[best], \"probability\": round(probs[best].item(), 2)}\n\nanswer = predict([0.0, 2.0, 0.0, 1.5, 0.0, 0.0])\nprint(answer[\"label\"], 0.5 < answer[\"probability\"] <= 1.0)\ntry:\n    predict([1.0])\nexcept ValueError as e:\n    print(e)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "high True\nexpected 6 values, got 1"
+    }
+  ]
+}

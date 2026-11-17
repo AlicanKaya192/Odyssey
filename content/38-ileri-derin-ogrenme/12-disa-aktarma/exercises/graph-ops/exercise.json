@@ -1,0 +1,52 @@
+{
+  "id": "graph-ops",
+  "title": {
+    "tr": "Grafikte ne var?",
+    "en": "What is in the graph?"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`ep.graph.nodes` içinde `n.op == \"call_function\"` olanlar.",
+      "en": "Those in `ep.graph.nodes` with `n.op == \"call_function\"`."
+    },
+    {
+      "tr": "`op.removeprefix(\"aten.\")`.",
+      "en": "`op.removeprefix(\"aten.\")`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef graph_ops(activation):\n    act = nn.ReLU() if activation == \"relu\" else nn.Tanh()\n    model = nn.Sequential(nn.Linear(3, 4), act, nn.Linear(4, 1)).eval()\n    ep = torch.export.export(model, (torch.ones(2, 3),))\n    ops = [str(n.target) for n in ep.graph.nodes if n.op == \"call_function\"]\n    return [op.removeprefix(\"aten.\") for op in ops]\n\nprint(graph_ops(\"relu\"))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef graph_ops(activation):\n    act = nn.ReLU() if activation == \"relu\" else nn.Tanh()\n    model = nn.Sequential(nn.Linear(3, 4), act, nn.Linear(4, 1)).eval()\n    ep = torch.export.export(model, (torch.ones(2, 3),))\n    ops = [str(n.target) for n in ep.graph.nodes if n.op == \"call_function\"]\n    return [op.removeprefix(\"aten.\") for op in ops]\n\nprint(graph_ops(\"relu\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "graph_ops",
+      "cases": [
+        {
+          "args": [
+            "tanh"
+          ],
+          "returns": [
+            "linear.default",
+            "tanh.default",
+            "linear.default"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['linear.default', 'relu.default', 'linear.default']"
+    }
+  ]
+}

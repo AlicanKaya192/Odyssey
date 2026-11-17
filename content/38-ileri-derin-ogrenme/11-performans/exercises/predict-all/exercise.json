@@ -1,0 +1,101 @@
+{
+  "id": "predict-all",
+  "title": {
+    "tr": "Toplu tahmin",
+    "en": "Batch prediction"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.tensor(rows) @ torch.tensor(weight).T`.",
+      "en": "`torch.tensor(rows) @ torch.tensor(weight).T`."
+    },
+    {
+      "tr": "`argmax(dim=1).tolist()`.",
+      "en": "`argmax(dim=1).tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef predict_all(weight, rows):\n    with torch.inference_mode():\n        logits = torch.tensor(rows) @ torch.tensor(weight).T\n        return logits.argmax(dim=1).tolist()\n\nweight = [[1.0, 0.0], [0.0, 1.0], [-1.0, -1.0]]\nprint(predict_all(weight, [[2.0, 1.0], [0.0, 3.0], [-2.0, -1.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef predict_all(weight, rows):\n    with torch.inference_mode():\n        logits = torch.tensor(rows) @ torch.tensor(weight).T\n        return logits.argmax(dim=1).tolist()\n\nweight = [[1.0, 0.0], [0.0, 1.0], [-1.0, -1.0]]\nprint(predict_all(weight, [[2.0, 1.0], [0.0, 3.0], [-2.0, -1.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "predict_all",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                5.0,
+                1.0
+              ],
+              [
+                1.0,
+                5.0
+              ]
+            ]
+          ],
+          "returns": [
+            0,
+            1
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                1.0,
+                0.0
+              ]
+            ],
+            [
+              [
+                3.0,
+                4.0
+              ]
+            ]
+          ],
+          "returns": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ast_forbid",
+      "node": "For",
+      "hint": {
+        "tr": "Döngü kullanma; işi tek bir tensör işlemiyle yap.",
+        "en": "Do not use a loop; do the job with a single tensor operation."
+      }
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0, 1, 2]"
+    }
+  ]
+}

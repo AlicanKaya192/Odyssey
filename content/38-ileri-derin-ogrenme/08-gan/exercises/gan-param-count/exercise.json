@@ -1,0 +1,62 @@
+{
+  "id": "gan-param-count",
+  "title": {
+    "tr": "İki ağın boyu",
+    "en": "The size of the two networks"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İki `nn.Sequential` kur.",
+      "en": "Build two `nn.Sequential`s."
+    },
+    {
+      "tr": "`sum(p.numel() for p in m.parameters())`.",
+      "en": "`sum(p.numel() for p in m.parameters())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nfrom torch import nn\n\n\ndef gan_param_count(z_dim, hidden):\n    G = nn.Sequential(nn.Linear(z_dim, hidden), nn.ReLU(), nn.Linear(hidden, 1))\n    D = nn.Sequential(nn.Linear(1, hidden), nn.LeakyReLU(0.2), nn.Linear(hidden, 1))\n    return [sum(p.numel() for p in m.parameters()) for m in (G, D)]\n\nprint(gan_param_count(4, 16))\nprint(gan_param_count(2, 8))\n```",
+      "en": "The full solution:\n\n```python\nfrom torch import nn\n\n\ndef gan_param_count(z_dim, hidden):\n    G = nn.Sequential(nn.Linear(z_dim, hidden), nn.ReLU(), nn.Linear(hidden, 1))\n    D = nn.Sequential(nn.Linear(1, hidden), nn.LeakyReLU(0.2), nn.Linear(hidden, 1))\n    return [sum(p.numel() for p in m.parameters()) for m in (G, D)]\n\nprint(gan_param_count(4, 16))\nprint(gan_param_count(2, 8))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "gan_param_count",
+      "cases": [
+        {
+          "args": [
+            1,
+            1
+          ],
+          "returns": [
+            4,
+            4
+          ]
+        },
+        {
+          "args": [
+            8,
+            32
+          ],
+          "returns": [
+            321,
+            97
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[97, 49]\n[33, 25]"
+    }
+  ]
+}

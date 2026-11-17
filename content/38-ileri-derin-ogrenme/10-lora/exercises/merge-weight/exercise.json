@@ -1,0 +1,112 @@
+{
+  "id": "merge-weight",
+  "title": {
+    "tr": "Uyarlamayı ağırlığa katmak",
+    "en": "Folding the adaptation in"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`B @ A` `W` ile aynı şekilde.",
+      "en": "`B @ A` has the same shape as `W`."
+    },
+    {
+      "tr": "Ölçek `alpha / A.shape[0]`.",
+      "en": "The scale is `alpha / A.shape[0]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef merge_weight(W, A, B, alpha):\n    W, A, B = torch.tensor(W), torch.tensor(A), torch.tensor(B)\n    merged = W + (alpha / A.shape[0]) * B @ A\n    return [[round(v, 3) for v in row] for row in merged.tolist()]\n\nW = [[1.0, 0.0], [0.0, 1.0]]\nA = [[1.0, 2.0]]\nB = [[1.0], [0.0]]\nprint(merge_weight(W, A, B, 1.0))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef merge_weight(W, A, B, alpha):\n    W, A, B = torch.tensor(W), torch.tensor(A), torch.tensor(B)\n    merged = W + (alpha / A.shape[0]) * B @ A\n    return [[round(v, 3) for v in row] for row in merged.tolist()]\n\nW = [[1.0, 0.0], [0.0, 1.0]]\nA = [[1.0, 2.0]]\nB = [[1.0], [0.0]]\nprint(merge_weight(W, A, B, 1.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "merge_weight",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0
+              ]
+            ],
+            [
+              [
+                2.0
+              ]
+            ],
+            [
+              [
+                3.0
+              ]
+            ],
+            1.0
+          ],
+          "returns": [
+            [
+              6.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                1.0
+              ],
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            4.0
+          ],
+          "returns": [
+            [
+              3.0,
+              1.0
+            ],
+            [
+              1.0,
+              3.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[2.0, 2.0], [0.0, 1.0]]"
+    }
+  ]
+}
