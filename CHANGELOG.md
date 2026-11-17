@@ -21,7 +21,7 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 
 ---
 
-## [1.8.0] — Yayınlanmadı
+## [1.8.0] — 17 Kasım 2026
 
 ### Eklendi
 - **Derin Öğrenme patikası.** Gerçek PyTorch ile üç modül: Derin Öğrenmenin

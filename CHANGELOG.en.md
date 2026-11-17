@@ -23,7 +23,7 @@ lecture note does not mean downloading the whole application again.
 
 ---
 
-## [1.8.0] — Unreleased
+## [1.8.0] — 17 November 2026
 
 ### Added
 - **Deep Learning path.** Three modules with real PyTorch: Deep Learning
