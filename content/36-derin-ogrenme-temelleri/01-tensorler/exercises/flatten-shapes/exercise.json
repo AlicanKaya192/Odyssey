@@ -1,0 +1,74 @@
+{
+  "id": "flatten-shapes",
+  "title": {
+    "tr": "Görüntüleri düzleştir",
+    "en": "Flatten the images"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.from_numpy(images).flatten(start_dim=1)`.",
+      "en": "`torch.from_numpy(images).flatten(start_dim=1)`."
+    },
+    {
+      "tr": "Dairelerin sayısı: `(etiketler == 0).sum()`, sonra `int(...)`.",
+      "en": "Circle count: `(labels == 0).sum()`, then `int(...)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom dl_data import make_shapes\n\n\ndef flatten_shapes(n, size):\n    images, labels = make_shapes(n, size=size)\n    flat = torch.from_numpy(images).flatten(start_dim=1)\n    circles = int((torch.from_numpy(labels) == 0).sum())\n    return list(flat.shape) + [circles]\n\nprint(flatten_shapes(50, 16))\nprint(flatten_shapes(20, 8))\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom dl_data import make_shapes\n\n\ndef flatten_shapes(n, size):\n    images, labels = make_shapes(n, size=size)\n    flat = torch.from_numpy(images).flatten(start_dim=1)\n    circles = int((torch.from_numpy(labels) == 0).sum())\n    return list(flat.shape) + [circles]\n\nprint(flatten_shapes(50, 16))\nprint(flatten_shapes(20, 8))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "flatten_shapes",
+      "cases": [
+        {
+          "args": [
+            10,
+            8
+          ],
+          "returns": [
+            10,
+            64,
+            3
+          ]
+        },
+        {
+          "args": [
+            30,
+            12
+          ],
+          "returns": [
+            30,
+            144,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[50, 256, 15]\n[20, 64, 7]"
+    }
+  ]
+}

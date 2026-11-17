@@ -1,0 +1,60 @@
+{
+  "id": "adam-first-step",
+  "title": {
+    "tr": "Adam'ın ilk adımı",
+    "en": "Adam's first step"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sınıfın kendisini ver: `step_size(torch.optim.SGD, scale)`.",
+      "en": "Pass the class itself: `step_size(torch.optim.SGD, scale)`."
+    },
+    {
+      "tr": "İkinci eleman `torch.optim.Adam` ile.",
+      "en": "The second element with `torch.optim.Adam`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef step_size(optimizer_class, scale):\n    w = torch.tensor(1.0, requires_grad=True)\n    optimizer = optimizer_class([w], lr=0.1)\n    (scale * w ** 2).backward()\n    optimizer.step()\n    return round(1.0 - w.item(), 4)\n\n\ndef first_step(scale):\n    return [step_size(torch.optim.SGD, scale), step_size(torch.optim.Adam, scale)]\n\nfor scale in [0.01, 1.0, 100.0]:\n    print(scale, first_step(scale))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef step_size(optimizer_class, scale):\n    w = torch.tensor(1.0, requires_grad=True)\n    optimizer = optimizer_class([w], lr=0.1)\n    (scale * w ** 2).backward()\n    optimizer.step()\n    return round(1.0 - w.item(), 4)\n\n\ndef first_step(scale):\n    return [step_size(torch.optim.SGD, scale), step_size(torch.optim.Adam, scale)]\n\nfor scale in [0.01, 1.0, 100.0]:\n    print(scale, first_step(scale))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "first_step",
+      "cases": [
+        {
+          "args": [
+            0.5
+          ],
+          "returns": [
+            0.1,
+            0.1
+          ]
+        },
+        {
+          "args": [
+            4.0
+          ],
+          "returns": [
+            0.8,
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.01 [0.002, 0.1]\n1.0 [0.2, 0.1]\n100.0 [20.0, 0.1]"
+    }
+  ]
+}

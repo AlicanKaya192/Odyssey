@@ -1,0 +1,60 @@
+{
+  "id": "optimizer-state",
+  "title": {
+    "tr": "Optimizer'ın belleği",
+    "en": "The optimizer's memory"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Durum ancak ilk `step()`'ten sonra dolar.",
+      "en": "The state fills only after the first `step()`."
+    },
+    {
+      "tr": "`sorted(optimizer.state[w])` sözlüğün anahtarlarını sıralar.",
+      "en": "`sorted(optimizer.state[w])` sorts the dictionary's keys."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\nMAKERS = {\n    \"sgd\": lambda p: torch.optim.SGD(p, lr=0.1),\n    \"momentum\": lambda p: torch.optim.SGD(p, lr=0.1, momentum=0.9),\n    \"adam\": lambda p: torch.optim.Adam(p, lr=0.1),\n}\n\n\ndef state_names(kind):\n    w = torch.ones(3, requires_grad=True)\n    optimizer = MAKERS[kind]([w])\n    (w ** 2).sum().backward()\n    optimizer.step()\n    return sorted(optimizer.state[w])\n\nfor kind in [\"sgd\", \"momentum\", \"adam\"]:\n    print(kind, state_names(kind))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\nMAKERS = {\n    \"sgd\": lambda p: torch.optim.SGD(p, lr=0.1),\n    \"momentum\": lambda p: torch.optim.SGD(p, lr=0.1, momentum=0.9),\n    \"adam\": lambda p: torch.optim.Adam(p, lr=0.1),\n}\n\n\ndef state_names(kind):\n    w = torch.ones(3, requires_grad=True)\n    optimizer = MAKERS[kind]([w])\n    (w ** 2).sum().backward()\n    optimizer.step()\n    return sorted(optimizer.state[w])\n\nfor kind in [\"sgd\", \"momentum\", \"adam\"]:\n    print(kind, state_names(kind))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "state_names",
+      "cases": [
+        {
+          "args": [
+            "adam"
+          ],
+          "returns": [
+            "exp_avg",
+            "exp_avg_sq",
+            "step"
+          ]
+        },
+        {
+          "args": [
+            "momentum"
+          ],
+          "returns": [
+            "momentum_buffer"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "sgd []\nmomentum ['momentum_buffer']\nadam ['exp_avg', 'exp_avg_sq', 'step']"
+    }
+  ]
+}

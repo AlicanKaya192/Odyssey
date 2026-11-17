@@ -1,0 +1,84 @@
+{
+  "id": "two-layer-forward",
+  "title": {
+    "tr": "İki katmanlı forward",
+    "en": "A two-layer forward"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "ReLU için `torch.relu(...)` kullanabilirsin.",
+      "en": "You can use `torch.relu(...)` for ReLU."
+    },
+    {
+      "tr": "`return self.second(torch.relu(self.first(x)))`.",
+      "en": "`return self.second(torch.relu(self.first(x)))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass TwoLayer(nn.Module):\n    def __init__(self, n_in, n_hidden, n_out):\n        super().__init__()\n        self.first = nn.Linear(n_in, n_hidden)\n        self.second = nn.Linear(n_hidden, n_out)\n\n    def forward(self, x):\n        return self.second(torch.relu(self.first(x)))\n\n\ndef output(values):\n    model = TwoLayer(len(values), 4, 2)\n    for p in model.parameters():\n        nn.init.constant_(p, 0.5)\n    with torch.no_grad():\n        return model(torch.tensor([values])).tolist()\n\nprint(output([1.0, 2.0]))\nprint(output([-1.0, -2.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass TwoLayer(nn.Module):\n    def __init__(self, n_in, n_hidden, n_out):\n        super().__init__()\n        self.first = nn.Linear(n_in, n_hidden)\n        self.second = nn.Linear(n_hidden, n_out)\n\n    def forward(self, x):\n        return self.second(torch.relu(self.first(x)))\n\n\ndef output(values):\n    model = TwoLayer(len(values), 4, 2)\n    for p in model.parameters():\n        nn.init.constant_(p, 0.5)\n    with torch.no_grad():\n        return model(torch.tensor([values])).tolist()\n\nprint(output([1.0, 2.0]))\nprint(output([-1.0, -2.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "output",
+      "cases": [
+        {
+          "args": [
+            [
+              2.0
+            ]
+          ],
+          "returns": [
+            [
+              3.5,
+              3.5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "returns": [
+            [
+              1.5,
+              1.5
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              1.0,
+              -3.0
+            ]
+          ],
+          "returns": [
+            [
+              0.5,
+              0.5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[4.5, 4.5]]\n[[0.5, 0.5]]"
+    }
+  ]
+}

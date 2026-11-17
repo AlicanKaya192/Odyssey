@@ -1,0 +1,58 @@
+{
+  "id": "sgd-on-a-parabola",
+  "title": {
+    "tr": "Parabolde SGD",
+    "en": "SGD on a parabola"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Kaybı döngünün içinde her adımda yeniden hesapla.",
+      "en": "Compute the loss again inside the loop at every step."
+    },
+    {
+      "tr": "Sonunda `round(w.item(), 4)`.",
+      "en": "At the end, `round(w.item(), 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef descend(start, lr, steps):\n    w = torch.tensor(start, requires_grad=True)\n    optimizer = torch.optim.SGD([w], lr=lr)\n    for _ in range(steps):\n        optimizer.zero_grad()\n        loss = (w - 3) ** 2\n        loss.backward()\n        optimizer.step()\n    return round(w.item(), 4)\n\nprint(descend(0.0, 0.1, 10))\nprint(descend(10.0, 0.5, 1))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef descend(start, lr, steps):\n    w = torch.tensor(start, requires_grad=True)\n    optimizer = torch.optim.SGD([w], lr=lr)\n    for _ in range(steps):\n        optimizer.zero_grad()\n        loss = (w - 3) ** 2\n        loss.backward()\n        optimizer.step()\n    return round(w.item(), 4)\n\nprint(descend(0.0, 0.1, 10))\nprint(descend(10.0, 0.5, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "descend",
+      "cases": [
+        {
+          "args": [
+            1.0,
+            0.25,
+            3
+          ],
+          "returns": 2.75
+        },
+        {
+          "args": [
+            5.0,
+            0.1,
+            5
+          ],
+          "returns": 3.6554
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.6779\n3.0"
+    }
+  ]
+}

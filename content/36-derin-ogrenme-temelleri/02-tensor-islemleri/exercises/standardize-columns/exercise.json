@@ -1,0 +1,92 @@
+{
+  "id": "standardize-columns",
+  "title": {
+    "tr": "Sütunları ölçekle",
+    "en": "Scale the columns"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sütun ortalaması `x.mean(dim=0)`, standart sapma `x.std(dim=0)`.",
+      "en": "Column mean `x.mean(dim=0)`, standard deviation `x.std(dim=0)`."
+    },
+    {
+      "tr": "Yuvarlamayı `tolist()`'ten sonra Python'da yap.",
+      "en": "Round in Python after `tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef standardize(rows):\n    x = torch.tensor(rows)\n    scaled = (x - x.mean(dim=0)) / x.std(dim=0)\n    return [[round(v, 3) for v in row] for row in scaled.tolist()]\n\nprint(standardize([[1.0, 10.0], [2.0, 20.0], [3.0, 30.0]]))\nprint(standardize([[0.0, 4.0], [2.0, 0.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef standardize(rows):\n    x = torch.tensor(rows)\n    scaled = (x - x.mean(dim=0)) / x.std(dim=0)\n    return [[round(v, 3) for v in row] for row in scaled.tolist()]\n\nprint(standardize([[1.0, 10.0], [2.0, 20.0], [3.0, 30.0]]))\nprint(standardize([[0.0, 4.0], [2.0, 0.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "standardize",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ],
+              [
+                3.0,
+                2.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              -0.707,
+              -0.707
+            ],
+            [
+              0.707,
+              0.707
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                2.0
+              ],
+              [
+                4.0
+              ],
+              [
+                6.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              -1.0
+            ],
+            [
+              0.0
+            ],
+            [
+              1.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[-1.0, -1.0], [0.0, 0.0], [1.0, 1.0]]\n[[-0.707, 0.707], [0.707, -0.707]]"
+    }
+  ]
+}

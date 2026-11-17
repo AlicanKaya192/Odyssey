@@ -1,0 +1,112 @@
+{
+  "id": "clip-by-hand",
+  "title": {
+    "tr": "Elle kırpma",
+    "en": "Clipping by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Bütün listeleri tek vektör gibi düşün: `sum(v * v for g in grads for v in g)`.",
+      "en": "Treat all the lists as one vector: `sum(v * v for g in grads for v in g)`."
+    },
+    {
+      "tr": "`scale = max_norm / total if total > max_norm else 1.0`.",
+      "en": "`scale = max_norm / total if total > max_norm else 1.0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\n\ndef clip_by_norm(grads, max_norm):\n    total = math.sqrt(sum(v * v for g in grads for v in g))\n    scale = max_norm / total if total > max_norm else 1.0\n    clipped = [[round(v * scale, 4) for v in g] for g in grads]\n    return [round(total, 4), clipped]\n\nprint(clip_by_norm([[3.0, 4.0]], 1.0))\nprint(clip_by_norm([[1.0], [2.0, 2.0]], 10.0))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\n\ndef clip_by_norm(grads, max_norm):\n    total = math.sqrt(sum(v * v for g in grads for v in g))\n    scale = max_norm / total if total > max_norm else 1.0\n    clipped = [[round(v * scale, 4) for v in g] for g in grads]\n    return [round(total, 4), clipped]\n\nprint(clip_by_norm([[3.0, 4.0]], 1.0))\nprint(clip_by_norm([[1.0], [2.0, 2.0]], 10.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "clip_by_norm",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                3.0,
+                4.0
+              ]
+            ],
+            1.0
+          ],
+          "returns": [
+            5.0,
+            [
+              [
+                0.6,
+                0.8
+              ]
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0
+              ],
+              [
+                2.0,
+                2.0
+              ]
+            ],
+            10.0
+          ],
+          "returns": [
+            3.0,
+            [
+              [
+                1.0
+              ],
+              [
+                2.0,
+                2.0
+              ]
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                6.0
+              ],
+              [
+                8.0
+              ]
+            ],
+            5.0
+          ],
+          "returns": [
+            10.0,
+            [
+              [
+                3.0
+              ],
+              [
+                4.0
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[5.0, [[0.6, 0.8]]]\n[3.0, [[1.0], [2.0, 2.0]]]"
+    }
+  ]
+}

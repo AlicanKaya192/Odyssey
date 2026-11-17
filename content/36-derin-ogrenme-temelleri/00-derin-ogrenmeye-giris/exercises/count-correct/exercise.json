@@ -1,0 +1,80 @@
+{
+  "id": "count-correct",
+  "title": {
+    "tr": "Doğruları say",
+    "en": "Count the right ones"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.tensor(scores).argmax(dim=1)` her satırın tahmini.",
+      "en": "`torch.tensor(scores).argmax(dim=1)` is each row's prediction."
+    },
+    {
+      "tr": "`(a == b).sum()` bir tensör; tam sayıyı `.item()` verir.",
+      "en": "`(a == b).sum()` is a tensor; `.item()` gives the integer."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef count_correct(scores, labels):\n    predicted = torch.tensor(scores).argmax(dim=1)\n    return (predicted == torch.tensor(labels)).sum().item()\n\nscores = [[0.1, 2.0, -1.0], [3.0, 0.5, 0.2], [0.0, 0.1, 0.9], [1.0, 1.5, 0.0]]\nprint(count_correct(scores, [1, 0, 0, 1]))\nprint(count_correct(scores, [2, 2, 2, 2]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef count_correct(scores, labels):\n    predicted = torch.tensor(scores).argmax(dim=1)\n    return (predicted == torch.tensor(labels)).sum().item()\n\nscores = [[0.1, 2.0, -1.0], [3.0, 0.5, 0.2], [0.0, 0.1, 0.9], [1.0, 1.5, 0.0]]\nprint(count_correct(scores, [1, 0, 0, 1]))\nprint(count_correct(scores, [2, 2, 2, 2]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "count_correct",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ]
+            ],
+            [
+              0
+            ]
+          ],
+          "returns": 1
+        },
+        {
+          "args": [
+            [
+              [
+                0.0,
+                1.0
+              ],
+              [
+                2.0,
+                1.0
+              ],
+              [
+                0.5,
+                0.6
+              ]
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "returns": 2
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "3\n1"
+    }
+  ]
+}

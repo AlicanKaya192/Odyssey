@@ -1,0 +1,87 @@
+{
+  "id": "state-summary",
+  "title": {
+    "tr": "state_dict özeti",
+    "en": "A state_dict summary"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`model.state_dict().items()` ad ve tensör verir.",
+      "en": "`model.state_dict().items()` gives the name and the tensor."
+    },
+    {
+      "tr": "`[[name, tensor.numel()] for name, tensor in model.state_dict().items()]`.",
+      "en": "`[[name, tensor.numel()] for name, tensor in model.state_dict().items()]`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef build(sizes):\n    layers = []\n    for n_in, n_out in zip(sizes, sizes[1:]):\n        layers += [nn.Linear(n_in, n_out), nn.ReLU()]\n    return nn.Sequential(*layers[:-1])\n\n\ndef state_summary(sizes):\n    model = build(sizes)\n    return [[name, tensor.numel()] for name, tensor in model.state_dict().items()]\n\nfor row in state_summary([4, 8, 3]):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef build(sizes):\n    layers = []\n    for n_in, n_out in zip(sizes, sizes[1:]):\n        layers += [nn.Linear(n_in, n_out), nn.ReLU()]\n    return nn.Sequential(*layers[:-1])\n\n\ndef state_summary(sizes):\n    model = build(sizes)\n    return [[name, tensor.numel()] for name, tensor in model.state_dict().items()]\n\nfor row in state_summary([4, 8, 3]):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "state_summary",
+      "cases": [
+        {
+          "args": [
+            [
+              4,
+              8,
+              3
+            ]
+          ],
+          "returns": [
+            [
+              "0.weight",
+              32
+            ],
+            [
+              "0.bias",
+              8
+            ],
+            [
+              "2.weight",
+              24
+            ],
+            [
+              "2.bias",
+              3
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              2,
+              5
+            ]
+          ],
+          "returns": [
+            [
+              "0.weight",
+              10
+            ],
+            [
+              "0.bias",
+              5
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['0.weight', 32]\n['0.bias', 8]\n['2.weight', 24]\n['2.bias', 3]"
+    }
+  ]
+}

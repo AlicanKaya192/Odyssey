@@ -1,0 +1,36 @@
+{
+  "id": "evaluate-function",
+  "title": {
+    "tr": "Değerlendirme fonksiyonu",
+    "en": "The evaluation function"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Kayıp için `loss_fn(logits, yb).item() * len(yb)` biriktir.",
+      "en": "For the loss accumulate `loss_fn(logits, yb).item() * len(yb)`."
+    },
+    {
+      "tr": "Doğrular `(logits.argmax(dim=1) == yb).sum().item()`; sonunda ikisini de örnek sayısına böl.",
+      "en": "Right answers `(logits.argmax(dim=1) == yb).sum().item()`; at the end divide both by the count."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.utils.data import TensorDataset, DataLoader\n\n\ndef evaluate(model, loader, loss_fn):\n    model.eval()\n    total, correct, count = 0.0, 0, 0\n    with torch.no_grad():\n        for xb, yb in loader:\n            logits = model(xb)\n            total += loss_fn(logits, yb).item() * len(yb)\n            correct += (logits.argmax(dim=1) == yb).sum().item()\n            count += len(yb)\n    return total / count, correct / count\n\n\nmodel = nn.Linear(2, 2)\nnn.init.eye_(model.weight)\nnn.init.zeros_(model.bias)\nxs = torch.tensor([[2.0, 0.0], [0.0, 2.0], [1.0, 0.0], [0.0, 1.0], [3.0, 0.0]])\nys = torch.tensor([0, 1, 1, 1, 0])\nloader = DataLoader(TensorDataset(xs, ys), batch_size=2)\nloss, accuracy = evaluate(model, loader, nn.CrossEntropyLoss())\nprint(round(loss, 4), accuracy)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.utils.data import TensorDataset, DataLoader\n\n\ndef evaluate(model, loader, loss_fn):\n    model.eval()\n    total, correct, count = 0.0, 0, 0\n    with torch.no_grad():\n        for xb, yb in loader:\n            logits = model(xb)\n            total += loss_fn(logits, yb).item() * len(yb)\n            correct += (logits.argmax(dim=1) == yb).sum().item()\n            count += len(yb)\n    return total / count, correct / count\n\n\nmodel = nn.Linear(2, 2)\nnn.init.eye_(model.weight)\nnn.init.zeros_(model.bias)\nxs = torch.tensor([[2.0, 0.0], [0.0, 2.0], [1.0, 0.0], [0.0, 1.0], [3.0, 0.0]])\nys = torch.tensor([0, 1, 1, 1, 0])\nloader = DataLoader(TensorDataset(xs, ys), batch_size=2)\nloss, accuracy = evaluate(model, loader, nn.CrossEntropyLoss())\nprint(round(loss, 4), accuracy)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.3858 0.8"
+    }
+  ]
+}

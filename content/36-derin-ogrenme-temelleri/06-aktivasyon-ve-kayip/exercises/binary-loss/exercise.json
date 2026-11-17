@@ -1,0 +1,66 @@
+{
+  "id": "binary-loss",
+  "title": {
+    "tr": "İkili kayıp",
+    "en": "A binary loss"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Etiket tensörüne `.float()`.",
+      "en": "`.float()` on the label tensor."
+    },
+    {
+      "tr": "Sonucu `round(..., 4)` ile yuvarla.",
+      "en": "Round the result with `round(..., 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef binary_loss(logits, labels):\n    z = torch.tensor(logits)\n    y = torch.tensor(labels).float()\n    return round(nn.BCEWithLogitsLoss()(z, y).item(), 4)\n\nprint(binary_loss([1.5, -0.5, 3.0], [1, 0, 0]))\nprint(binary_loss([0.0], [1]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef binary_loss(logits, labels):\n    z = torch.tensor(logits)\n    y = torch.tensor(labels).float()\n    return round(nn.BCEWithLogitsLoss()(z, y).item(), 4)\n\nprint(binary_loss([1.5, -0.5, 3.0], [1, 0, 0]))\nprint(binary_loss([0.0], [1]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "binary_loss",
+      "cases": [
+        {
+          "args": [
+            [
+              2.0
+            ],
+            [
+              1
+            ]
+          ],
+          "returns": 0.1269
+        },
+        {
+          "args": [
+            [
+              -1.0,
+              1.0
+            ],
+            [
+              0,
+              1
+            ]
+          ],
+          "returns": 0.3133
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.2414\n0.6931"
+    }
+  ]
+}

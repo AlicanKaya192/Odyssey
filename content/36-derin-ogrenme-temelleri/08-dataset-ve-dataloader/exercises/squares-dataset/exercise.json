@@ -1,0 +1,64 @@
+{
+  "id": "squares-dataset",
+  "title": {
+    "tr": "Kareler veri seti",
+    "en": "A squares data set"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`__len__` `self.n` döndürür.",
+      "en": "`__len__` returns `self.n`."
+    },
+    {
+      "tr": "`x = torch.tensor([float(i)])`; `return x, x ** 2`.",
+      "en": "`x = torch.tensor([float(i)])`; `return x, x ** 2`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch.utils.data import Dataset\n\n\nclass SquaresDataset(Dataset):\n    def __init__(self, n):\n        self.n = n\n\n    def __len__(self):\n        return self.n\n\n    def __getitem__(self, i):\n        x = torch.tensor([float(i)])\n        return x, x ** 2\n\n\ndef describe(n, i):\n    data = SquaresDataset(n)\n    x, y = data[i]\n    return [len(data), x.item(), y.item()]\n\nprint(describe(5, 3))\nprint(describe(10, 0))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch.utils.data import Dataset\n\n\nclass SquaresDataset(Dataset):\n    def __init__(self, n):\n        self.n = n\n\n    def __len__(self):\n        return self.n\n\n    def __getitem__(self, i):\n        x = torch.tensor([float(i)])\n        return x, x ** 2\n\n\ndef describe(n, i):\n    data = SquaresDataset(n)\n    x, y = data[i]\n    return [len(data), x.item(), y.item()]\n\nprint(describe(5, 3))\nprint(describe(10, 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "describe",
+      "cases": [
+        {
+          "args": [
+            3,
+            2
+          ],
+          "returns": [
+            3,
+            2.0,
+            4.0
+          ]
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "returns": [
+            1,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[5, 3.0, 9.0]\n[10, 0.0, 0.0]"
+    }
+  ]
+}

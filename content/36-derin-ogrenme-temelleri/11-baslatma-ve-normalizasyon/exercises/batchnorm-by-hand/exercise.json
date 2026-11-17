@@ -1,0 +1,36 @@
+{
+  "id": "batchnorm-by-hand",
+  "title": {
+    "tr": "Elle BatchNorm",
+    "en": "BatchNorm by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Sütun boyunca: `x.mean(dim=0)`, `x.var(dim=0, unbiased=False)`.",
+      "en": "Down the columns: `x.mean(dim=0)`, `x.var(dim=0, unbiased=False)`."
+    },
+    {
+      "tr": "`(x - mean) / torch.sqrt(var + 1e-5)`.",
+      "en": "`(x - mean) / torch.sqrt(var + 1e-5)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef by_hand(x):\n    mean = x.mean(dim=0)\n    var = x.var(dim=0, unbiased=False)\n    return (x - mean) / torch.sqrt(var + 1e-5)\n\n\ndef check_batchnorm(rows):\n    x = torch.tensor(rows)\n    bn = nn.BatchNorm1d(x.shape[1])\n    return torch.allclose(by_hand(x), bn(x), atol=1e-5)\n\nprint(check_batchnorm([[1.0, 10.0], [3.0, 30.0], [5.0, 20.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef by_hand(x):\n    mean = x.mean(dim=0)\n    var = x.var(dim=0, unbiased=False)\n    return (x - mean) / torch.sqrt(var + 1e-5)\n\n\ndef check_batchnorm(rows):\n    x = torch.tensor(rows)\n    bn = nn.BatchNorm1d(x.shape[1])\n    return torch.allclose(by_hand(x), bn(x), atol=1e-5)\n\nprint(check_batchnorm([[1.0, 10.0], [3.0, 30.0], [5.0, 20.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True"
+    }
+  ]
+}

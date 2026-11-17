@@ -1,0 +1,86 @@
+{
+  "id": "softmax-by-hand",
+  "title": {
+    "tr": "Elle softmax",
+    "en": "Softmax by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Satır toplamı: `exps.sum(dim=1, keepdim=True)`; `keepdim` bölmeyi yayınlatır.",
+      "en": "Row total: `exps.sum(dim=1, keepdim=True)`; `keepdim` makes the division broadcast."
+    },
+    {
+      "tr": "Yuvarlamayı `tolist()`'ten sonra Python'da yap.",
+      "en": "Round in Python after `tolist()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef to_probabilities(logits):\n    z = torch.tensor(logits)\n    exps = torch.exp(z)\n    probs = exps / exps.sum(dim=1, keepdim=True)\n    return [[round(v, 3) for v in row] for row in probs.tolist()]\n\nprint(to_probabilities([[2.0, 1.0, 0.1]]))\nprint(to_probabilities([[0.0, 0.0], [3.0, -3.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef to_probabilities(logits):\n    z = torch.tensor(logits)\n    exps = torch.exp(z)\n    probs = exps / exps.sum(dim=1, keepdim=True)\n    return [[round(v, 3) for v in row] for row in probs.tolist()]\n\nprint(to_probabilities([[2.0, 1.0, 0.1]]))\nprint(to_probabilities([[0.0, 0.0], [3.0, -3.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "to_probabilities",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.25,
+              0.25,
+              0.25,
+              0.25
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              0.731,
+              0.269
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0.659, 0.242, 0.099]]\n[[0.5, 0.5], [0.998, 0.002]]"
+    },
+    {
+      "type": "ast_forbid",
+      "call": "softmax",
+      "hint": {
+        "tr": "Softmax'ı `torch.exp` ve toplamla kendin yaz.",
+        "en": "Write softmax yourself with `torch.exp` and a sum."
+      }
+    }
+  ]
+}

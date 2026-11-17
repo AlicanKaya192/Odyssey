@@ -1,0 +1,36 @@
+{
+  "id": "memorise-one-batch",
+  "title": {
+    "tr": "Tek kümeyi ezberlet",
+    "en": "Memorise one batch"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`CrossEntropyLoss` softmax'ı kendisi uygular, logits ister.",
+      "en": "`CrossEntropyLoss` applies the softmax itself and wants logits."
+    },
+    {
+      "tr": "Modelin sonundaki `nn.Softmax(dim=1)`'i kaldır.",
+      "en": "Remove the `nn.Softmax(dim=1)` at the end of the model."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\nx = torch.randn(8, 5, generator=torch.Generator().manual_seed(1))\ny = torch.arange(8) % 4\n\n\ndef overfit_one_batch():\n    torch.manual_seed(0)\n    net = nn.Sequential(nn.Linear(5, 16), nn.ReLU(), nn.Linear(16, 4))\n    optimizer = torch.optim.Adam(net.parameters(), lr=0.01)\n    loss_fn = nn.CrossEntropyLoss()\n    for step in range(300):\n        optimizer.zero_grad()\n        loss = loss_fn(net(x), y)\n        loss.backward()\n        optimizer.step()\n    return loss.item() < 0.05\n\nprint(overfit_one_batch())\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\nx = torch.randn(8, 5, generator=torch.Generator().manual_seed(1))\ny = torch.arange(8) % 4\n\n\ndef overfit_one_batch():\n    torch.manual_seed(0)\n    net = nn.Sequential(nn.Linear(5, 16), nn.ReLU(), nn.Linear(16, 4))\n    optimizer = torch.optim.Adam(net.parameters(), lr=0.01)\n    loss_fn = nn.CrossEntropyLoss()\n    for step in range(300):\n        optimizer.zero_grad()\n        loss = loss_fn(net(x), y)\n        loss.backward()\n        optimizer.step()\n    return loss.item() < 0.05\n\nprint(overfit_one_batch())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True"
+    }
+  ]
+}

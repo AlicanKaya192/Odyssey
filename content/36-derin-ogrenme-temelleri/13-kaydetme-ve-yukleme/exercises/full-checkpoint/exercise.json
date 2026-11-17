@@ -1,0 +1,36 @@
+{
+  "id": "full-checkpoint",
+  "title": {
+    "tr": "Eksiksiz kontrol noktası",
+    "en": "A complete checkpoint"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Kaydederken: `\"optimizer\": optimizer.state_dict()`.",
+      "en": "When saving: `\"optimizer\": optimizer.state_dict()`."
+    },
+    {
+      "tr": "Yüklerken: `optimizer.load_state_dict(checkpoint[\"optimizer\"])`.",
+      "en": "When loading: `optimizer.load_state_dict(checkpoint[\"optimizer\"])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\nX = torch.randn(32, 4, generator=torch.Generator().manual_seed(5))\nY = torch.arange(32) % 3\n\n\ndef make():\n    torch.manual_seed(0)\n    net = nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 3))\n    return net, torch.optim.Adam(net.parameters(), lr=0.01)\n\n\ndef train(net, optimizer, epochs):\n    for _ in range(epochs):\n        optimizer.zero_grad()\n        nn.functional.cross_entropy(net(X), Y).backward()\n        optimizer.step()\n\n\ndef resume_matches():\n    net, optimizer = make()\n    train(net, optimizer, 6)\n    straight = net[0].weight.clone()\n\n    net, optimizer = make()\n    train(net, optimizer, 3)\n    torch.save({\"model\": net.state_dict(),\n                \"optimizer\": optimizer.state_dict()}, \"checkpoint.pt\")\n\n    checkpoint = torch.load(\"checkpoint.pt\", weights_only=True)\n    net, optimizer = make()\n    net.load_state_dict(checkpoint[\"model\"])\n    optimizer.load_state_dict(checkpoint[\"optimizer\"])\n    train(net, optimizer, 3)\n    return torch.equal(straight, net[0].weight)\n\nprint(resume_matches())\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\nX = torch.randn(32, 4, generator=torch.Generator().manual_seed(5))\nY = torch.arange(32) % 3\n\n\ndef make():\n    torch.manual_seed(0)\n    net = nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 3))\n    return net, torch.optim.Adam(net.parameters(), lr=0.01)\n\n\ndef train(net, optimizer, epochs):\n    for _ in range(epochs):\n        optimizer.zero_grad()\n        nn.functional.cross_entropy(net(X), Y).backward()\n        optimizer.step()\n\n\ndef resume_matches():\n    net, optimizer = make()\n    train(net, optimizer, 6)\n    straight = net[0].weight.clone()\n\n    net, optimizer = make()\n    train(net, optimizer, 3)\n    torch.save({\"model\": net.state_dict(),\n                \"optimizer\": optimizer.state_dict()}, \"checkpoint.pt\")\n\n    checkpoint = torch.load(\"checkpoint.pt\", weights_only=True)\n    net, optimizer = make()\n    net.load_state_dict(checkpoint[\"model\"])\n    optimizer.load_state_dict(checkpoint[\"optimizer\"])\n    train(net, optimizer, 3)\n    return torch.equal(straight, net[0].weight)\n\nprint(resume_matches())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "expected-std",
+  "title": {
+    "tr": "Beklenen sapma",
+    "en": "The expected deviation"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "ReLU'nun kazancı sqrt(2), tanh'ınki 5/3.",
+      "en": "ReLU's gain is sqrt(2), tanh's is 5/3."
+    },
+    {
+      "tr": "`round(gain / math.sqrt(fan_in), 4)`.",
+      "en": "`round(gain / math.sqrt(fan_in), 4)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport math\n\nfrom torch import nn\n\n\ndef expected_std(fan_in, nonlinearity):\n    gain = nn.init.calculate_gain(nonlinearity)\n    return round(gain / math.sqrt(fan_in), 4)\n\nprint(expected_std(256, \"relu\"))\nprint(expected_std(100, \"tanh\"))\n```",
+      "en": "The full solution:\n\n```python\nimport math\n\nfrom torch import nn\n\n\ndef expected_std(fan_in, nonlinearity):\n    gain = nn.init.calculate_gain(nonlinearity)\n    return round(gain / math.sqrt(fan_in), 4)\n\nprint(expected_std(256, \"relu\"))\nprint(expected_std(100, \"tanh\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "expected_std",
+      "cases": [
+        {
+          "args": [
+            64,
+            "relu"
+          ],
+          "returns": 0.1768
+        },
+        {
+          "args": [
+            9,
+            "linear"
+          ],
+          "returns": 0.3333
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.0884\n0.1667"
+    }
+  ]
+}

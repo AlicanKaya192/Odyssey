@@ -1,0 +1,46 @@
+{
+  "id": "full-training-loop",
+  "title": {
+    "tr": "Tam eğitim döngüsü",
+    "en": "A full training loop"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`val_loss, val_acc = evaluate(model, val_loader, loss_fn)`.",
+      "en": "`val_loss, val_acc = evaluate(model, val_loader, loss_fn)`."
+    },
+    {
+      "tr": "Kopya için `copy.deepcopy(model.state_dict())`.",
+      "en": "For the copy, `copy.deepcopy(model.state_dict())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport copy\n\nimport torch\nfrom torch import nn\nfrom torch.utils.data import TensorDataset, DataLoader, random_split\nfrom dl_data import make_table\n\nx_np, y_np = make_table(1000)\ndata = TensorDataset(torch.from_numpy(x_np), torch.from_numpy(y_np))\ntrain_set, val_set, test_set = random_split(\n    data, [600, 200, 200], generator=torch.Generator().manual_seed(0))\ntrain_loader = DataLoader(train_set, batch_size=32, shuffle=True,\n                          generator=torch.Generator().manual_seed(0), num_workers=0)\nval_loader = DataLoader(val_set, batch_size=100, num_workers=0)\ntest_loader = DataLoader(test_set, batch_size=100, num_workers=0)\n\n\ndef train_one_epoch(model, loader, optimizer, loss_fn):\n    model.train()\n    total, count = 0.0, 0\n    for xb, yb in loader:\n        optimizer.zero_grad()\n        loss = loss_fn(model(xb), yb)\n        loss.backward()\n        optimizer.step()\n        total += loss.item() * len(yb)\n        count += len(yb)\n    return total / count\n\n\ndef evaluate(model, loader, loss_fn):\n    model.eval()\n    total, correct, count = 0.0, 0, 0\n    with torch.no_grad():\n        for xb, yb in loader:\n            logits = model(xb)\n            total += loss_fn(logits, yb).item() * len(yb)\n            correct += (logits.argmax(dim=1) == yb).sum().item()\n            count += len(yb)\n    return total / count, correct / count\n\n\ntorch.manual_seed(3)\nmodel = nn.Sequential(nn.Linear(6, 32), nn.ReLU(), nn.Linear(32, 3))\noptimizer = torch.optim.Adam(model.parameters(), lr=0.01)\nloss_fn = nn.CrossEntropyLoss()\nbest_loss, best_state, best_epoch = float(\"inf\"), None, 0\nfor epoch in range(1, 31):\n    train_one_epoch(model, train_loader, optimizer, loss_fn)\n    val_loss, val_acc = evaluate(model, val_loader, loss_fn)\n    if val_loss < best_loss:\n        best_loss, best_epoch = val_loss, epoch\n        best_state = copy.deepcopy(model.state_dict())\n\nmodel.load_state_dict(best_state)\ntest_loss, test_acc = evaluate(model, test_loader, loss_fn)\nprint(best_epoch < 30)\nprint(test_acc > 0.8)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport copy\n\nimport torch\nfrom torch import nn\nfrom torch.utils.data import TensorDataset, DataLoader, random_split\nfrom dl_data import make_table\n\nx_np, y_np = make_table(1000)\ndata = TensorDataset(torch.from_numpy(x_np), torch.from_numpy(y_np))\ntrain_set, val_set, test_set = random_split(\n    data, [600, 200, 200], generator=torch.Generator().manual_seed(0))\ntrain_loader = DataLoader(train_set, batch_size=32, shuffle=True,\n                          generator=torch.Generator().manual_seed(0), num_workers=0)\nval_loader = DataLoader(val_set, batch_size=100, num_workers=0)\ntest_loader = DataLoader(test_set, batch_size=100, num_workers=0)\n\n\ndef train_one_epoch(model, loader, optimizer, loss_fn):\n    model.train()\n    total, count = 0.0, 0\n    for xb, yb in loader:\n        optimizer.zero_grad()\n        loss = loss_fn(model(xb), yb)\n        loss.backward()\n        optimizer.step()\n        total += loss.item() * len(yb)\n        count += len(yb)\n    return total / count\n\n\ndef evaluate(model, loader, loss_fn):\n    model.eval()\n    total, correct, count = 0.0, 0, 0\n    with torch.no_grad():\n        for xb, yb in loader:\n            logits = model(xb)\n            total += loss_fn(logits, yb).item() * len(yb)\n            correct += (logits.argmax(dim=1) == yb).sum().item()\n            count += len(yb)\n    return total / count, correct / count\n\n\ntorch.manual_seed(3)\nmodel = nn.Sequential(nn.Linear(6, 32), nn.ReLU(), nn.Linear(32, 3))\noptimizer = torch.optim.Adam(model.parameters(), lr=0.01)\nloss_fn = nn.CrossEntropyLoss()\nbest_loss, best_state, best_epoch = float(\"inf\"), None, 0\nfor epoch in range(1, 31):\n    train_one_epoch(model, train_loader, optimizer, loss_fn)\n    val_loss, val_acc = evaluate(model, val_loader, loss_fn)\n    if val_loss < best_loss:\n        best_loss, best_epoch = val_loss, epoch\n        best_state = copy.deepcopy(model.state_dict())\n\nmodel.load_state_dict(best_state)\ntest_loss, test_acc = evaluate(model, test_loader, loss_fn)\nprint(best_epoch < 30)\nprint(test_acc > 0.8)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nTrue"
+    }
+  ]
+}

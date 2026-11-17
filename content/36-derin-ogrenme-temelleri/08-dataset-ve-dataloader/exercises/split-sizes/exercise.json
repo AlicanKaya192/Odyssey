@@ -1,0 +1,64 @@
+{
+  "id": "split-sizes",
+  "title": {
+    "tr": "Ayırma",
+    "en": "The split"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`random_split(data, [n_train, n - n_train], generator=torch.Generator().manual_seed(0))`.",
+      "en": "`random_split(data, [n_train, n - n_train], generator=torch.Generator().manual_seed(0))`."
+    },
+    {
+      "tr": "`len(set(train.indices) & set(test.indices))`.",
+      "en": "`len(set(train.indices) & set(test.indices))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch.utils.data import TensorDataset, random_split\n\n\ndef split_sizes(n, train_fraction):\n    data = TensorDataset(torch.arange(n))\n    n_train = int(n * train_fraction)\n    train, test = random_split(data, [n_train, n - n_train],\n                               generator=torch.Generator().manual_seed(0))\n    overlap = len(set(train.indices) & set(test.indices))\n    return [len(train), len(test), overlap]\n\nprint(split_sizes(100, 0.8))\nprint(split_sizes(7, 0.5))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch.utils.data import TensorDataset, random_split\n\n\ndef split_sizes(n, train_fraction):\n    data = TensorDataset(torch.arange(n))\n    n_train = int(n * train_fraction)\n    train, test = random_split(data, [n_train, n - n_train],\n                               generator=torch.Generator().manual_seed(0))\n    overlap = len(set(train.indices) & set(test.indices))\n    return [len(train), len(test), overlap]\n\nprint(split_sizes(100, 0.8))\nprint(split_sizes(7, 0.5))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "split_sizes",
+      "cases": [
+        {
+          "args": [
+            10,
+            0.5
+          ],
+          "returns": [
+            5,
+            5,
+            0
+          ]
+        },
+        {
+          "args": [
+            3,
+            1.0
+          ],
+          "returns": [
+            3,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[80, 20, 0]\n[3, 4, 0]"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "missing-grads",
+  "title": {
+    "tr": "Kayıp gradyanlar",
+    "en": "Missing gradients"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Türev zincirini koparan bir çağrı var.",
+      "en": "There is a call that breaks the chain of derivatives."
+    },
+    {
+      "tr": "`.detach()`'ı kaldır.",
+      "en": "Remove the `.detach()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass Net(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.first = nn.Linear(4, 4)\n        self.second = nn.Linear(4, 1)\n\n    def forward(self, x):\n        h = torch.relu(self.first(x))\n        return self.second(h)\n\n\ndef missing_grads():\n    torch.manual_seed(0)\n    net = Net()\n    net(torch.randn(3, 4)).sum().backward()\n    return [name for name, p in net.named_parameters() if p.grad is None]\n\nprint(missing_grads())\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass Net(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.first = nn.Linear(4, 4)\n        self.second = nn.Linear(4, 1)\n\n    def forward(self, x):\n        h = torch.relu(self.first(x))\n        return self.second(h)\n\n\ndef missing_grads():\n    torch.manual_seed(0)\n    net = Net()\n    net(torch.randn(3, 4)).sum().backward()\n    return [name for name, p in net.named_parameters() if p.grad is None]\n\nprint(missing_grads())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "missing_grads",
+      "cases": [
+        {
+          "args": [],
+          "returns": []
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[]"
+    }
+  ]
+}

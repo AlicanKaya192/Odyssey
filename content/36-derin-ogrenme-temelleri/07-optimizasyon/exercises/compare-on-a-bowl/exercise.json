@@ -1,0 +1,36 @@
+{
+  "id": "compare-on-a-bowl",
+  "title": {
+    "tr": "Çukurda yarış",
+    "en": "A race in the valley"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for _ in range(steps):` içinde `zero_grad`, `bowl(w).backward()`, `step`.",
+      "en": "Inside `for _ in range(steps):`: `zero_grad`, `bowl(w).backward()`, `step`."
+    },
+    {
+      "tr": "Dönüş satırı hazır; döngüyü onun üstüne yaz.",
+      "en": "The return line is ready; write the loop above it."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef bowl(w):\n    return 20 * w[0] ** 2 + w[1] ** 2\n\n\ndef run(make_optimizer, steps=40):\n    w = torch.tensor([1.0, 2.0], dtype=torch.float64, requires_grad=True)\n    optimizer = make_optimizer([w])\n    for _ in range(steps):\n        optimizer.zero_grad()\n        bowl(w).backward()\n        optimizer.step()\n    return round(bowl(w).item(), 3)\n\n\nprint(\"SGD\", run(lambda p: torch.optim.SGD(p, lr=0.02)))\nprint(\"momentum\", run(lambda p: torch.optim.SGD(p, lr=0.02, momentum=0.9)))\nprint(\"Adam\", run(lambda p: torch.optim.Adam(p, lr=0.1)))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef bowl(w):\n    return 20 * w[0] ** 2 + w[1] ** 2\n\n\ndef run(make_optimizer, steps=40):\n    w = torch.tensor([1.0, 2.0], dtype=torch.float64, requires_grad=True)\n    optimizer = make_optimizer([w])\n    for _ in range(steps):\n        optimizer.zero_grad()\n        bowl(w).backward()\n        optimizer.step()\n    return round(bowl(w).item(), 3)\n\n\nprint(\"SGD\", run(lambda p: torch.optim.SGD(p, lr=0.02)))\nprint(\"momentum\", run(lambda p: torch.optim.SGD(p, lr=0.02, momentum=0.9)))\nprint(\"Adam\", run(lambda p: torch.optim.Adam(p, lr=0.1)))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "SGD 0.153\nmomentum 0.166\nAdam 0.258"
+    }
+  ]
+}

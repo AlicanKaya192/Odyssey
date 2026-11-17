@@ -1,0 +1,67 @@
+{
+  "id": "early-stopping-class",
+  "title": {
+    "tr": "Erken durdurma sınıfı",
+    "en": "An early stopping class"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 30,
+  "hints": [
+    {
+      "tr": "Sayaç `self.waited`; iyileşmede `0`'a döner.",
+      "en": "The counter is `self.waited`; it goes back to `0` on improvement."
+    },
+    {
+      "tr": "`return self.waited >= self.patience`.",
+      "en": "`return self.waited >= self.patience`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nclass EarlyStopping:\n    def __init__(self, patience):\n        self.patience = patience\n        self.best, self.waited = float(\"inf\"), 0\n\n    def step(self, val_loss):\n        if val_loss < self.best:\n            self.best, self.waited = val_loss, 0\n            return False\n        self.waited += 1\n        return self.waited >= self.patience\n\ndef stop_epoch(losses, patience):\n    stopper = EarlyStopping(patience)\n    for epoch, loss in enumerate(losses, start=1):\n        if stopper.step(loss):\n            return epoch\n    return None\n\nprint(stop_epoch([0.9, 0.7, 0.6, 0.62, 0.61, 0.65, 0.5], 3))\nprint(stop_epoch([0.5, 0.4, 0.3], 2))\n```",
+      "en": "The full solution:\n\n```python\nclass EarlyStopping:\n    def __init__(self, patience):\n        self.patience = patience\n        self.best, self.waited = float(\"inf\"), 0\n\n    def step(self, val_loss):\n        if val_loss < self.best:\n            self.best, self.waited = val_loss, 0\n            return False\n        self.waited += 1\n        return self.waited >= self.patience\n\ndef stop_epoch(losses, patience):\n    stopper = EarlyStopping(patience)\n    for epoch, loss in enumerate(losses, start=1):\n        if stopper.step(loss):\n            return epoch\n    return None\n\nprint(stop_epoch([0.9, 0.7, 0.6, 0.62, 0.61, 0.65, 0.5], 3))\nprint(stop_epoch([0.5, 0.4, 0.3], 2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "stop_epoch",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0,
+              1.1,
+              1.2
+            ],
+            2
+          ],
+          "returns": 3
+        },
+        {
+          "args": [
+            [
+              1.0,
+              0.9,
+              0.95,
+              0.8,
+              0.85,
+              0.9
+            ],
+            2
+          ],
+          "returns": 6
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "6\nNone"
+    }
+  ]
+}

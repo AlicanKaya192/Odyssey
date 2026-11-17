@@ -1,0 +1,56 @@
+{
+  "id": "dropout-values",
+  "title": {
+    "tr": "Dropout'un değerleri",
+    "en": "The values of Dropout"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Farklı değerler: `sorted(set(...))`.",
+      "en": "Distinct values: `sorted(set(...))`."
+    },
+    {
+      "tr": "`drop.eval()` sonra aynı girdiyi yeniden ver.",
+      "en": "`drop.eval()`, then give the same input again."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef dropout_values(p):\n    drop = nn.Dropout(p)\n    ones = torch.ones(1000)\n    torch.manual_seed(0)\n    train_values = sorted(set(round(v, 4) for v in drop(ones).tolist()))\n    drop.eval()\n    eval_values = sorted(set(drop(ones).tolist()))\n    return [train_values, eval_values]\n\nprint(dropout_values(0.5))\nprint(dropout_values(0.2))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef dropout_values(p):\n    drop = nn.Dropout(p)\n    ones = torch.ones(1000)\n    torch.manual_seed(0)\n    train_values = sorted(set(round(v, 4) for v in drop(ones).tolist()))\n    drop.eval()\n    eval_values = sorted(set(drop(ones).tolist()))\n    return [train_values, eval_values]\n\nprint(dropout_values(0.5))\nprint(dropout_values(0.2))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "dropout_values",
+      "cases": [
+        {
+          "args": [
+            0.25
+          ],
+          "returns": [
+            [
+              0.0,
+              1.3333
+            ],
+            [
+              1.0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[0.0, 2.0], [1.0]]\n[[0.0, 1.25], [1.0]]"
+    }
+  ]
+}

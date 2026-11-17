@@ -1,0 +1,46 @@
+{
+  "id": "table-net",
+  "title": {
+    "tr": "Tablo ağı",
+    "en": "A table network"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`forward` bir değer döndürmeli; `pass` `None` döndürür.",
+      "en": "`forward` must return a value; `pass` returns `None`."
+    },
+    {
+      "tr": "`return self.out(torch.relu(self.hidden(x)))`.",
+      "en": "`return self.out(torch.relu(self.hidden(x)))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom dl_data import make_table\n\n\nclass TableNet(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.hidden = nn.Linear(6, 16)\n        self.out = nn.Linear(16, 3)\n\n    def forward(self, x):\n        return self.out(torch.relu(self.hidden(x)))\n\n\ntorch.manual_seed(0)\nmodel = TableNet()\nx_np, y_np = make_table(600)\nx, y = torch.from_numpy(x_np), torch.from_numpy(y_np)\noptimizer = torch.optim.SGD(model.parameters(), lr=0.1)\nloss_fn = nn.CrossEntropyLoss()\nfor epoch in range(200):\n    optimizer.zero_grad()\n    loss = loss_fn(model(x[:480]), y[:480])\n    loss.backward()\n    optimizer.step()\nmodel.eval()\nwith torch.no_grad():\n    accuracy = (model(x[480:]).argmax(dim=1) == y[480:]).float().mean().item()\nprint(model(x).shape)\nprint(accuracy > 0.8)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom dl_data import make_table\n\n\nclass TableNet(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.hidden = nn.Linear(6, 16)\n        self.out = nn.Linear(16, 3)\n\n    def forward(self, x):\n        return self.out(torch.relu(self.hidden(x)))\n\n\ntorch.manual_seed(0)\nmodel = TableNet()\nx_np, y_np = make_table(600)\nx, y = torch.from_numpy(x_np), torch.from_numpy(y_np)\noptimizer = torch.optim.SGD(model.parameters(), lr=0.1)\nloss_fn = nn.CrossEntropyLoss()\nfor epoch in range(200):\n    optimizer.zero_grad()\n    loss = loss_fn(model(x[:480]), y[:480])\n    loss.backward()\n    optimizer.step()\nmodel.eval()\nwith torch.no_grad():\n    accuracy = (model(x[480:]).argmax(dim=1) == y[480:]).float().mean().item()\nprint(model(x).shape)\nprint(accuracy > 0.8)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "torch.Size([600, 3])\nTrue"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "digits-end-to-end",
+  "title": {
+    "tr": "Rakamları uçtan uca",
+    "en": "Digits end to end"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for epoch in range(epochs):` içinde `for xb, yb in loader:`.",
+      "en": "Inside `for epoch in range(epochs):`, `for xb, yb in loader:`."
+    },
+    {
+      "tr": "`optimizer.zero_grad()`, `loss_fn(model(xb), yb).backward()`, `optimizer.step()`.",
+      "en": "`optimizer.zero_grad()`, `loss_fn(model(xb), yb).backward()`, `optimizer.step()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom sklearn.datasets import load_digits\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\n\ndigits = load_digits()\nX = torch.tensor(digits.data, dtype=torch.float32) / 16\nY = torch.tensor(digits.target)\norder = torch.randperm(len(X), generator=torch.Generator().manual_seed(1))\ntrain_idx, test_idx = order[:1400], order[1400:]\n\n\ndef train_and_test(epochs):\n    torch.manual_seed(0)\n    model = nn.Sequential(nn.Linear(64, 32), nn.ReLU(), nn.Linear(32, 10))\n    loader = DataLoader(TensorDataset(X[train_idx], Y[train_idx]), batch_size=32,\n                        shuffle=True, generator=torch.Generator().manual_seed(0))\n    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)\n    loss_fn = nn.CrossEntropyLoss()\n    for epoch in range(epochs):\n        for xb, yb in loader:\n            optimizer.zero_grad()\n            loss_fn(model(xb), yb).backward()\n            optimizer.step()\n    with torch.no_grad():\n        pred = model(X[test_idx]).argmax(dim=1)\n    return (pred == Y[test_idx]).float().mean().item()\n\n\nprint(train_and_test(10) > 0.9)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom sklearn.datasets import load_digits\nfrom torch import nn\nfrom torch.utils.data import DataLoader, TensorDataset\n\ndigits = load_digits()\nX = torch.tensor(digits.data, dtype=torch.float32) / 16\nY = torch.tensor(digits.target)\norder = torch.randperm(len(X), generator=torch.Generator().manual_seed(1))\ntrain_idx, test_idx = order[:1400], order[1400:]\n\n\ndef train_and_test(epochs):\n    torch.manual_seed(0)\n    model = nn.Sequential(nn.Linear(64, 32), nn.ReLU(), nn.Linear(32, 10))\n    loader = DataLoader(TensorDataset(X[train_idx], Y[train_idx]), batch_size=32,\n                        shuffle=True, generator=torch.Generator().manual_seed(0))\n    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)\n    loss_fn = nn.CrossEntropyLoss()\n    for epoch in range(epochs):\n        for xb, yb in loader:\n            optimizer.zero_grad()\n            loss_fn(model(xb), yb).backward()\n            optimizer.step()\n    with torch.no_grad():\n        pred = model(X[test_idx]).argmax(dim=1)\n    return (pred == Y[test_idx]).float().mean().item()\n\n\nprint(train_and_test(10) > 0.9)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True"
+    }
+  ]
+}

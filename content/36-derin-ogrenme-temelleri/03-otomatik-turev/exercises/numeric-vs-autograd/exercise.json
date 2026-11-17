@@ -1,0 +1,60 @@
+{
+  "id": "numeric-vs-autograd",
+  "title": {
+    "tr": "Sayısal ve otomatik türev",
+    "en": "Numerical and automatic derivatives"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Otomatik: `x = torch.tensor(value, dtype=torch.float64, requires_grad=True)`, `f(x).backward()`.",
+      "en": "Automatic: `x = torch.tensor(value, dtype=torch.float64, requires_grad=True)`, `f(x).backward()`."
+    },
+    {
+      "tr": "Sayısal türevde `f`'ye düz Python sayısı ver: `f(value + h)`.",
+      "en": "For the numerical derivative give `f` plain Python numbers: `f(value + h)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef f(t):\n    return 3 * t ** 2 + t\n\n\ndef compare(value):\n    x = torch.tensor(value, dtype=torch.float64, requires_grad=True)\n    f(x).backward()\n    h = 1e-4\n    numeric = (f(value + h) - f(value - h)) / (2 * h)\n    return [round(x.grad.item(), 4), round(numeric, 4)]\n\nprint(compare(1.5))\nprint(compare(-2.0))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef f(t):\n    return 3 * t ** 2 + t\n\n\ndef compare(value):\n    x = torch.tensor(value, dtype=torch.float64, requires_grad=True)\n    f(x).backward()\n    h = 1e-4\n    numeric = (f(value + h) - f(value - h)) / (2 * h)\n    return [round(x.grad.item(), 4), round(numeric, 4)]\n\nprint(compare(1.5))\nprint(compare(-2.0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "compare",
+      "cases": [
+        {
+          "args": [
+            0.0
+          ],
+          "returns": [
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "args": [
+            1.0
+          ],
+          "returns": [
+            7.0,
+            7.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[10.0, 10.0]\n[-11.0, -11.0]"
+    }
+  ]
+}

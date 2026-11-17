@@ -1,0 +1,36 @@
+{
+  "id": "two-bugs",
+  "title": {
+    "tr": "İki hata",
+    "en": "Two bugs"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Modelin sonu ve kayıp fonksiyonunun istediğine bak; döngüde de bir adım eksik.",
+      "en": "Look at the end of the model and what the loss wants; a step is also missing in the loop."
+    },
+    {
+      "tr": "`nn.Softmax(dim=1)`'i kaldır ve `loss.backward()`'dan sonra `optimizer.step()` ekle.",
+      "en": "Remove `nn.Softmax(dim=1)` and add `optimizer.step()` after `loss.backward()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\nx = torch.randn(8, 5, generator=torch.Generator().manual_seed(2))\ny = torch.arange(8) % 4\n\n\ndef memorise():\n    torch.manual_seed(0)\n    net = nn.Sequential(nn.Linear(5, 16), nn.ReLU(), nn.Linear(16, 4))\n    optimizer = torch.optim.Adam(net.parameters(), lr=0.01)\n    loss_fn = nn.CrossEntropyLoss()\n    for step in range(300):\n        optimizer.zero_grad()\n        loss = loss_fn(net(x), y)\n        loss.backward()\n        optimizer.step()\n    return loss.item() < 0.05\n\nprint(memorise())\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\nx = torch.randn(8, 5, generator=torch.Generator().manual_seed(2))\ny = torch.arange(8) % 4\n\n\ndef memorise():\n    torch.manual_seed(0)\n    net = nn.Sequential(nn.Linear(5, 16), nn.ReLU(), nn.Linear(16, 4))\n    optimizer = torch.optim.Adam(net.parameters(), lr=0.01)\n    loss_fn = nn.CrossEntropyLoss()\n    for step in range(300):\n        optimizer.zero_grad()\n        loss = loss_fn(net(x), y)\n        loss.backward()\n        optimizer.step()\n    return loss.item() < 0.05\n\nprint(memorise())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True"
+    }
+  ]
+}

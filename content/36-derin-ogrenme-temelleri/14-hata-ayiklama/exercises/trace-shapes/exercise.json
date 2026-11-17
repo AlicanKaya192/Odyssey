@@ -1,0 +1,123 @@
+{
+  "id": "trace-shapes",
+  "title": {
+    "tr": "Şekil dökümü",
+    "en": "A shape printout"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for layer in model: h = layer(h)`.",
+      "en": "`for layer in model: h = layer(h)`."
+    },
+    {
+      "tr": "`rows.append([type(layer).__name__, list(h.shape)])`.",
+      "en": "`rows.append([type(layer).__name__, list(h.shape)])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef build(sizes):\n    layers = []\n    for n_in, n_out in zip(sizes, sizes[1:]):\n        layers += [nn.Linear(n_in, n_out), nn.ReLU()]\n    return nn.Sequential(*layers[:-1])\n\n\ndef trace_shapes(sizes, batch):\n    model = build(sizes)\n    h = torch.zeros(batch, sizes[0])\n    rows = []\n    for layer in model:\n        h = layer(h)\n        rows.append([type(layer).__name__, list(h.shape)])\n    return rows\n\nfor row in trace_shapes([6, 4, 2], 3):\n    print(row)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef build(sizes):\n    layers = []\n    for n_in, n_out in zip(sizes, sizes[1:]):\n        layers += [nn.Linear(n_in, n_out), nn.ReLU()]\n    return nn.Sequential(*layers[:-1])\n\n\ndef trace_shapes(sizes, batch):\n    model = build(sizes)\n    h = torch.zeros(batch, sizes[0])\n    rows = []\n    for layer in model:\n        h = layer(h)\n        rows.append([type(layer).__name__, list(h.shape)])\n    return rows\n\nfor row in trace_shapes([6, 4, 2], 3):\n    print(row)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "trace_shapes",
+      "cases": [
+        {
+          "args": [
+            [
+              6,
+              4,
+              2
+            ],
+            3
+          ],
+          "returns": [
+            [
+              "Linear",
+              [
+                3,
+                4
+              ]
+            ],
+            [
+              "ReLU",
+              [
+                3,
+                4
+              ]
+            ],
+            [
+              "Linear",
+              [
+                3,
+                2
+              ]
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              3,
+              5,
+              5,
+              1
+            ],
+            2
+          ],
+          "returns": [
+            [
+              "Linear",
+              [
+                2,
+                5
+              ]
+            ],
+            [
+              "ReLU",
+              [
+                2,
+                5
+              ]
+            ],
+            [
+              "Linear",
+              [
+                2,
+                5
+              ]
+            ],
+            [
+              "ReLU",
+              [
+                2,
+                5
+              ]
+            ],
+            [
+              "Linear",
+              [
+                2,
+                1
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['Linear', [3, 4]]\n['ReLU', [3, 4]]\n['Linear', [3, 2]]"
+    }
+  ]
+}

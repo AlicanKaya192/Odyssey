@@ -1,0 +1,20 @@
+import torch
+from torch import nn
+
+x = torch.randn(8, 5, generator=torch.Generator().manual_seed(2))
+y = torch.arange(8) % 4
+
+
+def memorise():
+    torch.manual_seed(0)
+    net = nn.Sequential(nn.Linear(5, 16), nn.ReLU(), nn.Linear(16, 4),
+                        nn.Softmax(dim=1))
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
+    loss_fn = nn.CrossEntropyLoss()
+    for step in range(300):
+        optimizer.zero_grad()
+        loss = loss_fn(net(x), y)
+        loss.backward()
+    return loss.item() < 0.05
+
+print(memorise())

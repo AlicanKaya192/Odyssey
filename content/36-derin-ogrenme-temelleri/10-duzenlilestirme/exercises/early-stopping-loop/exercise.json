@@ -1,0 +1,46 @@
+{
+  "id": "early-stopping-loop",
+  "title": {
+    "tr": "Erken durduran döngü",
+    "en": "A loop that stops early"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "entry": "main.py",
+  "files": [
+    {
+      "name": "main.py",
+      "starter": "starter-main.{lang}.py",
+      "solution": "solution-main.py"
+    },
+    {
+      "name": "dl_data.py",
+      "readonly": true
+    }
+  ],
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Döngüden çıkmak için `break`.",
+      "en": "`break` to leave the loop."
+    },
+    {
+      "tr": "Dersteki `early_stopping_fit` fonksiyonunun içiyle aynı.",
+      "en": "The same as the inside of the lesson's `early_stopping_fit` function."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom dl_data import make_table\n\nx_np, y_np = make_table(400, seed=11)\nx, y = torch.from_numpy(x_np), torch.from_numpy(y_np)\nx_tr, y_tr, x_val, y_val = x[:80], y[:80], x[80:], y[80:]\nloss_fn = nn.CrossEntropyLoss()\ntorch.manual_seed(0)\nmodel = nn.Sequential(nn.Linear(6, 128), nn.ReLU(), nn.Linear(128, 128), nn.ReLU(),\n                      nn.Linear(128, 3))\noptimizer = torch.optim.AdamW(model.parameters(), lr=0.01)\nbest, best_epoch, waited, patience = float(\"inf\"), 0, 0, 10\nfor epoch in range(1, 201):\n    model.train()\n    optimizer.zero_grad()\n    loss_fn(model(x_tr), y_tr).backward()\n    optimizer.step()\n    model.eval()\n    with torch.no_grad():\n        val_loss = loss_fn(model(x_val), y_val).item()\n    if val_loss < best:\n        best, best_epoch, waited = val_loss, epoch, 0\n    else:\n        waited += 1\n        if waited == patience:\n            break\n\nprint(epoch < 200, best_epoch < epoch)\nprint(best < 0.5)\n```",
+      "en": "The full solution:\n\n**main.py**\n\n```python\nimport torch\nfrom torch import nn\nfrom dl_data import make_table\n\nx_np, y_np = make_table(400, seed=11)\nx, y = torch.from_numpy(x_np), torch.from_numpy(y_np)\nx_tr, y_tr, x_val, y_val = x[:80], y[:80], x[80:], y[80:]\nloss_fn = nn.CrossEntropyLoss()\ntorch.manual_seed(0)\nmodel = nn.Sequential(nn.Linear(6, 128), nn.ReLU(), nn.Linear(128, 128), nn.ReLU(),\n                      nn.Linear(128, 3))\noptimizer = torch.optim.AdamW(model.parameters(), lr=0.01)\nbest, best_epoch, waited, patience = float(\"inf\"), 0, 0, 10\nfor epoch in range(1, 201):\n    model.train()\n    optimizer.zero_grad()\n    loss_fn(model(x_tr), y_tr).backward()\n    optimizer.step()\n    model.eval()\n    with torch.no_grad():\n        val_loss = loss_fn(model(x_val), y_val).item()\n    if val_loss < best:\n        best, best_epoch, waited = val_loss, epoch, 0\n    else:\n        waited += 1\n        if waited == patience:\n            break\n\nprint(epoch < 200, best_epoch < epoch)\nprint(best < 0.5)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True True\nTrue"
+    }
+  ]
+}

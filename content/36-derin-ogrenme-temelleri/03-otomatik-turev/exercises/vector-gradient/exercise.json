@@ -1,0 +1,71 @@
+{
+  "id": "vector-gradient",
+  "title": {
+    "tr": "Vektörün gradyanı",
+    "en": "The gradient of a vector"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Yalnızca `w`'de `requires_grad=True`.",
+      "en": "`requires_grad=True` only on `w`."
+    },
+    {
+      "tr": "`.sum()` sonucu tek sayı yapar; `backward()` ondan başlar.",
+      "en": "`.sum()` makes the result one number; `backward()` starts from it."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef vector_grad(w_values, x_values):\n    w = torch.tensor(w_values, requires_grad=True)\n    x = torch.tensor(x_values)\n    loss = (w * x).sum() + (w ** 2).sum()\n    loss.backward()\n    return w.grad.tolist()\n\nprint(vector_grad([1.0, 2.0, 3.0], [0.5, -1.0, 2.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef vector_grad(w_values, x_values):\n    w = torch.tensor(w_values, requires_grad=True)\n    x = torch.tensor(x_values)\n    loss = (w * x).sum() + (w ** 2).sum()\n    loss.backward()\n    return w.grad.tolist()\n\nprint(vector_grad([1.0, 2.0, 3.0], [0.5, -1.0, 2.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "vector_grad",
+      "cases": [
+        {
+          "args": [
+            [
+              1.0
+            ],
+            [
+              3.0
+            ]
+          ],
+          "returns": [
+            5.0
+          ]
+        },
+        {
+          "args": [
+            [
+              0.0,
+              -1.0
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ],
+          "returns": [
+            1.0,
+            -1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[2.5, 3.0, 8.0]"
+    }
+  ]
+}

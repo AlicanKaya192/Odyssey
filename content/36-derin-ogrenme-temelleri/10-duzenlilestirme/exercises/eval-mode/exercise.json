@@ -1,0 +1,49 @@
+{
+  "id": "eval-mode",
+  "title": {
+    "tr": "Değerlendirme kipi",
+    "en": "Evaluation mode"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İkinci karşılaştırmadan önce kipi değiştir.",
+      "en": "Switch the mode before the second comparison."
+    },
+    {
+      "tr": "`model.eval()`.",
+      "en": "`model.eval()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef same_twice():\n    torch.manual_seed(0)\n    model = nn.Sequential(nn.Linear(4, 32), nn.ReLU(), nn.Dropout(0.5), nn.Linear(32, 2))\n    x = torch.ones(1, 4)\n    with torch.no_grad():\n        train_same = torch.equal(model(x), model(x))\n        model.eval()\n        eval_same = torch.equal(model(x), model(x))\n    return [train_same, eval_same]\n\nprint(same_twice())\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef same_twice():\n    torch.manual_seed(0)\n    model = nn.Sequential(nn.Linear(4, 32), nn.ReLU(), nn.Dropout(0.5), nn.Linear(32, 2))\n    x = torch.ones(1, 4)\n    with torch.no_grad():\n        train_same = torch.equal(model(x), model(x))\n        model.eval()\n        eval_same = torch.equal(model(x), model(x))\n    return [train_same, eval_same]\n\nprint(same_twice())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "same_twice",
+      "cases": [
+        {
+          "args": [],
+          "returns": [
+            false,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[False, True]"
+    }
+  ]
+}

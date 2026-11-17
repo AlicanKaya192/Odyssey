@@ -1,0 +1,66 @@
+{
+  "id": "residual-block",
+  "title": {
+    "tr": "Artık blok",
+    "en": "A residual block"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Çıktı `x + ...`; girdi doğrudan eklenir.",
+      "en": "The output is `x + ...`; the input is added directly."
+    },
+    {
+      "tr": "`return x + torch.relu(self.layer(x))`.",
+      "en": "`return x + torch.relu(self.layer(x))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass Residual(nn.Module):\n    def __init__(self, size):\n        super().__init__()\n        self.layer = nn.Linear(size, size)\n\n    def forward(self, x):\n        return x + torch.relu(self.layer(x))\n\n\ndef apply_block(values):\n    block = Residual(len(values))\n    nn.init.constant_(block.layer.weight, 0.25)\n    nn.init.zeros_(block.layer.bias)\n    with torch.no_grad():\n        return block(torch.tensor(values)).tolist()\n\nprint(apply_block([1.0, -3.0]))\nprint(apply_block([2.0, 2.0]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\nclass Residual(nn.Module):\n    def __init__(self, size):\n        super().__init__()\n        self.layer = nn.Linear(size, size)\n\n    def forward(self, x):\n        return x + torch.relu(self.layer(x))\n\n\ndef apply_block(values):\n    block = Residual(len(values))\n    nn.init.constant_(block.layer.weight, 0.25)\n    nn.init.zeros_(block.layer.bias)\n    with torch.no_grad():\n        return block(torch.tensor(values)).tolist()\n\nprint(apply_block([1.0, -3.0]))\nprint(apply_block([2.0, 2.0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "apply_block",
+      "cases": [
+        {
+          "args": [
+            [
+              4.0
+            ]
+          ],
+          "returns": [
+            5.0
+          ]
+        },
+        {
+          "args": [
+            [
+              1.0,
+              1.0,
+              -6.0
+            ]
+          ],
+          "returns": [
+            1.0,
+            1.0,
+            -6.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1.0, -3.0]\n[3.0, 3.0]"
+    }
+  ]
+}

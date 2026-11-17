@@ -1,0 +1,36 @@
+{
+  "id": "fit-a-line",
+  "title": {
+    "tr": "Bir doğru öğret",
+    "en": "Teach a line"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Dersteki eğitim döngüsünün aynısı; `predict` ve `mse` yerine ifadeyi doğrudan yaz.",
+      "en": "The same as the lesson's training loop; write the expression instead of `predict` and `mse`."
+    },
+    {
+      "tr": "Gradyanları sıfırlamayı unutma: `w.grad.zero_()`, `b.grad.zero_()`.",
+      "en": "Do not forget to zero the gradients: `w.grad.zero_()`, `b.grad.zero_()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport torch\n\nrng = np.random.default_rng(6)\nx_np = rng.uniform(0, 4, 80)\ny_np = -2 * x_np + 1 + rng.normal(0, 0.3, 80)\nx = torch.tensor(x_np, dtype=torch.float32)\ny = torch.tensor(y_np, dtype=torch.float32)\n\nw = torch.zeros(1, requires_grad=True)\nb = torch.zeros(1, requires_grad=True)\nlr = 0.1\nfor step in range(500):\n    loss = ((w * x + b - y) ** 2).mean()\n    loss.backward()\n    with torch.no_grad():\n        w -= lr * w.grad\n        b -= lr * b.grad\n    w.grad.zero_()\n    b.grad.zero_()\n\nloss = ((w * x + b - y) ** 2).mean()\nprint(\"w =\", round(w.item(), 1), \"b =\", round(b.item(), 1))\nprint(loss.item() < 0.2)\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport torch\n\nrng = np.random.default_rng(6)\nx_np = rng.uniform(0, 4, 80)\ny_np = -2 * x_np + 1 + rng.normal(0, 0.3, 80)\nx = torch.tensor(x_np, dtype=torch.float32)\ny = torch.tensor(y_np, dtype=torch.float32)\n\nw = torch.zeros(1, requires_grad=True)\nb = torch.zeros(1, requires_grad=True)\nlr = 0.1\nfor step in range(500):\n    loss = ((w * x + b - y) ** 2).mean()\n    loss.backward()\n    with torch.no_grad():\n        w -= lr * w.grad\n        b -= lr * b.grad\n    w.grad.zero_()\n    b.grad.zero_()\n\nloss = ((w * x + b - y) ** 2).mean()\nprint(\"w =\", round(w.item(), 1), \"b =\", round(b.item(), 1))\nprint(loss.item() < 0.2)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "w = -2.0 b = 1.0\nTrue"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "safe-load",
+  "title": {
+    "tr": "Güvenli yükleme",
+    "en": "A safe load"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`try: ... except pickle.UnpicklingError: ...`.",
+      "en": "`try: ... except pickle.UnpicklingError: ...`."
+    },
+    {
+      "tr": "`weights_only=False`'u `True` yap ve hatayı yakala.",
+      "en": "Change `weights_only=False` to `True` and catch the error."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport pickle\n\nimport torch\nfrom torch import nn\n\n\ndef load_kind(path):\n    try:\n        torch.load(path, weights_only=True)\n    except pickle.UnpicklingError:\n        return \"refused\"\n    return \"ok\"\n\n\nclass Note:\n    def __init__(self, text):\n        self.text = text\n\n\ntorch.save(nn.Linear(2, 1).state_dict(), \"weights.pt\")\ntorch.save({\"note\": Note(\"hello\")}, \"odd.pt\")\nprint(load_kind(\"weights.pt\"), load_kind(\"odd.pt\"))\n```",
+      "en": "The full solution:\n\n```python\nimport pickle\n\nimport torch\nfrom torch import nn\n\n\ndef load_kind(path):\n    try:\n        torch.load(path, weights_only=True)\n    except pickle.UnpicklingError:\n        return \"refused\"\n    return \"ok\"\n\n\nclass Note:\n    def __init__(self, text):\n        self.text = text\n\n\ntorch.save(nn.Linear(2, 1).state_dict(), \"weights.pt\")\ntorch.save({\"note\": Note(\"hello\")}, \"odd.pt\")\nprint(load_kind(\"weights.pt\"), load_kind(\"odd.pt\"))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "ok refused"
+    }
+  ]
+}

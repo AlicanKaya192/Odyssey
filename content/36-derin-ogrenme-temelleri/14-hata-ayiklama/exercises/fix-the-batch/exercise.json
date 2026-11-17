@@ -1,0 +1,91 @@
+{
+  "id": "fix-the-batch",
+  "title": {
+    "tr": "Kümeyi onar",
+    "en": "Fix the batch"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Girdi için `x.float()`.",
+      "en": "For the input, `x.float()`."
+    },
+    {
+      "tr": "Etiketler için `y.long().view(-1)`.",
+      "en": "For the labels, `y.long().view(-1)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef fix_batch(x_rows, labels):\n    x = torch.tensor(x_rows, dtype=torch.float64)\n    y = torch.tensor(labels)\n    x = x.float()\n    y = y.long().view(-1)\n    torch.manual_seed(0)\n    model = nn.Linear(2, 3)\n    nn.CrossEntropyLoss()(model(x), y)\n    return [str(x.dtype), str(y.dtype), list(y.shape)]\n\nprint(fix_batch([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], [[1.0], [0.0], [2.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef fix_batch(x_rows, labels):\n    x = torch.tensor(x_rows, dtype=torch.float64)\n    y = torch.tensor(labels)\n    x = x.float()\n    y = y.long().view(-1)\n    torch.manual_seed(0)\n    model = nn.Linear(2, 3)\n    nn.CrossEntropyLoss()(model(x), y)\n    return [str(x.dtype), str(y.dtype), list(y.shape)]\n\nprint(fix_batch([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], [[1.0], [0.0], [2.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "fix_batch",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                2.0
+              ],
+              [
+                3.0,
+                4.0
+              ]
+            ],
+            [
+              [
+                1.0
+              ],
+              [
+                0.0
+              ]
+            ]
+          ],
+          "returns": [
+            "torch.float32",
+            "torch.int64",
+            [
+              2
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                0.5,
+                0.5
+              ]
+            ],
+            [
+              2.0
+            ]
+          ],
+          "returns": [
+            "torch.float32",
+            "torch.int64",
+            [
+              1
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['torch.float32', 'torch.int64', [3]]"
+    }
+  ]
+}

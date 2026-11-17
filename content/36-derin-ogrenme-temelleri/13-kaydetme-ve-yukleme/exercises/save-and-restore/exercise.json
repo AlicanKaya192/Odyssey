@@ -1,0 +1,62 @@
+{
+  "id": "save-and-restore",
+  "title": {
+    "tr": "Kaydet ve geri yükle",
+    "en": "Save and restore"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.load(\"weights.pt\", weights_only=True)` sözlüğü verir.",
+      "en": "`torch.load(\"weights.pt\", weights_only=True)` gives the dictionary."
+    },
+    {
+      "tr": "`restored.load_state_dict(torch.load(\"weights.pt\", weights_only=True))`.",
+      "en": "`restored.load_state_dict(torch.load(\"weights.pt\", weights_only=True))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef make(seed):\n    torch.manual_seed(seed)\n    return nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 3))\n\n\ndef restore_matches(seed_a, seed_b):\n    original = make(seed_a)\n    torch.save(original.state_dict(), \"weights.pt\")\n    restored = make(seed_b)\n    x = torch.ones(2, 4)\n    before = torch.equal(original(x), restored(x))\n    restored.load_state_dict(torch.load(\"weights.pt\", weights_only=True))\n    after = torch.equal(original(x), restored(x))\n    return [before, after]\n\nprint(restore_matches(0, 1))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef make(seed):\n    torch.manual_seed(seed)\n    return nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 3))\n\n\ndef restore_matches(seed_a, seed_b):\n    original = make(seed_a)\n    torch.save(original.state_dict(), \"weights.pt\")\n    restored = make(seed_b)\n    x = torch.ones(2, 4)\n    before = torch.equal(original(x), restored(x))\n    restored.load_state_dict(torch.load(\"weights.pt\", weights_only=True))\n    after = torch.equal(original(x), restored(x))\n    return [before, after]\n\nprint(restore_matches(0, 1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "restore_matches",
+      "cases": [
+        {
+          "args": [
+            0,
+            1
+          ],
+          "returns": [
+            false,
+            true
+          ]
+        },
+        {
+          "args": [
+            3,
+            7
+          ],
+          "returns": [
+            false,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[False, True]"
+    }
+  ]
+}

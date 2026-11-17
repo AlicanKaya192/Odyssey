@@ -1,0 +1,46 @@
+{
+  "id": "keep-the-best",
+  "title": {
+    "tr": "En iyiyi sakla",
+    "en": "Keep the best"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`state_dict()` parametrelerin kendisini veriyor, kopyasını değil.",
+      "en": "`state_dict()` gives the parameters themselves, not a copy."
+    },
+    {
+      "tr": "`copy.deepcopy(model.state_dict())`.",
+      "en": "`copy.deepcopy(model.state_dict())`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport copy\n\nimport torch\nfrom torch import nn\n\n\ndef restore_best():\n    model = nn.Linear(1, 1, bias=False)\n    with torch.no_grad():\n        model.weight.fill_(1.0)\n    best_state = copy.deepcopy(model.state_dict())\n    with torch.no_grad():\n        model.weight.fill_(5.0)\n    model.load_state_dict(best_state)\n    return model.weight.item()\n\n\nprint(restore_best())\n```",
+      "en": "The full solution:\n\n```python\nimport copy\n\nimport torch\nfrom torch import nn\n\n\ndef restore_best():\n    model = nn.Linear(1, 1, bias=False)\n    with torch.no_grad():\n        model.weight.fill_(1.0)\n    best_state = copy.deepcopy(model.state_dict())\n    with torch.no_grad():\n        model.weight.fill_(5.0)\n    model.load_state_dict(best_state)\n    return model.weight.item()\n\n\nprint(restore_best())\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "restore_best",
+      "cases": [
+        {
+          "args": [],
+          "returns": 1.0
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "1.0"
+    }
+  ]
+}

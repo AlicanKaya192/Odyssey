@@ -1,0 +1,36 @@
+{
+  "id": "minibatch-loop",
+  "title": {
+    "tr": "Küme döngüsü",
+    "en": "The batch loop"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`for xb, yb in train_loader:` turun içinde.",
+      "en": "`for xb, yb in train_loader:` inside the epoch."
+    },
+    {
+      "tr": "Kayıp yalnızca o kümeyle: `loss_fn(model(xb), yb)`.",
+      "en": "The loss only on that batch: `loss_fn(model(xb), yb)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.utils.data import TensorDataset, DataLoader, random_split\nfrom sklearn.datasets import load_digits\n\ndigits = load_digits()\nX = torch.tensor(digits.data, dtype=torch.float32) / 16\ny = torch.tensor(digits.target)\ntrain_set, test_set = random_split(TensorDataset(X, y), [1500, 297],\n                                   generator=torch.Generator().manual_seed(0))\ntorch.manual_seed(0)\ntrain_loader = DataLoader(train_set, batch_size=32, shuffle=True,\n                          generator=torch.Generator().manual_seed(0), num_workers=0)\nmodel = nn.Sequential(nn.Linear(64, 32), nn.ReLU(), nn.Linear(32, 10))\noptimizer = torch.optim.Adam(model.parameters(), lr=0.005)\nloss_fn = nn.CrossEntropyLoss()\nfor epoch in range(5):\n    for xb, yb in train_loader:\n        optimizer.zero_grad()\n        loss = loss_fn(model(xb), yb)\n        loss.backward()\n        optimizer.step()\n\nx_test, y_test = test_set[:]\nwith torch.no_grad():\n    correct = (model(x_test).argmax(dim=1) == y_test).sum().item()\nprint(correct > 270)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.utils.data import TensorDataset, DataLoader, random_split\nfrom sklearn.datasets import load_digits\n\ndigits = load_digits()\nX = torch.tensor(digits.data, dtype=torch.float32) / 16\ny = torch.tensor(digits.target)\ntrain_set, test_set = random_split(TensorDataset(X, y), [1500, 297],\n                                   generator=torch.Generator().manual_seed(0))\ntorch.manual_seed(0)\ntrain_loader = DataLoader(train_set, batch_size=32, shuffle=True,\n                          generator=torch.Generator().manual_seed(0), num_workers=0)\nmodel = nn.Sequential(nn.Linear(64, 32), nn.ReLU(), nn.Linear(32, 10))\noptimizer = torch.optim.Adam(model.parameters(), lr=0.005)\nloss_fn = nn.CrossEntropyLoss()\nfor epoch in range(5):\n    for xb, yb in train_loader:\n        optimizer.zero_grad()\n        loss = loss_fn(model(xb), yb)\n        loss.backward()\n        optimizer.step()\n\nx_test, y_test = test_set[:]\nwith torch.no_grad():\n    correct = (model(x_test).argmax(dim=1) == y_test).sum().item()\nprint(correct > 270)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True"
+    }
+  ]
+}

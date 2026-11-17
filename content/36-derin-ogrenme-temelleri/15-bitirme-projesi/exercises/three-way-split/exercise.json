@@ -1,0 +1,66 @@
+{
+  "id": "three-way-split",
+  "title": {
+    "tr": "Üçe bölmek",
+    "en": "A three-way split"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`torch.randperm(n, generator=torch.Generator().manual_seed(seed))`.",
+      "en": "`torch.randperm(n, generator=torch.Generator().manual_seed(seed))`."
+    },
+    {
+      "tr": "Ayrıklık: `len(set(torch.cat(parts).tolist()))`.",
+      "en": "Disjointness: `len(set(torch.cat(parts).tolist()))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef three_way(n, seed):\n    order = torch.randperm(n, generator=torch.Generator().manual_seed(seed))\n    a, b = int(0.6 * n), int(0.8 * n)\n    parts = [order[:a], order[a:b], order[b:]]\n    unique = len(set(torch.cat(parts).tolist()))\n    return [len(p) for p in parts] + [unique]\n\nprint(three_way(1797, 0))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef three_way(n, seed):\n    order = torch.randperm(n, generator=torch.Generator().manual_seed(seed))\n    a, b = int(0.6 * n), int(0.8 * n)\n    parts = [order[:a], order[a:b], order[b:]]\n    unique = len(set(torch.cat(parts).tolist()))\n    return [len(p) for p in parts] + [unique]\n\nprint(three_way(1797, 0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "three_way",
+      "cases": [
+        {
+          "args": [
+            1797,
+            0
+          ],
+          "returns": [
+            1078,
+            359,
+            360,
+            1797
+          ]
+        },
+        {
+          "args": [
+            10,
+            1
+          ],
+          "returns": [
+            6,
+            2,
+            2,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[1078, 359, 360, 1797]"
+    }
+  ]
+}

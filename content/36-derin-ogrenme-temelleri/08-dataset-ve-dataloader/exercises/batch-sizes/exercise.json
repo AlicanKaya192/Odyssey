@@ -1,0 +1,75 @@
+{
+  "id": "batch-sizes",
+  "title": {
+    "tr": "Küme büyüklükleri",
+    "en": "Batch sizes"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`DataLoader(data, batch_size=batch_size, drop_last=drop_last)`.",
+      "en": "`DataLoader(data, batch_size=batch_size, drop_last=drop_last)`."
+    },
+    {
+      "tr": "Her küme bir demet; uzunluğu `len(batch[0])`.",
+      "en": "Each batch is a tuple; its size is `len(batch[0])`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch.utils.data import TensorDataset, DataLoader\n\n\ndef batch_sizes(n, batch_size, drop_last):\n    data = TensorDataset(torch.arange(n))\n    loader = DataLoader(data, batch_size=batch_size, drop_last=drop_last)\n    return [len(batch[0]) for batch in loader]\n\nprint(batch_sizes(10, 4, False))\nprint(batch_sizes(10, 4, True))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch.utils.data import TensorDataset, DataLoader\n\n\ndef batch_sizes(n, batch_size, drop_last):\n    data = TensorDataset(torch.arange(n))\n    loader = DataLoader(data, batch_size=batch_size, drop_last=drop_last)\n    return [len(batch[0]) for batch in loader]\n\nprint(batch_sizes(10, 4, False))\nprint(batch_sizes(10, 4, True))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "batch_sizes",
+      "cases": [
+        {
+          "args": [
+            5,
+            2,
+            false
+          ],
+          "returns": [
+            2,
+            2,
+            1
+          ]
+        },
+        {
+          "args": [
+            5,
+            2,
+            true
+          ],
+          "returns": [
+            2,
+            2
+          ]
+        },
+        {
+          "args": [
+            3,
+            5,
+            false
+          ],
+          "returns": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[4, 4, 2]\n[4, 4]"
+    }
+  ]
+}

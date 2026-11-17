@@ -1,0 +1,53 @@
+{
+  "id": "momentum-path",
+  "title": {
+    "tr": "Momentumun yolu",
+    "en": "The path of momentum"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`optimizer = torch.optim.SGD([w], lr=0.1, momentum=momentum)`.",
+      "en": "`optimizer = torch.optim.SGD([w], lr=0.1, momentum=momentum)`."
+    },
+    {
+      "tr": "Her `step()`'ten sonra `positions.append(round(w.item(), 4))`.",
+      "en": "After each `step()`, `positions.append(round(w.item(), 4))`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\n\n\ndef path(momentum):\n    w = torch.tensor(0.0, requires_grad=True)\n    optimizer = torch.optim.SGD([w], lr=0.1, momentum=momentum)\n    positions = []\n    for _ in range(4):\n        optimizer.zero_grad()\n        ((w - 3) ** 2).backward()\n        optimizer.step()\n        positions.append(round(w.item(), 4))\n    return positions\n\nprint(path(0.0))\nprint(path(0.9))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\n\n\ndef path(momentum):\n    w = torch.tensor(0.0, requires_grad=True)\n    optimizer = torch.optim.SGD([w], lr=0.1, momentum=momentum)\n    positions = []\n    for _ in range(4):\n        optimizer.zero_grad()\n        ((w - 3) ** 2).backward()\n        optimizer.step()\n        positions.append(round(w.item(), 4))\n    return positions\n\nprint(path(0.0))\nprint(path(0.9))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "path",
+      "cases": [
+        {
+          "args": [
+            0.5
+          ],
+          "returns": [
+            0.6,
+            1.38,
+            2.094,
+            2.6322
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.6, 1.08, 1.464, 1.7712]\n[0.6, 1.62, 2.814, 3.9258]"
+    }
+  ]
+}

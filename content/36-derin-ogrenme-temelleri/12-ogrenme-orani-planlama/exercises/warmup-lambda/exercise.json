@@ -1,0 +1,70 @@
+{
+  "id": "warmup-lambda",
+  "title": {
+    "tr": "LambdaLR ile ısınma",
+    "en": "Warmup with LambdaLR"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Katsayı fonksiyonu: `def factor(epoch): return min(1.0, (epoch + 1) / warm)`.",
+      "en": "The factor function: `def factor(epoch): return min(1.0, (epoch + 1) / warm)`."
+    },
+    {
+      "tr": "Döngüde `optimizer.step()`'ten sonra `scheduler.step()`.",
+      "en": "In the loop, `scheduler.step()` after `optimizer.step()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.optim import lr_scheduler\n\n\ndef warmup_rates(base, warm, epochs):\n    w = nn.Parameter(torch.zeros(1))\n    optimizer = torch.optim.SGD([w], lr=base)\n\n    def factor(epoch):\n        return min(1.0, (epoch + 1) / warm)\n\n    scheduler = lr_scheduler.LambdaLR(optimizer, factor)\n    rates = []\n    for epoch in range(epochs):\n        rates.append(round(optimizer.param_groups[0][\"lr\"], 4))\n        optimizer.step()\n        scheduler.step()\n    return rates\n\nprint(warmup_rates(0.1, 4, 6))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\nfrom torch.optim import lr_scheduler\n\n\ndef warmup_rates(base, warm, epochs):\n    w = nn.Parameter(torch.zeros(1))\n    optimizer = torch.optim.SGD([w], lr=base)\n\n    def factor(epoch):\n        return min(1.0, (epoch + 1) / warm)\n\n    scheduler = lr_scheduler.LambdaLR(optimizer, factor)\n    rates = []\n    for epoch in range(epochs):\n        rates.append(round(optimizer.param_groups[0][\"lr\"], 4))\n        optimizer.step()\n        scheduler.step()\n    return rates\n\nprint(warmup_rates(0.1, 4, 6))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "warmup_rates",
+      "cases": [
+        {
+          "args": [
+            0.1,
+            4,
+            6
+          ],
+          "returns": [
+            0.025,
+            0.05,
+            0.075,
+            0.1,
+            0.1,
+            0.1
+          ]
+        },
+        {
+          "args": [
+            1.0,
+            3,
+            4
+          ],
+          "returns": [
+            0.3333,
+            0.6667,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.025, 0.05, 0.075, 0.1, 0.1, 0.1]"
+    }
+  ]
+}

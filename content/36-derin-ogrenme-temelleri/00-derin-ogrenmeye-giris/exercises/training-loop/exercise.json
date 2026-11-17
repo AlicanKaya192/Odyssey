@@ -1,0 +1,36 @@
+{
+  "id": "training-loop",
+  "title": {
+    "tr": "Eğitim döngüsü",
+    "en": "The training loop"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "İlk adım `optimizer.zero_grad()`, son adım `optimizer.step()`.",
+      "en": "The first step is `optimizer.zero_grad()`, the last is `optimizer.step()`."
+    },
+    {
+      "tr": "Arada `loss = loss_fn(model(X[:1200]), y[:1200])` ve `loss.backward()`.",
+      "en": "In between: `loss = loss_fn(model(X[:1200]), y[:1200])` and `loss.backward()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\nfrom sklearn.datasets import load_digits\n\ntorch.manual_seed(0)\ndigits = load_digits()\nX = torch.tensor(digits.data, dtype=torch.float32) / 16\ny = torch.tensor(digits.target)\nmodel = nn.Sequential(nn.Linear(64, 16), nn.ReLU(), nn.Linear(16, 10))\noptimizer = torch.optim.SGD(model.parameters(), lr=0.5)\nloss_fn = nn.CrossEntropyLoss()\n\nfirst = loss_fn(model(X[:1200]), y[:1200]).item()\nfor epoch in range(100):\n    optimizer.zero_grad()\n    loss = loss_fn(model(X[:1200]), y[:1200])\n    loss.backward()\n    optimizer.step()\n\nlast = loss_fn(model(X[:1200]), y[:1200]).item()\ncorrect = (model(X[1200:]).argmax(dim=1) == y[1200:]).sum().item()\nprint(last < first / 4)\nprint(correct > 500)\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\nfrom sklearn.datasets import load_digits\n\ntorch.manual_seed(0)\ndigits = load_digits()\nX = torch.tensor(digits.data, dtype=torch.float32) / 16\ny = torch.tensor(digits.target)\nmodel = nn.Sequential(nn.Linear(64, 16), nn.ReLU(), nn.Linear(16, 10))\noptimizer = torch.optim.SGD(model.parameters(), lr=0.5)\nloss_fn = nn.CrossEntropyLoss()\n\nfirst = loss_fn(model(X[:1200]), y[:1200]).item()\nfor epoch in range(100):\n    optimizer.zero_grad()\n    loss = loss_fn(model(X[:1200]), y[:1200])\n    loss.backward()\n    optimizer.step()\n\nlast = loss_fn(model(X[:1200]), y[:1200]).item()\ncorrect = (model(X[1200:]).argmax(dim=1) == y[1200:]).sum().item()\nprint(last < first / 4)\nprint(correct > 500)\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "True\nTrue"
+    }
+  ]
+}

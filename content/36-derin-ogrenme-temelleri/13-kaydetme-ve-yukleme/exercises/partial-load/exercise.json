@@ -1,0 +1,62 @@
+{
+  "id": "partial-load",
+  "title": {
+    "tr": "Kısmi yükleme",
+    "en": "A partial load"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "`load_state_dict(..., strict=False)` hata vermeden bir sonuç döndürür.",
+      "en": "`load_state_dict(..., strict=False)` returns a result instead of raising."
+    },
+    {
+      "tr": "`result = bigger.load_state_dict(torch.load(\"small.pt\", weights_only=True), strict=False)`.",
+      "en": "`result = bigger.load_state_dict(torch.load(\"small.pt\", weights_only=True), strict=False)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef missing_after_load(extra):\n    small = nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 3))\n    torch.save(small.state_dict(), \"small.pt\")\n    layers = [nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 3)]\n    for _ in range(extra):\n        layers += [nn.ReLU(), nn.Linear(3, 3)]\n    bigger = nn.Sequential(*layers)\n    result = bigger.load_state_dict(torch.load(\"small.pt\", weights_only=True), strict=False)\n    return result.missing_keys\n\nprint(missing_after_load(1))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef missing_after_load(extra):\n    small = nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 3))\n    torch.save(small.state_dict(), \"small.pt\")\n    layers = [nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 3)]\n    for _ in range(extra):\n        layers += [nn.ReLU(), nn.Linear(3, 3)]\n    bigger = nn.Sequential(*layers)\n    result = bigger.load_state_dict(torch.load(\"small.pt\", weights_only=True), strict=False)\n    return result.missing_keys\n\nprint(missing_after_load(1))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "missing_after_load",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            "4.weight",
+            "4.bias"
+          ]
+        },
+        {
+          "args": [
+            2
+          ],
+          "returns": [
+            "4.weight",
+            "4.bias",
+            "6.weight",
+            "6.bias"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "['4.weight', '4.bias']"
+    }
+  ]
+}

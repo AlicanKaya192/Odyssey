@@ -1,0 +1,77 @@
+{
+  "id": "double-softmax",
+  "title": {
+    "tr": "Çift softmax",
+    "en": "Double softmax"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Doğru: `loss_fn(z, t)`. Yanlış: `loss_fn(torch.softmax(z, dim=1), t)`.",
+      "en": "Right: `loss_fn(z, t)`. Wrong: `loss_fn(torch.softmax(z, dim=1), t)`."
+    },
+    {
+      "tr": "İkisini de `.item()` ile alıp `round(..., 3)`.",
+      "en": "Take both with `.item()`, then `round(..., 3)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef both_losses(logits, targets):\n    z, t = torch.tensor(logits), torch.tensor(targets)\n    loss_fn = nn.CrossEntropyLoss()\n    right = loss_fn(z, t).item()\n    double = loss_fn(torch.softmax(z, dim=1), t).item()\n    return [round(right, 3), round(double, 3)]\n\nprint(both_losses([[4.0, 0.0, 0.0]], [0]))\nprint(both_losses([[0.0, 2.0, 0.0]], [0]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef both_losses(logits, targets):\n    z, t = torch.tensor(logits), torch.tensor(targets)\n    loss_fn = nn.CrossEntropyLoss()\n    right = loss_fn(z, t).item()\n    double = loss_fn(torch.softmax(z, dim=1), t).item()\n    return [round(right, 3), round(double, 3)]\n\nprint(both_losses([[4.0, 0.0, 0.0]], [0]))\nprint(both_losses([[0.0, 2.0, 0.0]], [0]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "both_losses",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                1.0,
+                0.0
+              ]
+            ],
+            [
+              0
+            ]
+          ],
+          "returns": [
+            0.313,
+            0.489
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                6.0,
+                0.0,
+                0.0
+              ]
+            ],
+            [
+              0
+            ]
+          ],
+          "returns": [
+            0.005,
+            0.555
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[0.036, 0.574]\n[2.24, 1.38]"
+    }
+  ]
+}

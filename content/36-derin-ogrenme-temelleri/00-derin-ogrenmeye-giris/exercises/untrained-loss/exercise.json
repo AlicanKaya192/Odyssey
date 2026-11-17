@@ -1,0 +1,62 @@
+{
+  "id": "untrained-loss",
+  "title": {
+    "tr": "Eğitilmemiş modelin kaybı",
+    "en": "The loss of an untrained model"
+  },
+  "difficulty": 1,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Etiketler tam sayı tensörü olmalı: `torch.zeros(4, dtype=torch.long)`.",
+      "en": "Labels must be an integer tensor: `torch.zeros(4, dtype=torch.long)`."
+    },
+    {
+      "tr": "`nn.CrossEntropyLoss()(scores, labels)` bir tensör verir; sayıyı `.item()` ile al.",
+      "en": "`nn.CrossEntropyLoss()(scores, labels)` gives a tensor; get the number with `.item()`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef untrained_loss(n_classes):\n    scores = torch.zeros(4, n_classes)\n    labels = torch.zeros(4, dtype=torch.long)\n    loss = nn.CrossEntropyLoss()(scores, labels)\n    return round(loss.item(), 3)\n\nprint(untrained_loss(10))\nprint(untrained_loss(3))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef untrained_loss(n_classes):\n    scores = torch.zeros(4, n_classes)\n    labels = torch.zeros(4, dtype=torch.long)\n    loss = nn.CrossEntropyLoss()(scores, labels)\n    return round(loss.item(), 3)\n\nprint(untrained_loss(10))\nprint(untrained_loss(3))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "untrained_loss",
+      "cases": [
+        {
+          "args": [
+            2
+          ],
+          "returns": 0.693
+        },
+        {
+          "args": [
+            5
+          ],
+          "returns": 1.609
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "2.303\n1.099"
+    },
+    {
+      "type": "ast_forbid",
+      "call": "log",
+      "hint": {
+        "tr": "Kaybı `nn.CrossEntropyLoss` hesaplasın; `log` yazma.",
+        "en": "Let `nn.CrossEntropyLoss` compute the loss; do not write `log`."
+      }
+    }
+  ]
+}

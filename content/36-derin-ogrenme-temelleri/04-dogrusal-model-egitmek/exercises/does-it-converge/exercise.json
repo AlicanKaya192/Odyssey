@@ -1,0 +1,54 @@
+{
+  "id": "does-it-converge",
+  "title": {
+    "tr": "İniyor mu?",
+    "en": "Does it come down?"
+  },
+  "difficulty": 3,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Eğitim döngüsünü fonksiyonun içine yaz; `w` ve `b` her çağrıda sıfırdan başlıyor.",
+      "en": "Write the training loop inside the function; `w` and `b` start from zero on every call."
+    },
+    {
+      "tr": "Döngüden sonra kaybı yeniden hesaplayıp `last < first` döndür.",
+      "en": "After the loop compute the loss again and return `last < first`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport numpy as np\nimport torch\n\nrng = np.random.default_rng(2)\nx = torch.tensor(rng.uniform(0, 3, 50), dtype=torch.float32)\ny = 4 * x - 1\n\n\ndef converges(lr, steps=50):\n    w = torch.zeros(1, requires_grad=True)\n    b = torch.zeros(1, requires_grad=True)\n    first = ((w * x + b - y) ** 2).mean().item()\n    for _ in range(steps):\n        loss = ((w * x + b - y) ** 2).mean()\n        loss.backward()\n        with torch.no_grad():\n            w -= lr * w.grad\n            b -= lr * b.grad\n        w.grad.zero_()\n        b.grad.zero_()\n    last = ((w * x + b - y) ** 2).mean().item()\n    return last < first\n\nfor lr in [0.001, 0.05, 0.5]:\n    print(lr, converges(lr))\n```",
+      "en": "The full solution:\n\n```python\nimport numpy as np\nimport torch\n\nrng = np.random.default_rng(2)\nx = torch.tensor(rng.uniform(0, 3, 50), dtype=torch.float32)\ny = 4 * x - 1\n\n\ndef converges(lr, steps=50):\n    w = torch.zeros(1, requires_grad=True)\n    b = torch.zeros(1, requires_grad=True)\n    first = ((w * x + b - y) ** 2).mean().item()\n    for _ in range(steps):\n        loss = ((w * x + b - y) ** 2).mean()\n        loss.backward()\n        with torch.no_grad():\n            w -= lr * w.grad\n            b -= lr * b.grad\n        w.grad.zero_()\n        b.grad.zero_()\n    last = ((w * x + b - y) ** 2).mean().item()\n    return last < first\n\nfor lr in [0.001, 0.05, 0.5]:\n    print(lr, converges(lr))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "converges",
+      "cases": [
+        {
+          "args": [
+            0.01
+          ],
+          "returns": true
+        },
+        {
+          "args": [
+            1.0
+          ],
+          "returns": false
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "0.001 True\n0.05 True\n0.5 False"
+    }
+  ]
+}

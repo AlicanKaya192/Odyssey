@@ -1,0 +1,76 @@
+{
+  "id": "layer-norm-by-hand",
+  "title": {
+    "tr": "Elle LayerNorm",
+    "en": "LayerNorm by hand"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "Satır boyunca: `dim=1, keepdim=True`.",
+      "en": "Along the row: `dim=1, keepdim=True`."
+    },
+    {
+      "tr": "BatchNorm'dan tek farkı boyut: `dim=0` yerine `dim=1`.",
+      "en": "The only difference from BatchNorm is the dimension: `dim=1` instead of `dim=0`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef layer_norm(rows):\n    x = torch.tensor(rows)\n    mean = x.mean(dim=1, keepdim=True)\n    var = x.var(dim=1, unbiased=False, keepdim=True)\n    out = (x - mean) / torch.sqrt(var + 1e-5)\n    assert torch.allclose(out, nn.LayerNorm(x.shape[1])(x), atol=1e-5)\n    return [[round(v, 2) for v in row] for row in out.tolist()]\n\nprint(layer_norm([[1.0, 2.0, 3.0], [10.0, 10.0, 40.0]]))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch import nn\n\n\ndef layer_norm(rows):\n    x = torch.tensor(rows)\n    mean = x.mean(dim=1, keepdim=True)\n    var = x.var(dim=1, unbiased=False, keepdim=True)\n    out = (x - mean) / torch.sqrt(var + 1e-5)\n    assert torch.allclose(out, nn.LayerNorm(x.shape[1])(x), atol=1e-5)\n    return [[round(v, 2) for v in row] for row in out.tolist()]\n\nprint(layer_norm([[1.0, 2.0, 3.0], [10.0, 10.0, 40.0]]))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "layer_norm",
+      "cases": [
+        {
+          "args": [
+            [
+              [
+                0.0,
+                4.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              -1.0,
+              1.0
+            ]
+          ]
+        },
+        {
+          "args": [
+            [
+              [
+                2.0,
+                2.0,
+                8.0
+              ]
+            ]
+          ],
+          "returns": [
+            [
+              -0.71,
+              -0.71,
+              1.41
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[[-1.22, 0.0, 1.22], [-0.71, -0.71, 1.41]]"
+    }
+  ]
+}

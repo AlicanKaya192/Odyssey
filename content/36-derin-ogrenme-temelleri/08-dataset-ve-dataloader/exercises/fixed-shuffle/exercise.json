@@ -1,0 +1,64 @@
+{
+  "id": "fixed-shuffle",
+  "title": {
+    "tr": "Sabit karıştırma",
+    "en": "A fixed shuffle"
+  },
+  "difficulty": 2,
+  "prompt": {
+    "tr": "prompt.tr.md",
+    "en": "prompt.en.md"
+  },
+  "starter": "starter.{lang}.py",
+  "solution": "solution.py",
+  "timeout_sec": 60,
+  "hints": [
+    {
+      "tr": "DataLoader'a bir `generator` ver.",
+      "en": "Give the DataLoader a `generator`."
+    },
+    {
+      "tr": "`generator=torch.Generator().manual_seed(seed)`.",
+      "en": "`generator=torch.Generator().manual_seed(seed)`."
+    },
+    {
+      "tr": "Çözümün tamamı:\n\n```python\nimport torch\nfrom torch.utils.data import TensorDataset, DataLoader\n\n\ndef first_batch(seed):\n    data = TensorDataset(torch.arange(8))\n    loader = DataLoader(data, batch_size=4, shuffle=True,\n                        generator=torch.Generator().manual_seed(seed))\n    return next(iter(loader))[0].tolist()\n\nprint(first_batch(0))\nprint(first_batch(0) == first_batch(0))\n```",
+      "en": "The full solution:\n\n```python\nimport torch\nfrom torch.utils.data import TensorDataset, DataLoader\n\n\ndef first_batch(seed):\n    data = TensorDataset(torch.arange(8))\n    loader = DataLoader(data, batch_size=4, shuffle=True,\n                        generator=torch.Generator().manual_seed(seed))\n    return next(iter(loader))[0].tolist()\n\nprint(first_batch(0))\nprint(first_batch(0) == first_batch(0))\n```"
+    }
+  ],
+  "checks": [
+    {
+      "type": "function",
+      "name": "first_batch",
+      "cases": [
+        {
+          "args": [
+            1
+          ],
+          "returns": [
+            4,
+            0,
+            3,
+            6
+          ]
+        },
+        {
+          "args": [
+            2
+          ],
+          "returns": [
+            5,
+            3,
+            4,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "type": "stdout",
+      "match": "trimmed_lines",
+      "expected": "[5, 3, 1, 7]\nTrue"
+    }
+  ]
+}
