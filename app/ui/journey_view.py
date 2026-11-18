@@ -1731,8 +1731,8 @@ class TrackGroupSection(QWidget):
         baslik.addStretch(1)
         baslik.addWidget(self._count, 0, Qt.AlignmentFlag.AlignBaseline)
         self._count.setVisible(group is not None)
-        self._header.setVisible(group is None or bool(group.title))
         layout.addWidget(self._header)
+        self._header.setVisible(group is None or bool(group.title))
 
         self._body = QWidget()
         self._body.setProperty("role", "bare")
@@ -2864,8 +2864,10 @@ class PlacementBanner(QFrame):
         self.button = QPushButton(button)
         self.button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.button.clicked.connect(self.requested)
-        self.button.setVisible(bool(button))
+        # Önce karta eklenir, sonra görünürlüğü verilir: üst penceresi
+        # yokken `setVisible(True)` düğmeyi bir an ayrı pencere olarak açıyordu.
         satir.addWidget(self.button, 0, Qt.AlignmentFlag.AlignVCenter)
+        self.button.setVisible(bool(button))
         self.secondary_button = None
         if secondary:
             self.secondary_button = QPushButton(secondary)

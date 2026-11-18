@@ -24,14 +24,12 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [1.8.1] — 18 Kasım 2026
 
 ### Düzeltildi
-- **Yarım kalan güncellemeden sonra Odyssey açılmıyordu.** Windows'ta
-  güncelleme yarıda kesilir ya da kurulum sürerken Odyssey açılırsa program
-  anlaşılmaz bir Python hatasıyla kapanıyordu ("shiboken6 … does not
-  exist"). Artık kurulum sürüyorsa "Odyssey güncelleniyor" diyor, yarıda
-  kalmışsa da kurulumu yeniden başlatmayı öneriyor. Bu hatayı şimdi
-  görüyorsanız tam kurulum dosyasını (`Odyssey-1.8.1-setup.exe`) sürüm
-  sayfasından indirip çalıştırın; ilerlemeniz, notlarınız ve ayarlarınız
-  korunuyor.
+- **Güncellemede eksik dosya hatası.** 1.8.0'a güncellerken bazı
+  bilgisayarlarda dosyalar eksik kalıyor ve Odyssey açılmıyordu; düzeltildi.
+  Bu hatayı görüyorsanız `Odyssey-1.8.1-setup.exe` dosyasını sürüm
+  sayfasından indirip çalıştırın, ilerlemeniz korunuyor.
+- **Sayfa değiştirirken beliren küçük pencere.** Modüller arasında geçerken
+  bir an küçük boş bir pencere açılıp kapanıyordu; artık açılmıyor.
 
 ## [1.8.0] — 17 Kasım 2026
 

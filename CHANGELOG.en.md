@@ -26,14 +26,12 @@ lecture note does not mean downloading the whole application again.
 ## [1.8.1] — 18 November 2026
 
 ### Fixed
-- **Odyssey did not open after an update that did not finish.** On
-  Windows, if an update was interrupted or Odyssey was opened while it was
-  still installing, the program closed with a cryptic Python error
-  ("shiboken6 … does not exist"). Now it says "Odyssey is being updated"
-  while the installation is running, and offers to restart the installation
-  if it did not finish. If you see this error now, download the full
-  installer (`Odyssey-1.8.1-setup.exe`) from the release page and run it;
-  your progress, notes and settings are kept.
+- **Missing files after updating.** On some computers, updating to 1.8.0
+  left files missing and Odyssey did not open; this is fixed. If you see
+  this error, download `Odyssey-1.8.1-setup.exe` from the release page and
+  run it; your progress is kept.
+- **A small window flashing while changing pages.** Switching between
+  modules briefly opened and closed a small empty window; it no longer does.
 
 ## [1.8.0] — 17 November 2026
 

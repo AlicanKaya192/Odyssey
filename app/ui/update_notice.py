@@ -115,9 +115,11 @@ class UpdateNoticeDialog(QDialog):
         self._update_button.setProperty("variant", "primary")
         self._update_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._update_button.clicked.connect(self._start_update)
-        self._update_button.setVisible(self._can_update)
         buttons.addWidget(self._update_button)
         layout.addLayout(buttons)
+        # Satır pencereye bağlandıktan sonra: üst penceresi yokken
+        # `setVisible(True)` düğmeyi bir an ayrı pencere olarak açıyordu.
+        self._update_button.setVisible(self._can_update)
 
         (self._update_button if self._can_update else self._open_button).setDefault(True)
         if not self._can_update:
