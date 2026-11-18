@@ -461,6 +461,16 @@ def main() -> int:
         print("Paketin içerik klasörü bulunamadı:", packaged_content)
         return 1
 
+    # Açılıştaki yarım kurulum denetimi bu dosyalara bakıyor; biri pakette
+    # yoksa (PySide6 dosya adlarını değiştirirse) sağlam kurulum da açılmazdı.
+    if sys.platform == "win32":
+        from app.install_guard import missing_files
+
+        eksik_dosyalar = missing_files(output / "_internal")
+        if eksik_dosyalar:
+            print("install_guard.REQUIRED_FILES pakette yok:", ", ".join(eksik_dosyalar))
+            return 1
+
     # macOS: sürüm ve imza katalog paketinden sonra; `.app`'e sonradan giren
     # her dosya imzayı bozuyor.
     if sys.platform == "darwin":

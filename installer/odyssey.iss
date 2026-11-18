@@ -31,6 +31,14 @@
   #define AppGuid "960B6191-7788-4E14-B672-4B50AF6DC638"
 #endif
 #define AppExe "Odyssey.exe"
+; Yarım kurulum işareti ve kurulum sürerken tutulan kilit: program açılışta
+; ikisine bakıyor (`app/install_guard.py`, adlar orada da aynı).
+#define PendingFile "install-pending.txt"
+#ifdef TestMode
+  #define SetupLock "OdysseyPatchTest.Setup"
+#else
+  #define SetupLock "Odyssey.Setup"
+#endif
 
 #ifndef AppVersion
   #define AppVersion "0.0.0"
@@ -116,6 +124,9 @@ Type: filesandordirs; Name: "{app}\_internal"
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 #endif
 
+[UninstallDelete]
+Type: files; Name: "{app}\{#PendingFile}"
+
 #ifndef TestMode
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"
@@ -151,6 +162,11 @@ function WaitForSingleObject(hObject: THandle; dwMilliseconds: Cardinal): Cardin
   external 'WaitForSingleObject@kernel32.dll stdcall';
 function CloseHandle(hObject: THandle): Boolean;
   external 'CloseHandle@kernel32.dll stdcall';
+function CreateMutexW(lpAttributes: Cardinal; bInitialOwner: Boolean; lpName: String): THandle;
+  external 'CreateMutexW@kernel32.dll stdcall';
+
+var
+  SetupLockHandle: THandle;
 
 { Güncellemeyi başlatan eski uygulamanın kapanmasını bekler. Dosyaları kilitli
   tutuyor; beklemeden yazmak yarım bir kurulum bırakırdı. }
@@ -265,8 +281,35 @@ begin
   RemoveDir(OldDir);
 end;
 
+{ Dosyalar yazılırken program açılırsa ya da kurulum yarıda kesilirse
+  (eski _internal silinmiş, yenisi yarım) program bunu Qt'den önce görsün:
+  kurulum sürerken kilit tutuluyor, başında işaret dosyası yazılıyor. İkisi
+  de dosyalar bitince, kurulum programı Odyssey'yi açmadan ([Run]) önce
+  kalkıyor; kurulum kesilirse işaret dosyası kalıyor. }
+procedure MarkInstallStarted();
+begin
+  SetupLockHandle := CreateMutexW(0, False, '{#SetupLock}');
+  ForceDirectories(ExpandConstant('{app}'));
+  SaveStringToFile(ExpandConstant('{app}\{#PendingFile}'), '{#AppVersion}', False);
+end;
+
+procedure MarkInstallFinished();
+begin
+  DeleteFile(ExpandConstant('{app}\{#PendingFile}'));
+  if SetupLockHandle <> 0 then
+  begin
+    CloseHandle(SetupLockHandle);
+    SetupLockHandle := 0;
+  end;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
+  if CurStep = ssInstall then
+    MarkInstallStarted();
   if CurStep = ssPostInstall then
+  begin
+    MarkInstallFinished();
     RemoveOldZipInstall();
+  end;
 end;

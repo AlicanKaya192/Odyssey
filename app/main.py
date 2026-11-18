@@ -15,6 +15,12 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+# Qt'den önce: güncelleme yarım kaldıysa ya da hâlâ sürüyorsa PySide6 içe
+# aktarılırken anlamsız bir hatayla düşmek yerine kişiye söyleniyor.
+from app import install_guard  # noqa: E402
+
+install_guard.check()
+
 from app.core.language import (  # noqa: E402
     AVAILABLE_LANGUAGES,
     LanguageManager,
