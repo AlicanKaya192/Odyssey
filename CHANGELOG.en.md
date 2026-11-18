@@ -26,10 +26,10 @@ lecture note does not mean downloading the whole application again.
 ## [1.8.1] — 18 November 2026
 
 ### Fixed
-- **Missing files after updating.** On some computers, updating to 1.8.0
-  left files missing and Odyssey did not open; this is fixed. If you see
-  this error, download `Odyssey-1.8.1-setup.exe` from the release page and
-  run it; your progress is kept.
+- **Missing-files error during the update.** If Odyssey was opened while
+  the update to 1.8.0 was still installing, it showed a missing-files error.
+  Now it says "Odyssey is being updated", and offers to restart the
+  installation if it did not finish.
 - **A small window flashing while changing pages.** Switching between
   modules briefly opened and closed a small empty window; it no longer does.
 

@@ -24,10 +24,10 @@ düzeltildiğinde uygulamanın tamamı yeniden indirilmiyor.
 ## [1.8.1] — 18 Kasım 2026
 
 ### Düzeltildi
-- **Güncellemede eksik dosya hatası.** 1.8.0'a güncellerken bazı
-  bilgisayarlarda dosyalar eksik kalıyor ve Odyssey açılmıyordu; düzeltildi.
-  Bu hatayı görüyorsanız `Odyssey-1.8.1-setup.exe` dosyasını sürüm
-  sayfasından indirip çalıştırın, ilerlemeniz korunuyor.
+- **Güncelleme sırasında eksik dosya hatası.** 1.8.0'a güncellenirken
+  kurulum bitmeden Odyssey açılırsa eksik dosya hatası çıkıyordu. Artık
+  "Odyssey güncelleniyor" diyor; kurulum yarıda kaldıysa yeniden başlatmayı
+  öneriyor.
 - **Sayfa değiştirirken beliren küçük pencere.** Modüller arasında geçerken
   bir an küçük boş bir pencere açılıp kapanıyordu; artık açılmıyor.
 
